@@ -8,8 +8,8 @@ add_executable(hello)
 rp6502_executable(hello
     DATA 0x200
     RESET 0x200
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/main.hlp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/hello.hlp
 )
 target_sources(hello PRIVATE
-    src/main.c
+    src/hello.c
 )
