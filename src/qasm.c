@@ -31,7 +31,7 @@ extern void capture_cpu_state(void);
 
 CpuState cpu_state;
 
-extern void test(void);
+extern void run(void);
 
 void print_bin8(uint8_t v){
     int i = 0;
@@ -108,7 +108,7 @@ void main(){
 
     printf("\n>");
 
-    test();
+    run();
     show_CPU_status();
 
     while(1){}

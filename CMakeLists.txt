@@ -15,3 +15,14 @@ target_sources(qasm PRIVATE
     src/qasm_cpustate.s
     src/test.s
 )
+
+add_executable(test)
+rp6502_executable(test
+    DATA 0x8000
+    RESET 0x8000
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/test.hlp
+)
+target_sources(test PRIVATE
+    src/test.c
+    src/test.s
+)

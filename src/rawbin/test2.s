@@ -1,10 +1,9 @@
-.export _run
-
 .include "rp6502.inc"
 
-.segment "CODE"
+    .setcpu "65C02"
+    .segment "CODE"
 
-_run:
+_test:
 
     ; 6502 doesn't reset these
     ldx #$FF
@@ -29,8 +28,6 @@ _run:
 _exit:
     lda #RIA_OP_EXIT
     sta RIA_OP
-
-.segment "RODATA"
 
 message:
     .byte "Hello, QASM is here!", $0D, $0A, 0
