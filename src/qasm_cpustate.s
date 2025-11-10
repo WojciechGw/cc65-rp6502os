@@ -16,6 +16,7 @@ saveS:   .res 1
 
 ; void capture_cpu_state(void);
 _capture_cpu_state:
+
         ; --- zachowaj bieżące A,X,Y,S,P do tymczasów ---
 
         sta saveA       ; A z miejsca wywołania

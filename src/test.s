@@ -1,12 +1,11 @@
-.export _init, _exit
-.export __STARTUP__ : absolute = 1
+.export  _test
 
 .include "rp6502.inc"
 
 .segment "CODE"
 
-; Entry point
-_init:
+_test:
+
     ; 6502 doesn't reset these
     ldx #$FF
     txs
@@ -24,6 +23,7 @@ _init:
     inx
     bne @loop           ; Continue loop
 @done:
+    rts
 
 ; Halts the 6502 by pulling RESB low
 _exit:
@@ -33,4 +33,4 @@ _exit:
 .segment "RODATA"
 
 message:
-    .byte "Hello, world!", $0D, $0A, 0
+    .byte "Hello, QASM is here!", $0D, $0A, 0
