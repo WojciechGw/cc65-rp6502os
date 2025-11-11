@@ -30,11 +30,6 @@ _capture_cpu_state:
         pla
         sta saveP       ; P z miejsca wywołania
 
-        ; przywróć rejestry (żeby dalej program szedł w tym samym stanie)
-        lda saveA
-        ldx saveX
-        ldy saveY
-
         ; --- pobierz PC (adres po JSR) i wpisz do cpu_state ---
 
         jsr get_pc      ; wstawi PC do cpu_state.pc (offset 0,1)
@@ -55,6 +50,11 @@ _capture_cpu_state:
 
         lda saveS
         sta _cpu_state+6
+
+        ; przywróć rejestry (żeby dalej program szedł w tym samym stanie)
+        lda saveA
+        ldx saveX
+        ldy saveY
 
         rts
 

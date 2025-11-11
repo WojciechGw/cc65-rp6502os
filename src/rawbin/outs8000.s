@@ -3,14 +3,13 @@
     .setcpu "65C02"
     .segment "CODE"
 
-_test:
-
+@outsider:
     ; 6502 doesn't reset these
     ldx #$FF
     txs
     cld
 
-; Print "Hello, world!" message
+; Print message
     ldx #0
 @loop:
     lda message,x
@@ -22,12 +21,8 @@ _test:
     inx
     bne @loop           ; Continue loop
 @done:
+    tsx
     rts
 
-; Halts the 6502 by pulling RESB low
-_exit:
-    lda #RIA_OP_EXIT
-    sta RIA_OP
-
 message:
-    .byte "Hello, QASM is here!", $0D, $0A, 0
+    .byte "Outsider is here!", $0D, $0A, 0

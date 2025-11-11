@@ -14,6 +14,7 @@ target_sources(qasm PRIVATE
     src/qasm.c
     src/qasm_cpustate.s
     src/test.s
+    src/run.s
 )
 
 add_executable(test)

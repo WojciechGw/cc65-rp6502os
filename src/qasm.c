@@ -2,12 +2,14 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
+#include <unistd.h>
+#include <fcntl.h>
 
-static const char * menu[4] =  {"\xFE", "File", "Edit", "Tools"};
-static const char * menu_dot[2] = {"setup", "about"};
-static const char * menu_file[4] =  {"new", "load", "save", "save as ..."};
-static const char * menu_edit[3] =  {"cut", "copy", "paste"};
-static const char * menu_tools[3] =  {"build", "run", "trace"};
+static const char *menu[4] =  {"\xFE", "File", "Edit", "Tools"};
+static const char *menu_dot[2] = {"setup", "about"};
+static const char *menu_file[4] =  {"new", "load", "save", "save as ..."};
+static const char *menu_edit[3] =  {"cut", "copy", "paste"};
+static const char *menu_tools[3] =  {"build", "run", "trace"};
 
 #define VEC_IRQ 0xFFFA
 #define VEC_RST 0xFFFC
@@ -25,13 +27,14 @@ typedef struct {
     uint8_t  y;   /* 5 */
     uint8_t  s;   /* 6 */
 } CpuState;
-
 extern CpuState cpu_state;
 extern void capture_cpu_state(void);
 
 CpuState cpu_state;
 
 extern void run(void);
+extern void test(void);
+extern void end(void);
 
 void print_bin8(uint8_t v){
     int i = 0;
@@ -82,34 +85,56 @@ void showMemory(uint16_t addrStart, uint16_t addrStop){
     }
 }
 
+char buf[255];
+
 void main(){
 
     uint8_t i = 0;
     uint8_t c = 1;
 
+    uint8_t fd = 0;
+    uint16_t bytecounter = 0;
+
+    uint16_t addr = 0x8000u;
+    unsigned char *dst = (unsigned char*)addr;
+
     cls();
     // printf("\33[48;2;%d;%d;%dm  ", 0x80, 0x80, 0x80);
-    printat(30, 1, menu[0]);
+    printat(30, 1, (char *)menu[0]);
     c = 3;
     for(i = 1; i < (sizeof(menu) / sizeof(menu[0])); i++) {
         printat(30, c-1, " ");
-        printat(30, c, menu[i]);
+        printat(30, c, (char *)menu[i]);
         c += strlen(menu[i]) + 1;
     }
     // puts("\33[0m");
-
     setpos(29,1);
-    for(i = 0; i < 80; i++) printf("_");
+    memset(buf, '_', 80);  // wypełnij 80 bajtów '_'
+    buf[80] = '\0';        // zakończenie stringa
+    printf("%s", buf);
+    // for(i = 0; i < 80; i++) printf("_");
 
     show_CPU_status();
 
     setpos(1,1);
-    showMemory(0x8000,0x80FF);
+    showMemory(addr, addr + 0xFF);
 
-    printf("\n>");
+    printf("> CPU\n");
+    test();
+    printf("> LOAD $8000 outs8000.bin\n");
+    fd = open("outs8000.bin", O_RDONLY);
+    if(fd){
+        bytecounter = read(fd, buf, 255);
+        close(fd);
+        // printf("SUCCESS read %d bytes\n", bytecounter);
+    } else {
+        printf("ERROR read outs8000.bin file\n");
+    }
 
+    for (i = 0; i < bytecounter; ++i) {
+        dst[i] = (unsigned char)buf[i];
+    }
+    printf("> RUN $8000\n");
     run();
-    show_CPU_status();
-
-    while(1){}
+    // while(1){}
 }
