@@ -1,14 +1,10 @@
 .include "rp6502.inc"
 
-    .setcpu "65C02"
-    .segment "CODE"
+.setcpu "65C02"
+.segment "CODE"
+.org $8000
 
 @outsider:
-    ; 6502 doesn't reset these
-    ldx #$FF
-    txs
-    cld
-
 ; Print message
     ldx #0
 @loop:
@@ -21,8 +17,9 @@
     inx
     bne @loop           ; Continue loop
 @done:
-    tsx
     rts
+
+.segment "RODATA"
 
 message:
     .byte "Outsider is here!", $0D, $0A, 0

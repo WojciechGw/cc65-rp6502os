@@ -33,7 +33,7 @@ extern void capture_cpu_state(void);
 CpuState cpu_state;
 
 extern void run(void);
-extern void test(void);
+extern void msg(void);
 extern void end(void);
 
 void print_bin8(uint8_t v){
@@ -120,15 +120,15 @@ void main(){
     showMemory(addr, addr + 0xFF);
 
     printf("> CPU\n");
-    test();
+    msg();
     printf("> LOAD $8000 outs8000.bin\n");
     fd = open("outs8000.bin", O_RDONLY);
     if(fd){
         bytecounter = read(fd, buf, 255);
         close(fd);
-        // printf("SUCCESS read %d bytes\n", bytecounter);
+        printf("  SUCCESS > read %d bytes\n", bytecounter);
     } else {
-        printf("ERROR read outs8000.bin file\n");
+        printf("  ERROR > read outs8000.bin file\n");
     }
 
     for (i = 0; i < bytecounter; ++i) {
@@ -136,5 +136,9 @@ void main(){
     }
     printf("> RUN $8000\n");
     run();
+    printf("> RUN $8000\n");
+    run();
+    printf("> QUIT\n\n");
+    end();
     // while(1){}
 }
