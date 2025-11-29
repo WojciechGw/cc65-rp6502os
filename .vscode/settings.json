@@ -21,4 +21,5 @@
             "statusBarVisibility": "hidden",
         }
     },
+    "chatgpt.openOnStartup": true,
 }

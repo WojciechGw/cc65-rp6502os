@@ -19,11 +19,21 @@ target_sources(qasm PRIVATE
 
 add_executable(test)
 rp6502_executable(test
-    DATA 0x8000
-    RESET 0x8000
+    DATA 0x0200
+    RESET 0x0200
     ${CMAKE_CURRENT_SOURCE_DIR}/src/test.hlp
 )
 target_sources(test PRIVATE
     src/test.c
     src/test.s
+)
+
+add_executable(shell)
+rp6502_executable(shell
+    DATA 0x0200
+    RESET 0x0200
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/shell.hlp
+)
+target_sources(shell PRIVATE
+    src/shell.c
 )
