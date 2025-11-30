@@ -95,6 +95,7 @@ int cmd_dir(int, char **);
 int cmd_drive(int, char **);
 int cmd_drives(int, char **);
 int cmd_list(int, char **);
+int cmd_cd(int, char **);
 int cmd_quit(int, char **);
 
 static const cmd_t commands[] = {
@@ -107,6 +108,7 @@ static const cmd_t commands[] = {
     { "drive",  "set current drive", cmd_drive},
     { "drives", "list available drives", cmd_drives},
     { "list",   "print text file", cmd_list},
+    { "cd",     "change directory", cmd_cd},
     { "quit",   "quit shell to system monitor", cmd_quit},
 };
 
@@ -498,15 +500,37 @@ int cmd_quit(int, char **) {
     return 0;
 }
 
+int cmd_cd(int argc, char **argv) {
+    if(argc < 2) {
+        tx_string("Usage: cd <path>" NEWLINE);
+        return 0;
+    }
+    if(chdir(argv[1]) < 0) {
+        tx_string("chdir failed" NEWLINE);
+        return -1;
+    }
+    if(f_getcwd(dir_cwd, sizeof(dir_cwd)) >= 0 && dir_cwd[1] == ':') {
+        current_drive = dir_cwd[0];
+    }
+    return 0;
+}
+
 int cmd_drives(int argc, char **argv) {
     int rc;
     char drv[3] = "0:";
     unsigned i;
+    char saved_drive = '0';
+    const char *saved_path = "/";
     (void)argc; (void)argv;
 
     if(f_getcwd(saved_cwd, sizeof(saved_cwd)) < 0) {
         tx_string("getcwd failed" NEWLINE);
         return -1;
+    }
+    if(saved_cwd[1] == ':') {
+        saved_drive = saved_cwd[0];
+        saved_path = saved_cwd + 2;
+        if(!*saved_path) saved_path = "/";
     }
 
     for(i = 0; i < 8; i++) {
@@ -524,14 +548,12 @@ int cmd_drives(int argc, char **argv) {
         }
     }
 
-    if(saved_cwd[1] == ':') {
-        drv[0] = saved_cwd[0];
-        drv[1] = ':';
-        drv[2] = 0;
-        if(f_chdrive(drv) == 0) {
-            chdir(saved_cwd);
-            current_drive = drv[0];
-        }
+    drv[0] = saved_drive;
+    drv[1] = ':';
+    drv[2] = 0;
+    if(f_chdrive(drv) == 0) {
+        chdir(saved_path);
+        current_drive = drv[0];
     }
     return 0;
 }
@@ -551,7 +573,7 @@ int cmd_drive(int argc, char **argv) {
         return 0;
     }
     if(strlen(argv[1]) < 2 || argv[1][1] != ':' || argv[1][0] < '0' || argv[1][0] > '7') {
-        tx_string("Usage: drive 0:" NEWLINE);
+        tx_string("Usage: drive 0:-7:" NEWLINE);
         return 0;
     }
     drv[0] = argv[1][0];

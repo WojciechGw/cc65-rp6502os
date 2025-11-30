@@ -37,4 +37,5 @@ rp6502_executable(shell
 target_sources(shell PRIVATE
     src/shell.c
     src/quit.s
+    src/run.s
 )
