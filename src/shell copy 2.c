@@ -12,8 +12,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include <fcntl.h>
 
 #define CMD_BUF_MAX 511
 #define CMD_TOKEN_MAX 64
@@ -64,27 +62,6 @@ typedef void (*read_data_func_t)(uint8_t *buf, uint16_t addr, uint16_t size);
 // Statically allocate buffers to keep cc65 stack usage low.
 static char dir_cwd[128];
 static f_stat_t dir_ent;
-typedef struct {
-    char name[256];
-    unsigned long fsize;
-    unsigned char fattrib;
-    unsigned fdate;
-    unsigned ftime;
-} dir_list_entry_t;
-#define DIR_LIST_MAX 64
-static dir_list_entry_t dir_entries[DIR_LIST_MAX];
-static dir_list_entry_t dir_tmp;
-static unsigned dir_entries_count;
-static unsigned dir_i;
-static unsigned dir_j;
-static char dir_dt_buf[20];
-static char dir_arg[256];
-static char dir_drive[3];
-static char dir_path_buf[256];
-static char dir_mask_buf[256];
-static char dev_label[16];
-static char saved_cwd[128];
-static char current_drive = '0';
 
 // example : int cmd_token(int, char **);
 int cmd_help(int, char **);
@@ -92,9 +69,6 @@ int cmd_cls(int, char **);
 int cmd_mx(int, char **);
 int cmd_mr(int, char **);
 int cmd_dir(int, char **);
-int cmd_drive(int, char **);
-int cmd_drives(int, char **);
-int cmd_list(int, char **);
 int cmd_quit(int, char **);
 
 static const cmd_t commands[] = {
@@ -104,9 +78,6 @@ static const cmd_t commands[] = {
     { "mx",     "reads xram", cmd_mx },
     { "mr",     "reads ram", cmd_mr },
     { "dir",    "current drive directory", cmd_dir},
-    { "drive",  "set current drive", cmd_drive},
-    { "drives", "list available drives", cmd_drives},
-    { "list",   "print text file", cmd_list},
     { "quit",   "quit shell to system monitor", cmd_quit},
 };
 
@@ -135,79 +106,6 @@ void tx_hex32(unsigned long val) {
         val >>= 4;
     }
     tx_chars(out, sizeof(out));
-}
-
-// Simple wildcard match supporting '*' (0+ chars) and '?' (1 char).
-bool match_mask(const char *name, const char *mask) {
-    const char *star = 0;
-    const char *match = 0;
-    while(*name) {
-        if(*mask == '?' || *mask == *name) {
-            mask++;
-            name++;
-            continue;
-        }
-        if(*mask == '*') {
-            star = mask++;
-            match = name;
-            continue;
-        }
-        if(star) {
-            mask = star + 1;
-            name = ++match;
-            continue;
-        }
-        return false;
-    }
-    while(*mask == '*') mask++;
-    return *mask == 0;
-}
-
-// Print an unsigned long in decimal.
-void tx_dec32(unsigned long val) {
-    char out[10];
-    int i = 10;
-    if(val == 0) {
-        tx_char('0');
-        return;
-    }
-    while(val && i) {
-        out[--i] = '0' + (val % 10);
-        val /= 10;
-    }
-    tx_chars(&out[i], 10 - i);
-}
-
-// Format FAT date/time into YYYY-MM-DD hh:mm:ss
-const char *format_fat_datetime(unsigned fdate, unsigned ftime) {
-    unsigned year = 1980 + (fdate >> 9);
-    unsigned month = (fdate >> 5) & 0xF;
-    unsigned day = fdate & 0x1F;
-    unsigned hour = ftime >> 11;
-    unsigned min = (ftime >> 5) & 0x3F;
-    unsigned sec = (ftime & 0x1F) * 2;
-
-    dir_dt_buf[0]  = '0' + (year / 1000);
-    dir_dt_buf[1]  = '0' + ((year / 100) % 10);
-    dir_dt_buf[2]  = '0' + ((year / 10) % 10);
-    dir_dt_buf[3]  = '0' + (year % 10);
-    dir_dt_buf[4]  = '-';
-    dir_dt_buf[5]  = '0' + (month / 10);
-    dir_dt_buf[6]  = '0' + (month % 10);
-    dir_dt_buf[7]  = '-';
-    dir_dt_buf[8]  = '0' + (day / 10);
-    dir_dt_buf[9]  = '0' + (day % 10);
-    dir_dt_buf[10] = ' ';
-    dir_dt_buf[11] = '0' + (hour / 10);
-    dir_dt_buf[12] = '0' + (hour % 10);
-    dir_dt_buf[13] = ':';
-    dir_dt_buf[14] = '0' + (min / 10);
-    dir_dt_buf[15] = '0' + (min % 10);
-    dir_dt_buf[16] = ':';
-    dir_dt_buf[17] = '0' + (sec / 10);
-    dir_dt_buf[18] = '0' + (sec % 10);
-    dir_dt_buf[19] = 0;
-    return dir_dt_buf;
 }
 
 void xram_reader(uint8_t *buf, uint16_t addr, uint16_t size) {
@@ -270,11 +168,7 @@ void cls(){
 }
 
 void prompt() {
-    if(f_getcwd(dir_cwd, sizeof(dir_cwd)) >= 0 && dir_cwd[1] == ':') {
-        current_drive = dir_cwd[0];
-    }
-    tx_char(current_drive);
-    tx_string(":> ");
+    tx_string("> ");
     return;
 }
 
@@ -397,9 +291,6 @@ int main(void) {
     char ext_rx = 0;
     int i = 0;
     static cmdline_t cmdline = {0};
-    if(f_getcwd(dir_cwd, sizeof(dir_cwd)) >= 0 && dir_cwd[1] == ':') {
-        current_drive = dir_cwd[0];
-    }
     cls();
     prompt();
     while(1) {
@@ -418,8 +309,7 @@ int main(void) {
                         cmdline.buffer[cmdline.bytes++] = cmdline.lastbuffer[i];
                         tx_char(cmdline.buffer[i]);
                     } */
-                    tx_string("\r\x1b[K");
-                    prompt();
+                    tx_string("\r\x1b[K> ");
                     cmdline.bytes = cmdline.lastbytes;
                     memcpy(cmdline.buffer, cmdline.lastbuffer, cmdline.lastbytes);
                     cmdline.buffer[cmdline.bytes] = 0;
@@ -498,97 +388,6 @@ int cmd_quit(int, char **) {
     return 0;
 }
 
-int cmd_drives(int argc, char **argv) {
-    int rc;
-    char drv[3] = "0:";
-    unsigned i;
-    (void)argc; (void)argv;
-
-    if(f_getcwd(saved_cwd, sizeof(saved_cwd)) < 0) {
-        tx_string("getcwd failed" NEWLINE);
-        return -1;
-    }
-
-    for(i = 0; i < 8; i++) {
-        drv[0] = '0' + i;
-        rc = f_chdrive(drv);
-        if(rc == 0) {
-            tx_string(drv);
-            tx_char('\t');
-            if(f_getlabel(drv, dev_label) >= 0) {
-                tx_string(dev_label);
-            } else {
-                tx_string("(no label)");
-            }
-            tx_string(NEWLINE);
-        }
-    }
-
-    if(saved_cwd[1] == ':') {
-        drv[0] = saved_cwd[0];
-        drv[1] = ':';
-        drv[2] = 0;
-        if(f_chdrive(drv) == 0) {
-            chdir(saved_cwd);
-            current_drive = drv[0];
-        }
-    }
-    return 0;
-}
-
-int cmd_drive(int argc, char **argv) {
-    char drv[3] = "0:";
-    if(argc < 2) {
-        if(f_getcwd(dir_cwd, sizeof(dir_cwd)) >= 0) {
-            tx_string("Current drive: ");
-            tx_char(dir_cwd[0]);
-            tx_string(":" NEWLINE);
-            current_drive = dir_cwd[0];
-        } else {
-            tx_string("getcwd failed" NEWLINE);
-            return -1;
-        }
-        return 0;
-    }
-    if(strlen(argv[1]) < 2 || argv[1][1] != ':' || argv[1][0] < '0' || argv[1][0] > '7') {
-        tx_string("Usage: drive 0:" NEWLINE);
-        return 0;
-    }
-    drv[0] = argv[1][0];
-    if(f_chdrive(drv) < 0) {
-        tx_string("Invalid drive" NEWLINE);
-        return -1;
-    }
-    current_drive = drv[0];
-    if(f_getcwd(dir_cwd, sizeof(dir_cwd)) >= 0) {
-        tx_string("Current drive: ");
-        tx_char(current_drive);
-        tx_string(":" NEWLINE);
-    }
-    return 0;
-}
-
-int cmd_list(int argc, char **argv) {
-    char buf[128];
-    int fd;
-    int n;
-    if(argc < 2) {
-        tx_string("Usage: list <file>" NEWLINE);
-        return 0;
-    }
-    fd = open(argv[1], O_RDONLY);
-    if(fd < 0) {
-        tx_string("Cannot open file" NEWLINE);
-        return -1;
-    }
-    while((n = read(fd, buf, sizeof(buf))) > 0) {
-        tx_chars(buf, n);
-    }
-    close(fd);
-    tx_string(NEWLINE NEWLINE);
-    return 0;
-}
-
 int cmd_mx(int argc, char **argv) {
     uint16_t addr = 0;
     uint16_t size = 16;
@@ -620,59 +419,17 @@ int cmd_mr(int argc, char **argv) {
 }
 
 int cmd_dir(int argc, char **argv) {
-    const char *mask = "*.*";
-    const char *path = ".";
-    char *p;
+    const char *drive = NULL;
     int dirdes = -1;
     int rc = 0;
 
-    dir_drive[0] = dir_drive[1] = dir_drive[2] = 0;
     if(argc >= 2) {
-        strcpy(dir_arg, argv[1]);
-        // Handle drive prefix like "0:" or "A:"
-        if(dir_arg[1] == ':') {
-            if(dir_arg[0] < '0' || dir_arg[0] > '7') {
-                tx_string("Invalid drive" NEWLINE);
-                return -1;
-            }
-            dir_drive[0] = dir_arg[0];
-            dir_drive[1] = ':';
-            dir_drive[2] = 0;
-            if(f_chdrive(dir_drive) < 0) {
-                tx_string("Invalid drive" NEWLINE);
-                return -1;
-            }
-            current_drive = dir_drive[0];
-            p = dir_arg + 2;
-        } else {
-            p = dir_arg;
+        drive = argv[1];
+        if(f_chdrive(drive) < 0) {
+            tx_string("Invalid drive" NEWLINE);
+            return -1;
         }
-        if(*p == '/' || *p == '\\') p++;
-        if(*p) {
-            char *last_sep = 0;
-            char *iter = p;
-            while(*iter) {
-                if(*iter == '/' || *iter == '\\') last_sep = iter;
-                iter++;
-            }
-            if(last_sep) {
-                *last_sep = 0;
-                mask = last_sep + 1;
-                path = (*p) ? p : ".";
-            } else {
-                mask = p;
-                path = ".";
-            }
-        } else {
-            mask = "*.*";
-            path = ".";
-        }
-        if(!*mask) mask = "*.*";
     }
-
-    // Copy path/mask into static buffers for reuse.
-    strcpy(dir_path_buf, path);
-    strcpy(dir_mask_buf, mask);
 
     if(f_getcwd(dir_cwd, sizeof(dir_cwd)) < 0) {
         tx_string("getcwd failed" NEWLINE);
@@ -683,13 +440,12 @@ int cmd_dir(int argc, char **argv) {
     tx_string(dir_cwd);
     tx_string(NEWLINE);
 
-    dirdes = f_opendir(dir_path_buf[0] ? dir_path_buf : ".");
+    dirdes = f_opendir(".");
     if(dirdes < 0) {
         tx_string("opendir failed" NEWLINE);
         return -1;
     }
 
-    dir_entries_count = 0;
     while(1) {
         rc = f_readdir(&dir_ent, dirdes);
         if(rc < 0) {
@@ -697,22 +453,15 @@ int cmd_dir(int argc, char **argv) {
             break;
         }
         if(!dir_ent.fname[0]) break; // No more entries
-        if(dir_entries_count == DIR_LIST_MAX) {
-            tx_string("Directory listing truncated" NEWLINE);
-            break;
-        }
 
-        // Apply mask only to files; always include directories so they are visible.
-        if(!(dir_ent.fattrib & AM_DIR)) {
-            if(!match_mask(dir_ent.fname, dir_mask_buf)) continue;
+        if(dir_ent.fattrib & AM_DIR) {
+            tx_string("<DIR>     ");
+        } else {
+            tx_hex32(dir_ent.fsize);
+            tx_string(" ");
         }
-
-        strcpy(dir_entries[dir_entries_count].name, dir_ent.fname);
-        dir_entries[dir_entries_count].fsize = dir_ent.fsize;
-        dir_entries[dir_entries_count].fattrib = dir_ent.fattrib;
-        dir_entries[dir_entries_count].fdate = dir_ent.fdate;
-        dir_entries[dir_entries_count].ftime = dir_ent.ftime;
-        dir_entries_count++;
+        tx_string(dir_ent.fname);
+        tx_string(NEWLINE);
     }
 
     if(f_closedir(dirdes) < 0 && rc >= 0) {
@@ -720,47 +469,5 @@ int cmd_dir(int argc, char **argv) {
         rc = -1;
     }
 
-    if(rc < 0) return -1;
-
-    // Sort: files first, directories after, each group alphabetically.
-    for(dir_i = 0; dir_i < dir_entries_count; dir_i++) {
-        for(dir_j = dir_i + 1; dir_j < dir_entries_count; dir_j++) {
-            unsigned a_dir = dir_entries[dir_i].fattrib & AM_DIR;
-            unsigned b_dir = dir_entries[dir_j].fattrib & AM_DIR;
-            int swap = 0;
-            if(a_dir != b_dir) {
-                // Files (a_dir==0) come before directories.
-                if(a_dir && !b_dir) swap = 1;
-            } else {
-                if(strcmp(dir_entries[dir_i].name, dir_entries[dir_j].name) > 0) swap = 1;
-            }
-            if(swap) {
-                dir_tmp = dir_entries[dir_i];
-                dir_entries[dir_i] = dir_entries[dir_j];
-                dir_entries[dir_j] = dir_tmp;
-            }
-        }
-    }
-
-    for(dir_i = 0; dir_i < dir_entries_count; dir_i++) {
-        if(dir_entries[dir_i].fattrib & AM_DIR) {
-            tx_char('[');
-            tx_string(dir_entries[dir_i].name);
-            tx_string("]" NEWLINE);
-        } else {
-            unsigned name_len = strlen(dir_entries[dir_i].name);
-            tx_string(dir_entries[dir_i].name);
-            while(name_len < 32) {
-                tx_char(' ');
-                name_len++;
-            }
-            tx_char('\t');
-            tx_string(format_fat_datetime(dir_entries[dir_i].fdate, dir_entries[dir_i].ftime));
-            tx_char('\t');
-            tx_dec32(dir_entries[dir_i].fsize);
-            tx_string(NEWLINE);
-        }
-    }
-
-    return 0;
+    return (rc < 0) ? -1 : 0;
 }
