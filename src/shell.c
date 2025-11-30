@@ -31,6 +31,9 @@
 #define CHAR_NCHR   0x5B
 #define CHAR_UP     0x41
 #define CHAR_DOWN   0x42
+#define CHAR_RIGHT  0x43
+#define CHAR_LEFT   0x44
+#define CHAR_F1     0x50
 
 #define TAB         "\t"
 #define NEWLINE     "\r\n"
@@ -85,12 +88,24 @@ static char dir_mask_buf[256];
 static char dev_label[16];
 static char saved_cwd[128];
 static char current_drive = '0';
+static char cpm_path[256];
+static char cpm_mask[256];
+static char cpm_dest[256];
+static char cpm_srcfile[256];
+static char cpm_dstfile[256];
+static char *cpm_args[3];
+static char rm_path[256];
+static char rm_mask[256];
+static char rm_file[256];
+static unsigned char bload_buf[128];
 
 // example : int cmd_token(int, char **);
 int cmd_help(int, char **);
 int cmd_cls(int, char **);
-int cmd_mx(int, char **);
-int cmd_mr(int, char **);
+int cmd_memx(int, char **);
+int cmd_memr(int, char **);
+int cmd_bload(int, char **);
+int cmd_bsave(int, char **);
 int cmd_dir(int, char **);
 int cmd_drive(int, char **);
 int cmd_drives(int, char **);
@@ -100,23 +115,29 @@ int cmd_mkdir(int, char **);
 int cmd_rmdir(int, char **);
 int cmd_rm(int, char **);
 int cmd_cp(int, char **);
+int cmd_mv(int, char **);
+int cmd_cm(int, char **);
 int cmd_quit(int, char **);
 
 static const cmd_t commands[] = {
     // example : { "token",  "tests the tokenization", cmd_token },
-    { "help",   "print a list of commands", cmd_help },
-    { "cls",    "clear terminal", cmd_cls },
-    { "mx",     "reads xram", cmd_mx },
-    { "mr",     "reads ram", cmd_mr },
     { "dir",    "current drive directory", cmd_dir},
     { "drive",  "set current drive", cmd_drive},
-    { "drives", "list available drives", cmd_drives},
-    { "list",   "print text file", cmd_list},
+    { "drives", "shows available drives", cmd_drives},
     { "cd",     "change directory", cmd_cd},
     { "mkdir",  "create directory", cmd_mkdir},
     { "rmdir",  "remove directory", cmd_rmdir},
-    { "rm",     "remove file", cmd_rm},
     { "cp",     "copy file", cmd_cp},
+    { "cm",     "copy/move files", cmd_cm},
+    { "mv",     "move/rename file", cmd_mv},
+    { "rm",     "remove file", cmd_rm},
+    { "bload",  "load binary file to ram/xram", cmd_bload},
+    { "bsave",  "save ram/xram to binary file", cmd_bsave},
+    { "memx",   "reads xram", cmd_memx },
+    { "memr",   "reads ram", cmd_memr },
+    { "list",   "shows file content", cmd_list},
+    { "cls",    "clear screen", cmd_cls },
+    { "help",   "print a list of commands", cmd_help },
     { "quit",   "quit shell to system monitor", cmd_quit},
 };
 
@@ -233,6 +254,18 @@ void ram_reader(uint8_t *buf, uint16_t addr, uint16_t size) {
     return;
 }
 
+void ram_writer(const uint8_t *buf, uint16_t addr, uint16_t size) {
+    uint8_t *dst = (uint8_t *)addr;
+    for(; size; size--) *dst++ = *buf++;
+}
+
+void xram_writer(const uint8_t *buf, uint16_t addr, uint16_t size) {
+    RIA.step0 = 1;
+    RIA.addr0 = addr;
+    for(; size; size--) RIA.rw0 = *buf++;
+}
+
+
 // Assumes str points to at least two bytes.
 int hexstr(char *str, uint8_t val) {
     str[0] = hexdigits[val >> 4];
@@ -301,6 +334,8 @@ void help(){
         tx_string(NEWLINE);
     }
     tx_string("Keyboard:" NEWLINE);
+    tx_string("left\tprevious drive" NEWLINE);
+    tx_string("right\tnext drive" NEWLINE);
     tx_string("up\trecall last command" NEWLINE);
     tx_string("down\thelp" NEWLINE);
     return;
@@ -396,6 +431,15 @@ int execute(cmdline_t *cl) {
         if(tokens < 0) tx_string("Parse error: unterminated quote/escape" NEWLINE);
         return 0;
     }
+    /* Allow selecting drive by typing e.g. "0:" directly */
+    if(tokens == 1 &&
+       tokenList[0][0] >= '0' && tokenList[0][0] <= '7' &&
+       tokenList[0][1] == ':' && tokenList[0][2] == 0) {
+        char *drv_args[2];
+        drv_args[0] = (char *)"drive";
+        drv_args[1] = tokenList[0];
+        return cmd_drive(2, drv_args);
+    }
     for(i = 0; i < ARRAY_SIZE(commands); i++) {
         if(!strcmp(tokenList[0], commands[i].cmd)) {
             return commands[i].func(tokens, tokenList);
@@ -410,6 +454,12 @@ int main(void) {
     char ext_rx = 0;
     int i = 0;
     static cmdline_t cmdline = {0};
+    char drv_args_buf[4] = {0};
+    char *drv_args[2];
+    drv_args[0] = (char *)"drive";
+    drv_args[1] = drv_args_buf;
+    f_chdrive("0:");
+    current_drive = '0';
     if(f_getcwd(dir_cwd, sizeof(dir_cwd)) >= 0 && dir_cwd[1] == ':') {
         current_drive = dir_cwd[0];
     }
@@ -420,28 +470,92 @@ int main(void) {
             char rx = (char)RIA.rx;
             if(rx == CHAR_ESC){
                 ext_rx = 1;
-            } else if(rx == CHAR_NCHR && ext_rx == 1) {
-                ext_rx = 2;
-            } else if(ext_rx == 2){
+                continue;
+            } else if(ext_rx == 1) {
+                if(rx == CHAR_NCHR) {
+                    ext_rx = 2;
+                    continue;
+                } else if(rx == 'O') { /* CSI-less F1 from some terminals */
+                    ext_rx = 6;
+                    continue;
+                }
                 ext_rx = 0;
+            } else if(ext_rx == 2){
                 if(rx == CHAR_UP){
-                    // Up
-                    /* cmdline.bytes = 0;
-                    for (i = 0; i < cmdline.lastbytes; i++){
-                        cmdline.buffer[cmdline.bytes++] = cmdline.lastbuffer[i];
-                        tx_char(cmdline.buffer[i]);
-                    } */
+                    ext_rx = 0;
                     tx_string("\r\x1b[K");
                     prompt();
                     cmdline.bytes = cmdline.lastbytes;
                     memcpy(cmdline.buffer, cmdline.lastbuffer, cmdline.lastbytes);
                     cmdline.buffer[cmdline.bytes] = 0;
                     tx_string(cmdline.buffer);
+                    continue;
                 } else if(rx == CHAR_DOWN){
-                    // Down
-                    tx_string(NEWLINE);
-                    help();
+                    ext_rx = 0;
+                    {
+                        char *args[1];
+                        args[0] = (char *)"dir";
+                        tx_string(NEWLINE);
+                        cmd_dir(1, args);
+                        prompt();
+                    }
+                    continue;
+                } else if(rx == CHAR_LEFT || rx == CHAR_RIGHT) {
+                    char next = current_drive;
+                    if(rx == CHAR_LEFT) {
+                        if(next > '0') next--;
+                    } else {
+                        if(next < '7') next++;
+                    }
+                    drv_args_buf[0] = next;
+                    drv_args_buf[1] = ':';
+                    drv_args_buf[2] = 0;
+                    cmd_drive(2, drv_args);
+                    tx_string("\r\x1b[K");
                     prompt();
+                    ext_rx = 0;
+                    continue;
+                } else if(rx == '1') {
+                    ext_rx = 3; // possible ctrl+arrow sequence
+                    continue;
+                } else if(rx == 'O') { /* F1 in xterm-style ESC O P */
+                    ext_rx = 6;
+                    continue;
+                } else {
+                    ext_rx = 0;
+                }
+            } else if(ext_rx == 3) {
+                if(rx == ';') {
+                    ext_rx = 4;
+                    continue;
+                }
+                ext_rx = 0;
+            } else if(ext_rx == 4) {
+                if(rx == '5') {
+                    ext_rx = 5;
+                    continue;
+                }
+                ext_rx = 0;
+            } else if(ext_rx == 5) {
+                ext_rx = 0;
+                if(rx == CHAR_DOWN) {
+                    char *args[1];
+                    args[0] = (char *)"dir";
+                    tx_string(NEWLINE);
+                    cmd_dir(1, args);
+                    prompt();
+                    continue;
+                }
+            } else if(ext_rx == 6) {
+                /* Expecting CHAR_F1 */
+                ext_rx = 0;
+                if(rx == CHAR_F1 || rx == 'P') {
+                    char *args[1];
+                    args[0] = (char *)"help";
+                    tx_string(NEWLINE);
+                    cmd_help(1, args);
+                    prompt();
+                    continue;
                 }
             // Normal character, just put it on the pile.
             } else if(rx >= 32 && rx <= 126) {
@@ -538,6 +652,9 @@ int cmd_drives(int argc, char **argv) {
     unsigned i;
     char saved_drive = '0';
     const char *saved_path = "/";
+    unsigned long free_blks = 0;
+    unsigned long total_blks = 0;
+    unsigned long pct = 0;
     (void)argc; (void)argv;
 
     if(f_getcwd(saved_cwd, sizeof(saved_cwd)) < 0) {
@@ -550,20 +667,38 @@ int cmd_drives(int argc, char **argv) {
         if(!*saved_path) saved_path = "/";
     }
 
+    tx_string("drive " TAB "label           " TAB "[MB]" TAB "free" NEWLINE
+              "------" TAB "----------------" TAB "------" TAB "----" NEWLINE);
     for(i = 0; i < 8; i++) {
         drv[0] = '0' + i;
         rc = f_chdrive(drv);
         if(rc == 0) {
+            if(f_getfree(drv, &free_blks, &total_blks) != 0 || !total_blks) {
+                continue; /* Skip drives without size info */
+            }
+            tx_string("USB");
             tx_string(drv);
-            tx_char('\t');
+            tx_string(TAB);
             if(f_getlabel(drv, dev_label) >= 0) {
+                unsigned len = strlen(dev_label);
                 tx_string(dev_label);
+                while(len < 16) { tx_char(' '); len++; }
             } else {
-                tx_string("(no label)");
+                tx_string("(no label)       ");
+            }
+            tx_string(TAB);
+            {
+                unsigned long mb = total_blks / 2048; /* 512-byte blocks -> MB */
+                pct = (free_blks * 100UL) / total_blks;
+                tx_dec32(mb);
+                tx_string(TAB);
+                tx_dec32(pct);
+                tx_char('%');
             }
             tx_string(NEWLINE);
         }
     }
+    tx_string(NEWLINE);
 
     drv[0] = saved_drive;
     drv[1] = ':';
@@ -577,30 +712,32 @@ int cmd_drives(int argc, char **argv) {
 
 int cmd_drive(int argc, char **argv) {
     char drv[3] = "0:";
-    if(argc < 2) {
-        if(f_getcwd(dir_cwd, sizeof(dir_cwd)) >= 0 && dir_cwd[1] == ':') {
-            current_drive = dir_cwd[0];
-        }
-        tx_string("Current drive: ");
-        tx_char(current_drive);
-        tx_string(":" NEWLINE);
-        return 0;
-    }
-    if(strlen(argv[1]) < 2 || argv[1][1] != ':' || argv[1][0] < '0' || argv[1][0] > '7') {
+    char prev_drive = current_drive;
+    char prev_path[128];
+    prev_path[0] = 0;
+    if(f_getcwd(prev_path, sizeof(prev_path)) < 0) prev_path[0] = 0;
+    if(argc < 2 || strlen(argv[1]) < 2 || argv[1][1] != ':' || argv[1][0] < '0' || argv[1][0] > '7') {
         tx_string("Usage: drive 0:-7:" NEWLINE);
         return 0;
     }
     drv[0] = argv[1][0];
     if(f_chdrive(drv) < 0) {
         tx_string("Invalid drive" NEWLINE);
+        if(prev_path[0]) {
+            drv[0] = prev_drive;
+            f_chdrive(drv);
+            chdir(prev_path);
+        }
+        return -1;
+    }
+    /* Verify drive is actually usable */
+    if(f_getcwd(dir_cwd, sizeof(dir_cwd)) < 0) {
+        tx_string("Drive not available" NEWLINE);
+        drv[0] = prev_drive;
+        if(f_chdrive(drv) == 0 && prev_path[0]) chdir(prev_path);
         return -1;
     }
     current_drive = drv[0];
-    if(f_getcwd(dir_cwd, sizeof(dir_cwd)) >= 0) {
-        tx_string("Current drive: ");
-        tx_char(current_drive);
-        tx_string(":" NEWLINE);
-    }
     return 0;
 }
 
@@ -619,7 +756,16 @@ int cmd_list(int argc, char **argv) {
     }
     tx_string("----------------------------------------" NEWLINE);
     while((n = read(fd, buf, sizeof(buf))) > 0) {
-        tx_chars(buf, n);
+        int idx;
+        for(idx = 0; idx < n; idx++) {
+            char ch = buf[idx];
+            if(ch == '\n') {
+                tx_char('\r');
+                tx_char('\n');
+            } else {
+                tx_char(ch);
+            }
+        }
     }
     close(fd);
     tx_string(NEWLINE "----------------------------------------" NEWLINE);
@@ -651,15 +797,87 @@ int cmd_rmdir(int argc, char **argv) {
 }
 
 int cmd_rm(int argc, char **argv) {
+    int i;
+    int rc = 0;
     if(argc < 2) {
-        tx_string("Usage: rm <file>" NEWLINE);
+        tx_string("Usage: rm <file> [more...]" NEWLINE);
         return 0;
     }
-    if(unlink(argv[1]) < 0) {
-        tx_string("rm failed" NEWLINE);
-        return -1;
+    for(i = 1; i < argc; i++) {
+        const char *arg = argv[i];
+        const char *p = arg;
+        char *last_sep = 0;
+        int has_wild = 0;
+        while(*p) {
+            if(*p == '*' || *p == '?') { has_wild = 1; break; }
+            p++;
+        }
+        if(!has_wild) {
+            if(unlink(arg) < 0) {
+                tx_string("rm failed: ");
+                tx_string(arg);
+                tx_string(NEWLINE);
+                rc = -1;
+            }
+            continue;
+        }
+
+        /* wildcard handling: split path/mask */
+        strcpy(rm_path, ".");
+        strcpy(rm_mask, "*.*");
+        strcpy(rm_file, arg);
+        p = rm_file;
+        if(*p == '/' || *p == '\\') p++;
+        while(*p) {
+            if(*p == '/' || *p == '\\') last_sep = (char *)p;
+            p++;
+        }
+        if(last_sep) {
+            *last_sep = 0;
+            strcpy(rm_path, rm_file);
+            strcpy(rm_mask, last_sep + 1);
+        } else {
+            strcpy(rm_mask, rm_file);
+            strcpy(rm_path, ".");
+        }
+        if(!*rm_mask) strcpy(rm_mask, "*.*");
+
+        {
+            int dd = f_opendir(rm_path);
+            if(dd < 0) {
+                tx_string("opendir failed" NEWLINE);
+                rc = -1;
+                continue;
+            }
+            while(1) {
+                int rr = f_readdir(&dir_ent, dd);
+                if(rr < 0) {
+                    tx_string("readdir failed" NEWLINE);
+                    rc = -1;
+                    break;
+                }
+                if(!dir_ent.fname[0]) break;
+                if(dir_ent.fattrib & AM_DIR) continue; /* skip dirs */
+                if(!match_mask(dir_ent.fname, rm_mask)) continue;
+
+                if(!strcmp(rm_path, ".") || !rm_path[0]) {
+                    strcpy(rm_file, dir_ent.fname);
+                } else {
+                    strcpy(rm_file, rm_path);
+                    strcat(rm_file, "/");
+                    strcat(rm_file, dir_ent.fname);
+                }
+                if(unlink(rm_file) < 0) {
+                    tx_string("rm failed: ");
+                    tx_string(rm_file);
+                    tx_string(NEWLINE);
+                    rc = -1;
+                }
+            }
+            f_closedir(dd);
+        }
     }
-    return 0;
+    return rc;
 }
 
 int cmd_cp(int argc, char **argv) {
@@ -694,12 +912,219 @@ int cmd_cp(int argc, char **argv) {
     return 0;
 }
 
-int cmd_mx(int argc, char **argv) {
+int cmd_mv(int argc, char **argv) {
+    if(argc < 3) {
+        tx_string("Usage: mv <src> <dst>" NEWLINE);
+        return 0;
+    }
+    if(rename(argv[1], argv[2]) < 0) {
+        tx_string("mv failed" NEWLINE);
+        return -1;
+    }
+    return 0;
+}
+
+int cmd_bload(int argc, char **argv) {
+    int fd;
+    int n;
+    uint16_t addr;
+    int use_xram = 0;
+    unsigned long total = 0;
+    if(argc < 3) {
+        tx_string("Usage: bload <file> <addr> [/x]" NEWLINE);
+        return 0;
+    }
+    fd = open(argv[1], O_RDONLY);
+    if(fd < 0) {
+        tx_string("Cannot open file" NEWLINE);
+        return -1;
+    }
+    addr = (uint16_t)strtoul(argv[2], NULL, 16);
+    if(argc > 3 && strcmp(argv[3], "/x") == 0) use_xram = 1;
+
+    while((n = read(fd, bload_buf, sizeof(bload_buf))) > 0) {
+        if(use_xram) xram_writer(bload_buf, addr, n);
+        else ram_writer(bload_buf, addr, n);
+        addr += (uint16_t)n;
+        total += (unsigned long)n;
+    }
+    close(fd);
+    if(n < 0) {
+        tx_string("Read error" NEWLINE);
+        return -1;
+    }
+    tx_string("Bytes loaded: ");
+    tx_dec32(total);
+    tx_string(NEWLINE);
+    return 0;
+}
+
+int cmd_bsave(int argc, char **argv) {
+    int fd;
+    uint16_t addr;
+    uint16_t size;
+    int use_xram = 0;
+    unsigned long total = 0;
+    if(argc < 4) {
+        tx_string("Usage: bsave <file> <addr> <size> [/x]" NEWLINE);
+        return 0;
+    }
+    fd = open(argv[1], O_WRONLY | O_CREAT | O_TRUNC);
+    if(fd < 0) {
+        tx_string("Cannot open file" NEWLINE);
+        return -1;
+    }
+    addr = (uint16_t)strtoul(argv[2], NULL, 16);
+    size = (uint16_t)strtoul(argv[3], NULL, 0);
+    if(argc > 4 && strcmp(argv[4], "/x") == 0) use_xram = 1;
+
+    while(size) {
+        int chunk = size > sizeof(bload_buf) ? sizeof(bload_buf) : size;
+        if(use_xram) {
+            xram_reader(bload_buf, addr, chunk);
+        } else {
+            ram_reader(bload_buf, addr, chunk);
+        }
+        if(write(fd, bload_buf, chunk) != chunk) {
+            tx_string("Write error" NEWLINE);
+            close(fd);
+            return -1;
+        }
+        addr += (uint16_t)chunk;
+        size -= (uint16_t)chunk;
+        total += (unsigned long)chunk;
+    }
+    close(fd);
+    tx_string("Bytes saved: ");
+    tx_dec32(total);
+    tx_string(NEWLINE);
+    return 0;
+}
+
+int cmd_cm(int argc, char **argv) {
+    int dirdes = -1;
+    int mv_mode = 0;
+    int rc = 0;
+    int count = 0;
+    if(argc < 3) {
+        tx_string("Usage: cm <mask> <dest_dir> [/m]" NEWLINE);
+        return 0;
+    }
+    strcpy(cpm_dest, argv[2]);
+    if(argc > 3 && !strcmp(argv[3], "/m")) mv_mode = 1;
+
+    /* Split mask into path and wildcard */
+    {
+        char *p = argv[1];
+        char *last_sep = 0;
+        strcpy(cpm_path, ".");
+        strcpy(cpm_mask, "*.*");
+        strcpy(cpm_srcfile, p); /* reuse as temp */
+        if(*p == '/' || *p == '\\') p++;
+        while(*p) {
+            if(*p == '/' || *p == '\\') last_sep = p;
+            p++;
+        }
+        if(last_sep) {
+            *last_sep = 0;
+            strcpy(cpm_path, argv[1]);
+            strcpy(cpm_mask, last_sep + 1);
+        } else {
+            strcpy(cpm_mask, argv[1]);
+            strcpy(cpm_path, ".");
+        }
+        if(!*cpm_mask) strcpy(cpm_mask, "*.*");
+    }
+
+    dirdes = f_opendir(cpm_path);
+    if(dirdes < 0) {
+        tx_string("opendir failed" NEWLINE);
+        return -1;
+    }
+
+    /* Pass 1: count matching files */
+    while(1) {
+        rc = f_readdir(&dir_ent, dirdes);
+        if(rc < 0) {
+            tx_string("readdir failed" NEWLINE);
+            break;
+        }
+        if(!dir_ent.fname[0]) break;
+        if(dir_ent.fattrib & AM_DIR) continue;
+        if(!match_mask(dir_ent.fname, cpm_mask)) continue;
+        count++;
+    }
+    f_closedir(dirdes);
+    if(rc < 0) return -1;
+    tx_string("Files to process: ");
+    tx_dec32(count);
+    tx_string(NEWLINE);
+    if(!count) return 0;
+
+    dirdes = f_opendir(cpm_path);
+    if(dirdes < 0) {
+        tx_string("opendir failed" NEWLINE);
+        return -1;
+    }
+
+    while(1) {
+        rc = f_readdir(&dir_ent, dirdes);
+        if(rc < 0) {
+            tx_string("readdir failed" NEWLINE);
+            break;
+        }
+        if(!dir_ent.fname[0]) break;
+        if(dir_ent.fattrib & AM_DIR) continue; /* skip directories */
+        if(!match_mask(dir_ent.fname, cpm_mask)) continue;
+
+        /* build src path */
+        if(!strcmp(cpm_path, ".") || !cpm_path[0]) {
+            strcpy(cpm_srcfile, dir_ent.fname);
+        } else {
+            strcpy(cpm_srcfile, cpm_path);
+            strcat(cpm_srcfile, "/");
+            strcat(cpm_srcfile, dir_ent.fname);
+        }
+        /* build dst path */
+        strcpy(cpm_dstfile, cpm_dest);
+        if(cpm_dest[0] && cpm_dest[strlen(cpm_dest)-1] != '/' && cpm_dest[strlen(cpm_dest)-1] != '\\')
+            strcat(cpm_dstfile, "/");
+        strcat(cpm_dstfile, dir_ent.fname);
+
+        if(mv_mode){
+            tx_string("moving ");
+        } else {
+            tx_string("copying ");
+        }
+        tx_string(cpm_srcfile);
+        tx_string(" -> ");
+        tx_string(cpm_dstfile);
+        tx_string(NEWLINE);
+
+        cpm_args[0] = "cp";
+        cpm_args[1] = cpm_srcfile;
+        cpm_args[2] = cpm_dstfile;
+        rc = cmd_cp(3, cpm_args);
+        if(rc < 0) break;
+        if(mv_mode) {
+            if(unlink(cpm_srcfile) < 0) {
+                tx_string("mv cleanup failed" NEWLINE);
+                rc = -1;
+                break;
+            }
+        }
+    }
+
+    f_closedir(dirdes);
+    return (rc < 0) ? -1 : 0;
+}
+
+int cmd_memx(int argc, char **argv) {
     uint16_t addr = 0;
     uint16_t size = 16;
 
     if(argc < 2) {
-        tx_string("Usage: xr addr [bytes]" NEWLINE);
+        tx_string("Usage: memx addr [bytes]" NEWLINE);
         return 0;
     }
     addr = strtoul(argv[1], NULL, 16);
@@ -709,12 +1134,12 @@ int cmd_mx(int argc, char **argv) {
     return 0;
 }
 
-int cmd_mr(int argc, char **argv) {
+int cmd_memr(int argc, char **argv) {
     uint16_t addr = 0;
     uint16_t size = 16;
 
     if(argc < 2) {
-        tx_string("Usage: mr addr [bytes]" NEWLINE);
+        tx_string("Usage: memr addr [bytes]" NEWLINE);
         return 0;
     }
     addr = strtoul(argv[1], NULL, 16);
@@ -848,23 +1273,29 @@ int cmd_dir(int argc, char **argv) {
     }
 
     for(dir_i = 0; dir_i < dir_entries_count; dir_i++) {
+        unsigned name_len;
         if(dir_entries[dir_i].fattrib & AM_DIR) {
             tx_char('[');
             tx_string(dir_entries[dir_i].name);
-            tx_string("]" NEWLINE);
+            tx_char(']');
+            name_len = strlen(dir_entries[dir_i].name) + 2; // brackets
         } else {
-            unsigned name_len = strlen(dir_entries[dir_i].name);
             tx_string(dir_entries[dir_i].name);
-            while(name_len < 32) {
-                tx_char(' ');
-                name_len++;
-            }
-            tx_char('\t');
-            tx_string(format_fat_datetime(dir_entries[dir_i].fdate, dir_entries[dir_i].ftime));
-            tx_char('\t');
-            tx_dec32(dir_entries[dir_i].fsize);
-            tx_string(NEWLINE);
+            name_len = strlen(dir_entries[dir_i].name);
         }
+        while(name_len < 32) {
+            tx_char(' ');
+            name_len++;
+        }
+        tx_char('\t');
+        tx_string(format_fat_datetime(dir_entries[dir_i].fdate, dir_entries[dir_i].ftime));
+        tx_char('\t');
+        if(dir_entries[dir_i].fattrib & AM_DIR) {
+            tx_string("<DIR>");
+        } else {
+            tx_dec32(dir_entries[dir_i].fsize);
+        }
+        tx_string(NEWLINE);
     }
 
     return 0;
