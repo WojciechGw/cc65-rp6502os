@@ -96,6 +96,10 @@ int cmd_drive(int, char **);
 int cmd_drives(int, char **);
 int cmd_list(int, char **);
 int cmd_cd(int, char **);
+int cmd_mkdir(int, char **);
+int cmd_rmdir(int, char **);
+int cmd_rm(int, char **);
+int cmd_cp(int, char **);
 int cmd_quit(int, char **);
 
 static const cmd_t commands[] = {
@@ -109,6 +113,10 @@ static const cmd_t commands[] = {
     { "drives", "list available drives", cmd_drives},
     { "list",   "print text file", cmd_list},
     { "cd",     "change directory", cmd_cd},
+    { "mkdir",  "create directory", cmd_mkdir},
+    { "rmdir",  "remove directory", cmd_rmdir},
+    { "rm",     "remove file", cmd_rm},
+    { "cp",     "copy file", cmd_cp},
     { "quit",   "quit shell to system monitor", cmd_quit},
 };
 
@@ -272,11 +280,14 @@ void cls(){
 }
 
 void prompt() {
-    if(f_getcwd(dir_cwd, sizeof(dir_cwd)) >= 0 && dir_cwd[1] == ':') {
-        current_drive = dir_cwd[0];
+    if(f_getcwd(dir_cwd, sizeof(dir_cwd)) >= 0) {
+        if(dir_cwd[1] == ':') current_drive = dir_cwd[0];
+        tx_string(dir_cwd);
+        tx_string("> ");
+    } else {
+        tx_char(current_drive);
+        tx_string(":> ");
     }
-    tx_char(current_drive);
-    tx_string(":> ");
     return;
 }
 
@@ -502,7 +513,13 @@ int cmd_quit(int, char **) {
 
 int cmd_cd(int argc, char **argv) {
     if(argc < 2) {
-        tx_string("Usage: cd <path>" NEWLINE);
+        if(f_getcwd(dir_cwd, sizeof(dir_cwd)) >= 0) {
+            tx_string(dir_cwd);
+            tx_string(NEWLINE);
+        } else {
+            tx_string("getcwd failed" NEWLINE);
+            return -1;
+        }
         return 0;
     }
     if(chdir(argv[1]) < 0) {
@@ -561,15 +578,12 @@ int cmd_drives(int argc, char **argv) {
 int cmd_drive(int argc, char **argv) {
     char drv[3] = "0:";
     if(argc < 2) {
-        if(f_getcwd(dir_cwd, sizeof(dir_cwd)) >= 0) {
-            tx_string("Current drive: ");
-            tx_char(dir_cwd[0]);
-            tx_string(":" NEWLINE);
+        if(f_getcwd(dir_cwd, sizeof(dir_cwd)) >= 0 && dir_cwd[1] == ':') {
             current_drive = dir_cwd[0];
-        } else {
-            tx_string("getcwd failed" NEWLINE);
-            return -1;
         }
+        tx_string("Current drive: ");
+        tx_char(current_drive);
+        tx_string(":" NEWLINE);
         return 0;
     }
     if(strlen(argv[1]) < 2 || argv[1][1] != ':' || argv[1][0] < '0' || argv[1][0] > '7') {
@@ -603,11 +617,80 @@ int cmd_list(int argc, char **argv) {
         tx_string("Cannot open file" NEWLINE);
         return -1;
     }
+    tx_string("----------------------------------------" NEWLINE);
     while((n = read(fd, buf, sizeof(buf))) > 0) {
         tx_chars(buf, n);
     }
     close(fd);
-    tx_string(NEWLINE NEWLINE);
+    tx_string(NEWLINE "----------------------------------------" NEWLINE);
+    return 0;
+}
+
+int cmd_mkdir(int argc, char **argv) {
+    if(argc < 2) {
+        tx_string("Usage: mkdir <path>" NEWLINE);
+        return 0;
+    }
+    if(f_mkdir(argv[1]) < 0) {
+        tx_string("mkdir failed" NEWLINE);
+        return -1;
+    }
+    return 0;
+}
+
+int cmd_rmdir(int argc, char **argv) {
+    if(argc < 2) {
+        tx_string("Usage: rmdir <path>" NEWLINE);
+        return 0;
+    }
+    if(unlink(argv[1]) < 0) {
+        tx_string("rmdir failed" NEWLINE);
+        return -1;
+    }
+    return 0;
+}
+
+int cmd_rm(int argc, char **argv) {
+    if(argc < 2) {
+        tx_string("Usage: rm <file>" NEWLINE);
+        return 0;
+    }
+    if(unlink(argv[1]) < 0) {
+        tx_string("rm failed" NEWLINE);
+        return -1;
+    }
+    return 0;
+}
+
+int cmd_cp(int argc, char **argv) {
+    char buf[128];
+    int src, dst;
+    int n;
+    if(argc < 3) {
+        tx_string("Usage: cp <src> <dst>" NEWLINE);
+        return 0;
+    }
+    src = open(argv[1], O_RDONLY);
+    if(src < 0) {
+        tx_string("Cannot open source" NEWLINE);
+        return -1;
+    }
+    dst = open(argv[2], O_WRONLY | O_CREAT | O_TRUNC);
+    if(dst < 0) {
+        tx_string("Cannot open dest" NEWLINE);
+        close(src);
+        return -1;
+    }
+    while((n = read(src, buf, sizeof(buf))) > 0) {
+        if(write(dst, buf, n) != n) {
+            tx_string("Write error" NEWLINE);
+            close(src);
+            close(dst);
+            return -1;
+        }
+    }
+    close(src);
+    close(dst);
     return 0;
 }
 
