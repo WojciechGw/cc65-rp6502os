@@ -17,7 +17,10 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <time.h>
-#define MEMTOP 0xFEFF
+#ifndef __STACKSIZE__
+#define __STACKSIZE__ 0x0800
+#endif
+#define MEMTOP (0xFD00-__STACKSIZE__)
 
 #define CMD_BUF_MAX 511
 #define CMD_TOKEN_MAX 64
@@ -74,26 +77,18 @@ typedef void (*char_stream_func_t)(const char *buf, int size);
 typedef void (*read_data_func_t)(uint8_t *buf, uint16_t addr, uint16_t size);
 
 // Statically allocate buffers to keep cc65 stack usage low.
-static char dir_cwd[128];
+#define FNAMELEN 64
+#define DIR_LIST_MAX 40
+static char dir_cwd[FNAMELEN];
 static f_stat_t dir_ent;
 typedef struct {
-    char name[256];
+    char name[FNAMELEN];
     unsigned long fsize;
     unsigned char fattrib;
     unsigned fdate;
     unsigned ftime;
 } dir_list_entry_t;
-#define DIR_LIST_MAX 64
-static dir_list_entry_t dir_entries[DIR_LIST_MAX];
-static dir_list_entry_t dir_tmp;
-static unsigned dir_entries_count;
-static unsigned dir_i;
-static unsigned dir_j;
 static char dir_dt_buf[20];
-static char dir_arg[256];
-static char dir_drive[3];
-static char dir_path_buf[256];
-static char dir_mask_buf[256];
 static char dev_label[16];
 static char saved_cwd[128];
 static char current_drive = '0';
@@ -299,7 +294,7 @@ void xram_writer(const uint8_t *buf, uint16_t addr, uint16_t size) {
 
 /* Lowest usable address for other programs: 0x0200 + shell size */
 uint16_t mem_lo(void) {
-    return 0x0200u + (uint16_t)((unsigned)&shell_end_marker);
+    return (uint16_t)((unsigned)&shell_end_marker);
 }
 
 uint16_t mem_top(void) {
@@ -539,7 +534,6 @@ int main(void) {
         cmd_phi2(1, args);
     }
     // show_time();
-    tx_string(NEWLINE NEWLINE);
     {
         char *args[1];
         args[0] = (char *)"";
@@ -655,7 +649,7 @@ int main(void) {
                     tx_char(rx);
                 }
             // Backspace
-            } else if(rx == CHAR_BS) {
+            } else if(rx == CHAR_BS || rx == CHAR_DEL) {
                 ext_rx = 0;
                 if(cmdline.bytes) {
                     cmdline.bytes--;
@@ -1260,6 +1254,20 @@ int cmd_dir(int argc, char **argv) {
     unsigned dirs_count = 0;
     unsigned long total_bytes = 0;
     int i;
+    char dir_drive[3] = {0};
+    char *dir_arg = malloc(FNAMELEN);
+    char *dir_path_buf = malloc(FNAMELEN);
+    char *dir_mask_buf = malloc(FNAMELEN);
+    dir_list_entry_t *dir_entries = malloc(sizeof(dir_list_entry_t) * DIR_LIST_MAX);
+    dir_list_entry_t dir_tmp;
+    unsigned dir_entries_count = 0;
+    unsigned dir_i = 0, dir_j = 0;
+
+    if(!dir_arg || !dir_path_buf || !dir_mask_buf || !dir_entries) {
+        tx_string("dir: OOM" NEWLINE);
+        free(dir_arg); free(dir_path_buf); free(dir_mask_buf); free(dir_entries);
+        return -1;
+    }
 
     dir_drive[0] = dir_drive[1] = dir_drive[2] = 0;
     if(argc >= 2) {
@@ -1268,14 +1276,16 @@ int cmd_dir(int argc, char **argv) {
         if(dir_arg[1] == ':') {
             if(dir_arg[0] < '0' || dir_arg[0] > '7') {
                 tx_string("Invalid drive" NEWLINE);
-                return -1;
+                rc = -1;
+                goto cleanup;
             }
             dir_drive[0] = dir_arg[0];
             dir_drive[1] = ':';
             dir_drive[2] = 0;
             if(f_chdrive(dir_drive) < 0) {
                 tx_string("Invalid drive" NEWLINE);
-                return -1;
+                rc = -1;
+                goto cleanup;
             }
             current_drive = dir_drive[0];
             p = dir_arg + 2;
@@ -1320,7 +1330,8 @@ int cmd_dir(int argc, char **argv) {
 
     if(f_getcwd(dir_cwd, sizeof(dir_cwd)) < 0) {
         tx_string("getcwd failed" NEWLINE);
-        return -1;
+        rc = -1;
+        goto cleanup;
     }
 
     tx_string(NEWLINE "Directory: ");
@@ -1330,7 +1341,8 @@ int cmd_dir(int argc, char **argv) {
     dirdes = f_opendir(dir_path_buf[0] ? dir_path_buf : ".");
     if(dirdes < 0) {
         tx_string("opendir failed" NEWLINE);
-        return -1;
+        rc = -1;
+        goto cleanup;
     }
 
     dir_entries_count = 0;
@@ -1363,6 +1375,7 @@ int cmd_dir(int argc, char **argv) {
         tx_string("closedir failed" NEWLINE);
         rc = -1;
     }
+    dirdes = -1;
 
     if(rc < 0) return -1;
 
@@ -1451,7 +1464,13 @@ int cmd_dir(int argc, char **argv) {
     tx_string("  Bytes: ");
     tx_dec32(total_bytes);
     tx_string(NEWLINE NEWLINE);
-    return 0;
+cleanup:
+    if(dirdes >= 0) f_closedir(dirdes);
+    free(dir_arg);
+    free(dir_path_buf);
+    free(dir_mask_buf);
+    free(dir_entries);
+    return rc;
 }
 
 int cmd_time(int argc, char **argv) {
