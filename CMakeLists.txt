@@ -36,5 +36,5 @@ rp6502_executable(shell
 )
 target_sources(shell PRIVATE
     src/shell.c
-    src/run.s
 )
+target_link_options(shell PRIVATE -C ${CMAKE_SOURCE_DIR}/src/shell.cfg)

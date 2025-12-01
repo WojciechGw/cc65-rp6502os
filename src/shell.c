@@ -42,6 +42,7 @@
 #define CHAR_LEFT   0x44
 #define CHAR_F1     0x50
 
+#define KEY_DEL     0x7F
 #define TAB         "\t"
 #define NEWLINE     "\r\n"
 
@@ -78,6 +79,8 @@ typedef void (*read_data_func_t)(uint8_t *buf, uint16_t addr, uint16_t size);
 
 // Statically allocate buffers to keep cc65 stack usage low.
 #define FNAMELEN 64
+#define CPMBUFFLEN 96
+#define RMBUFFLEN 96
 #define DIR_LIST_MAX 40
 static char dir_cwd[FNAMELEN];
 static f_stat_t dir_ent;
@@ -92,15 +95,15 @@ static char dir_dt_buf[20];
 static char dev_label[16];
 static char saved_cwd[128];
 static char current_drive = '0';
-static char cpm_path[256];
-static char cpm_mask[256];
-static char cpm_dest[256];
-static char cpm_srcfile[256];
-static char cpm_dstfile[256];
+static char cpm_path[CPMBUFFLEN];
+static char cpm_mask[CPMBUFFLEN];
+static char cpm_dest[CPMBUFFLEN];
+static char cpm_srcfile[CPMBUFFLEN];
+static char cpm_dstfile[CPMBUFFLEN];
 static char *cpm_args[3];
-static char rm_path[256];
-static char rm_mask[256];
-static char rm_file[256];
+static char rm_path[RMBUFFLEN];
+static char rm_mask[RMBUFFLEN];
+static char rm_file[RMBUFFLEN];
 static unsigned char bload_buf[128];
 static char shell_end_marker;
 extern struct _timezone _tz;
@@ -649,7 +652,7 @@ int main(void) {
                     tx_char(rx);
                 }
             // Backspace
-            } else if(rx == CHAR_BS || rx == CHAR_DEL) {
+            } else if(rx == CHAR_BS || rx == KEY_DEL) {
                 ext_rx = 0;
                 if(cmdline.bytes) {
                     cmdline.bytes--;
