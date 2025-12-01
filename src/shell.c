@@ -1,7 +1,9 @@
 /**
- * @file      main.c
- * @author    Jason Howard <jth@howardlogic.com>
- * @copyright Howard Logic.  All rights reserved.
+ * @file      shell.c
+ * @author    WojciechGw <wojciech@post.pl>
+ * @copyright WojciechGw. All rights reserved.
+ *
+ * based on Jason Howard's code <jth@howardlogic.com>
  * 
  * See LICENSE file in the project root folder for license information
  */
@@ -14,6 +16,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <time.h>
+#define MEMTOP 0xFEFF
 
 #define CMD_BUF_MAX 511
 #define CMD_TOKEN_MAX 64
@@ -98,6 +102,8 @@ static char rm_path[256];
 static char rm_mask[256];
 static char rm_file[256];
 static unsigned char bload_buf[128];
+static char shell_end_marker;
+extern struct _timezone _tz;
 
 // example : int cmd_token(int, char **);
 int cmd_help(int, char **);
@@ -106,39 +112,47 @@ int cmd_memx(int, char **);
 int cmd_memr(int, char **);
 int cmd_bload(int, char **);
 int cmd_bsave(int, char **);
+int cmd_brun(int, char **);
 int cmd_dir(int, char **);
 int cmd_drive(int, char **);
 int cmd_drives(int, char **);
 int cmd_list(int, char **);
 int cmd_cd(int, char **);
 int cmd_mkdir(int, char **);
-int cmd_rmdir(int, char **);
 int cmd_rm(int, char **);
 int cmd_cp(int, char **);
 int cmd_mv(int, char **);
+int cmd_mem(int, char **);
 int cmd_cm(int, char **);
-int cmd_quit(int, char **);
+int cmd_phi2(int, char **);
+int cmd_exit(int, char **);
+int cmd_time(int, char **);
+int cmd_stat(int, char **);
 
 static const cmd_t commands[] = {
     // example : { "token",  "tests the tokenization", cmd_token },
-    { "dir",    "current drive directory", cmd_dir},
-    { "drive",  "set current drive", cmd_drive},
+    { "dir",    "active drive directory", cmd_dir},
+    { "drive",  "set active drive", cmd_drive},
     { "drives", "shows available drives", cmd_drives},
-    { "cd",     "change directory", cmd_cd},
+    { "cd",     "change active directory", cmd_cd},
     { "mkdir",  "create directory", cmd_mkdir},
-    { "rmdir",  "remove directory", cmd_rmdir},
     { "cp",     "copy file", cmd_cp},
-    { "cm",     "copy/move files", cmd_cm},
-    { "mv",     "move/rename file", cmd_mv},
-    { "rm",     "remove file", cmd_rm},
-    { "bload",  "load binary file to ram/xram", cmd_bload},
-    { "bsave",  "save ram/xram to binary file", cmd_bsave},
+    { "cm",     "copy/move multiple files", cmd_cm},
+    { "mv",     "moves/renames a file or directory", cmd_mv},
+    { "rm",     "removes a file/files", cmd_rm},
+    { "list",   "shows a file content", cmd_list},
+    { "stat",   "returns file or directory info", cmd_stat},
+    { "bload",  "load binary file to RAM/XRAM", cmd_bload},
+    { "bsave",  "save RAM/XRAM to binary file", cmd_bsave},
+    { "brun",   "load binary file to RAM and run", cmd_brun},
+    { "mem",    "information about memory", cmd_mem},
     { "memx",   "reads xram", cmd_memx },
     { "memr",   "reads ram", cmd_memr },
-    { "list",   "shows file content", cmd_list},
-    { "cls",    "clear screen", cmd_cls },
-    { "help",   "print a list of commands", cmd_help },
-    { "quit",   "quit shell to system monitor", cmd_quit},
+    { "cls",    "clears terminal", cmd_cls },
+    { "time",   "shows local time", cmd_time },
+    { "phi2",   "shows CPU clock frequency", cmd_phi2},
+    { "help",   "prints a list of commands", cmd_help },
+    { "exit",   "exit to the system monitor", cmd_exit},
 };
 
 inline void tx_char(char c) {
@@ -162,6 +176,17 @@ void tx_hex32(unsigned long val) {
     char out[8];
     int i;
     for(i = 7; i >= 0; i--) {
+        out[i] = hexdigits[val & 0xF];
+        val >>= 4;
+    }
+    tx_chars(out, sizeof(out));
+}
+
+/* Print 16-bit value as 4 hex digits */
+void tx_hex16(uint16_t val) {
+    char out[4];
+    int i;
+    for(i = 3; i >= 0; i--) {
         out[i] = hexdigits[val & 0xF];
         val >>= 4;
     }
@@ -241,13 +266,6 @@ const char *format_fat_datetime(unsigned fdate, unsigned ftime) {
     return dir_dt_buf;
 }
 
-void xram_reader(uint8_t *buf, uint16_t addr, uint16_t size) {
-    RIA.step0 = 1;
-    RIA.addr0 = addr;
-    for(; size; size--) *buf++ = RIA.rw0;
-    return;
-}
-
 void ram_reader(uint8_t *buf, uint16_t addr, uint16_t size) {
     uint8_t *data = (uint8_t *)addr;
     for(; size; size--) *buf++ = *data++;
@@ -259,12 +277,52 @@ void ram_writer(const uint8_t *buf, uint16_t addr, uint16_t size) {
     for(; size; size--) *dst++ = *buf++;
 }
 
+void xram_reader(uint8_t *buf, uint16_t addr, uint16_t size) {
+    RIA.step0 = 1;
+    RIA.addr0 = addr;
+    for(; size; size--) *buf++ = RIA.rw0;
+    return;
+}
+
 void xram_writer(const uint8_t *buf, uint16_t addr, uint16_t size) {
     RIA.step0 = 1;
     RIA.addr0 = addr;
     for(; size; size--) RIA.rw0 = *buf++;
 }
 
+/* Lowest usable address for other programs: 0x0200 + shell size */
+uint16_t mem_lo(void) {
+    return 0x0200u + (uint16_t)((unsigned)&shell_end_marker);
+}
+
+uint16_t mem_top(void) {
+    return (uint16_t)(MEMTOP);
+}
+
+uint16_t mem_free(void) {
+    return (uint16_t)(MEMTOP - mem_lo() + 1);
+}
+
+// time display
+void show_time(void) {
+    time_t tnow;
+    struct tm *tmnow;
+    char buf[32];
+    // tx_string("\x1b[s");       /* save cursor */
+    // tx_string("\x1b[1;61H");   /* row 1, col 42 */
+    if(time(&tnow) != (time_t)-1) {
+        ria_tzset(tnow);       /* adjust TZ/DST in OS */
+        tmnow = localtime(&tnow);
+        if(tmnow) tmnow->tm_isdst = _tz.daylight; /* cc65 localtime DST fix */
+    } else {
+        tmnow = 0;
+    }
+    if(tmnow) {
+        strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S %Z", tmnow);
+        tx_string(buf);
+    }
+    // tx_string("\x1b[u");       /* restore cursor */
+}
 
 // Assumes str points to at least two bytes.
 int hexstr(char *str, uint8_t val) {
@@ -304,11 +362,15 @@ void hexdump(uint16_t addr, uint16_t bytes, char_stream_func_t streamer, read_da
     return;
 }
 
+void clearterminal(){
+    tx_string("\x1b" "c");
+    return;
+}
+
 void cls(){
-    tx_string("\x1b" "c" "Picocomputer 6502 Shell" 
-                 NEWLINE "--------------------------------------------------------------------------------"
-                 NEWLINE "now you are in native 6502 environment"
-                 NEWLINE "type \"help\" for available commands" NEWLINE NEWLINE);
+    clearterminal();
+    tx_string("Picocomputer 6502 Shell (native environment)" 
+              NEWLINE "--------------------------------------------------------------------------------" NEWLINE);
     return;
 }
 
@@ -326,18 +388,18 @@ void prompt() {
 
 void help(){
     int i;
-    tx_string("Available commands:" NEWLINE);
+    tx_string(NEWLINE "Available commands (case sensitive):" NEWLINE);
     for(i = 0; i < ARRAY_SIZE(commands); i++) {
         tx_string(commands[i].cmd);
         tx_string(TAB);
         tx_string(commands[i].help);
         tx_string(NEWLINE);
     }
-    tx_string("Keyboard:" NEWLINE);
-    tx_string("left\tprevious drive" NEWLINE);
-    tx_string("right\tnext drive" NEWLINE);
-    tx_string("up\trecall last command" NEWLINE);
-    tx_string("down\tcurrent drive's directory" NEWLINE);
+    tx_string("Keys:" NEWLINE);
+    tx_string("<LEFT>\tchange active drive to previous" NEWLINE);
+    tx_string("<RIGHT>\tchange active drive to next" NEWLINE);
+    tx_string("<UP>\trecall last command" NEWLINE);
+    tx_string("<DOWN>\ta directory of active drive" NEWLINE NEWLINE);
     return;
 }
 
@@ -453,6 +515,7 @@ int main(void) {
     char last_rx = 0;
     char ext_rx = 0;
     int i = 0;
+    int v = 0;
     static cmdline_t cmdline = {0};
     char drv_args_buf[4] = {0};
     char *drv_args[2];
@@ -464,8 +527,26 @@ int main(void) {
         current_drive = dir_cwd[0];
     }
     cls();
+    {
+        char *args[1];
+        args[0] = (char *)"";
+        cmd_phi2(1, args);
+    }
+    show_time();
+    tx_string(NEWLINE NEWLINE);
+    {
+        char *args[1];
+        args[0] = (char *)"";
+        cmd_drives(1, args);
+    }
     prompt();
-    while(1) {
+
+    v = RIA.vsync;
+    while (1)
+    {
+        // if (RIA.vsync == v) show_clock();
+        // v = RIA.vsync;
+
         if(RX_READY) {
             char rx = (char)RIA.rx;
             if(rx == CHAR_ESC){
@@ -599,17 +680,6 @@ int main(void) {
     }
 }
 
-/*
-// shell command scaffolding
-int cmd_token(int argc, char **argv) {
-    int i;
-    for(i = 0; i < argc; i++) {
-        printf("%d: [%s]" NEWLINE, i, argv[i]);
-    }
-    return 0;
-}
-*/
-
 int cmd_help(int, char **) {
     help();
     return 0;
@@ -620,8 +690,9 @@ int cmd_cls(int, char **) {
     return 0;
 }
 
-int cmd_quit(int, char **) {
-    quit();
+int cmd_exit(int status, char **) {
+    tx_string(NEWLINE NEWLINE "Exit to Picocomputer 6502 monitor." NEWLINE "Bye, bye !" NEWLINE NEWLINE);
+    exit(status);
     return 0;
 }
 
@@ -784,23 +855,11 @@ int cmd_mkdir(int argc, char **argv) {
     return 0;
 }
 
-int cmd_rmdir(int argc, char **argv) {
-    if(argc < 2) {
-        tx_string("Usage: rmdir <path>" NEWLINE);
-        return 0;
-    }
-    if(unlink(argv[1]) < 0) {
-        tx_string("rmdir failed" NEWLINE);
-        return -1;
-    }
-    return 0;
-}
-
 int cmd_rm(int argc, char **argv) {
     int i;
     int rc = 0;
     if(argc < 2) {
-        tx_string("Usage: rm <file> [more...]" NEWLINE);
+        tx_string("Usage: rm <file|directory> [more...]" NEWLINE);
         return 0;
     }
     for(i = 1; i < argc; i++) {
@@ -998,6 +1057,41 @@ int cmd_bsave(int argc, char **argv) {
     tx_string("Bytes saved: ");
     tx_dec32(total);
     tx_string(NEWLINE);
+    return 0;
+}
+
+int cmd_brun(int argc, char **argv) {
+    int fd;
+    int n;
+    uint16_t addr;
+    uint16_t start;
+    void (*fn)(void);
+    if(argc < 3) {
+        tx_string("Usage: brun <file> <addr>" NEWLINE);
+        return 0;
+    }
+    fd = open(argv[1], O_RDONLY);
+    if(fd < 0) {
+        tx_string("Cannot open file" NEWLINE);
+        return -1;
+    }
+    start = (uint16_t)strtoul(argv[2], NULL, 16);
+    addr = start;
+
+    while((n = read(fd, bload_buf, sizeof(bload_buf))) > 0) {
+        ram_writer(bload_buf, addr, n);
+        addr += (uint16_t)n;
+    }
+    close(fd);
+    if(n < 0) {
+        tx_string("Read error" NEWLINE);
+        return -1;
+    }
+    // tx_string("Bytes loaded: ");
+    // tx_dec32((unsigned long)(addr - start));
+    clearterminal();
+    fn = (void (*)(void))start;
+    fn();
     return 0;
 }
 
@@ -1209,9 +1303,9 @@ int cmd_dir(int argc, char **argv) {
         return -1;
     }
 
-    tx_string("Directory: ");
+    tx_string(NEWLINE "Directory: ");
     tx_string(dir_cwd);
-    tx_string(NEWLINE);
+    tx_string(NEWLINE NEWLINE);
 
     dirdes = f_opendir(dir_path_buf[0] ? dir_path_buf : ".");
     if(dirdes < 0) {
@@ -1228,7 +1322,7 @@ int cmd_dir(int argc, char **argv) {
         }
         if(!dir_ent.fname[0]) break; // No more entries
         if(dir_entries_count == DIR_LIST_MAX) {
-            tx_string("Directory listing truncated" NEWLINE);
+            tx_string("Directory listing truncated, too many entries, use wildcards to narrow results" NEWLINE);
             break;
         }
 
@@ -1297,6 +1391,78 @@ int cmd_dir(int argc, char **argv) {
         }
         tx_string(NEWLINE);
     }
-
+    tx_string(NEWLINE);
     return 0;
 }
+
+int cmd_time(int argc, char **argv) {
+    (void)argc; (void)argv;
+    tx_string(NEWLINE);
+    show_time();
+    tx_string(NEWLINE NEWLINE);
+    return 0;
+}
+
+int cmd_phi2(int argc, char **argv) {
+    int hz = phi2();
+    (void)argc; (void)argv;
+    tx_string("65C02 clock speed: ");
+    tx_dec32(hz);
+    tx_string(" Hz" NEWLINE);
+    return 0;
+}
+
+int cmd_mem(int argc, char **argv) {
+    uint16_t bottom = mem_lo();
+    uint16_t top = mem_top();
+    uint16_t free = (uint16_t)(top - bottom + 1);
+    (void)argc; (void)argv;
+    tx_string(NEWLINE "Memory available for user programs" NEWLINE NEWLINE);
+    tx_string("range:        0x");
+    tx_hex16(bottom);
+    tx_string(" ... 0x");
+    tx_hex16(top);
+    tx_string(NEWLINE);
+    tx_string("size [bytes]: ");
+    tx_dec32(free);
+    tx_string(NEWLINE NEWLINE);
+    return 0;
+}
+
+int cmd_stat(int argc, char **argv) {
+    if(argc < 2) {
+        tx_string("Usage: stat <path>" NEWLINE);
+        return 0;
+    }
+    if(f_stat(argv[1], &dir_ent) < 0) {
+        tx_string("stat failed" NEWLINE);
+        return -1;
+    }
+    tx_string("Name   : ");
+    tx_string(dir_ent.fname);
+    tx_string(NEWLINE);
+    tx_string("Short  : ");
+    tx_string(dir_ent.altname);
+    tx_string(NEWLINE);
+    tx_string("Size   : ");
+    tx_dec32(dir_ent.fsize);
+    tx_string(" bytes" NEWLINE);
+    tx_string("Attr   : 0x");
+    tx_hex16(dir_ent.fattrib);
+    tx_string(NEWLINE);
+    tx_string("Mod    : ");
+    tx_string(format_fat_datetime(dir_ent.fdate, dir_ent.ftime));
+    tx_string(NEWLINE NEWLINE);
+    return 0;
+}
+
+/*
+// shell command scaffolding
+int cmd_token(int argc, char **argv) {
+    int i;
+    for(i = 0; i < argc; i++) {
+        printf("%d: [%s]" NEWLINE, i, argv[i]);
+    }
+    return 0;
+}
+*/
