@@ -491,7 +491,6 @@ int execute(cmdline_t *cl) {
     char *tokenList[CMD_TOKEN_MAX];
     int tokens = 0;
     cl->lastbytes = 0;
-    // memcpy(cl->lastbuffer, cl->buffer, cl->bytes); cl->lastbytes = cl->bytes; cl->lastbuffer[cl->bytes] = 0;
     memcpy(cl->lastbuffer, cl->buffer, cl->bytes);
     cl->lastbytes = cl->bytes;
     cl->lastbuffer[cl->bytes] = 0;
@@ -539,7 +538,7 @@ int main(void) {
         args[0] = (char *)"";
         cmd_phi2(1, args);
     }
-    show_time();
+    // show_time();
     tx_string(NEWLINE NEWLINE);
     {
         char *args[1];
@@ -698,7 +697,7 @@ int cmd_cls(int, char **) {
 }
 
 int cmd_exit(int status, char **) {
-    tx_string(NEWLINE NEWLINE "Exit to Picocomputer 6502 monitor." NEWLINE "Bye, bye !" NEWLINE NEWLINE);
+    tx_string(NEWLINE "Exiting to the monitor." NEWLINE "Bye, bye !" NEWLINE NEWLINE);
     exit(status);
     return 0;
 }
@@ -1256,6 +1255,11 @@ int cmd_dir(int argc, char **argv) {
     char *p;
     int dirdes = -1;
     int rc = 0;
+    unsigned sort_mode = 0; /* 0=name,1=time desc (youngest),2=time asc,3=size asc,4=size desc */
+    unsigned files_count = 0;
+    unsigned dirs_count = 0;
+    unsigned long total_bytes = 0;
+    int i;
 
     dir_drive[0] = dir_drive[1] = dir_drive[2] = 0;
     if(argc >= 2) {
@@ -1299,6 +1303,15 @@ int cmd_dir(int argc, char **argv) {
             path = ".";
         }
         if(!*mask) mask = "*.*";
+    }
+    /* Parse optional flags /da /dd /sa /sd */
+    for(i = 2; i < argc; i++) {
+        if(argv[i][0] == '/') {
+            if(!strcmp(argv[i], "/da")) sort_mode = 1;
+            else if(!strcmp(argv[i], "/dd")) sort_mode = 2;
+            else if(!strcmp(argv[i], "/sa")) sort_mode = 3;
+            else if(!strcmp(argv[i], "/sd")) sort_mode = 4;
+        }
     }
 
     // Copy path/mask into static buffers for reuse.
@@ -1359,11 +1372,33 @@ int cmd_dir(int argc, char **argv) {
             unsigned a_dir = dir_entries[dir_i].fattrib & AM_DIR;
             unsigned b_dir = dir_entries[dir_j].fattrib & AM_DIR;
             int swap = 0;
-            if(a_dir != b_dir) {
-                // Files (a_dir==0) come before directories.
-                if(a_dir && !b_dir) swap = 1;
-            } else {
-                if(strcmp(dir_entries[dir_i].name, dir_entries[dir_j].name) > 0) swap = 1;
+            unsigned long a_val = 0;
+            unsigned long b_val = 0;
+            switch(sort_mode) {
+                case 1: /* time desc (youngest first) */
+                case 2: /* time asc */
+                    a_val = ((unsigned long)dir_entries[dir_i].fdate << 16) | dir_entries[dir_i].ftime;
+                    b_val = ((unsigned long)dir_entries[dir_j].fdate << 16) | dir_entries[dir_j].ftime;
+                    if(sort_mode == 1) swap = a_val < b_val;
+                    else swap = a_val > b_val;
+                    break;
+                case 3: /* size asc */
+                    a_val = dir_entries[dir_i].fsize;
+                    b_val = dir_entries[dir_j].fsize;
+                    swap = a_val > b_val;
+                    break;
+                case 4: /* size desc */
+                    a_val = dir_entries[dir_i].fsize;
+                    b_val = dir_entries[dir_j].fsize;
+                    swap = a_val < b_val;
+                    break;
+                default: /* name, files before dirs */
+                    if(a_dir != b_dir) {
+                        if(a_dir && !b_dir) swap = 1;
+                    } else if(strcmp(dir_entries[dir_i].name, dir_entries[dir_j].name) > 0) {
+                        swap = 1;
+                    }
+                    break;
             }
             if(swap) {
                 dir_tmp = dir_entries[dir_i];
@@ -1393,18 +1428,34 @@ int cmd_dir(int argc, char **argv) {
         tx_char('\t');
         if(dir_entries[dir_i].fattrib & AM_DIR) {
             tx_string("<DIR>");
+            dirs_count++;
         } else {
             tx_dec32(dir_entries[dir_i].fsize);
+            total_bytes += dir_entries[dir_i].fsize;
+            files_count++;
         }
+        tx_char('\t');
+        tx_char((dir_entries[dir_i].fattrib & AM_RDO) ? 'R' : '-');
+        tx_char((dir_entries[dir_i].fattrib & AM_HID) ? 'H' : '-');
+        tx_char((dir_entries[dir_i].fattrib & AM_SYS) ? 'S' : '-');
+        tx_char((dir_entries[dir_i].fattrib & AM_VOL) ? 'V' : '-');
+        tx_char((dir_entries[dir_i].fattrib & AM_DIR) ? 'D' : '-');
+        tx_char((dir_entries[dir_i].fattrib & AM_ARC) ? 'A' : '-');
         tx_string(NEWLINE);
     }
     tx_string(NEWLINE);
+    tx_string("Files: ");
+    tx_dec32(files_count);
+    tx_string("  Dirs: ");
+    tx_dec32(dirs_count);
+    tx_string("  Bytes: ");
+    tx_dec32(total_bytes);
+    tx_string(NEWLINE NEWLINE);
     return 0;
 }
 
 int cmd_time(int argc, char **argv) {
     (void)argc; (void)argv;
-    tx_string(NEWLINE);
     show_time();
     tx_string(NEWLINE NEWLINE);
     return 0;
@@ -1415,7 +1466,7 @@ int cmd_phi2(int argc, char **argv) {
     (void)argc; (void)argv;
     tx_string("65C02 clock speed: ");
     tx_dec32(hz);
-    tx_string(" Hz" NEWLINE);
+    tx_string(" Hz" NEWLINE NEWLINE);
     return 0;
 }
 
