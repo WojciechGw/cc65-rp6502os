@@ -46,6 +46,11 @@
 
 #ifndef AM_DIR
 #define AM_DIR 0x10
+#define AM_RDO 0x01
+#define AM_HID 0x02
+#define AM_SYS 0x04
+#define AM_VOL 0x08
+#define AM_ARC 0x20
 #endif
 
 extern void quit(void);
@@ -125,6 +130,7 @@ int cmd_mv(int, char **);
 int cmd_mem(int, char **);
 int cmd_cm(int, char **);
 int cmd_phi2(int, char **);
+int cmd_chmod(int, char **);
 int cmd_exit(int, char **);
 int cmd_time(int, char **);
 int cmd_stat(int, char **);
@@ -136,6 +142,7 @@ static const cmd_t commands[] = {
     { "drives", "shows available drives", cmd_drives},
     { "cd",     "change active directory", cmd_cd},
     { "mkdir",  "create directory", cmd_mkdir},
+    { "chmod",  "set file attributes", cmd_chmod},
     { "cp",     "copy file", cmd_cp},
     { "cm",     "copy/move multiple files", cmd_cm},
     { "mv",     "moves/renames a file or directory", cmd_mv},
@@ -1447,12 +1454,49 @@ int cmd_stat(int argc, char **argv) {
     tx_string("Size   : ");
     tx_dec32(dir_ent.fsize);
     tx_string(" bytes" NEWLINE);
-    tx_string("Attr   : 0x");
-    tx_hex16(dir_ent.fattrib);
+    tx_string("Attr   : ");
+    tx_char((dir_ent.fattrib & AM_RDO) ? 'R' : '-');
+    tx_char((dir_ent.fattrib & AM_HID) ? 'H' : '-');
+    tx_char((dir_ent.fattrib & AM_SYS) ? 'S' : '-');
+    tx_char((dir_ent.fattrib & AM_VOL) ? 'V' : '-');
+    tx_char((dir_ent.fattrib & AM_DIR) ? 'D' : '-');
+    tx_char((dir_ent.fattrib & AM_ARC) ? 'A' : '-');
     tx_string(NEWLINE);
     tx_string("Mod    : ");
     tx_string(format_fat_datetime(dir_ent.fdate, dir_ent.ftime));
     tx_string(NEWLINE NEWLINE);
+    return 0;
+}
+
+int cmd_chmod(int argc, char **argv) {
+    unsigned set = 0;
+    unsigned clear = 0;
+    int i;
+    if(argc < 3) {
+        tx_string("Usage: chmod <path> <flags...>" NEWLINE);
+        tx_string("Use R+/R- H+/H- S+/S- A+/A- for read-only/hidden/system/archive" NEWLINE);
+        return 0;
+    }
+    for(i = 2; i < argc; i++) {
+        char c = argv[i][0];
+        char op = argv[i][1];
+        if(argv[i][2] != 0 || (op != '+' && op != '-')) continue;
+        switch(c) {
+            case 'R': if(op == '+') set |= AM_RDO; else clear |= AM_RDO; break;
+            case 'H': if(op == '+') set |= AM_HID; else clear |= AM_HID; break;
+            case 'S': if(op == '+') set |= AM_SYS; else clear |= AM_SYS; break;
+            case 'A': if(op == '+') set |= AM_ARC; else clear |= AM_ARC; break;
+            default: break;
+        }
+    }
+    if(set == 0 && clear == 0) {
+        tx_string("No attributes to change" NEWLINE);
+        return 0;
+    }
+    if(f_chmod(argv[1], set, clear | set) < 0) {
+        tx_string("chmod failed" NEWLINE);
+        return -1;
+    }
     return 0;
 }
 
