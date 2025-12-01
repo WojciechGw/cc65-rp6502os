@@ -337,7 +337,7 @@ void help(){
     tx_string("left\tprevious drive" NEWLINE);
     tx_string("right\tnext drive" NEWLINE);
     tx_string("up\trecall last command" NEWLINE);
-    tx_string("down\thelp" NEWLINE);
+    tx_string("down\tcurrent drive's directory" NEWLINE);
     return;
 }
 
