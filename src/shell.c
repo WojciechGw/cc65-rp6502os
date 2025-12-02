@@ -24,6 +24,7 @@
 
 #define CMD_BUF_MAX 511
 #define CMD_TOKEN_MAX 64
+#define EDIT_BUF_MAX 2048
 
 #define TX_READY (RIA.ready & RIA_READY_TX_BIT)
 #define RX_READY (RIA.ready & RIA_READY_RX_BIT)
@@ -132,6 +133,7 @@ int cmd_chmod(int, char **);
 int cmd_exit(int, char **);
 int cmd_time(int, char **);
 int cmd_stat(int, char **);
+int cmd_edit(int, char **);
 
 static const cmd_t commands[] = {
     // example : { "token",  "tests the tokenization", cmd_token },
@@ -146,6 +148,7 @@ static const cmd_t commands[] = {
     { "mv",     "moves/renames a file or directory", cmd_mv},
     { "rm",     "removes a file/files", cmd_rm},
     { "list",   "shows a file content", cmd_list},
+    { "edit",   "simple text editor", cmd_edit},
     { "stat",   "returns file or directory info", cmd_stat},
     { "bload",  "load binary file to RAM/XRAM", cmd_bload},
     { "bsave",  "save RAM/XRAM to binary file", cmd_bsave},
@@ -237,6 +240,60 @@ void tx_dec32(unsigned long val) {
         val /= 10;
     }
     tx_chars(&out[i], 10 - i);
+}
+
+// Read a single line from the console; returns length or -1 if cancelled with ESC.
+static int read_line_editor(char *buf, int maxlen) {
+    int len = 0;
+    char c = 0;
+    while(1) {
+        RX_READY_SPIN;
+        c = (char)RIA.rx;
+        if(c == CHAR_CR || c == CHAR_LF) {
+            tx_string(NEWLINE);
+            buf[len] = 0;
+            return len;
+        }
+        if(c == CHAR_BS || c == KEY_DEL) {
+            if(len) {
+                len--;
+                tx_string("\b \b");
+            } else {
+                tx_char(CHAR_BELL);
+            }
+            continue;
+        }
+        if(c == CHAR_ESC) {
+            buf[0] = 0;
+            return -1;
+        }
+        if(c >= 32 && c <= 126) {
+            if(len < maxlen - 1) {
+                buf[len++] = c;
+                tx_char(c);
+            } else {
+                tx_char(CHAR_BELL);
+            }
+        }
+    }
+}
+
+// Print existing file content with CR/LF translation.
+static void tx_print_existing(const char *buf, unsigned len) {
+    unsigned i;
+    if(len == 0) {
+        tx_string("<empty>" NEWLINE);
+        return;
+    }
+    for(i = 0; i < len; i++) {
+        char c = buf[i];
+        if(c == '\n') {
+            tx_string(NEWLINE);
+        } else {
+            tx_char(c);
+        }
+    }
+    tx_string(NEWLINE);
 }
 
 // Format FAT date/time into YYYY-MM-DD hh:mm:ss
@@ -846,6 +903,96 @@ int cmd_list(int argc, char **argv) {
     return 0;
 }
 
+int cmd_edit(int argc, char **argv) {
+    int fd = -1;
+    int rc = 0;
+    int n;
+    unsigned existing_len = 0;
+    unsigned new_len = 0;
+    char line_buf[128];
+    char *existing = malloc(EDIT_BUF_MAX);
+    char *new_content = malloc(EDIT_BUF_MAX);
+
+    if(argc < 2) {
+        tx_string("Usage: edit <file>" NEWLINE);
+        free(existing); free(new_content);
+        return 0;
+    }
+    if(!existing || !new_content) {
+        tx_string("edit: OOM" NEWLINE);
+        free(existing); free(new_content);
+        return -1;
+    }
+
+    fd = open(argv[1], O_RDONLY);
+    if(fd >= 0) {
+        while((n = read(fd, existing + existing_len, EDIT_BUF_MAX - 1 - existing_len)) > 0) {
+            existing_len += n;
+            if(existing_len >= EDIT_BUF_MAX - 1) break;
+        }
+        if(n < 0) {
+            tx_string("Cannot read file" NEWLINE);
+            rc = -1;
+            goto cleanup;
+        }
+        close(fd);
+        fd = -1;
+    }
+    existing[existing_len] = 0;
+
+    tx_string("---- existing content ----" NEWLINE);
+    tx_print_existing(existing, existing_len);
+    if(existing_len >= EDIT_BUF_MAX - 1) {
+        tx_string("[display truncated]" NEWLINE);
+    }
+    tx_string("--------------------------" NEWLINE);
+    tx_string("Type new content. '.' on its own line saves, '!' aborts, ESC cancels." NEWLINE);
+
+    while(1) {
+        int line_len;
+        tx_string("> ");
+        line_len = read_line_editor(line_buf, sizeof(line_buf));
+        if(line_len < 0) {
+            tx_string("Edit cancelled" NEWLINE);
+            rc = -1;
+            goto cleanup;
+        }
+        if(line_len == 1 && line_buf[0] == '!') {
+            tx_string("Edit aborted, file left unchanged" NEWLINE);
+            goto cleanup;
+        }
+        if(line_len == 1 && line_buf[0] == '.') {
+            break;
+        }
+        if(new_len + (unsigned)line_len + 1 >= EDIT_BUF_MAX) {
+            tx_string("Buffer full, stopping input" NEWLINE);
+            break;
+        }
+        memcpy(new_content + new_len, line_buf, line_len);
+        new_content[new_len + line_len] = '\n';
+        new_len += line_len + 1;
+    }
+
+    fd = open(argv[1], O_WRONLY | O_CREAT | O_TRUNC);
+    if(fd < 0) {
+        tx_string("Cannot open file for writing" NEWLINE);
+        rc = -1;
+        goto cleanup;
+    }
+    if(write(fd, new_content, new_len) != (int)new_len) {
+        tx_string("Write failed" NEWLINE);
+        rc = -1;
+        goto cleanup;
+    }
+    tx_string("Saved" NEWLINE);
+
+cleanup:
+    if(fd >= 0) close(fd);
+    free(existing);
+    free(new_content);
+    return rc;
+}
+
 int cmd_mkdir(int argc, char **argv) {
     if(argc < 2) {
         tx_string("Usage: mkdir <path>" NEWLINE);
@@ -1247,7 +1394,7 @@ int cmd_memr(int argc, char **argv) {
 }
 
 int cmd_dir(int argc, char **argv) {
-    const char *mask = "*.*";
+    const char *mask = "*";
     const char *path = ".";
     char *p;
     int dirdes = -1;
@@ -1312,10 +1459,10 @@ int cmd_dir(int argc, char **argv) {
                 path = ".";
             }
         } else {
-            mask = "*.*";
+            mask = "*";
             path = ".";
         }
-        if(!*mask) mask = "*.*";
+        if(!*mask) mask = "*";
     }
     /* Parse optional flags /da /dd /sa /sd */
     for(i = 2; i < argc; i++) {
