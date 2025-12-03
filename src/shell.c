@@ -8,6 +8,9 @@
  * See LICENSE file in the project root folder for license information
  */
 
+// Picocomputer 6502 documentation
+// https://picocomputer.github.io/index.html
+
 #include <rp6502.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -717,6 +720,20 @@ int main(void) {
                     args[0] = (char *)"dir";
                     tx_string(NEWLINE);
                     cmd_dir(1, args);
+                    prompt();
+                    continue;
+                } else if(rx == CHAR_LEFT || rx == CHAR_RIGHT) {
+                    char next = current_drive;
+                    if(rx == CHAR_LEFT) {
+                        if(next > '0') next--;
+                    } else {
+                        if(next < '7') next++;
+                    }
+                    drv_args_buf[0] = next;
+                    drv_args_buf[1] = ':';
+                    drv_args_buf[2] = 0;
+                    cmd_drive(2, drv_args);
+                    tx_string("\r\x1b[K");
                     prompt();
                     continue;
                 }
