@@ -117,6 +117,7 @@ int cmd_memr(int, char **);
 int cmd_bload(int, char **);
 int cmd_bsave(int, char **);
 int cmd_brun(int, char **);
+int cmd_run(int, char **);
 int cmd_dir(int, char **);
 int cmd_drive(int, char **);
 int cmd_drives(int, char **);
@@ -153,6 +154,7 @@ static const cmd_t commands[] = {
     { "bload",  "load binary file to RAM/XRAM", cmd_bload},
     { "bsave",  "save RAM/XRAM to binary file", cmd_bsave},
     { "brun",   "load binary file to RAM and run", cmd_brun},
+    { "run",    "run code at address", cmd_run},
     { "mem",    "information about memory", cmd_mem},
     { "memx",   "reads xram", cmd_memx },
     { "memr",   "reads ram", cmd_memr },
@@ -1241,6 +1243,22 @@ int cmd_brun(int argc, char **argv) {
     // tx_dec32((unsigned long)(addr - start));
     clearterminal();
     fn = (void (*)(void))start;
+    fn();
+    return 0;
+}
+
+int cmd_run(int argc, char **argv) {
+    void (*fn)(void);
+    uint16_t addr;
+
+    if(argc < 2) {
+        tx_string("Usage: run <addr>" NEWLINE);
+        return 0;
+    }
+
+    addr = (uint16_t)strtoul(argv[1], NULL, 16);
+    clearterminal();
+    fn = (void (*)(void))addr;
     fn();
     return 0;
 }
