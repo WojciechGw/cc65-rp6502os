@@ -1,10 +1,9 @@
 /**
  * @file      shell.c
- * @author    WojciechGw <wojciech@post.pl>
- * @copyright WojciechGw. All rights reserved.
+ * @author    Wojciech Gwioździk <wojciech@post.pl>
+ * @copyright Wojciech Gwioździk. All rights reserved.
  *
  * based on Jason Howard's code <jth@howardlogic.com>
- * 
  * See LICENSE file in the project root folder for license information
  */
 
@@ -21,10 +20,10 @@
 #include <fcntl.h>
 #include <time.h>
 #ifndef __STACKSIZE__
-#define __STACKSIZE__ 0x0800
+    #define __STACKSIZE__ 0x0800
 #endif
 #define MEMTOP (0xFD00-__STACKSIZE__)
-#define COM_LOAD_ADDR 0xA000
+#define COM_LOAD_ADDR 0xA000      /* where to upload the code (binary shell extensions - .com files) */
 
 #define CMD_BUF_MAX 511
 #define CMD_TOKEN_MAX 64
@@ -113,9 +112,9 @@ static char rm_path[RMBUFFLEN];
 static char rm_mask[RMBUFFLEN];
 static char rm_file[RMBUFFLEN];
 static unsigned char bload_buf[128];
-static char shell_end_marker;
 static char com_fname[FNAMELEN];
 static char *com_argv[CMD_TOKEN_MAX+1];
+static char shell_end_marker;
 extern struct _timezone _tz;
 
 // example : int cmd_token(int, char **);
