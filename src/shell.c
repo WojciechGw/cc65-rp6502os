@@ -21,10 +21,14 @@
 #define __STACKSIZE__ 0x0800
 #endif
 #define MEMTOP (0xFD00-__STACKSIZE__)
+#define COM_LOAD_ADDR 0xA000
 
 #define CMD_BUF_MAX 511
 #define CMD_TOKEN_MAX 64
 #define EDIT_BUF_MAX 2048
+#define RUN_ARGS_BASE 0x0200      /* where argc/argv block is stored for run */
+#define RUN_ARGS_MAX 8
+#define RUN_ARGS_BUF 128
 
 #define TX_READY (RIA.ready & RIA_READY_TX_BIT)
 #define RX_READY (RIA.ready & RIA_READY_RX_BIT)
@@ -107,6 +111,8 @@ static char rm_mask[RMBUFFLEN];
 static char rm_file[RMBUFFLEN];
 static unsigned char bload_buf[128];
 static char shell_end_marker;
+static char com_fname[FNAMELEN];
+static char *com_argv[CMD_TOKEN_MAX+1];
 extern struct _timezone _tz;
 
 // example : int cmd_token(int, char **);
@@ -127,6 +133,8 @@ int cmd_mkdir(int, char **);
 int cmd_rm(int, char **);
 int cmd_cp(int, char **);
 int cmd_mv(int, char **);
+int cmd_rename(int, char **);
+int cmd_com(int, char **);
 int cmd_mem(int, char **);
 int cmd_cm(int, char **);
 int cmd_phi2(int, char **);
@@ -135,6 +143,8 @@ int cmd_exit(int, char **);
 int cmd_time(int, char **);
 int cmd_stat(int, char **);
 int cmd_edit(int, char **);
+
+static void build_run_args(int user_argc, char **user_argv);
 
 static const cmd_t commands[] = {
     // example : { "token",  "tests the tokenization", cmd_token },
@@ -147,6 +157,7 @@ static const cmd_t commands[] = {
     { "cp",     "copy file", cmd_cp},
     { "cm",     "copy/move multiple files", cmd_cm},
     { "mv",     "moves/renames a file or directory", cmd_mv},
+    { "rename", "renames a file or directory", cmd_rename},
     { "rm",     "removes a file/files", cmd_rm},
     { "list",   "shows a file content", cmd_list},
     { "edit",   "simple text editor", cmd_edit},
@@ -154,6 +165,7 @@ static const cmd_t commands[] = {
     { "bload",  "load binary file to RAM/XRAM", cmd_bload},
     { "bsave",  "save RAM/XRAM to binary file", cmd_bsave},
     { "brun",   "load binary file to RAM and run", cmd_brun},
+    { "com",    "load .com binary and run with args", cmd_com},
     { "run",    "run code at address", cmd_run},
     { "mem",    "information about memory", cmd_mem},
     { "memx",   "reads xram", cmd_memx },
@@ -568,6 +580,25 @@ int execute(cmdline_t *cl) {
     for(i = 0; i < ARRAY_SIZE(commands); i++) {
         if(!strcmp(tokenList[0], commands[i].cmd)) {
             return commands[i].func(tokens, tokenList);
+        }
+    }
+    /* Try implicit .com execution: command name as filename + .com */
+    {
+        unsigned name_len = (unsigned)strlen(tokenList[0]);
+        int com_argc;
+        int j;
+        if(name_len + 4 < sizeof(com_fname)) {
+            memcpy(com_fname, tokenList[0], name_len);
+            com_fname[name_len] = 0;
+            strcat(com_fname, ".com");
+            com_argv[0] = (char *)"com";
+            com_argv[1] = com_fname;
+            com_argc = tokens + 1; /* add synthetic command name */
+            if(com_argc > CMD_TOKEN_MAX + 1) com_argc = CMD_TOKEN_MAX + 1;
+            for(j = 1; j < tokens && (j + 1) < (CMD_TOKEN_MAX + 1); j++) {
+                com_argv[j + 1] = tokenList[j];
+            }
+            return cmd_com(com_argc, com_argv);
         }
     }
     tx_string("Unknown command" NEWLINE);
@@ -1135,6 +1166,18 @@ int cmd_mv(int argc, char **argv) {
     return 0;
 }
 
+int cmd_rename(int argc, char **argv) {
+    if(argc < 3) {
+        tx_string("Usage: rename <old> <new>" NEWLINE);
+        return 0;
+    }
+    if(rename(argv[1], argv[2]) < 0) {
+        tx_string("rename failed" NEWLINE);
+        return -1;
+    }
+    return 0;
+}
+
 int cmd_bload(int argc, char **argv) {
     int fd;
     int n;
@@ -1247,20 +1290,90 @@ int cmd_brun(int argc, char **argv) {
     return 0;
 }
 
+int cmd_com(int argc, char **argv) {
+    int fd;
+    int n;
+    uint16_t addr = COM_LOAD_ADDR;
+    void (*fn)(void);
+    int user_argc;
+    char **user_argv;
+
+    if(argc < 2) {
+        tx_string("Usage: com <file.com> [args...]" NEWLINE);
+        return 0;
+    }
+    fd = open(argv[1], O_RDONLY);
+    if(fd < 0) {
+        tx_string("Cannot open file" NEWLINE);
+        return -1;
+    }
+
+    while((n = read(fd, bload_buf, sizeof(bload_buf))) > 0) {
+        ram_writer(bload_buf, addr, n);
+        addr += (uint16_t)n;
+    }
+    close(fd);
+    if(n < 0) {
+        tx_string("Read error" NEWLINE);
+        return -1;
+    }
+
+    user_argc = argc - 2;
+    if(user_argc < 0) user_argc = 0;
+    user_argv = argv + 2;
+    build_run_args(user_argc, user_argv);
+
+    clearterminal();
+    fn = (void (*)(void))COM_LOAD_ADDR;
+    fn();
+    return 0;
+}
+
 int cmd_run(int argc, char **argv) {
     void (*fn)(void);
     uint16_t addr;
+    int user_argc;
+    char **user_argv;
 
     if(argc < 2) {
-        tx_string("Usage: run <addr>" NEWLINE);
+        tx_string("Usage: run <addr> [arg1, ...]" NEWLINE);
         return 0;
     }
 
     addr = (uint16_t)strtoul(argv[1], NULL, 16);
+    user_argc = argc - 2;
+    if(user_argc < 0) user_argc = 0;
+    user_argv = argv + 2;
+
+    build_run_args(user_argc, user_argv);
     clearterminal();
     fn = (void (*)(void))addr;
     fn();
     return 0;
+}
+
+static void build_run_args(int user_argc, char **user_argv) {
+    uint8_t *base = (uint8_t *)RUN_ARGS_BASE;
+    uint16_t *ptrs = (uint16_t *)(RUN_ARGS_BASE + 1);
+    uint8_t *strp = (uint8_t *)(RUN_ARGS_BASE + 1 + RUN_ARGS_MAX * 2);
+    uint8_t *end = strp + RUN_ARGS_BUF;
+    int i;
+
+    if(user_argc > RUN_ARGS_MAX) user_argc = RUN_ARGS_MAX;
+    if(user_argc < 0) user_argc = 0;
+    base[0] = (uint8_t)user_argc;
+
+    for(i = 0; i < user_argc; i++) {
+        const char *s = user_argv[i];
+        size_t len = strlen(s);
+        if(strp + len + 1 > end) {
+            base[0] = (uint8_t)i; /* truncate argc to stored args */
+            break;
+        }
+        ptrs[i] = (uint16_t)(uintptr_t)strp;
+        memcpy(strp, s, len + 1);
+        strp += len + 1;
+    }
 }
 
 int cmd_cm(int argc, char **argv) {

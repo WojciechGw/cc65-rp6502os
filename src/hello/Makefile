@@ -1,7 +1,7 @@
 CC65 ?= cl65
 
-TARGET = hello.bin
-SRCS = hello.c crt0_cmd.s write_stub.c
+TARGET = hello.com
+SRCS = hello.c crt0_cmd.s write_stub.c initmainargs.s
 CFG = hello.cfg
 MAP = hello.map
 
