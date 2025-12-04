@@ -23,6 +23,7 @@
     #define __STACKSIZE__ 0x0800
 #endif
 #define MEMTOP (0xFD00-__STACKSIZE__)
+#define SHELLDIR "USB0:/SHELL/"
 #define COM_LOAD_ADDR 0xA000      /* where to upload the code (binary shell extensions - .com files) */
 
 #define CMD_BUF_MAX 511
@@ -31,6 +32,7 @@
 #define RUN_ARGS_BASE 0x0200      /* where argc/argv block is stored for run */
 #define RUN_ARGS_MAX 8
 #define RUN_ARGS_BUF 128
+#define HEXDUMP_LINE_SIZE 16
 
 #define TX_READY (RIA.ready & RIA_READY_TX_BIT)
 #define RX_READY (RIA.ready & RIA_READY_RX_BIT)
@@ -409,7 +411,6 @@ int hexstr(char *str, uint8_t val) {
     return 2;
 }
 
-#define HEXDUMP_LINE_SIZE 16
 void hexdump(uint16_t addr, uint16_t bytes, char_stream_func_t streamer, read_data_func_t reader) {
     int i;
     uint8_t data[HEXDUMP_LINE_SIZE];
@@ -584,15 +585,16 @@ int execute(cmdline_t *cl) {
             return commands[i].func(tokens, tokenList);
         }
     }
-    /* Try implicit .com execution: command name as filename + .com */
+    /* Try implicit .com execution: SHELLDIR/<name>.com */
     {
         unsigned name_len = (unsigned)strlen(tokenList[0]);
+        unsigned prefix_len = (unsigned)strlen(SHELLDIR);
         int com_argc;
         int j;
-        if(name_len + 4 < sizeof(com_fname)) {
-            memcpy(com_fname, tokenList[0], name_len);
-            com_fname[name_len] = 0;
-            strcat(com_fname, ".com");
+        if(prefix_len + name_len + 5 < sizeof(com_fname)) {
+            memcpy(com_fname, SHELLDIR, prefix_len);
+            memcpy(com_fname + prefix_len, tokenList[0], name_len);
+            memcpy(com_fname + prefix_len + name_len, ".com", 5); /* includes NUL */
             com_argv[0] = (char *)"com";
             com_argv[1] = com_fname;
             com_argc = tokens + 1; /* add synthetic command name */
