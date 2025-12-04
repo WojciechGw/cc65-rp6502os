@@ -1,8 +1,8 @@
 .export __STARTUP__
 .import _main, initlib, donelib
 
-ARGC_LOC = $0200           ; must match shell RUN_ARGS_BASE
-ARGV_LOC = $0201           ; pointer table starts immediately after argc
+ARGC_LOC = $9E00           ; must match shell RUN_ARGS_BASE
+ARGV_LOC = $9E01           ; pointer table starts immediately after argc
 
 .segment "STARTUP"
 __STARTUP__:

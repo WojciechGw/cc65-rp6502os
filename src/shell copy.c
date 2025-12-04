@@ -19,13 +19,177 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <time.h>
-#include "shell.h"
+#ifndef __STACKSIZE__
+    #define __STACKSIZE__ 0x0800
+#endif
+#define MEMTOP (0xFD00-__STACKSIZE__)
+#define SHELLDIR "USB0:/SHELL/"
+#define COM_LOAD_ADDR 0xA000      /* where to upload the code (binary shell extensions - .com files) */
+
+#define CMD_BUF_MAX 511
+#define CMD_TOKEN_MAX 64
+#define EDIT_BUF_MAX 2048
+#define RUN_ARGS_BASE 0x0200      /* where argc/argv block is stored for run (safe area outside shell BSS) */
+#define RUN_ARGS_MAX 4
+#define RUN_ARGS_BUF 32
+#define RUN_ARGS_BLOCK_SIZE (1 + RUN_ARGS_MAX*2 + RUN_ARGS_BUF)
+#define HEXDUMP_LINE_SIZE 16
+
+#define TX_READY (RIA.ready & RIA_READY_TX_BIT)
+#define RX_READY (RIA.ready & RIA_READY_RX_BIT)
+#define TX_READY_SPIN while(!TX_READY)
+#define RX_READY_SPIN while(!RX_READY)
+
+#define CHAR_BELL   0x07
+#define CHAR_BS     0x08
+#define CHAR_CR     0x0D
+#define CHAR_LF     0x0A
+#define CHAR_ESC    0x1B
+#define CHAR_NCHR   0x5B
+#define CHAR_UP     0x41
+#define CHAR_DOWN   0x42
+#define CHAR_RIGHT  0x43
+#define CHAR_LEFT   0x44
+#define CHAR_F1     0x50
+
+#define KEY_DEL     0x7F
+#define TAB         "\t"
+#define NEWLINE     "\r\n"
+
+#define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
+
+#ifndef AM_DIR
+#define AM_DIR 0x10
+#define AM_RDO 0x01
+#define AM_HID 0x02
+#define AM_SYS 0x04
+#define AM_VOL 0x08
+#define AM_ARC 0x20
+#endif
+
+extern void quit(void);
+
+static const char hexdigits[] = "0123456789ABCDEF";
+
+typedef struct {
+    int bytes;
+    int lastbytes;
+    char buffer[CMD_BUF_MAX+1];
+    char lastbuffer[CMD_BUF_MAX+1];
+} cmdline_t;
+
+typedef struct {
+    const char *cmd;
+    const char *help;
+    int (*func)(int argc, char **argv);
+} cmd_t;
+
+typedef void (*char_stream_func_t)(const char *buf, int size);
+typedef void (*read_data_func_t)(uint8_t *buf, uint16_t addr, uint16_t size);
+
+// Statically allocate buffers to keep cc65 stack usage low.
+#define FNAMELEN 64
+#define CPMBUFFLEN 96
+#define RMBUFFLEN 96
+#define DIR_LIST_MAX 40
+static char dir_cwd[FNAMELEN];
+static f_stat_t dir_ent;
+typedef struct {
+    char name[FNAMELEN];
+    unsigned long fsize;
+    unsigned char fattrib;
+    unsigned fdate;
+    unsigned ftime;
+} dir_list_entry_t;
+static char dir_dt_buf[20];
+static char dev_label[16];
+static char saved_cwd[128];
+static char current_drive = '0';
+static char cpm_path[CPMBUFFLEN];
+static char cpm_mask[CPMBUFFLEN];
+static char cpm_dest[CPMBUFFLEN];
+static char cpm_srcfile[CPMBUFFLEN];
+static char cpm_dstfile[CPMBUFFLEN];
+static char *cpm_args[3];
+static char rm_path[RMBUFFLEN];
+static char rm_mask[RMBUFFLEN];
+static char rm_file[RMBUFFLEN];
+static unsigned char bload_buf[128];
+static char com_fname[FNAMELEN];
+static char *com_argv[CMD_TOKEN_MAX+1];
+static unsigned char run_args_backup[RUN_ARGS_BLOCK_SIZE];
+static char shell_end_marker;
+static char drv_args_buf[4] = {0};
+static char *drv_args[2] = { (char *)"drive", drv_args_buf };
+extern struct _timezone _tz;
 
 static void refresh_current_drive(void) {
     if(f_getcwd(dir_cwd, sizeof(dir_cwd)) >= 0 && dir_cwd[1] == ':') {
         current_drive = dir_cwd[0];
     }
 }
+
+// example : int cmd_token(int, char **);
+int cmd_help(int, char **);
+int cmd_cls(int, char **);
+int cmd_memx(int, char **);
+int cmd_memr(int, char **);
+int cmd_bload(int, char **);
+int cmd_bsave(int, char **);
+int cmd_brun(int, char **);
+int cmd_run(int, char **);
+int cmd_dir(int, char **);
+int cmd_drive(int, char **);
+int cmd_drives(int, char **);
+int cmd_list(int, char **);
+int cmd_cd(int, char **);
+int cmd_mkdir(int, char **);
+int cmd_rm(int, char **);
+int cmd_cp(int, char **);
+int cmd_mv(int, char **);
+int cmd_rename(int, char **);
+int cmd_com(int, char **);
+int cmd_mem(int, char **);
+int cmd_cm(int, char **);
+int cmd_phi2(int, char **);
+int cmd_chmod(int, char **);
+int cmd_exit(int, char **);
+int cmd_time(int, char **);
+int cmd_stat(int, char **);
+int cmd_edit(int, char **);
+
+static void build_run_args(int user_argc, char **user_argv);
+
+static const cmd_t commands[] = {
+    // example : { "token",  "tests the tokenization", cmd_token },
+    { "dir",    "active drive directory", cmd_dir},
+    { "drive",  "set active drive", cmd_drive},
+    { "drives", "shows available drives", cmd_drives},
+    { "cd",     "change active directory", cmd_cd},
+    { "mkdir",  "create directory", cmd_mkdir},
+    { "chmod",  "set file attributes", cmd_chmod},
+    { "cp",     "copy file", cmd_cp},
+    { "cm",     "copy/move multiple files", cmd_cm},
+    { "mv",     "moves/renames a file or directory", cmd_mv},
+    { "rename", "renames a file or directory", cmd_rename},
+    { "rm",     "removes a file/files", cmd_rm},
+    { "list",   "shows a file content", cmd_list},
+    { "edit",   "simple text editor", cmd_edit},
+    { "stat",   "returns file or directory info", cmd_stat},
+    { "bload",  "load binary file to RAM/XRAM", cmd_bload},
+    { "bsave",  "save RAM/XRAM to binary file", cmd_bsave},
+    { "brun",   "load binary file to RAM and run", cmd_brun},
+    { "com",    "load .com binary and run with args", cmd_com},
+    { "run",    "run code at address", cmd_run},
+    { "mem",    "information about memory", cmd_mem},
+    { "memx",   "reads xram", cmd_memx },
+    { "memr",   "reads ram", cmd_memr },
+    { "cls",    "clears terminal", cmd_cls },
+    { "time",   "shows local time", cmd_time },
+    { "phi2",   "shows CPU clock frequency", cmd_phi2},
+    { "help",   "prints a list of commands", cmd_help },
+    { "exit",   "exit to the system monitor", cmd_exit},
+};
 
 inline void tx_char(char c) {
     TX_READY_SPIN;
@@ -311,7 +475,6 @@ void prompt() {
     return;
 }
 
-/*
 void help(){
     int i;
     tx_string(NEWLINE "Available commands (case sensitive):" NEWLINE);
@@ -328,7 +491,6 @@ void help(){
     tx_string("<DOWN>\ta directory of active drive" NEWLINE NEWLINE);
     return;
 }
-*/
 
 // Reformats the given buffer into tokens, delimited by spaces.  It places those
 // tokens in the tokenList array (up to maxTokens).  The given buffer may be
@@ -586,20 +748,10 @@ int main(void) {
                 /* Expecting CHAR_F1 */
                 ext_rx = 0;
                 if(rx == CHAR_F1 || rx == 'P') {
-                    char path[FNAMELEN];
-                    int com_argc = 2;
-                    tx_string(NEWLINE);
-                    strcpy(path, SHELLDIR);
-                    strcat(path, "help.com");
-                    com_argv[0] = (char *)"com";
-                    com_argv[1] = path;
-                    cmd_com(com_argc, com_argv);
-                    /*
                     char *args[1];
                     args[0] = (char *)"help";
                     tx_string(NEWLINE);
-                    // cmd_help(1, args);
-                    */
+                    cmd_help(1, args);
                     prompt();
                     continue;
                 }
@@ -645,12 +797,10 @@ int main(void) {
     }
 }
 
-/*
 int cmd_help(int, char **) {
     help();
     return 0;
 }
-*/
 
 int cmd_cls(int, char **) {
     cls();
@@ -1158,7 +1308,7 @@ int cmd_brun(int argc, char **argv) {
     }
     // tx_string("Bytes loaded: ");
     // tx_dec32((unsigned long)(addr - start));
-    // clearterminal();
+    clearterminal();
     fn = (void (*)(void))start;
     fn();
     return 0;
@@ -1199,7 +1349,7 @@ int cmd_com(int argc, char **argv) {
     user_argv = argv + 2;
     build_run_args(user_argc, user_argv);
 
-    // clearterminal();
+    clearterminal();
     fn = (void (*)(void))COM_LOAD_ADDR;
     fn();
     memcpy((void *)RUN_ARGS_BASE, run_args_backup, RUN_ARGS_BLOCK_SIZE);
@@ -1225,7 +1375,7 @@ int cmd_run(int argc, char **argv) {
     user_argv = argv + 2;
 
     build_run_args(user_argc, user_argv);
-    //clearterminal();
+    clearterminal();
     fn = (void (*)(void))addr;
     fn();
     memcpy((void *)RUN_ARGS_BASE, run_args_backup, RUN_ARGS_BLOCK_SIZE);
@@ -1405,6 +1555,236 @@ int cmd_memr(int argc, char **argv) {
     return 0;
 }
 
+int cmd_dir(int argc, char **argv) {
+    const char *mask = "*";
+    const char *path = ".";
+    char *p;
+    int dirdes = -1;
+    int rc = 0;
+    unsigned sort_mode = 0; /* 0=name,1=time desc (youngest),2=time asc,3=size asc,4=size desc */
+    unsigned files_count = 0;
+    unsigned dirs_count = 0;
+    unsigned long total_bytes = 0;
+    int i;
+    char dir_drive[3] = {0};
+    char *dir_arg = malloc(FNAMELEN);
+    char *dir_path_buf = malloc(FNAMELEN);
+    char *dir_mask_buf = malloc(FNAMELEN);
+    dir_list_entry_t *dir_entries = malloc(sizeof(dir_list_entry_t) * DIR_LIST_MAX);
+    dir_list_entry_t dir_tmp;
+    unsigned dir_entries_count = 0;
+    unsigned dir_i = 0, dir_j = 0;
+
+    if(!dir_arg || !dir_path_buf || !dir_mask_buf || !dir_entries) {
+        tx_string("dir: OOM" NEWLINE);
+        free(dir_arg); free(dir_path_buf); free(dir_mask_buf); free(dir_entries);
+        return -1;
+    }
+
+    dir_drive[0] = dir_drive[1] = dir_drive[2] = 0;
+    if(argc >= 2) {
+        strcpy(dir_arg, argv[1]);
+        // Handle drive prefix like "0:" or "A:"
+        if(dir_arg[1] == ':') {
+            if(dir_arg[0] < '0' || dir_arg[0] > '7') {
+                tx_string("Invalid drive" NEWLINE);
+                rc = -1;
+                goto cleanup;
+            }
+            dir_drive[0] = dir_arg[0];
+            dir_drive[1] = ':';
+            dir_drive[2] = 0;
+            if(f_chdrive(dir_drive) < 0) {
+                tx_string("Invalid drive" NEWLINE);
+                rc = -1;
+                goto cleanup;
+            }
+            current_drive = dir_drive[0];
+            p = dir_arg + 2;
+        } else {
+            p = dir_arg;
+        }
+        if(*p == '/' || *p == '\\') p++;
+        if(*p) {
+            char *last_sep = 0;
+            char *iter = p;
+            while(*iter) {
+                if(*iter == '/' || *iter == '\\') last_sep = iter;
+                iter++;
+            }
+            if(last_sep) {
+                *last_sep = 0;
+                mask = last_sep + 1;
+                path = (*p) ? p : ".";
+            } else {
+                mask = p;
+                path = ".";
+            }
+        } else {
+            mask = "*";
+            path = ".";
+        }
+        if(!*mask) mask = "*";
+    }
+    /* Parse optional flags /da /dd /sa /sd */
+    for(i = 2; i < argc; i++) {
+        if(argv[i][0] == '/') {
+            if(!strcmp(argv[i], "/da")) sort_mode = 1;
+            else if(!strcmp(argv[i], "/dd")) sort_mode = 2;
+            else if(!strcmp(argv[i], "/sa")) sort_mode = 3;
+            else if(!strcmp(argv[i], "/sd")) sort_mode = 4;
+        }
+    }
+
+    // Copy path/mask into static buffers for reuse.
+    strcpy(dir_path_buf, path);
+    strcpy(dir_mask_buf, mask);
+
+    if(f_getcwd(dir_cwd, sizeof(dir_cwd)) < 0) {
+        tx_string("getcwd failed" NEWLINE);
+        rc = -1;
+        goto cleanup;
+    }
+
+    tx_string(NEWLINE "Directory: ");
+    tx_string(dir_cwd);
+    tx_string(NEWLINE NEWLINE);
+
+    dirdes = f_opendir(dir_path_buf[0] ? dir_path_buf : ".");
+    if(dirdes < 0) {
+        tx_string("opendir failed" NEWLINE);
+        rc = -1;
+        goto cleanup;
+    }
+
+    dir_entries_count = 0;
+    while(1) {
+        rc = f_readdir(&dir_ent, dirdes);
+        if(rc < 0) {
+            tx_string("readdir failed" NEWLINE);
+            break;
+        }
+        if(!dir_ent.fname[0]) break; // No more entries
+        if(dir_entries_count == DIR_LIST_MAX) {
+            tx_string("Directory listing truncated, too many entries, use wildcards to narrow results" NEWLINE);
+            break;
+        }
+
+        // Apply mask only to files; always include directories so they are visible.
+        if(!(dir_ent.fattrib & AM_DIR)) {
+            if(!match_mask(dir_ent.fname, dir_mask_buf)) continue;
+        }
+
+        strcpy(dir_entries[dir_entries_count].name, dir_ent.fname);
+        dir_entries[dir_entries_count].fsize = dir_ent.fsize;
+        dir_entries[dir_entries_count].fattrib = dir_ent.fattrib;
+        dir_entries[dir_entries_count].fdate = dir_ent.fdate;
+        dir_entries[dir_entries_count].ftime = dir_ent.ftime;
+        dir_entries_count++;
+    }
+
+    if(f_closedir(dirdes) < 0 && rc >= 0) {
+        tx_string("closedir failed" NEWLINE);
+        rc = -1;
+    }
+    dirdes = -1;
+
+    if(rc < 0) return -1;
+
+    // Sort: files first, directories after, each group alphabetically.
+    for(dir_i = 0; dir_i < dir_entries_count; dir_i++) {
+        for(dir_j = dir_i + 1; dir_j < dir_entries_count; dir_j++) {
+            unsigned a_dir = dir_entries[dir_i].fattrib & AM_DIR;
+            unsigned b_dir = dir_entries[dir_j].fattrib & AM_DIR;
+            int swap = 0;
+            unsigned long a_val = 0;
+            unsigned long b_val = 0;
+            switch(sort_mode) {
+                case 1: /* time desc (youngest first) */
+                case 2: /* time asc */
+                    a_val = ((unsigned long)dir_entries[dir_i].fdate << 16) | dir_entries[dir_i].ftime;
+                    b_val = ((unsigned long)dir_entries[dir_j].fdate << 16) | dir_entries[dir_j].ftime;
+                    if(sort_mode == 1) swap = a_val < b_val;
+                    else swap = a_val > b_val;
+                    break;
+                case 3: /* size asc */
+                    a_val = dir_entries[dir_i].fsize;
+                    b_val = dir_entries[dir_j].fsize;
+                    swap = a_val > b_val;
+                    break;
+                case 4: /* size desc */
+                    a_val = dir_entries[dir_i].fsize;
+                    b_val = dir_entries[dir_j].fsize;
+                    swap = a_val < b_val;
+                    break;
+                default: /* name, files before dirs */
+                    if(a_dir != b_dir) {
+                        if(a_dir && !b_dir) swap = 1;
+                    } else if(strcmp(dir_entries[dir_i].name, dir_entries[dir_j].name) > 0) {
+                        swap = 1;
+                    }
+                    break;
+            }
+            if(swap) {
+                dir_tmp = dir_entries[dir_i];
+                dir_entries[dir_i] = dir_entries[dir_j];
+                dir_entries[dir_j] = dir_tmp;
+            }
+        }
+    }
+
+    for(dir_i = 0; dir_i < dir_entries_count; dir_i++) {
+        unsigned name_len;
+        if(dir_entries[dir_i].fattrib & AM_DIR) {
+            tx_char('[');
+            tx_string(dir_entries[dir_i].name);
+            tx_char(']');
+            name_len = strlen(dir_entries[dir_i].name) + 2; // brackets
+        } else {
+            tx_string(dir_entries[dir_i].name);
+            name_len = strlen(dir_entries[dir_i].name);
+        }
+        while(name_len < 32) {
+            tx_char(' ');
+            name_len++;
+        }
+        tx_char('\t');
+        tx_string(format_fat_datetime(dir_entries[dir_i].fdate, dir_entries[dir_i].ftime));
+        tx_char('\t');
+        if(dir_entries[dir_i].fattrib & AM_DIR) {
+            tx_string("<DIR>");
+            dirs_count++;
+        } else {
+            tx_dec32(dir_entries[dir_i].fsize);
+            total_bytes += dir_entries[dir_i].fsize;
+            files_count++;
+        }
+        tx_char('\t');
+        tx_char((dir_entries[dir_i].fattrib & AM_RDO) ? 'R' : '-');
+        tx_char((dir_entries[dir_i].fattrib & AM_HID) ? 'H' : '-');
+        tx_char((dir_entries[dir_i].fattrib & AM_SYS) ? 'S' : '-');
+        tx_char((dir_entries[dir_i].fattrib & AM_VOL) ? 'V' : '-');
+        tx_char((dir_entries[dir_i].fattrib & AM_DIR) ? 'D' : '-');
+        tx_char((dir_entries[dir_i].fattrib & AM_ARC) ? 'A' : '-');
+        tx_string(NEWLINE);
+    }
+    tx_string(NEWLINE);
+    tx_string("Files: ");
+    tx_dec32(files_count);
+    tx_string("  Dirs: ");
+    tx_dec32(dirs_count);
+    tx_string("  Bytes: ");
+    tx_dec32(total_bytes);
+    tx_string(NEWLINE NEWLINE);
+cleanup:
+    if(dirdes >= 0) f_closedir(dirdes);
+    free(dir_arg);
+    free(dir_path_buf);
+    free(dir_mask_buf);
+    free(dir_entries);
+    return rc;
+}
+
 int cmd_time(int argc, char **argv) {
     (void)argc; (void)argv;
     show_time();
@@ -1500,236 +1880,6 @@ int cmd_chmod(int argc, char **argv) {
         return -1;
     }
     return 0;
-}
-
-int cmd_dir(int argc, char **argv) {
-    const char *mask = "*";
-    const char *path = ".";
-    char *p;
-    int dirdes = -1;
-    int rc = 0;
-    unsigned sort_mode = 0; // 0=name,1=time desc (youngest),2=time asc,3=size asc,4=size desc
-    unsigned files_count = 0;
-    unsigned dirs_count = 0;
-    unsigned long total_bytes = 0;
-    int i;
-    char dir_drive[3] = {0};
-    char *dir_arg = malloc(FNAMELEN);
-    char *dir_path_buf = malloc(FNAMELEN);
-    char *dir_mask_buf = malloc(FNAMELEN);
-    dir_list_entry_t *dir_entries = malloc(sizeof(dir_list_entry_t) * DIR_LIST_MAX);
-    dir_list_entry_t dir_tmp;
-    unsigned dir_entries_count = 0;
-    unsigned dir_i = 0, dir_j = 0;
-
-    if(!dir_arg || !dir_path_buf || !dir_mask_buf || !dir_entries) {
-        tx_string("dir: OOM" NEWLINE);
-        free(dir_arg); free(dir_path_buf); free(dir_mask_buf); free(dir_entries);
-        return -1;
-    }
-
-    dir_drive[0] = dir_drive[1] = dir_drive[2] = 0;
-    if(argc >= 2) {
-        strcpy(dir_arg, argv[1]);
-        // Handle drive prefix like "0:" or "A:"
-        if(dir_arg[1] == ':') {
-            if(dir_arg[0] < '0' || dir_arg[0] > '7') {
-                tx_string("Invalid drive" NEWLINE);
-                rc = -1;
-                goto cleanup;
-            }
-            dir_drive[0] = dir_arg[0];
-            dir_drive[1] = ':';
-            dir_drive[2] = 0;
-            if(f_chdrive(dir_drive) < 0) {
-                tx_string("Invalid drive" NEWLINE);
-                rc = -1;
-                goto cleanup;
-            }
-            current_drive = dir_drive[0];
-            p = dir_arg + 2;
-        } else {
-            p = dir_arg;
-        }
-        if(*p == '/' || *p == '\\') p++;
-        if(*p) {
-            char *last_sep = 0;
-            char *iter = p;
-            while(*iter) {
-                if(*iter == '/' || *iter == '\\') last_sep = iter;
-                iter++;
-            }
-            if(last_sep) {
-                *last_sep = 0;
-                mask = last_sep + 1;
-                path = (*p) ? p : ".";
-            } else {
-                mask = p;
-                path = ".";
-            }
-        } else {
-            mask = "*";
-            path = ".";
-        }
-        if(!*mask) mask = "*";
-    }
-    // Parse optional flags /da /dd /sa /sd
-    for(i = 2; i < argc; i++) {
-        if(argv[i][0] == '/') {
-            if(!strcmp(argv[i], "/da")) sort_mode = 1;
-            else if(!strcmp(argv[i], "/dd")) sort_mode = 2;
-            else if(!strcmp(argv[i], "/sa")) sort_mode = 3;
-            else if(!strcmp(argv[i], "/sd")) sort_mode = 4;
-        }
-    }
-
-    // Copy path/mask into static buffers for reuse.
-    strcpy(dir_path_buf, path);
-    strcpy(dir_mask_buf, mask);
-
-    if(f_getcwd(dir_cwd, sizeof(dir_cwd)) < 0) {
-        tx_string("getcwd failed" NEWLINE);
-        rc = -1;
-        goto cleanup;
-    }
-
-    tx_string(NEWLINE "Directory: ");
-    tx_string(dir_cwd);
-    tx_string(NEWLINE NEWLINE);
-
-    dirdes = f_opendir(dir_path_buf[0] ? dir_path_buf : ".");
-    if(dirdes < 0) {
-        tx_string("opendir failed" NEWLINE);
-        rc = -1;
-        goto cleanup;
-    }
-
-    dir_entries_count = 0;
-    while(1) {
-        rc = f_readdir(&dir_ent, dirdes);
-        if(rc < 0) {
-            tx_string("readdir failed" NEWLINE);
-            break;
-        }
-        if(!dir_ent.fname[0]) break; // No more entries
-        if(dir_entries_count == DIR_LIST_MAX) {
-            tx_string("Directory listing truncated, too many entries, use wildcards to narrow results" NEWLINE);
-            break;
-        }
-
-        // Apply mask only to files; always include directories so they are visible.
-        if(!(dir_ent.fattrib & AM_DIR)) {
-            if(!match_mask(dir_ent.fname, dir_mask_buf)) continue;
-        }
-
-        strcpy(dir_entries[dir_entries_count].name, dir_ent.fname);
-        dir_entries[dir_entries_count].fsize = dir_ent.fsize;
-        dir_entries[dir_entries_count].fattrib = dir_ent.fattrib;
-        dir_entries[dir_entries_count].fdate = dir_ent.fdate;
-        dir_entries[dir_entries_count].ftime = dir_ent.ftime;
-        dir_entries_count++;
-    }
-
-    if(f_closedir(dirdes) < 0 && rc >= 0) {
-        tx_string("closedir failed" NEWLINE);
-        rc = -1;
-    }
-    dirdes = -1;
-
-    if(rc < 0) return -1;
-
-    // Sort: files first, directories after, each group alphabetically.
-    for(dir_i = 0; dir_i < dir_entries_count; dir_i++) {
-        for(dir_j = dir_i + 1; dir_j < dir_entries_count; dir_j++) {
-            unsigned a_dir = dir_entries[dir_i].fattrib & AM_DIR;
-            unsigned b_dir = dir_entries[dir_j].fattrib & AM_DIR;
-            int swap = 0;
-            unsigned long a_val = 0;
-            unsigned long b_val = 0;
-            switch(sort_mode) {
-                case 1: // time desc (youngest first)
-                case 2: // time asc
-                    a_val = ((unsigned long)dir_entries[dir_i].fdate << 16) | dir_entries[dir_i].ftime;
-                    b_val = ((unsigned long)dir_entries[dir_j].fdate << 16) | dir_entries[dir_j].ftime;
-                    if(sort_mode == 1) swap = a_val < b_val;
-                    else swap = a_val > b_val;
-                    break;
-                case 3: // size asc
-                    a_val = dir_entries[dir_i].fsize;
-                    b_val = dir_entries[dir_j].fsize;
-                    swap = a_val > b_val;
-                    break;
-                case 4: // size desc
-                    a_val = dir_entries[dir_i].fsize;
-                    b_val = dir_entries[dir_j].fsize;
-                    swap = a_val < b_val;
-                    break;
-                default: // name, files before dirs
-                    if(a_dir != b_dir) {
-                        if(a_dir && !b_dir) swap = 1;
-                    } else if(strcmp(dir_entries[dir_i].name, dir_entries[dir_j].name) > 0) {
-                        swap = 1;
-                    }
-                    break;
-            }
-            if(swap) {
-                dir_tmp = dir_entries[dir_i];
-                dir_entries[dir_i] = dir_entries[dir_j];
-                dir_entries[dir_j] = dir_tmp;
-            }
-        }
-    }
-
-    for(dir_i = 0; dir_i < dir_entries_count; dir_i++) {
-        unsigned name_len;
-        if(dir_entries[dir_i].fattrib & AM_DIR) {
-            tx_char('[');
-            tx_string(dir_entries[dir_i].name);
-            tx_char(']');
-            name_len = strlen(dir_entries[dir_i].name) + 2; // brackets
-        } else {
-            tx_string(dir_entries[dir_i].name);
-            name_len = strlen(dir_entries[dir_i].name);
-        }
-        while(name_len < 32) {
-            tx_char(' ');
-            name_len++;
-        }
-        tx_char('\t');
-        tx_string(format_fat_datetime(dir_entries[dir_i].fdate, dir_entries[dir_i].ftime));
-        tx_char('\t');
-        if(dir_entries[dir_i].fattrib & AM_DIR) {
-            tx_string("<DIR>");
-            dirs_count++;
-        } else {
-            tx_dec32(dir_entries[dir_i].fsize);
-            total_bytes += dir_entries[dir_i].fsize;
-            files_count++;
-        }
-        tx_char('\t');
-        tx_char((dir_entries[dir_i].fattrib & AM_RDO) ? 'R' : '-');
-        tx_char((dir_entries[dir_i].fattrib & AM_HID) ? 'H' : '-');
-        tx_char((dir_entries[dir_i].fattrib & AM_SYS) ? 'S' : '-');
-        tx_char((dir_entries[dir_i].fattrib & AM_VOL) ? 'V' : '-');
-        tx_char((dir_entries[dir_i].fattrib & AM_DIR) ? 'D' : '-');
-        tx_char((dir_entries[dir_i].fattrib & AM_ARC) ? 'A' : '-');
-        tx_string(NEWLINE);
-    }
-    tx_string(NEWLINE);
-    tx_string("Files: ");
-    tx_dec32(files_count);
-    tx_string("  Dirs: ");
-    tx_dec32(dirs_count);
-    tx_string("  Bytes: ");
-    tx_dec32(total_bytes);
-    tx_string(NEWLINE NEWLINE);
-cleanup:
-    if(dirdes >= 0) f_closedir(dirdes);
-    free(dir_arg);
-    free(dir_path_buf);
-    free(dir_mask_buf);
-    free(dir_entries);
-    return rc;
 }
 
 /*
