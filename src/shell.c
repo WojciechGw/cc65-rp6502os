@@ -12,6 +12,212 @@
 
 #include "shell.h"
 
+int main(void) {
+    int i = 0;
+    int v = 0;
+    char last_rx = 0;
+    char ext_rx = 0;
+    static cmdline_t cmdline = {0};
+
+    /*
+    printf("\r\nplease wait ...");
+    PAUSE(500);
+    printf("\r\n\r\n");
+    */
+
+    f_chdrive("0:");
+    current_drive = '0';
+    if(f_getcwd(dir_cwd, sizeof(dir_cwd)) >= 0 && dir_cwd[1] == ':') {
+        current_drive = dir_cwd[0];
+    }
+    cls();
+    /*
+    {
+        char *args[1];
+        args[0] = (char *)"";
+        cmd_phi2(1, args);
+    }
+    show_time();
+    */
+    {
+        char *args[1];
+        args[0] = (char *)"";
+        cmd_drives(1, args);
+    }
+
+    prompt();
+
+    v = RIA.vsync;
+    while (1)
+    {
+        // if (RIA.vsync == v) show_clock();
+        // v = RIA.vsync;
+
+        if(RX_READY) {
+            char rx = (char)RIA.rx;
+            if(rx == CHAR_ESC){
+                ext_rx = 1;
+                continue;
+            } else if(ext_rx == 1) {
+                if(rx == CHAR_NCHR) {
+                    ext_rx = 2;
+                    continue;
+                } else if(rx == 'O') { /* CSI-less F1 from some terminals */
+                    ext_rx = 6;
+                    continue;
+                }
+                ext_rx = 0;
+            } else if(ext_rx == 2){
+                if(rx == CHAR_UP){
+                    ext_rx = 0;
+                    tx_string("\r\x1b[K");
+                    prompt();
+                    cmdline.bytes = cmdline.lastbytes;
+                    memcpy(cmdline.buffer, cmdline.lastbuffer, cmdline.lastbytes);
+                    cmdline.buffer[cmdline.bytes] = 0;
+                    tx_string(cmdline.buffer);
+                    continue;
+                } else if(rx == CHAR_DOWN){
+                    ext_rx = 0;
+                    {
+                        char *args[1];
+                        args[0] = (char *)"dir";
+                        tx_string(NEWLINE);
+                        cmd_dir(1, args);
+                        prompt();
+                    }
+                    continue;
+                } else if(rx == CHAR_LEFT || rx == CHAR_RIGHT) {
+                    char next = current_drive;
+                    if(rx == CHAR_LEFT) {
+                        if(next > '0') next--;
+                    } else {
+                        if(next < '7') next++;
+                    }
+                    drv_args_buf[0] = next;
+                    drv_args_buf[1] = ':';
+                    drv_args_buf[2] = 0;
+                    cmd_drive(2, drv_args);
+                    tx_string("\r\x1b[K");
+                    prompt();
+                    ext_rx = 0;
+                    continue;
+                } else if(rx == '1') {
+                    ext_rx = 3; // possible ctrl+arrow sequence
+                    continue;
+                } else if(rx == 'O') { /* F1 in xterm-style ESC O P */
+                    ext_rx = 6;
+                    continue;
+                } else {
+                    ext_rx = 0;
+                }
+            } else if(ext_rx == 3) {
+                if(rx == ';') {
+                    ext_rx = 4;
+                    continue;
+                }
+                ext_rx = 0;
+            } else if(ext_rx == 4) {
+                if(rx == '5') {
+                    ext_rx = 5;
+                    continue;
+                }
+                ext_rx = 0;
+            } else if(ext_rx == 5) {
+                ext_rx = 0;
+                if(rx == CHAR_DOWN) {
+                    char *args[1];
+                    args[0] = (char *)"dir";
+                    tx_string(NEWLINE);
+                    cmd_dir(1, args);
+                    prompt();
+                    continue;
+                } else if(rx == CHAR_LEFT || rx == CHAR_RIGHT) {
+                    char next = current_drive;
+                    if(rx == CHAR_LEFT) {
+                        if(next > '0') next--;
+                    } else {
+                        if(next < '7') next++;
+                    }
+                    drv_args_buf[0] = next;
+                    drv_args_buf[1] = ':';
+                    drv_args_buf[2] = 0;
+                    cmd_drive(2, drv_args);
+                    tx_string("\r\x1b[K");
+                    prompt();
+                    continue;
+                }
+            } else if(ext_rx == 6) {
+                /* Expecting CHAR_F1 */
+                ext_rx = 0;
+                if(rx == CHAR_F1 || rx == 'P') {
+                    char path[FNAMELEN];
+                    int com_argc = 2;
+                    tx_string(NEWLINE);
+                    strcpy(path, SHELLDIR);
+                    strcat(path, "help.com");
+                    com_argv[0] = (char *)"com";
+                    com_argv[1] = path;
+                    /* Pass current input line as argument if present */
+                    if(cmdline.bytes > 0) {
+                        cmdline.buffer[cmdline.bytes] = 0; /* ensure NUL */
+                        com_argv[2] = cmdline.buffer;
+                        com_argc = 3;
+                    }
+                    cmd_com(com_argc, com_argv);
+                    cmdline.bytes = 0;
+                    cmdline.buffer[0] = 0;
+                    /*
+                    char *args[1];
+                    args[0] = (char *)"help";
+                    tx_string(NEWLINE);
+                    // cmd_help(1, args);
+                    */
+                    prompt();
+                    continue;
+                }
+            // Normal character (ASCII printable or extended 8-bit, exclude DEL), just put it on the pile.
+            } else if(((unsigned char)rx >= 32) && (rx != 127)) {
+                ext_rx = 0;
+                if(cmdline.bytes == CMD_BUF_MAX) {
+                    tx_char(0x7); // if the buffer is full, send a bell
+                } else {
+                    cmdline.buffer[cmdline.bytes++] = rx;
+                    cmdline.buffer[cmdline.bytes] = 0;
+                    tx_char(rx);
+                }
+            // Backspace
+            } else if(rx == CHAR_BS || rx == KEY_DEL) {
+                ext_rx = 0;
+                if(cmdline.bytes) {
+                    cmdline.bytes--;
+                    cmdline.buffer[cmdline.bytes] = 0;
+                    tx_char(CHAR_BS);
+                    tx_char(' ');
+                    tx_char(CHAR_BS);
+                } else {
+                    tx_char(CHAR_BELL);
+                }
+            // Enter
+            } else if(rx == CHAR_CR || rx == CHAR_LF) {
+                ext_rx = 0;
+                if(rx == CHAR_LF && last_rx == CHAR_CR) continue; // Ignore CRLF
+                tx_string(NEWLINE);
+                if(cmdline.bytes){
+                    // cmdline.lastbytes = cmdline.bytes;
+                    execute(&cmdline);
+                    cmdline.bytes = 0;
+                    cmdline.buffer[0] = 0;
+                }
+                prompt();
+            } else {
+                ext_rx = 0;
+            }
+            last_rx = rx; // Last line in RX_READY
+        }
+    }
+}
+
 static void refresh_current_drive(void) {
     if(f_getcwd(dir_cwd, sizeof(dir_cwd)) >= 0 && dir_cwd[1] == ':') {
         current_drive = dir_cwd[0];
@@ -122,7 +328,7 @@ static int read_line_editor(char *buf, int maxlen) {
             buf[0] = 0;
             return -1;
         }
-        if(c >= 32 && c <= 126) {
+        if(((unsigned char)c >= 32) && (c != 127)) {
             if(len < maxlen - 1) {
                 buf[len++] = c;
                 tx_char(c);
@@ -427,212 +633,6 @@ int execute(cmdline_t *cl) {
     }
     tx_string("Unknown command" NEWLINE);
     return -1;
-}
-
-int main(void) {
-    int i = 0;
-    int v = 0;
-    char last_rx = 0;
-    char ext_rx = 0;
-    static cmdline_t cmdline = {0};
-
-    /*
-    printf("\r\nplease wait ...");
-    PAUSE(500);
-    printf("\r\n\r\n");
-    */
-
-    f_chdrive("0:");
-    current_drive = '0';
-    if(f_getcwd(dir_cwd, sizeof(dir_cwd)) >= 0 && dir_cwd[1] == ':') {
-        current_drive = dir_cwd[0];
-    }
-    cls();
-    /*
-    {
-        char *args[1];
-        args[0] = (char *)"";
-        cmd_phi2(1, args);
-    }
-    show_time();
-    */
-    {
-        char *args[1];
-        args[0] = (char *)"";
-        cmd_drives(1, args);
-    }
-
-    prompt();
-
-    v = RIA.vsync;
-    while (1)
-    {
-        // if (RIA.vsync == v) show_clock();
-        // v = RIA.vsync;
-
-        if(RX_READY) {
-            char rx = (char)RIA.rx;
-            if(rx == CHAR_ESC){
-                ext_rx = 1;
-                continue;
-            } else if(ext_rx == 1) {
-                if(rx == CHAR_NCHR) {
-                    ext_rx = 2;
-                    continue;
-                } else if(rx == 'O') { /* CSI-less F1 from some terminals */
-                    ext_rx = 6;
-                    continue;
-                }
-                ext_rx = 0;
-            } else if(ext_rx == 2){
-                if(rx == CHAR_UP){
-                    ext_rx = 0;
-                    tx_string("\r\x1b[K");
-                    prompt();
-                    cmdline.bytes = cmdline.lastbytes;
-                    memcpy(cmdline.buffer, cmdline.lastbuffer, cmdline.lastbytes);
-                    cmdline.buffer[cmdline.bytes] = 0;
-                    tx_string(cmdline.buffer);
-                    continue;
-                } else if(rx == CHAR_DOWN){
-                    ext_rx = 0;
-                    {
-                        char *args[1];
-                        args[0] = (char *)"dir";
-                        tx_string(NEWLINE);
-                        cmd_dir(1, args);
-                        prompt();
-                    }
-                    continue;
-                } else if(rx == CHAR_LEFT || rx == CHAR_RIGHT) {
-                    char next = current_drive;
-                    if(rx == CHAR_LEFT) {
-                        if(next > '0') next--;
-                    } else {
-                        if(next < '7') next++;
-                    }
-                    drv_args_buf[0] = next;
-                    drv_args_buf[1] = ':';
-                    drv_args_buf[2] = 0;
-                    cmd_drive(2, drv_args);
-                    tx_string("\r\x1b[K");
-                    prompt();
-                    ext_rx = 0;
-                    continue;
-                } else if(rx == '1') {
-                    ext_rx = 3; // possible ctrl+arrow sequence
-                    continue;
-                } else if(rx == 'O') { /* F1 in xterm-style ESC O P */
-                    ext_rx = 6;
-                    continue;
-                } else {
-                    ext_rx = 0;
-                }
-            } else if(ext_rx == 3) {
-                if(rx == ';') {
-                    ext_rx = 4;
-                    continue;
-                }
-                ext_rx = 0;
-            } else if(ext_rx == 4) {
-                if(rx == '5') {
-                    ext_rx = 5;
-                    continue;
-                }
-                ext_rx = 0;
-            } else if(ext_rx == 5) {
-                ext_rx = 0;
-                if(rx == CHAR_DOWN) {
-                    char *args[1];
-                    args[0] = (char *)"dir";
-                    tx_string(NEWLINE);
-                    cmd_dir(1, args);
-                    prompt();
-                    continue;
-                } else if(rx == CHAR_LEFT || rx == CHAR_RIGHT) {
-                    char next = current_drive;
-                    if(rx == CHAR_LEFT) {
-                        if(next > '0') next--;
-                    } else {
-                        if(next < '7') next++;
-                    }
-                    drv_args_buf[0] = next;
-                    drv_args_buf[1] = ':';
-                    drv_args_buf[2] = 0;
-                    cmd_drive(2, drv_args);
-                    tx_string("\r\x1b[K");
-                    prompt();
-                    continue;
-                }
-            } else if(ext_rx == 6) {
-                /* Expecting CHAR_F1 */
-                ext_rx = 0;
-                if(rx == CHAR_F1 || rx == 'P') {
-                    char path[FNAMELEN];
-                    int com_argc = 2;
-                    tx_string(NEWLINE);
-                    strcpy(path, SHELLDIR);
-                    strcat(path, "help.com");
-                    com_argv[0] = (char *)"com";
-                    com_argv[1] = path;
-                    /* Pass current input line as argument if present */
-                    if(cmdline.bytes > 0) {
-                        cmdline.buffer[cmdline.bytes] = 0; /* ensure NUL */
-                        com_argv[2] = cmdline.buffer;
-                        com_argc = 3;
-                    }
-                    cmd_com(com_argc, com_argv);
-                    cmdline.bytes = 0;
-                    cmdline.buffer[0] = 0;
-                    /*
-                    char *args[1];
-                    args[0] = (char *)"help";
-                    tx_string(NEWLINE);
-                    // cmd_help(1, args);
-                    */
-                    prompt();
-                    continue;
-                }
-            // Normal character, just put it on the pile.
-            } else if(rx >= 32 && rx <= 126) {
-                ext_rx = 0;
-                if(cmdline.bytes == CMD_BUF_MAX) {
-                    tx_char(0x7); // if the buffer is full, send a bell
-                } else {
-                    cmdline.buffer[cmdline.bytes++] = rx;
-                    cmdline.buffer[cmdline.bytes] = 0;
-                    tx_char(rx);
-                }
-            // Backspace
-            } else if(rx == CHAR_BS || rx == KEY_DEL) {
-                ext_rx = 0;
-                if(cmdline.bytes) {
-                    cmdline.bytes--;
-                    cmdline.buffer[cmdline.bytes] = 0;
-                    tx_char(CHAR_BS);
-                    tx_char(' ');
-                    tx_char(CHAR_BS);
-                } else {
-                    tx_char(CHAR_BELL);
-                }
-            // Enter
-            } else if(rx == CHAR_CR || rx == CHAR_LF) {
-                ext_rx = 0;
-                if(rx == CHAR_LF && last_rx == CHAR_CR) continue; // Ignore CRLF
-                tx_string(NEWLINE);
-                if(cmdline.bytes){
-                    // cmdline.lastbytes = cmdline.bytes;
-                    execute(&cmdline);
-                    cmdline.bytes = 0;
-                    cmdline.buffer[0] = 0;
-                }
-                prompt();
-            } else {
-                ext_rx = 0;
-            }
-            last_rx = rx; // Last line in RX_READY
-        }
-    }
 }
 
 /*
