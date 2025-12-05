@@ -19,11 +19,11 @@ int main(void) {
     char ext_rx = 0;
     static cmdline_t cmdline = {0};
 
-    /*
-    printf("\r\nplease wait ...");
+    printf(CURSOR_HIDE); // hide cursor
+    printf("\r\n\x1b[5mplease wait ...\x1b[m");
     PAUSE(500);
     printf("\r\n\r\n");
-    */
+    printf(CURSOR_SHOW); // show cursor
 
     f_chdrive("0:");
     current_drive = '0';
@@ -32,6 +32,7 @@ int main(void) {
     }
     cls();
     /*
+    // calling commands from code
     {
         char *args[1];
         args[0] = (char *)"";
@@ -215,12 +216,6 @@ int main(void) {
             }
             last_rx = rx; // Last line in RX_READY
         }
-    }
-}
-
-static void refresh_current_drive(void) {
-    if(f_getcwd(dir_cwd, sizeof(dir_cwd)) >= 0 && dir_cwd[1] == ':') {
-        current_drive = dir_cwd[0];
     }
 }
 
@@ -491,8 +486,7 @@ void clearterminal(){
 
 void cls(){
     clearterminal();
-    tx_string("\r\nPicocomputer 6502 Shell (native environment)" 
-          NEWLINE "--------------------------------------------------------------------------------" NEWLINE);
+    tx_string(APP_MSG_TITLE);
     return;
 }
 
@@ -506,6 +500,12 @@ void prompt() {
         tx_string(":> ");
     }
     return;
+}
+
+static void refresh_current_drive(void) {
+    if(f_getcwd(dir_cwd, sizeof(dir_cwd)) >= 0 && dir_cwd[1] == ':') {
+        current_drive = dir_cwd[0];
+    }
 }
 
 // Reformats the given buffer into tokens, delimited by spaces.  It places those
@@ -635,20 +635,13 @@ int execute(cmdline_t *cl) {
     return -1;
 }
 
-/*
-int cmd_help(int, char **) {
-    help();
-    return 0;
-}
-*/
-
 int cmd_cls(int, char **) {
     cls();
     return 0;
 }
 
 int cmd_exit(int status, char **) {
-    tx_string(NEWLINE "Exiting to the monitor." NEWLINE "Bye, bye !" NEWLINE NEWLINE);
+    tx_string(APP_MSG_EXIT);
     exit(status);
     return 0;
 }

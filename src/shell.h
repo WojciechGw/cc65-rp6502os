@@ -20,13 +20,16 @@
 #include <fcntl.h>
 #include <time.h>
 
-extern void quit(void);
+#define SHELLDIR "USB0:/SHELL/"
+#define CURSOR_SHOW "\x1b[?25h"
+#define CURSOR_HIDE "\x1b[?25l"
+#define APP_MSG_TITLE "\r\nPicocomputer 6502 Shell (65C02's native mode)" NEWLINE "--------------------------------------------------------------------------------" NEWLINE
+#define APP_MSG_EXIT NEWLINE "Exiting to the monitor." NEWLINE "Bye, bye !" NEWLINE NEWLINE
 
 #ifndef __STACKSIZE__
     #define __STACKSIZE__ 0x0800
 #endif
 #define MEMTOP (0xFD00-__STACKSIZE__)
-#define SHELLDIR "USB0:/SHELL/"
 #define COM_LOAD_ADDR 0xA000      /* where to upload the code (binary shell extensions - .com files) */
 
 #define CMD_BUF_MAX 511
@@ -43,6 +46,8 @@ extern void quit(void);
 #define TX_READY_SPIN while(!TX_READY)
 #define RX_READY_SPIN while(!RX_READY)
 
+#define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
+
 #define CHAR_BELL   0x07
 #define CHAR_BS     0x08
 #define CHAR_CR     0x0D
@@ -58,8 +63,6 @@ extern void quit(void);
 #define KEY_DEL     0x7F
 #define TAB         "\t"
 #define NEWLINE     "\r\n"
-
-#define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
 
 #ifndef AM_DIR
 #define AM_DIR 0x10
@@ -92,7 +95,6 @@ typedef struct {
 typedef void (*char_stream_func_t)(const char *buf, int size);
 typedef void (*read_data_func_t)(uint8_t *buf, uint16_t addr, uint16_t size);
 
-// Statically allocate buffers to keep cc65 stack usage low.
 #define FNAMELEN 64
 #define CPMBUFFLEN 96
 #define RMBUFFLEN 96
@@ -215,34 +217,35 @@ void help();
 int tokenize(char *buf, int maxBuf, char **tokenList, int maxTokens);
 int execute(cmdline_t *cl);
 
+static void build_run_args(int user_argc, char **user_argv);
+
 // shell commands
 // int cmd_help(int, char **);
-int cmd_cls(int, char **);
-int cmd_exit(int status, char **);
-int cmd_cd(int argc, char **argv);
-int cmd_drives(int argc, char **argv);
-int cmd_drive(int argc, char **argv);
-int cmd_list(int argc, char **argv);
-int cmd_edit(int argc, char **argv);
-int cmd_mkdir(int argc, char **argv);
-int cmd_rm(int argc, char **argv);
-int cmd_cp(int argc, char **argv);
-int cmd_mv(int argc, char **argv);
-int cmd_rename(int argc, char **argv);
 int cmd_bload(int argc, char **argv);
-int cmd_bsave(int argc, char **argv);
 int cmd_brun(int argc, char **argv);
-int cmd_com(int argc, char **argv);
-int cmd_run(int argc, char **argv);
-static void build_run_args(int user_argc, char **user_argv);
-int cmd_cm(int argc, char **argv);
-int cmd_memx(int argc, char **argv);
-int cmd_memr(int argc, char **argv);
-int cmd_dir(int argc, char **argv);
-int cmd_time(int argc, char **argv);
-int cmd_phi2(int argc, char **argv);
-int cmd_mem(int argc, char **argv);
-int cmd_stat(int argc, char **argv);
+int cmd_bsave(int argc, char **argv);
+int cmd_cd(int argc, char **argv);
 int cmd_chmod(int argc, char **argv);
+int cmd_cls(int, char **);
+int cmd_cm(int argc, char **argv);
+int cmd_com(int argc, char **argv);
+int cmd_cp(int argc, char **argv);
+int cmd_dir(int argc, char **argv);
+int cmd_drive(int argc, char **argv);
+int cmd_drives(int argc, char **argv);
+int cmd_edit(int argc, char **argv);
+int cmd_exit(int status, char **);
+int cmd_list(int argc, char **argv);
+int cmd_mem(int argc, char **argv);
+int cmd_memr(int argc, char **argv);
+int cmd_memx(int argc, char **argv);
+int cmd_mkdir(int argc, char **argv);
+int cmd_mv(int argc, char **argv);
+int cmd_phi2(int argc, char **argv);
+int cmd_rename(int argc, char **argv);
+int cmd_rm(int argc, char **argv);
+int cmd_run(int argc, char **argv);
+int cmd_stat(int argc, char **argv);
+int cmd_time(int argc, char **argv);
 
-// end of file shell.h
+// EOF shell.h
