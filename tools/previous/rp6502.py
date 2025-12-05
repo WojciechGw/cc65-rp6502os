@@ -85,8 +85,7 @@ class Console:
                     ctrl_a_pressed = False
                 elif ctrl_a_pressed and char.lower() in "xq":
                     sys.stdout.write("\r\n")
-                    if sys.stdin.isatty():
-                        os.system("stty sane")
+                    os.system("stty sane")
                     break
                 else:
                     ctrl_a_pressed = False
@@ -330,21 +329,15 @@ class Console:
         """Wait for a specific prompt from the device."""
         prompt_bytes = bytes(prompt, "ascii")
         start = time.monotonic()
-        at_line_start = True
         while True:
             if len(prompt) == 1:
                 data = self.serial.read()
-                if at_line_start and data == b"?":
-                    monitor_result = data.decode("ascii")
-                    monitor_result += self.serial.read_until().decode("ascii").strip()
-                    raise RuntimeError(monitor_result)
-                at_line_start = (data == b"\n" or data == b"\r")
             else:
                 data = self.serial.read_until()
-                if data.startswith(b"?"):
-                    monitor_result = data.decode("ascii")
-                    monitor_result += self.serial.read_until().decode("ascii").strip()
-                    raise RuntimeError(monitor_result)
+            if data.startswith(b"?"):
+                monitor_result = data.decode("ascii")
+                monitor_result += self.serial.read_until().decode("ascii").strip()
+                raise RuntimeError(monitor_result)
             if data.strip().lower() == prompt_bytes.lower():
                 break
             if len(data) == 0:
@@ -624,8 +617,7 @@ def exec_args():
         try:
             console = Console(args.device)
         except serial.SerialException as se:
-            # On Windows, se.errno is None; on Unix it's 2 when serial port not found.
-            if args.config and ("FileNotFoundError" in str(se) or se.errno == 2):
+            if args.config and se.errno == 2:
                 error_msg = f"Using device config in {args.config}\n{str(se)}"
                 raise serial.SerialException(error_msg) from se
             else:
@@ -726,7 +718,7 @@ def exec_args():
 #   rp6502 = importlib.import_module("tools.rp6502")
 if __name__ == "__main__":
     # VSCode SIGKILLs the terminal while in raw mode, return to cooked mode.
-    if "tty" in globals() and sys.stdin.isatty():
+    if "tty" in globals():
         os.system("stty sane")
     # Catch the two most common failures when using from VSCode so that a
     # terminal message is displayed instead of triggering the Python debugger.
