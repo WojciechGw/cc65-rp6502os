@@ -635,6 +635,10 @@ int execute(cmdline_t *cl) {
     return -1;
 }
 
+/*
+    internal commands
+*/
+
 int cmd_cls(int, char **) {
     cls();
     return 0;
@@ -767,7 +771,7 @@ int cmd_list(int argc, char **argv) {
     int fd;
     int n;
     if(argc < 2) {
-        tx_string("Usage: list <file>" NEWLINE);
+        tx_string("Usage: list <filename>" NEWLINE);
         return 0;
     }
     fd = open(argv[1], O_RDONLY);

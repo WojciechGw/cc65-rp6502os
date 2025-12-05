@@ -20,6 +20,8 @@
 #include <fcntl.h>
 #include <time.h>
 
+extern struct _timezone _tz;
+
 #define SHELLDIR "USB0:/SHELL/"
 #define CURSOR_SHOW "\x1b[?25h"
 #define CURSOR_HIDE "\x1b[?25l"
@@ -32,8 +34,8 @@
 #define MEMTOP (0xFD00-__STACKSIZE__)
 #define COM_LOAD_ADDR 0xA000      /* where to upload the code (binary shell extensions - .com files) */
 
-#define CMD_BUF_MAX 511
-#define CMD_TOKEN_MAX 64
+#define CMD_BUF_MAX 127
+#define CMD_TOKEN_MAX 10
 #define EDIT_BUF_MAX 2048
 #define RUN_ARGS_BASE 0x0200      /* where argc/argv block is stored for run (safe area outside shell BSS) */
 #define RUN_ARGS_MAX 4
@@ -73,6 +75,11 @@
 #define AM_ARC 0x20
 #endif
 
+#define FNAMELEN 64
+#define CPMBUFFLEN 96
+#define RMBUFFLEN 96
+#define DIR_LIST_MAX 40
+
 // wait on clock
 uint32_t ticks = 0; // for PAUSE(millis)
 #define PAUSE(millis) ticks=clock(); while(clock() < (ticks + millis)){}
@@ -88,19 +95,14 @@ typedef struct {
 
 typedef struct {
     const char *cmd;
-    const char *help;
+    const char *msgsyntax;
+    const char *msgerror;
     int (*func)(int argc, char **argv);
 } cmd_t;
 
 typedef void (*char_stream_func_t)(const char *buf, int size);
 typedef void (*read_data_func_t)(uint8_t *buf, uint16_t addr, uint16_t size);
 
-#define FNAMELEN 64
-#define CPMBUFFLEN 96
-#define RMBUFFLEN 96
-#define DIR_LIST_MAX 40
-static char dir_cwd[FNAMELEN];
-static f_stat_t dir_ent;
 typedef struct {
     char name[FNAMELEN];
     unsigned long fsize;
@@ -108,6 +110,10 @@ typedef struct {
     unsigned fdate;
     unsigned ftime;
 } dir_list_entry_t;
+
+static char dir_cwd[FNAMELEN];
+static f_stat_t dir_ent;
+
 static char dir_dt_buf[20];
 static char dev_label[16];
 static char saved_cwd[128];
@@ -128,66 +134,63 @@ static unsigned char run_args_backup[RUN_ARGS_BLOCK_SIZE];
 static char shell_end_marker;
 static char drv_args_buf[4] = {0};
 static char *drv_args[2] = { (char *)"drive", drv_args_buf };
-extern struct _timezone _tz;
-
 static void refresh_current_drive(void);
-// int cmd_help(int, char **);
-int cmd_cls(int, char **);
-int cmd_memx(int, char **);
-int cmd_memr(int, char **);
+static void build_run_args(int user_argc, char **user_argv);
+
 int cmd_bload(int, char **);
-int cmd_bsave(int, char **);
 int cmd_brun(int, char **);
-int cmd_run(int, char **);
+int cmd_bsave(int, char **);
+int cmd_cd(int, char **);
+int cmd_chmod(int, char **);
+int cmd_cls(int, char **);
+int cmd_cm(int, char **);
+int cmd_com(int, char **);
+int cmd_cp(int, char **);
 int cmd_dir(int, char **);
 int cmd_drive(int, char **);
 int cmd_drives(int, char **);
-int cmd_list(int, char **);
-int cmd_cd(int, char **);
-int cmd_mkdir(int, char **);
-int cmd_rm(int, char **);
-int cmd_cp(int, char **);
-int cmd_mv(int, char **);
-int cmd_rename(int, char **);
-int cmd_com(int, char **);
-int cmd_mem(int, char **);
-int cmd_cm(int, char **);
-int cmd_phi2(int, char **);
-int cmd_chmod(int, char **);
-int cmd_exit(int, char **);
-int cmd_time(int, char **);
-int cmd_stat(int, char **);
 int cmd_edit(int, char **);
-
-static void build_run_args(int user_argc, char **user_argv);
+int cmd_exit(int, char **);
+int cmd_list(int, char **);
+int cmd_mem(int, char **);
+int cmd_memr(int, char **);
+int cmd_memx(int, char **);
+int cmd_mkdir(int, char **);
+int cmd_mv(int, char **);
+int cmd_phi2(int, char **);
+int cmd_rename(int, char **);
+int cmd_rm(int, char **);
+int cmd_run(int, char **);
+int cmd_stat(int, char **);
+int cmd_time(int, char **);
 
 static const cmd_t commands[] = {
-    { "dir",    "", cmd_dir},
-    { "drive",  "", cmd_drive},
-    { "drives", "", cmd_drives},
-    { "cd",     "", cmd_cd},
-    { "mkdir",  "", cmd_mkdir},
-    { "chmod",  "", cmd_chmod},
-    { "cp",     "", cmd_cp},
-    { "cm",     "", cmd_cm},
-    { "mv",     "", cmd_mv},
-    { "rename", "", cmd_rename},
-    { "rm",     "", cmd_rm},
-    { "list",   "", cmd_list},
-    { "edit",   "", cmd_edit},
-    { "stat",   "", cmd_stat},
-    { "bload",  "", cmd_bload},
-    { "bsave",  "", cmd_bsave},
-    { "brun",   "", cmd_brun},
-    { "com",    "", cmd_com},
-    { "run",    "", cmd_run},
-    { "mem",    "", cmd_mem},
-    { "memx",   "", cmd_memx },
-    { "memr",   "", cmd_memr },
-    { "cls",    "", cmd_cls },
-    { "time",   "", cmd_time },
-    { "phi2",   "", cmd_phi2},
-    { "exit",   "", cmd_exit},
+    { "bload",  "", "", cmd_bload},
+    { "brun",   "", "", cmd_brun},
+    { "bsave",  "", "", cmd_bsave},
+    { "cd",     "", "", cmd_cd},
+    { "chmod",  "", "", cmd_chmod},
+    { "cls",    "", "", cmd_cls },
+    { "cm",     "", "", cmd_cm},
+    { "com",    "", "", cmd_com},
+    { "cp",     "", "", cmd_cp},
+    { "dir",    "", "", cmd_dir},
+    { "drive",  "", "", cmd_drive},
+    { "drives", "", "", cmd_drives},
+    { "edit",   "", "", cmd_edit},
+    { "exit",   "", "", cmd_exit},
+    { "list",   "", "", cmd_list},
+    { "mem",    "", "", cmd_mem},
+    { "memr",   "", "", cmd_memr },
+    { "memx",   "", "", cmd_memx },
+    { "mkdir",  "", "", cmd_mkdir},
+    { "mv",     "", "", cmd_mv},
+    { "phi2",   "", "", cmd_phi2},
+    { "rename", "", "", cmd_rename},
+    { "rm",     "", "", cmd_rm},
+    { "run",    "", "", cmd_run},
+    { "stat",   "", "", cmd_stat},
+    { "time",   "", "", cmd_time },
 };
 
 inline void tx_char(char c);
