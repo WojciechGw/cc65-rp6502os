@@ -11,14 +11,14 @@ typedef struct {
 } cmd_t;
 
 static const cmd_t commands[] = {
-    { "dir",    "show active drive directory, can use wildcards", "dir *.rp6502 (only .rp6502 files)\r\ndir /da (sorted by date ascending)"},
-    { "drive",  "set active drive", "cmd_drive"},
-    { "drives", "show available drives", "cmd_drives"},
-    { "cd",     "change active directory", "cmd_cd"},
-    { "mkdir",  "create directory", "cmd_mkdir"},
-    { "chmod",  "set file attributes", "cmd_chmod"},
-    { "cp",     "copy file", "cmd_cp"},
-    { "cm",     "copy/move multiple files", "cmd_cm"},
+    { "dir",    "show active drive directory, wildcards allowed", "dir *.rp6502 (only .rp6502 files)\r\ndir /da (sorted by date ascending)"},
+    { "drive",  "set active drive", "drive 0:"},
+    { "drives", "show available drives", "drives"},
+    { "cd",     "change active directory", "cd <directory>"},
+    { "mkdir",  "create directory", "mkdir <directory>"},
+    { "chmod",  "set file attributes", "chmod file.bin A+"},
+    { "cp",     "copy file", "cp <source> <destination>"},
+    { "cm",     "copy/move multiple files, wildcards allowed", "cp <source> <destination> (copy file)\r\ncp <source> <destination> /m (move file)"},
     { "mv",     "move/rename a file or directory", "cmd_mv"},
     { "rename", "rename a file or directory", "cmd_rename"},
     { "rm",     "remove a file/files", "cmd_rm"},
@@ -26,7 +26,7 @@ static const cmd_t commands[] = {
     { "edit",   "simple text editor", "cmd_edit"},
     { "stat",   "show file/directory info", "cmd_stat"},
     { "bload",  "load binary file to RAM/XRAM", "bload code.bin 0600 (load file code.bin to RAM memory at address 0x0600)"},
-    { "bsave",  "save RAM/XRAM to binary file", "bsave code.bin 0600 256 (save 256 bytes from address 0x0600 of RAM)\r\nbsave picture.bin 0000 8192 /x (save 8192 bytes from XRAM address 0x0000)"},
+    { "bsave",  "save RAM/XRAM to binary file", "bsave code.bin 0600 256 (save 256 bytes from RAM address 0x0600)\r\nbsave picture.bin 0000 8192 /x (save 8192 bytes from XRAM address 0x0000)"},
     { "brun",   "load binary file to RAM and run", "brun hello.bin A300 (load and run binary file hello.bin at address 0xA300)"},
     { "com",    "load .com binary and run", "com hello.com A000 (load and run file hello.com at address 0xA000)"},
     { "run",    "run code at address", "run A000 (run code at 0xA000)"},
@@ -47,7 +47,7 @@ int main(int argc, char **argv) {
     if(argc >= 1 && argv[0][0]) {
         for(i = 0; i < ARRAY_SIZE(commands); i++) {
             if(strcmp(argv[0], commands[i].cmd) == 0) {
-                printf("\r\nCommand: %s\r\n\r\nDescription:\r\n%s\r\n\r\nExamples:\r\n%s\r\n\r\n", commands[i].cmd, commands[i].help, commands[i].example);
+                printf("\r\nCommand: %s\r\n---------------------\r\n\r\nDescription:\r\n%s\r\n\r\nExamples:\r\n%s\r\n\r\n", commands[i].cmd, commands[i].help, commands[i].example);
                 return 0;
             }
         }

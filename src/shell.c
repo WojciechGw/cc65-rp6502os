@@ -10,15 +10,6 @@
 // Picocomputer 6502 documentation
 // https://picocomputer.github.io/index.html
 
-#include <rp6502.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <time.h>
 #include "shell.h"
 
 static void refresh_current_drive(void) {
@@ -294,8 +285,8 @@ void clearterminal(){
 
 void cls(){
     clearterminal();
-    tx_string("Picocomputer 6502 Shell (native environment)" 
-              NEWLINE "--------------------------------------------------------------------------------" NEWLINE);
+    tx_string("\r\nPicocomputer 6502 Shell (native environment)" 
+          NEWLINE "--------------------------------------------------------------------------------" NEWLINE);
     return;
 }
 
@@ -310,25 +301,6 @@ void prompt() {
     }
     return;
 }
-
-/*
-void help(){
-    int i;
-    tx_string(NEWLINE "Available commands (case sensitive):" NEWLINE);
-    for(i = 0; i < ARRAY_SIZE(commands); i++) {
-        tx_string(commands[i].cmd);
-        tx_string(TAB);
-        tx_string(commands[i].help);
-        tx_string(NEWLINE);
-    }
-    tx_string("Keys:" NEWLINE);
-    tx_string("<LEFT>\tchange active drive to previous" NEWLINE);
-    tx_string("<RIGHT>\tchange active drive to next" NEWLINE);
-    tx_string("<UP>\trecall last command" NEWLINE);
-    tx_string("<DOWN>\ta directory of active drive" NEWLINE NEWLINE);
-    return;
-}
-*/
 
 // Reformats the given buffer into tokens, delimited by spaces.  It places those
 // tokens in the tokenList array (up to maxTokens).  The given buffer may be
@@ -458,28 +430,38 @@ int execute(cmdline_t *cl) {
 }
 
 int main(void) {
-    char last_rx = 0;
-    char ext_rx = 0;
     int i = 0;
     int v = 0;
+    char last_rx = 0;
+    char ext_rx = 0;
     static cmdline_t cmdline = {0};
+
+    /*
+    printf("\r\nplease wait ...");
+    PAUSE(500);
+    printf("\r\n\r\n");
+    */
+
     f_chdrive("0:");
     current_drive = '0';
     if(f_getcwd(dir_cwd, sizeof(dir_cwd)) >= 0 && dir_cwd[1] == ':') {
         current_drive = dir_cwd[0];
     }
     cls();
+    /*
     {
         char *args[1];
         args[0] = (char *)"";
         cmd_phi2(1, args);
     }
-    // show_time();
+    show_time();
+    */
     {
         char *args[1];
         args[0] = (char *)"";
         cmd_drives(1, args);
     }
+
     prompt();
 
     v = RIA.vsync;
@@ -593,7 +575,15 @@ int main(void) {
                     strcat(path, "help.com");
                     com_argv[0] = (char *)"com";
                     com_argv[1] = path;
+                    /* Pass current input line as argument if present */
+                    if(cmdline.bytes > 0) {
+                        cmdline.buffer[cmdline.bytes] = 0; /* ensure NUL */
+                        com_argv[2] = cmdline.buffer;
+                        com_argc = 3;
+                    }
                     cmd_com(com_argc, com_argv);
+                    cmdline.bytes = 0;
+                    cmdline.buffer[0] = 0;
                     /*
                     char *args[1];
                     args[0] = (char *)"help";
@@ -705,8 +695,8 @@ int cmd_drives(int argc, char **argv) {
         if(!*saved_path) saved_path = "/";
     }
 
-    tx_string("drive " TAB "label           " TAB "[MB]" TAB "free" NEWLINE
-              "------" TAB "----------------" TAB "------" TAB "----" NEWLINE);
+    tx_string(NEWLINE "Drives available" NEWLINE NEWLINE "drive" TAB "label      " TAB "[MB]" TAB "free" NEWLINE
+              "-----" TAB "-----------" TAB "------" TAB "----" NEWLINE);
     for(i = 0; i < 8; i++) {
         drv[0] = '0' + i;
         rc = f_chdrive(drv);
@@ -720,7 +710,7 @@ int cmd_drives(int argc, char **argv) {
             if(f_getlabel(drv, dev_label) >= 0) {
                 unsigned len = strlen(dev_label);
                 tx_string(dev_label);
-                while(len < 16) { tx_char(' '); len++; }
+                while(len < 11) { tx_char(' '); len++; }
             } else {
                 tx_string("(no label)       ");
             }
@@ -1447,16 +1437,16 @@ int cmd_stat(int argc, char **argv) {
         tx_string("stat failed" NEWLINE);
         return -1;
     }
-    tx_string("Name   : ");
+    tx_string("Name       : ");
     tx_string(dir_ent.fname);
     tx_string(NEWLINE);
-    tx_string("Short  : ");
+    tx_string("Short      : ");
     tx_string(dir_ent.altname);
     tx_string(NEWLINE);
-    tx_string("Size   : ");
+    tx_string("Size       : ");
     tx_dec32(dir_ent.fsize);
     tx_string(" bytes" NEWLINE);
-    tx_string("Attr   : ");
+    tx_string("Attributes : ");
     tx_char((dir_ent.fattrib & AM_RDO) ? 'R' : '-');
     tx_char((dir_ent.fattrib & AM_HID) ? 'H' : '-');
     tx_char((dir_ent.fattrib & AM_SYS) ? 'S' : '-');
@@ -1464,7 +1454,7 @@ int cmd_stat(int argc, char **argv) {
     tx_char((dir_ent.fattrib & AM_DIR) ? 'D' : '-');
     tx_char((dir_ent.fattrib & AM_ARC) ? 'A' : '-');
     tx_string(NEWLINE);
-    tx_string("Mod    : ");
+    tx_string("Timestamp  : ");
     tx_string(format_fat_datetime(dir_ent.fdate, dir_ent.ftime));
     tx_string(NEWLINE NEWLINE);
     return 0;

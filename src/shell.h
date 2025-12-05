@@ -11,9 +11,9 @@
 // https://picocomputer.github.io/index.html
 
 #include <rp6502.h>
+#include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -70,7 +70,9 @@ extern void quit(void);
 #define AM_ARC 0x20
 #endif
 
-extern void quit(void);
+// wait on clock
+uint32_t ticks = 0; // for PAUSE(millis)
+#define PAUSE(millis) ticks=clock(); while(clock() < (ticks + millis)){}
 
 static const char hexdigits[] = "0123456789ABCDEF";
 
@@ -158,33 +160,32 @@ int cmd_edit(int, char **);
 static void build_run_args(int user_argc, char **user_argv);
 
 static const cmd_t commands[] = {
-    { "dir",    "active drive directory", cmd_dir},
-    { "drive",  "set active drive", cmd_drive},
-    { "drives", "shows available drives", cmd_drives},
-    { "cd",     "change active directory", cmd_cd},
-    { "mkdir",  "create directory", cmd_mkdir},
-    { "chmod",  "set file attributes", cmd_chmod},
-    { "cp",     "copy file", cmd_cp},
-    { "cm",     "copy/move multiple files", cmd_cm},
-    { "mv",     "moves/renames a file or directory", cmd_mv},
-    { "rename", "renames a file or directory", cmd_rename},
-    { "rm",     "removes a file/files", cmd_rm},
-    { "list",   "shows a file content", cmd_list},
-    { "edit",   "simple text editor", cmd_edit},
-    { "stat",   "returns file or directory info", cmd_stat},
-    { "bload",  "load binary file to RAM/XRAM", cmd_bload},
-    { "bsave",  "save RAM/XRAM to binary file", cmd_bsave},
-    { "brun",   "load binary file to RAM and run", cmd_brun},
-    { "com",    "load .com binary and run with args", cmd_com},
-    { "run",    "run code at address", cmd_run},
-    { "mem",    "information about memory", cmd_mem},
-    { "memx",   "reads xram", cmd_memx },
-    { "memr",   "reads ram", cmd_memr },
-    { "cls",    "clears terminal", cmd_cls },
-    { "time",   "shows local time", cmd_time },
-    { "phi2",   "shows CPU clock frequency", cmd_phi2},
-    // { "help",   "prints a list of commands", cmd_help },
-    { "exit",   "exit to the system monitor", cmd_exit},
+    { "dir",    "", cmd_dir},
+    { "drive",  "", cmd_drive},
+    { "drives", "", cmd_drives},
+    { "cd",     "", cmd_cd},
+    { "mkdir",  "", cmd_mkdir},
+    { "chmod",  "", cmd_chmod},
+    { "cp",     "", cmd_cp},
+    { "cm",     "", cmd_cm},
+    { "mv",     "", cmd_mv},
+    { "rename", "", cmd_rename},
+    { "rm",     "", cmd_rm},
+    { "list",   "", cmd_list},
+    { "edit",   "", cmd_edit},
+    { "stat",   "", cmd_stat},
+    { "bload",  "", cmd_bload},
+    { "bsave",  "", cmd_bsave},
+    { "brun",   "", cmd_brun},
+    { "com",    "", cmd_com},
+    { "run",    "", cmd_run},
+    { "mem",    "", cmd_mem},
+    { "memx",   "", cmd_memx },
+    { "memr",   "", cmd_memr },
+    { "cls",    "", cmd_cls },
+    { "time",   "", cmd_time },
+    { "phi2",   "", cmd_phi2},
+    { "exit",   "", cmd_exit},
 };
 
 inline void tx_char(char c);
