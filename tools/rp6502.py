@@ -521,11 +521,12 @@ def exec_args():
     )
     parser.add_argument(
         "command",
-        choices=["run", "upload", "basic", "create"],
+        choices=["run", "upload", "basic", "create","shellext"],
         help="{Run} local RP6502 ROM file by sending to RP6502 RAM. "
         "{Upload} any local files to RP6502 USB storage. "
         "{Basic} executes a program with the installed BASIC. "
-        "{Create} RP6502 ROM file from a local binary file and additional local ROM files.",
+        "{Create} RP6502 ROM file from a local binary file and additional local ROM files."
+        "{ShellExt} RP6502 Shell external command, upload to 0:/SHELL."
     )
     parser.add_argument("filename", nargs="*", help="Local filename(s).")
     parser.add_argument("-o", dest="out", metavar="name", help="Output path/filename.")
@@ -619,7 +620,7 @@ def exec_args():
     args.irq = str_to_address(parser, args.irq, "-i/--irq")
 
     # Open console and extend error with a hint about the config file
-    if args.command in ["run", "upload", "basic"]:
+    if args.command in ["run", "upload", "basic", "shellext"]:
         print(f"[{os.path.basename(__file__)}] Opening device {args.device}")
         try:
             console = Console(args.device)
@@ -684,6 +685,22 @@ def exec_args():
         console.serial.write(b"RUN\r")
         if args.term:
             console.terminal(code_page)
+
+    # python3 rp6502.py shell external command
+    if args.command == "shellext":
+        console.serial.write(b"0:\r")
+        console.wait_for_prompt("]")
+        console.serial.write(b"cd /SHELL\r")
+        console.wait_for_prompt("]")
+        console.serial.write(b"\r\n")
+        for file in args.filename:
+            print(f"[{os.path.basename(__file__)}] Uploading {file}")
+            with open(file, "rb") as f:
+                if len(args.filename) == 1 and args.out != None:
+                    dest = args.out
+                else:
+                    dest = os.path.basename(file)
+                console.upload(f, dest)
 
     # python3 rp6502.py create
     if args.command == "create":
