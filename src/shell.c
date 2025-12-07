@@ -18,12 +18,13 @@ int main(void) {
     char last_rx = 0;
     char ext_rx = 0;
     static cmdline_t cmdline = {0};
-
-    printf(CURSOR_HIDE); // hide cursor
-    printf("\r\n\x1b[5mplease wait ...\x1b[m");
-    PAUSE(500);
-    printf("\r\n\r\n");
-    printf(CURSOR_SHOW); // show cursor
+    
+    tx_string(CSI_RESET);
+    // printf(CSI_CURSOR_HIDE); // hide cursor
+    printf("\x1b[15;25HThe Shell activates, please wait ... ");
+    PAUSE(150);
+    // printf(CSI_CURSOR_SHOW); // show cursor
+    tx_string(CSI_RESET);
 
     f_chdrive("0:");
     current_drive = '0';
@@ -479,13 +480,8 @@ void hexdump(uint16_t addr, uint16_t bytes, char_stream_func_t streamer, read_da
     return;
 }
 
-void clearterminal(){
-    tx_string("\x1b" "c");
-    return;
-}
-
 void cls(){
-    clearterminal();
+    tx_string(CSI_RESET);
     tx_string(APP_MSG_TITLE);
     return;
 }

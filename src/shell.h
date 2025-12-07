@@ -23,9 +23,7 @@
 extern struct _timezone _tz;
 
 #define SHELLDIR "USB0:/SHELL/"
-#define CURSOR_SHOW "\x1b[?25h"
-#define CURSOR_HIDE "\x1b[?25l"
-#define APP_MSG_TITLE "\r\nPicocomputer 6502 Shell (65C02's native mode)" NEWLINE "--------------------------------------------------------------------------------" NEWLINE
+#define APP_MSG_TITLE "\r\nThe Shell for Picocomputer 6502 (65C02's native mode)" NEWLINE "--------------------------------------------------------------------------------" NEWLINE
 #define APP_MSG_EXIT NEWLINE "Exiting to the monitor." NEWLINE "Bye, bye !" NEWLINE NEWLINE
 
 #ifndef __STACKSIZE__
@@ -65,6 +63,10 @@ extern struct _timezone _tz;
 #define KEY_DEL     0x7F
 #define TAB         "\t"
 #define NEWLINE     "\r\n"
+#define CSI_RESET   "\x1b" "c"
+#define CSI_CURSOR_SHOW "\x1b[?25h"
+#define CSI_CURSOR_HIDE "\x1b[?25l"
+#define CSI_CURSOR_AT "\x1b" "n20;m15H"
 
 #ifndef AM_DIR
 #define AM_DIR 0x10
@@ -171,10 +173,13 @@ static const cmd_t commands[] = {
     { "cd",     "", "", cmd_cd},
     { "chmod",  "", "", cmd_chmod},
     { "cls",    "", "", cmd_cls },
+    { "copier", "", "", cmd_cm},
     { "cm",     "", "", cmd_cm},
     { "com",    "", "", cmd_com},
+    { "copy",   "", "", cmd_cp},
     { "cp",     "", "", cmd_cp},
     { "dir",    "", "", cmd_dir},
+    { "ls",     "", "", cmd_dir},
     { "drive",  "", "", cmd_drive},
     { "drives", "", "", cmd_drives},
     { "edit",   "", "", cmd_edit},
@@ -188,6 +193,7 @@ static const cmd_t commands[] = {
     { "phi2",   "", "", cmd_phi2},
     { "rename", "", "", cmd_rename},
     { "rm",     "", "", cmd_rm},
+    { "delete", "", "", cmd_rm},
     { "run",    "", "", cmd_run},
     { "stat",   "", "", cmd_stat},
     { "time",   "", "", cmd_time },
@@ -213,7 +219,6 @@ uint16_t mem_free(void);
 void show_time(void);
 int hexstr(char *str, uint8_t val);
 void hexdump(uint16_t addr, uint16_t bytes, char_stream_func_t streamer, read_data_func_t reader);
-void clearterminal();
 void cls();
 void prompt();
 void help();
