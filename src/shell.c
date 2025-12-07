@@ -47,7 +47,12 @@ int main(void) {
         cmd_drives(1, args);
     }
 
+/*
+    // ClearDisplayMemory();
     InitTerminalFont();
+    
+    // PAUSE(500);
+
     InitDisplay();
 
     // draw alphabet
@@ -80,7 +85,7 @@ int main(void) {
     }
     DrawFontTable(50, 10, WHITE, BLACK, DARK_GREEN, DARK_RED);
     DrawLetters_PL(2, 57, WHITE, DARK_GRAY);
-
+*/
     prompt();
 
     v = RIA.vsync;
@@ -1803,6 +1808,18 @@ void InitTerminalFont(void){
 // Changes TxDisplay bg_clr and fg_clr, then overwrites display using them.
 // Doesn't clear top or bottom rows, as these are for menu and status bar.
 // ----------------------------------------------------------------------------
+void ClearDisplayMemory(void){
+    uint8_t i;
+    uint16_t displaymemsize = 2 * GFX_CHARACTER_COLUMNS * GFX_CHARACTER_ROWS;
+
+    RIA.addr0 = canvas_data;
+    RIA.step0 = 1;
+
+    for (i = 0; i < displaymemsize; i++) {
+        RIA.rw0 = 0;
+    }
+}
+
 void ClearDisplay(uint8_t fg, uint8_t bg){
     uint8_t r, c;
 

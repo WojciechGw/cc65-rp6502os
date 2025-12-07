@@ -333,6 +333,7 @@ void DrawLetters_PL(uint8_t x, uint8_t y, uint8_t fg, uint8_t bg);
 void DrawFontTable(uint8_t x, uint8_t y, uint8_t fg, uint8_t bg, uint8_t bgc, uint8_t bgr);
 
 void InitTerminalFont(void);
+void ClearDisplayMemory(void);
 void ClearDisplay(uint8_t fg, uint8_t bg);
 void InitDisplay(void);
 
