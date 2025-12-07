@@ -16,7 +16,6 @@ function Wait-ForBracket([System.IO.Ports.SerialPort]$port, [int]$timeoutMs) {
             }
         }
         catch [System.TimeoutException] {
-            # próbujemy dalej aż do przekroczenia timeoutu
         }
     }
     return $false
@@ -75,7 +74,8 @@ try {
         Send-LineAndWait -port $serialPort -text "remove ${shellextcmdname}" -label "remove ${shellextcmdname}"
         Send-LineAndWait -port $serialPort -text "install ${shellextcmdname}.rp6502" -label "install ${shellextcmdname}"
         Send-LineAndWait -port $serialPort -text "set boot ${shellextcmdname}" -label "set boot ${shellextcmdname}"
-        Send-LineAndWait -port $serialPort -text "reboot" -label "reboot"
+        Send-LineAndWait -port $serialPort -text "shell" -label "shell"
+        # Send-LineAndWait -port $serialPort -text "reboot" -label "reboot"
         $serialPort.Close()
     }
     catch {

@@ -22,7 +22,7 @@ int main(void) {
     tx_string(CSI_RESET);
     // printf(CSI_CURSOR_HIDE); // hide cursor
     printf(APP_MSG_START);
-    PAUSE(500);
+    PAUSE(50);
     // printf(CSI_CURSOR_SHOW); // show cursor
     tx_string(CSI_RESET);
 

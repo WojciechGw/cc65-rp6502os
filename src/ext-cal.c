@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <string.h>
+#include <stdlib.h>
 
 struct Month {
     const char* name;
@@ -89,13 +90,13 @@ int main(int argc, char **argv) {
     } else if (show_neighbors) {
         print_calendar_neighbors(year, month, day);
     } else if (show_particular) {
-        // year = (int) *argv[1];
-        // month = (int) *argv[2];
-        print_calendar(year, month, day);
+        year = atoi(argv[1]);
+        month = atoi(argv[2]);
+        print_calendar(year, month, 0);
     } else {
         print_calendar(year, month, day);
-        printf("\r\n\r\n");
     }
+    printf("\r\n");
     return 0;
 }
 
@@ -163,59 +164,67 @@ void print_calendar(int year, int month, int today) {
         start_day++;
         day++;
     }
+    printf("\r\n");
+
 }
 
 void print_calendar_quarter(int year, int start_month, int today_month, int today_day) {
 
-    int month_idx, week, wday, m;
+    int idx, week, wday, m;
     int start_day[3];
     int days_in_month[3];
     int current_day[3];
     char title[24];
 
-    for (month_idx = 0; month_idx < 3; month_idx++) {
-        m = start_month + month_idx;
-        start_day[month_idx] = getFirstDayOfMonth(year, m);
-        days_in_month[month_idx] = daysInMonth(year, m);
-        current_day[month_idx] = 1;
+    for (idx = 0; idx < 3; idx++) {
+        m = start_month + idx;
+        start_day[idx] = getFirstDayOfMonth(year, m);
+        days_in_month[idx] = daysInMonth(year, m);
+        current_day[idx] = 1;
+    }
+    
+    printf("\r\n");
+
+    for (idx = 0; idx < 3; idx++) {
+        m = start_month + idx;
+        sprintf(title, " %4d%16s", year,getMonthName(m));
+        printf("%-23s", title);
     }
 
-    /* Nagłówki miesięcy */
-    for (month_idx = 0; month_idx < 3; month_idx++) {
-        m = start_month + month_idx;
-        sprintf(title, "%s %4d", getMonthName(m), year);
-        printf("%-22s", title);
+    printf("\r\n\r\n");
+
+    for (idx = 0; idx < 3; idx++) {
+        printf(" Mo Tu We Th Fr Sa  S  ");
     }
     printf("\r\n");
 
-    /* Dni tygodnia */
-    for (month_idx = 0; month_idx < 3; month_idx++) {
-        printf("Mo Tu We Th Fr Sa  S  ");
+    for (idx = 0; idx < 3; idx++) {
+        printf(" -- -- -- -- -- -- --  ");
     }
     printf("\r\n");
 
     /* Linie kalendarza (max 6 tygodni) */
     for (week = 0; week < 6; week++) {
-        for (month_idx = 0; month_idx < 3; month_idx++) {
+        printf(" ");
+        for (idx = 0; idx < 3; idx++) {
             for (wday = 1; wday <= 7; wday++) {
-                if (week == 0 && wday < start_day[month_idx]) {
+                if (week == 0 && wday < start_day[idx]) {
                     printf("   ");
-                } else if (current_day[month_idx] <= days_in_month[month_idx]) {
-                    if ((start_month + month_idx) == today_month && current_day[month_idx] == today_day) {
-                        printf("\033[47m\033[30m%2d \033[0m", current_day[month_idx]);
+                } else if (current_day[idx] <= days_in_month[idx]) {
+                    if ((start_month + idx) == today_month && current_day[idx] == today_day) {
+                        printf("\033[47m\033[30m%2d \033[0m", current_day[idx]);
                     } else {
-                        printf("%2d ", current_day[month_idx]);
+                        printf("%2d ", current_day[idx]);
                     }
-                    current_day[month_idx]++;
+                    current_day[idx]++;
                 } else {
                     printf("   ");
                 }
             }
-            printf(" ");
+            printf("  ");
         }
         printf("\r\n");
     }
-    printf("\r\n");
 }
 
 void print_calendar_neighbors(int year, int month, int today_day) {
@@ -248,19 +257,28 @@ void print_calendar_neighbors(int year, int month, int today_day) {
         days_in_month[idx] = daysInMonth(year_val[idx], month_val[idx]);
         current_day[idx] = 1;
     }
+    
+    printf("\r\n");
 
     for (idx = 0; idx < 3; idx++) {
-        sprintf(title, "%s %4d", getMonthName(month_val[idx]), year_val[idx]);
-        printf("%-22s", title);
+        sprintf(title, " %4d%16s", year_val[idx],getMonthName(month_val[idx]));
+        printf("%-23s", title);
+    }
+
+    printf("\r\n\r\n");
+
+    for (idx = 0; idx < 3; idx++) {
+        printf(" Mo Tu We Th Fr Sa  S  ");
     }
     printf("\r\n");
 
     for (idx = 0; idx < 3; idx++) {
-        printf("Mo Tu We Th Fr Sa  S  ");
+        printf(" -- -- -- -- -- -- --  ");
     }
     printf("\r\n");
 
     for (week = 0; week < 6; week++) {
+        printf(" ");
         for (idx = 0; idx < 3; idx++) {
             for (wday = 1; wday <= 7; wday++) {
                 if (week == 0 && wday < start_day[idx]) {
@@ -276,16 +294,15 @@ void print_calendar_neighbors(int year, int month, int today_day) {
                     printf("   ");
                 }
             }
-            printf(" ");
+            printf("  ");
         }
         printf("\r\n");
     }
-    printf("\r\n");
 }
 
 void print_calendar_year(int year, int today_month, int today_day) {
 
-    int quarter, month_idx, m1, week, wday;
+    int quarter, idx, m1, week, wday;
     int start_day[3];
     int days_in_month[3];
     int current_day[3];
@@ -293,50 +310,57 @@ void print_calendar_year(int year, int today_month, int today_day) {
     char title[24];
 
     for (quarter = 0; quarter < 4; quarter++) {
+        
         m1 = quarter * 3 + 1;
 
-        for (month_idx = 0; month_idx < 3; month_idx++) {
-            m = m1 + month_idx;
-            start_day[month_idx] = getFirstDayOfMonth(year, m);
-            days_in_month[month_idx] = daysInMonth(year, m);
-            current_day[month_idx] = 1;
+        for (idx = 0; idx < 3; idx++) {
+            m = m1 + idx;
+            start_day[idx] = getFirstDayOfMonth(year, m);
+            days_in_month[idx] = daysInMonth(year, m);
+            current_day[idx] = 1;
         }
 
-        /* Nagłówki miesięcy */
-        for (month_idx = 0; month_idx < 3; month_idx++) {
-            m = m1 + month_idx;
-            sprintf(title, "%s %4d", getMonthName(m), year);
-            printf("%-22s", title);
+        printf("\r\n");
+
+        for (idx = 0; idx < 3; idx++) {
+            m = m1 + idx;
+            sprintf(title, " %4d%16s", year,getMonthName(m));
+            printf("%-23s", title);
+        }
+
+        printf("\r\n\r\n");
+
+        for (idx = 0; idx < 3; idx++) {
+            printf(" Mo Tu We Th Fr Sa  S  ");
         }
         printf("\r\n");
 
-        /* Dni tygodnia */
-        for (month_idx = 0; month_idx < 3; month_idx++) {
-            printf("Mo Tu We Th Fr Sa  S  ");
+        for (idx = 0; idx < 3; idx++) {
+            printf(" -- -- -- -- -- -- --  ");
         }
         printf("\r\n");
 
         /* Linie kalendarza (max 6 tygodni) */
         for (week = 0; week < 6; week++) {
-            for (month_idx = 0; month_idx < 3; month_idx++) {
+            printf(" ");
+            for (idx = 0; idx < 3; idx++) {
                 for (wday = 1; wday <= 7; wday++) {
-                    if (week == 0 && wday < start_day[month_idx]) {
+                    if (week == 0 && wday < start_day[idx]) {
                         printf("   ");
-                    } else if (current_day[month_idx] <= days_in_month[month_idx]) {
-                        if ((m1 + month_idx) == today_month && current_day[month_idx] == today_day) {
-                            printf("\033[47m\033[30m%2d \033[0m", current_day[month_idx]);
+                    } else if (current_day[idx] <= days_in_month[idx]) {
+                        if ((m1 + idx) == today_month && current_day[idx] == today_day) {
+                            printf("\033[47m\033[30m%2d \033[0m", current_day[idx]);
                         } else {
-                            printf("%2d ", current_day[month_idx]);
+                            printf("%2d ", current_day[idx]);
                         }
-                        current_day[month_idx]++;
+                        current_day[idx]++;
                     } else {
                         printf("   ");
                     }
                 }
-                printf(" ");
+                printf("  ");
             }
             printf("\r\n");
         }
-        printf("\r\n");
     }
 }
