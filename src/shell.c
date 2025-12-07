@@ -47,6 +47,40 @@ int main(void) {
         cmd_drives(1, args);
     }
 
+    InitTerminalFont();
+    InitDisplay();
+
+    // draw alphabet
+    for(i=0;i<26;i++){
+        DrawChar(55, i + 2, 0x41 + i, LIGHT_GRAY, BLACK);
+    }
+    for(i = 0; i < GFX_CHARACTER_COLUMNS; i++){
+        DrawChar(4, i, '_', LIGHT_GRAY, BLACK);
+    }
+
+    printText( "Welcome to OS Shell for the Picocomputer 6502 (native mode)", 1, 3, WHITE, BLACK);
+
+    for(i = 0; i < GFX_CHARACTER_ROWS; i++){
+        if(i % 10){
+            DrawChar(i,  0, '-', DARK_GRAY, BLACK);
+            DrawChar(i, 79, '-', DARK_GRAY, BLACK);
+        } else {
+            DrawChar(i,  0, 0x1A, DARK_GRAY, BLACK);
+            DrawChar(i, 79, 0x1B, DARK_GRAY, BLACK);
+        }
+    }
+    for(i = 0; i < GFX_CHARACTER_COLUMNS; i++){
+        if(i % 10){
+            DrawChar( 0, i, 0xB3, DARK_GRAY, BLACK);
+            DrawChar(59, i, 0xB3, DARK_GRAY, BLACK);
+        } else {
+            DrawChar( 0, i, 0x19, DARK_GRAY, BLACK);
+            DrawChar(59, i, 0x18, DARK_GRAY, BLACK);
+        }
+    }
+    DrawFontTable(50, 10, WHITE, BLACK, DARK_GREEN, DARK_RED);
+    DrawLetters_PL(2, 57, WHITE, DARK_GRAY);
+
     prompt();
 
     v = RIA.vsync;
@@ -1725,3 +1759,193 @@ int cmd_token(int argc, char **argv) {
     return 0;
 }
 */
+
+void InitTerminalFont(void){
+    
+    uint16_t i = 0;
+    uint16_t j = 0;
+    int fd = 0;
+    int result = 0;
+
+    RIA.addr0 = GFX_FONT_CUSTOM;
+    RIA.step0 = 1;
+    // clean up font bank
+    for(i = 0; i < 0x2000; i++){
+        RIA.rw0 = 0;
+    }
+    // read data and place them in xram from bottom to top [8x8inorder16x16]
+    sprintf(*filename,"%s",SHELLDIR "[font8x8]font00.bmp\0");
+    fd = open(*filename, O_RDONLY);
+    if(fd){
+        // lseek(fd,0x003E,SEEK_SET); // problems ...
+        read_xram(GFX_FONT_CUSTOM, 0x3E, fd); // omit BMP bpp1 header
+        for(i = 0; i < 16; i++){
+            for(j = 16; j > 0; j--){
+                read_xram(GFX_FONT_CUSTOM + 0x700 + ((j - 1) * 0x10), 0x10, fd);
+                read_xram(GFX_FONT_CUSTOM + 0x600 + ((j - 1) * 0x10), 0x10, fd);
+                read_xram(GFX_FONT_CUSTOM + 0x500 + ((j - 1) * 0x10), 0x10, fd);
+                read_xram(GFX_FONT_CUSTOM + 0x400 + ((j - 1) * 0x10), 0x10, fd);
+                read_xram(GFX_FONT_CUSTOM + 0x300 + ((j - 1) * 0x10), 0x10, fd);
+                read_xram(GFX_FONT_CUSTOM + 0x200 + ((j - 1) * 0x10), 0x10, fd);
+                read_xram(GFX_FONT_CUSTOM + 0x100 + ((j - 1) * 0x10), 0x10, fd);
+                read_xram(GFX_FONT_CUSTOM + 0x000 + ((j - 1) * 0x10), 0x10, fd);
+            }
+        }
+        close(fd);
+        // printf("\r\nSUCCESS: reading [font8x8]font00.bmp file %i\r\n", fd);
+    } else {
+        printf("\r\nERROR: reading [font8x8]font00.bmp file %i\r\n", fd);
+    }
+
+}
+
+// ----------------------------------------------------------------------------
+// Changes TxDisplay bg_clr and fg_clr, then overwrites display using them.
+// Doesn't clear top or bottom rows, as these are for menu and status bar.
+// ----------------------------------------------------------------------------
+void ClearDisplay(uint8_t fg, uint8_t bg){
+    uint8_t r, c;
+
+    fg_clr = fg;
+    bg_clr = bg;
+
+    RIA.addr0 = canvas_data;
+    RIA.step0 = 1;
+
+    for (r = 0; r < canvas_r; r++) {
+        for (c = 0; c < canvas_c; c++) {
+            DrawChar(r, c, ' ', fg, bg);
+        }
+    }
+}
+
+void InitDisplay(void){
+    uint8_t x_offset = 0;
+    uint8_t y_offset = 0;
+#ifdef GFX_FONTSIZE16
+    uint8_t font_bpp_opt = GFX_CHARACTER_FONTSIZE8x16 | GFX_CHARACTER_bpp4; // 10 8x16 font at 4bpp
+#endif
+#ifdef GFX_FONTSIZE8
+    uint8_t font_bpp_opt = GFX_CHARACTER_FONTSIZE8x8 | GFX_CHARACTER_bpp4; // 10 8x8 font at 4bpp
+#endif
+    
+    // initialize the canvas
+    xreg(1, 0, 0, canvas_type);
+
+    xram0_struct_set(canvas_struct, vga_mode1_config_t, x_wrap, false);
+    xram0_struct_set(canvas_struct, vga_mode1_config_t, y_wrap, false);
+    xram0_struct_set(canvas_struct, vga_mode1_config_t, x_pos_px, x_offset);
+    xram0_struct_set(canvas_struct, vga_mode1_config_t, y_pos_px, y_offset);
+    xram0_struct_set(canvas_struct, vga_mode1_config_t, width_chars, canvas_c);
+    xram0_struct_set(canvas_struct, vga_mode1_config_t, height_chars, canvas_r);
+    xram0_struct_set(canvas_struct, vga_mode1_config_t, xram_data_ptr, canvas_data);
+    xram0_struct_set(canvas_struct, vga_mode1_config_t, xram_palette_ptr, GFX_CHARACTER_PAL_PTR);
+    xram0_struct_set(canvas_struct, vga_mode1_config_t, xram_font_ptr, GFX_CHARACTER_FONT_PTR);
+    xreg(1, 0, 1, GFX_MODE_CHARACTER, font_bpp_opt, canvas_struct, GFX_PLANE_1);
+
+    ClearDisplay(fg_clr, bg_clr);
+
+}
+
+void DrawChar(uint8_t row, uint8_t col, char ch, uint8_t fg, uint8_t bg)
+{
+    // for 4-bit color, index 2 bytes per ch
+    RIA.addr0 = canvas_data + 2 * (row * canvas_c + col);
+    RIA.step0 = 1;
+    RIA.rw0 = ch;
+    RIA.rw0 = (bg << 4) | fg;
+}
+
+void GetChar(uint8_t row, uint8_t col, char *pch, uint8_t *pfg, uint8_t *pbg)
+{
+    uint8_t bgfg;
+
+    // for 4-bit color, index 2 bytes per ch
+    RIA.addr0 = canvas_data + 2 * (row * canvas_c + col);
+    RIA.step0 = 1;
+    *pch = RIA.rw0;
+    bgfg = RIA.rw0;
+    *pbg = bgfg >> 4;
+    *pfg = bgfg & 0x0F;
+}
+
+bool BackupChars(uint8_t row, uint8_t col, uint8_t width, uint8_t height, uint8_t *pstash)
+{
+    if (pstash != NULL) {
+        uint8_t * pbyte = pstash;
+        uint16_t r, c;
+        for (r = row; r < row + height; r++) {
+            for (c = col; c < col + width; c++) {
+                // for 4-bit color, index 2 bytes per ch
+                RIA.addr0 = canvas_data + 2*(r*canvas_c + c);
+                RIA.step0 = 1;
+                *(pbyte++) = RIA.rw0; // ch
+                *(pbyte++) = RIA.rw0; // bgfg
+            }
+        }
+        return true; // backup succeeded
+    }
+    return false;
+}
+
+bool RestoreChars(uint8_t row, uint8_t col, uint8_t width, uint8_t height, uint8_t *pstash)
+{
+    if (pstash != NULL) {
+        uint8_t * pbyte = pstash;
+        uint16_t r, c;
+        for (r = row; r < row + height; r++) {
+            for (c = col; c < col + width; c++) {
+                // for 4-bit color, index 2 bytes per ch
+                RIA.addr0 = canvas_data + 2*(r*canvas_c + c);
+                RIA.step0 = 1;
+                RIA.rw0 = *(pbyte++); // ch
+                RIA.rw0 = *(pbyte++); // bgfg
+            }
+        }
+        return true; // restore suceeded
+    }
+    return false;
+}
+
+void printText(char *text, uint8_t x, uint8_t y, uint8_t fg, uint8_t bg)
+{
+    uint8_t i;
+
+    strncpy(msg, text, sizeof(msg) - 1);
+    msg[sizeof(msg) - 1] = 0;
+
+    for (i = 0; msg[i] && (x + i) < GFX_CHARACTER_COLUMNS; i++) {
+        DrawChar(y, x + i, msg[i], fg, bg);
+    }
+}
+
+void DrawLetters_PL(uint8_t x, uint8_t y, uint8_t fg, uint8_t bg){
+
+    // polish letters PC852 ĄąĆćĘęŁłŃńÓóŚśŻżŹź
+    // int letters_polish[18] = { 164,  165,  143,  134,  168,  169,  157,  136,  227,  228,  224,  162,  151,  152,  189,  190,  141,  171};
+    uint8_t letters_polish[18] = {0xA4, 0xA5, 0x8F, 0x86, 0xA8, 0xA9, 0x9D, 0x88, 0xE3, 0xE4, 0xE0, 0xA2, 0x97, 0x98, 0xBD, 0xBE, 0x8D, 0xAB};
+
+    uint8_t i = 0;
+
+    for(i = 0; i < sizeof(letters_polish); i++){
+        DrawChar(y,  x + i, (char)letters_polish[i], fg, bg);
+    }
+
+}
+
+void DrawFontTable(uint8_t x, uint8_t y, uint8_t fg, uint8_t bg, uint8_t bgc, uint8_t bgr){
+
+    uint8_t i = 0;
+    uint8_t j = 0;
+
+    for(j = 0; j < 16; j++){
+        DrawChar(y + 1 + j, x     , (char)(j < 10 ? 48 + j : 65 + j - 10), fg, bgr);
+        DrawChar(y + 1 + j, x + 17, (char)(j < 10 ? 48 + j : 65 + j - 10), fg, bgr);
+        for(i = 0; i < 16; i++){
+            DrawChar(y        , x + i + 1, (char)(i < 10 ? 48 + i : 65 + i - 10), fg, bgc);
+            DrawChar(y + 17   , x + i + 1, (char)(i < 10 ? 48 + i : 65 + i - 10), fg, bgc);
+            DrawChar(y + 1 + j, x + i + 1, (char)(j * 16 + i), fg, bg);
+        }
+    }
+
+}

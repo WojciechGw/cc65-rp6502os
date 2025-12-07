@@ -19,6 +19,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <time.h>
+#include "colors.h"
 
 extern struct _timezone _tz;
 
@@ -32,6 +33,69 @@ extern struct _timezone _tz;
 #endif
 #define MEMTOP (0xFD00-__STACKSIZE__)
 #define COM_LOAD_ADDR 0xA000      /* where to upload the code (binary shell extensions - .com files) */
+
+#define GFX_CANVAS_CONSOLE 0
+#define GFX_CANVAS_320x240 1
+#define GFX_CANVAS_320x180 2
+#define GFX_CANVAS_640x480 3
+#define GFX_CANVAS_640x360 4
+
+#define GFX_MODE_CONSOLE   0
+#define GFX_MODE_CHARACTER 1
+#define GFX_MODE_TILE      2
+#define GFX_MODE_BITMAP    3
+#define GFX_MODE_SPRITE    4
+
+#define GFX_PLANE_0 0
+#define GFX_PLANE_1 1
+#define GFX_PLANE_2 2
+
+#define GFX_FONT_CUSTOM 0xF700        // custom fontset
+#define GFX_CHARACTER_FONT_PTR GFX_FONT_CUSTOM // GFX_FONT_CUSTOM // standard fontset
+#define GFX_CHARACTER_PAL_PTR  0xFFFF
+#define GFX_CANVAS_DATA   0x0000
+#define GFX_CANVAS_STRUCT 0xFF00
+
+#define GFX_CHARACTER_bpp1         0b00000000
+#define GFX_CHARACTER_bpp4         0b00000010
+#define GFX_CHARACTER_bpp4_REVERSE 0b00000001
+#define GFX_CHARACTER_bpp8         0b00000011
+#define GFX_CHARACTER_bpp16        0b00000100
+#define GFX_CHARACTER_FONTSIZE8x16 0b00001000
+#define GFX_CHARACTER_FONTSIZE8x8  0b00000000
+
+#define GFX_CANVAS_SIZE GFX_CANVAS_640x480
+
+#define GFX_CANVAS_WIDTH  640
+#define GFX_CANVAS_HEIGHT 480
+
+#define GFX_FONTSIZE8 8
+//#define GFX_FONTSIZE16 16
+
+#define GFX_CHARACTER_COLUMNS (GFX_CANVAS_WIDTH / 8)
+#ifdef GFX_FONTSIZE8
+#define GFX_CHARACTER_ROWS    (GFX_CANVAS_HEIGHT / GFX_FONTSIZE8)
+#else
+#define GFX_CHARACTER_ROWS    (GFX_CANVAS_HEIGHT / GFX_FONTSIZE16)
+#endif
+
+static uint16_t canvas_struct = GFX_CANVAS_STRUCT;
+static uint16_t canvas_data = GFX_CANVAS_DATA;
+static uint8_t plane = GFX_PLANE_1;
+static uint8_t canvas_type = GFX_CANVAS_SIZE;
+static uint16_t canvas_w = GFX_CANVAS_WIDTH;
+static uint16_t canvas_h = GFX_CANVAS_HEIGHT;
+static uint8_t canvas_c = GFX_CHARACTER_COLUMNS;
+static uint8_t canvas_r = GFX_CHARACTER_ROWS;
+static uint8_t font_w = 8;
+#ifdef GFX_FONTSIZE8
+static uint8_t font_h = 8;
+#endif
+#ifdef GFX_FONTSIZE16
+static uint8_t font_h = 16;
+#endif
+static uint8_t fg_clr = DARK_GRAY;
+static uint8_t bg_clr = BLACK;
 
 #define CMD_BUF_MAX 127
 #define CMD_TOKEN_MAX 10
@@ -86,6 +150,9 @@ extern struct _timezone _tz;
 // wait on clock
 uint32_t ticks = 0; // for PAUSE(millis)
 #define PAUSE(millis) ticks=clock(); while(clock() < (ticks + millis)){}
+
+char *filename[20] = {"                    "};
+static char msg[80] = {0};
 
 static const char hexdigits[] = "0123456789ABCDEF";
 
@@ -256,5 +323,17 @@ int cmd_rm(int argc, char **argv);
 int cmd_run(int argc, char **argv);
 int cmd_stat(int argc, char **argv);
 int cmd_time(int argc, char **argv);
+
+void DrawChar(uint8_t row, uint8_t col, char ch, uint8_t fg, uint8_t bg);
+void GetChar(uint8_t row, uint8_t col, char *pch, uint8_t *pfg, uint8_t *pbg);
+bool BackupChars(uint8_t row, uint8_t col, uint8_t width, uint8_t height, uint8_t *pstash);
+bool RestoreChars(uint8_t row, uint8_t col, uint8_t width, uint8_t height, uint8_t *pstash);
+void printText(char *text, uint8_t x, uint8_t y, uint8_t fg, uint8_t bg);
+void DrawLetters_PL(uint8_t x, uint8_t y, uint8_t fg, uint8_t bg);
+void DrawFontTable(uint8_t x, uint8_t y, uint8_t fg, uint8_t bg, uint8_t bgc, uint8_t bgr);
+
+void InitTerminalFont(void);
+void ClearDisplay(uint8_t fg, uint8_t bg);
+void InitDisplay(void);
 
 // EOF shell.h
