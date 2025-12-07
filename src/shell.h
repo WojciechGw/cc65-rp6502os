@@ -23,7 +23,8 @@
 extern struct _timezone _tz;
 
 #define SHELLDIR "USB0:/SHELL/"
-#define APP_MSG_TITLE "\r\nThe Shell for Picocomputer 6502 (65C02's native mode)" NEWLINE "--------------------------------------------------------------------------------" NEWLINE
+#define APP_MSG_START "\x1b" "[15;25HOS Shell activates, please wait ... "
+#define APP_MSG_TITLE "\r\nOS Shell for Picocomputer 6502 (native mode)" NEWLINE "--------------------------------------------------------------------------------" NEWLINE
 #define APP_MSG_EXIT NEWLINE "Exiting to the monitor." NEWLINE "Bye, bye !" NEWLINE NEWLINE
 
 #ifndef __STACKSIZE__

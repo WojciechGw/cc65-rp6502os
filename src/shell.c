@@ -21,8 +21,8 @@ int main(void) {
     
     tx_string(CSI_RESET);
     // printf(CSI_CURSOR_HIDE); // hide cursor
-    printf("\x1b[15;25HThe Shell activates, please wait ... ");
-    PAUSE(150);
+    printf(APP_MSG_START);
+    PAUSE(500);
     // printf(CSI_CURSOR_SHOW); // show cursor
     tx_string(CSI_RESET);
 
