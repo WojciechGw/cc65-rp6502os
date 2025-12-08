@@ -96,6 +96,8 @@ static uint8_t font_h = 16;
 #endif
 static uint8_t fg_clr = DARK_GRAY;
 static uint8_t bg_clr = BLACK;
+static curcol = 0; // current column
+static currow = 0; // current row
 
 #define CMD_BUF_MAX 127
 #define CMD_TOKEN_MAX 10

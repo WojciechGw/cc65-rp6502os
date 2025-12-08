@@ -61,6 +61,7 @@ try {
     try {
         $serialPort.Open()
         Start-Sleep -Milliseconds 200
+        Send-LineAndWait -port $serialPort -text "exit" -label "exit"
         Send-LineAndWait -port $serialPort -text "0:" -label "0:"
         Send-LineAndWait -port $serialPort -text "cd /SHELL" -label "cd /SHELL"
         $serialPort.Close()
@@ -76,6 +77,22 @@ try {
 
     python3 rp6502.py upload -D COM4 ..\src\extcmd\build\${shellextcmdname}.com
     #python3 rp6502.py shellext -D COM4 ..\src\extcmd\build\${shellextcmdname}.com
+
+   try {
+        $serialPort.Open()
+        Start-Sleep -Milliseconds 200
+        Send-LineAndWait -port $serialPort -text "shell" -label "shell"
+        $serialPort.Close()
+    }
+    catch {
+        Write-Warning "Nie można wysłać na COM4: $_"
+    }
+    finally {
+        if ($serialPort) {
+            $serialPort.Dispose()
+        }
+    }
+
 }
 finally {
     Pop-Location
