@@ -9,8 +9,24 @@
 #include <fcntl.h>
 #include <time.h>
 
+#define NEWLINE "\r\n"
+#define FNAMELEN 64
+#define DIR_LIST_MAX 40
+
+typedef struct {
+    char name[FNAMELEN];
+    unsigned long fsize;
+    unsigned char fattrib;
+    unsigned fdate;
+    unsigned ftime;
+} dir_list_entry_t;
+
 static char dir_cwd[FNAMELEN];
 static f_stat_t dir_ent;
+static char current_drive = '0';
+static const char hexdigits[] = "0123456789ABCDEF";
+static char dir_dt_buf[20];
+
 #ifndef AM_DIR
 #define AM_DIR 0x10
 #define AM_RDO 0x01
@@ -20,7 +36,122 @@ static f_stat_t dir_ent;
 #define AM_ARC 0x20
 #endif
 
+#define TX_READY (RIA.ready & RIA_READY_TX_BIT)
+#define TX_READY_SPIN while(!TX_READY)
+
+inline void tx_char(char c) {
+    TX_READY_SPIN;
+    RIA.tx = c;
+    return;
+}
+
+void tx_chars(const char *buf, int ct) {
+    for(; ct; ct--, buf++) tx_char(*buf);
+    return;
+}
+
+void tx_string(const char *buf) {
+    while(*buf) tx_char(*buf++);
+    return;
+}
+
+// Print a 32-bit value as 8 hex digits.
+void tx_hex32(unsigned long val) {
+    char out[8];
+    int i;
+    for(i = 7; i >= 0; i--) {
+        out[i] = hexdigits[val & 0xF];
+        val >>= 4;
+    }
+    tx_chars(out, sizeof(out));
+}
+
+/* Print 16-bit value as 4 hex digits */
+void tx_hex16(uint16_t val) {
+    char out[4];
+    int i;
+    for(i = 3; i >= 0; i--) {
+        out[i] = hexdigits[val & 0xF];
+        val >>= 4;
+    }
+    tx_chars(out, sizeof(out));
+}
+
+// Simple wildcard match supporting '*' (0+ chars) and '?' (1 char).
+bool match_mask(const char *name, const char *mask) {
+    const char *star = 0;
+    const char *match = 0;
+    while(*name) {
+        if(*mask == '?' || *mask == *name) {
+            mask++;
+            name++;
+            continue;
+        }
+        if(*mask == '*') {
+            star = mask++;
+            match = name;
+            continue;
+        }
+        if(star) {
+            mask = star + 1;
+            name = ++match;
+            continue;
+        }
+        return false;
+    }
+    while(*mask == '*') mask++;
+    return *mask == 0;
+}
+
+// Print an unsigned long in decimal.
+void tx_dec32(unsigned long val) {
+    char out[10];
+    int i = 10;
+    if(val == 0) {
+        tx_char('0');
+        return;
+    }
+    while(val && i) {
+        out[--i] = '0' + (val % 10);
+        val /= 10;
+    }
+    tx_chars(&out[i], 10 - i);
+}
+
+// Format FAT date/time into YYYY-MM-DD hh:mm:ss
+const char *format_fat_datetime(unsigned fdate, unsigned ftime) {
+    unsigned year = 1980 + (fdate >> 9);
+    unsigned month = (fdate >> 5) & 0xF;
+    unsigned day = fdate & 0x1F;
+    unsigned hour = ftime >> 11;
+    unsigned min = (ftime >> 5) & 0x3F;
+    unsigned sec = (ftime & 0x1F) * 2;
+
+    dir_dt_buf[0]  = '0' + (year / 1000);
+    dir_dt_buf[1]  = '0' + ((year / 100) % 10);
+    dir_dt_buf[2]  = '0' + ((year / 10) % 10);
+    dir_dt_buf[3]  = '0' + (year % 10);
+    dir_dt_buf[4]  = '-';
+    dir_dt_buf[5]  = '0' + (month / 10);
+    dir_dt_buf[6]  = '0' + (month % 10);
+    dir_dt_buf[7]  = '-';
+    dir_dt_buf[8]  = '0' + (day / 10);
+    dir_dt_buf[9]  = '0' + (day % 10);
+    dir_dt_buf[10] = ' ';
+    dir_dt_buf[11] = '0' + (hour / 10);
+    dir_dt_buf[12] = '0' + (hour % 10);
+    dir_dt_buf[13] = ':';
+    dir_dt_buf[14] = '0' + (min / 10);
+    dir_dt_buf[15] = '0' + (min % 10);
+    dir_dt_buf[16] = ':';
+    dir_dt_buf[17] = '0' + (sec / 10);
+    dir_dt_buf[18] = '0' + (sec % 10);
+    dir_dt_buf[19] = 0;
+    return dir_dt_buf;
+}
+
 int main(int argc, char **argv) {
+
     int i;
     const char *mask = "*";
     const char *path = ".";
@@ -40,21 +171,16 @@ int main(int argc, char **argv) {
     unsigned dir_entries_count = 0;
     unsigned dir_i = 0, dir_j = 0;
 
-    if(argc < 1) {
-        printf("Usage: label <new_label>\r\n");
+    if(argc == 1 && strcmp(argv[0],"/?") == 0) {
+        printf( "Command : dir" NEWLINE NEWLINE "show active drive directory, wildcards allowed" NEWLINE NEWLINE
+                "Usage:" NEWLINE
+                "dir *.rp6502 (only .rp6502 files)" NEWLINE
+                "dir /da (sorted by date ascending)" NEWLINE NEWLINE);
         return -1;
     }
 
-    printf("\r\n--------------\r\nargc=%d\r\n", argc);
-    for(i = 0; i < argc; i++) {
-        printf("argv[%d]=\"%s\"\r\n", i, argv[i]);
-    }
-
-// --------------------------
-
-
     if(!dir_arg || !dir_path_buf || !dir_mask_buf || !dir_entries) {
-        tx_string("dir: OOM" NEWLINE);
+        tx_string(NEWLINE "ERROR: heap size too small - reduce __STACKSIZE__" NEWLINE NEWLINE);
         free(dir_arg); free(dir_path_buf); free(dir_mask_buf); free(dir_entries);
         return -1;
     }

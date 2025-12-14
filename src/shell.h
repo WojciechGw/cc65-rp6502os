@@ -251,7 +251,7 @@ static const cmd_t commands[] = {
     { "com",    "", "", cmd_com},
     { "copy",   "", "", cmd_cp},
     { "cp",     "", "", cmd_cp},
-    { "dir",    "", "", cmd_dir},
+ //   { "dir",    "", "", cmd_dir},
     { "ls",     "", "", cmd_dir},
     { "drive",  "", "", cmd_drive},
     { "drives", "", "", cmd_drives},

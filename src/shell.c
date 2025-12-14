@@ -1566,7 +1566,6 @@ int cmd_dir(int argc, char **argv) {
     unsigned dir_i = 0, dir_j = 0;
 
     if(!dir_arg || !dir_path_buf || !dir_mask_buf || !dir_entries) {
-        tx_string("dir: OOM" NEWLINE);
         free(dir_arg); free(dir_path_buf); free(dir_mask_buf); free(dir_entries);
         return -1;
     }
