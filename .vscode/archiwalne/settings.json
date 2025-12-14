@@ -5,11 +5,14 @@
         "Unix Makefiles",
     ],
     "cmake.options.advanced": {
+        "launchTarget": {
+            "statusBarVisibility": "visible"
+        },
         "launch": {
             "statusBarVisibility": "hidden",
         },
         "debug": {
             "statusBarVisibility": "hidden",
         }
-    },
+    }
 }

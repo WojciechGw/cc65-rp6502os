@@ -3,6 +3,7 @@
 #include <time.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 struct Month {
     const char* name;
@@ -32,10 +33,19 @@ int getFirstDayOfMonth(int year, int month);
 const char* getMonthName(int month);
 int daysInMonth(int year, int month);
 
+#define NEWLINE "\r\n"
+
+#define SHOW_CURRENTMONTH   0
+#define SHOW_YEAR           1
+#define SHOW_QUARTER        2
+#define SHOW_NEIGHBOURS     3
+#define SHOW_PARTICULAR     4
+
 int main(int argc, char **argv) {
 
     int year, month, day;
-    int show_year, show_year_qrows, show_quarter, show_neighbors, show_particular, quarter_start;
+    int action;
+    int quarter_start;
     // char buf[100];
     time_t t = time(NULL);
     struct tm *tm = localtime(&t);
@@ -50,29 +60,25 @@ int main(int argc, char **argv) {
     month = tm->tm_mon + 1;
     day = tm->tm_mday;
 
-    show_year = 0;
-    show_quarter = 0;
-    show_year_qrows = 0;
-    show_neighbors = 0;
-    show_particular = 0;
     quarter_start = ((month - 1) / 3) * 3 + 1;
 
     if(argc > 0){
         if (strcmp(argv[0], "/?") == 0){
-            printf ("\r\nCalendar\r\n\r\n"
-                    "shows calendar:\r\n"
-                    "without parameters - current month\r\n"
-                    "/p yyyy mm - particular month\r\n"
-                    "/n         - current and neighbouring months\r\n"
-                    "/q         - current quarter\r\n"
-                    "/y         - current year\r\n"
-                    "\r\n");
+            printf (NEWLINE "Calendar" NEWLINE NEWLINE
+                    "shows calendar in various ways" NEWLINE NEWLINE
+                    "Usage:" NEWLINE
+                    "cal            - current month" NEWLINE
+                    "cal /p yyyy mm - particular month" NEWLINE
+                    "cal /n         - current and neighbouring months" NEWLINE
+                    "cal /q         - current quarter" NEWLINE
+                    "cal /y         - current year" NEWLINE
+                    NEWLINE);
         } else if (strcmp(argv[0], "/debug") == 0){
             {
                 int i;
-                printf("\r\n--------------\r\nargc=%d\r\n", argc);
+                printf(NEWLINE "--------------" NEWLINE "argc=%d" NEWLINE, argc);
                 for(i = 0; i < argc; i++) {
-                    printf("argv[%d]=\"%s\"\r\n", i, argv[i]);
+                    printf("argv[%d]=\"%s\"" NEWLINE, i, argv[i]);
                 }
             }
         }
@@ -82,28 +88,34 @@ int main(int argc, char **argv) {
 
     if (argc > 0) {
         if (strcmp(argv[0], "/y") == 0 ) {
-            show_year = 1;
+            action = SHOW_YEAR;
         } else if (strcmp(argv[0], "/q") == 0 ) {
-            show_quarter = 1;
+            action = SHOW_QUARTER;
         } else if (strcmp(argv[0], "/n") == 0) {
-            show_neighbors = 1;
+            action = SHOW_NEIGHBOURS;
         } else if (strcmp(argv[0], "/p") == 0) {
-            show_particular = 1;
+            action = SHOW_PARTICULAR;
         }
     }
 
-    if (show_year) {
-        print_calendar_year(year, month, day);
-    } else if (show_quarter) {
-        print_calendar_quarter(year, quarter_start, month, day);
-    } else if (show_neighbors) {
-        print_calendar_neighbors(year, month, day);
-    } else if (show_particular) {
-        year = atoi(argv[1]);
-        month = atoi(argv[2]);
-        print_calendar(year, month, 0);
-    } else {
-        print_calendar(year, month, day);
+    switch(action){
+        case SHOW_YEAR:
+            print_calendar_year(year, month, day);
+            break;
+        case SHOW_QUARTER:
+            print_calendar_quarter(year, quarter_start, month, day);
+            break;
+        case SHOW_NEIGHBOURS:
+            print_calendar_neighbors(year, month, day);
+            break;
+        case SHOW_PARTICULAR:
+            // /p particular month
+            year = atoi(argv[1]);
+            month = atoi(argv[2]);
+            print_calendar(year, month, 0);
+            break;
+        default:
+            print_calendar(year, month, day);
     }
     printf("\r\n");
     return 0;

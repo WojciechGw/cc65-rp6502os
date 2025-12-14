@@ -8,8 +8,11 @@ endif()
 
 # First argument after -- is CC65_COMPILER.
 set(CC65_COMPILER "${CMAKE_ARGV4}")
+if(NOT EXISTS "${CC65_COMPILER}")
+    message(FATAL_ERROR "Could not find executable: ${CC65_COMPILER}")
+endif()
 
-# Remove defines intended for IntelliSense.
+# Remove -include and its argument.
 set(FILTERED_ARGS "")
 foreach(INDEX RANGE 5 ${CMAKE_ARGC})
     if(DEFINED CMAKE_ARGV${INDEX})
@@ -33,14 +36,18 @@ execute_process(
 )
 
 # Output stdout unchanged.
-message(STATUS "${STDOUT_OUTPUT}")
+if(STDOUT_OUTPUT)
+    message(STATUS "${STDOUT_OUTPUT}")
+endif()
 
-# Reformat stderr so VS Code problem matcher works. Just a case change.
-string(REGEX REPLACE "(:[0-9]+:) Error:" "\\1 error:" STDERR_OUTPUT "${STDERR_OUTPUT}")
-string(REGEX REPLACE "(:[0-9]+:) Warning:" "\\1 warning:" STDERR_OUTPUT "${STDERR_OUTPUT}")
-message(NOTICE "${STDERR_OUTPUT}")
+# Reformat stderr so VS Code problem matcher works. Yes, it's just the case.
+if(STDERR_OUTPUT)
+    string(REGEX REPLACE "(:[0-9]+:) Error:" "\\1 error:" STDERR_OUTPUT "${STDERR_OUTPUT}")
+    string(REGEX REPLACE "(:[0-9]+:) Warning:" "\\1 warning:" STDERR_OUTPUT "${STDERR_OUTPUT}")
+    message(NOTICE "${STDERR_OUTPUT}")
+endif()
 
-# Return any non-zero exit code.
+# Return a non-zero exit code.
 if(NOT EXIT_CODE EQUAL 0)
     message(FATAL_ERROR "Compilation failed with exit code ${EXIT_CODE}")
 endif()

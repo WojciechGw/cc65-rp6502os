@@ -22,10 +22,10 @@
 #include "colors.h"
 
 extern struct _timezone _tz;
-
+#define SHELLVER "202512141207"
 #define SHELLDIR "USB0:/SHELL/"
 #define APP_MSG_START "\x1b" "[15;25HOS Shell activates, please wait ... "
-#define APP_MSG_TITLE "\r\nOS Shell for Picocomputer 6502 (native mode)" NEWLINE "--------------------------------------------------------------------------------" NEWLINE
+#define APP_MSG_TITLE "\r\nOS Shell for Picocomputer 6502 (native mode)" NEWLINE "version " SHELLVER NEWLINE "--------------------------------------------------------------------------------" NEWLINE
 #define APP_MSG_EXIT NEWLINE "Exiting to the monitor." NEWLINE "Bye, bye !" NEWLINE NEWLINE
 
 #ifndef __STACKSIZE__
@@ -81,23 +81,23 @@ extern struct _timezone _tz;
 
 static uint16_t canvas_struct = GFX_CANVAS_STRUCT;
 static uint16_t canvas_data = GFX_CANVAS_DATA;
-static uint8_t plane = GFX_PLANE_1;
+// static uint8_t plane = GFX_PLANE_1;
 static uint8_t canvas_type = GFX_CANVAS_SIZE;
-static uint16_t canvas_w = GFX_CANVAS_WIDTH;
-static uint16_t canvas_h = GFX_CANVAS_HEIGHT;
+// static uint16_t canvas_w = GFX_CANVAS_WIDTH;
+// static uint16_t canvas_h = GFX_CANVAS_HEIGHT;
 static uint8_t canvas_c = GFX_CHARACTER_COLUMNS;
 static uint8_t canvas_r = GFX_CHARACTER_ROWS;
-static uint8_t font_w = 8;
+// static uint8_t font_w = 8;
 #ifdef GFX_FONTSIZE8
-static uint8_t font_h = 8;
+// static uint8_t font_h = 8;
 #endif
 #ifdef GFX_FONTSIZE16
 static uint8_t font_h = 16;
 #endif
 static uint8_t fg_clr = DARK_GRAY;
 static uint8_t bg_clr = BLACK;
-static curcol = 0; // current column
-static currow = 0; // current row
+// static uint8_t curcol = 0; // current column
+// static uint8_t currow = 0; // current row
 
 #define CMD_BUF_MAX 127
 #define CMD_TOKEN_MAX 10
