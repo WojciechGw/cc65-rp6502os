@@ -53,8 +53,11 @@ try {
         $serialPort.Open()
         Start-Sleep -Milliseconds 200
         Send-LineAndWait -port $serialPort -text "exit" -label "exit"        
+        Start-Sleep -Milliseconds 200
         Send-LineAndWait -port $serialPort -text "0:" -label "0:"
+        Start-Sleep -Milliseconds 200
         Send-LineAndWait -port $serialPort -text "cd /" -label "cd /"
+        Start-Sleep -Milliseconds 200
         $serialPort.Close()
     }
     catch {
@@ -72,9 +75,13 @@ try {
         $serialPort.Open()
         Start-Sleep -Milliseconds 200
         Send-LineAndWait -port $serialPort -text "set boot -" -label "set boot -"
+        Start-Sleep -Milliseconds 200
         Send-LineAndWait -port $serialPort -text "remove ${shellextcmdname}" -label "remove ${shellextcmdname}"
+        Start-Sleep -Milliseconds 200
         Send-LineAndWait -port $serialPort -text "install ${shellextcmdname}.rp6502" -label "install ${shellextcmdname}"
+        Start-Sleep -Milliseconds 200
         Send-LineAndWait -port $serialPort -text "set boot ${shellextcmdname}" -label "set boot ${shellextcmdname}"
+        Start-Sleep -Milliseconds 200
         Send-LineAndWait -port $serialPort -text "shell" -label "shell"
         # Send-LineAndWait -port $serialPort -text "reboot" -label "reboot"
         $serialPort.Close()

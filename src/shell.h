@@ -22,10 +22,11 @@
 #include "colors.h"
 
 extern struct _timezone _tz;
-#define SHELLVER "20251214.1410"
+#define SHELLVER "20251214.1805"
 #define SHELLDIR "USB0:/SHELL/"
+#define NEWLINE  "\r\n"
 #define APP_MSG_START "\x1b" "[15;25HOS Shell activates, please wait ... "
-#define APP_MSG_TITLE "\r\nOS Shell for Picocomputer 6502 (native mode)" NEWLINE "version " SHELLVER NEWLINE "--------------------------------------------------------------------------------" NEWLINE
+#define APP_MSG_TITLE "OS Shell for Picocomputer 6502 (native mode)               version " SHELLVER NEWLINE "--------------------------------------------------------------------------------" NEWLINE
 #define APP_MSG_EXIT NEWLINE "Exiting to the monitor." NEWLINE "Bye, bye !" NEWLINE NEWLINE
 
 #ifndef __STACKSIZE__
@@ -132,7 +133,6 @@ static uint8_t bg_clr = BLACK;
 
 #define KEY_DEL     0x7F
 #define TAB         "\t"
-#define NEWLINE     "\r\n"
 #define CSI_RESET   "\x1b" "c"
 #define CSI_CURSOR_SHOW "\x1b[?25h"
 #define CSI_CURSOR_HIDE "\x1b[?25l"

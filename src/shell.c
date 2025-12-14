@@ -234,6 +234,7 @@ int main(void) {
                     cmd_com(com_argc, com_argv);
                     cmdline.bytes = 0;
                     cmdline.buffer[0] = 0;
+                    cls();
                     prompt();
                     continue;
                 }

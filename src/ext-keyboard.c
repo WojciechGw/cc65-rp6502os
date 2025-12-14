@@ -37,6 +37,7 @@ uint8_t keystates[KEYBOARD_BYTES] = {0};
 #define POS_APPHEADER "[1;1H" 
 #define POS_KEYBOARD  "[3;1H"
 #define POS_KEYPRESS  "[1;66H"
+#define NEWLINE "\r\n"
 
 #define HIGHLIGHT_COLOR "[37;41m" // white (37) on red (41)
 // #define HIGHLIGHT_COLOR "[30;47m" // black (30) on white (47)
@@ -140,9 +141,10 @@ static const key_shape_t keyboard_shapes[] = {
     {6,  0, 6,  KEY_LEFTCTRL,   "Ctrl"},
     {6,  6, 3,  KEY_LEFTMETA,   "\x03"},  
     {6,  9, 5,  KEY_LEFTALT,    "Alt"},
-    {6, 14, 21, KEY_SPACE,      "Spacebar"},
-    {6, 35, 5,  KEY_RIGHTALT,   "Alt"},
-    {6, 40, 3,  KEY_COMPOSE,    "\x7f"},
+    {6, 14, 18, KEY_SPACE,      "Spacebar"},
+    {6, 32, 5,  KEY_RIGHTALT,   "Alt"},
+    {6, 37, 3,  KEY_COMPOSE,    "\x7f"},
+    {6, 40, 3,  KEY_RIGHTMETA,  "\x03"},  
     {6, 43, 6,  KEY_RIGHTCTRL,  "Ctrl"},
 
     {5, 55, 5,  KEY_UP,         CHAR_UP},
@@ -256,7 +258,12 @@ int main(int argc, char **argv) {
 
     if(argc == 1 && strcmp(argv[0], "/?") == 0) {
         // notice lack of filename extension
-        printf ("Keyboard Status Visualiser for Picocomputer 6502\r\n\r\n"); 
+        printf (NEWLINE 
+                "Keyboard Status Visualiser for Picocomputer 6502" NEWLINE
+                NEWLINE
+                "press and hold both Shift keys to exit" NEWLINE
+                NEWLINE
+            ); 
         #ifdef DEBUG
         printf("--------------\r\nargc=%d\r\n", argc);
         for(i = 0; i < argc; i++) {
@@ -297,13 +304,17 @@ int main(int argc, char **argv) {
             }
             keystates[i] = new_keys;
         }
-
+        
+        if ((key(KEY_LEFTSHIFT) != 0) && (key(KEY_RIGHTSHIFT) != 0)) {
+            break;
+        }
+        
         render_keyboard_view();
 
+        /*
         if (!(keystates[0] & 1)) {
             if (!handled_key) {
                 if (key(KEY_ESC)) {
-                    break;
                 }
                 handled_key = true;
             }
@@ -312,6 +323,7 @@ int main(int argc, char **argv) {
             PAUSE(50);
             printf("\x1b" POS_KEYPRESS "               ");
         }
+        */
 
     }
     
