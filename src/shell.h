@@ -22,10 +22,10 @@
 #include "colors.h"
 
 extern struct _timezone _tz;
-#define SHELLVER "20251214.1805"
+#define SHELLVER "20251214.1841"
 #define SHELLDIR "USB0:/SHELL/"
 #define NEWLINE  "\r\n"
-#define APP_MSG_START "\x1b" "[15;25HOS Shell activates, please wait ... "
+#define APP_MSG_START "\x1b" "[14;24HOS Shell activates, please wait ..."
 #define APP_MSG_TITLE "OS Shell for Picocomputer 6502 (native mode)               version " SHELLVER NEWLINE "--------------------------------------------------------------------------------" NEWLINE
 #define APP_MSG_EXIT NEWLINE "Exiting to the monitor." NEWLINE "Bye, bye !" NEWLINE NEWLINE
 
