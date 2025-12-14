@@ -73,6 +73,5 @@ int main(int argc, char **argv) {
     printf("<UP>   \trecall last command\r\n");
     printf("<DOWN> \ta directory of active drive\r\n\r\n");
 
-
     return 0;
 }

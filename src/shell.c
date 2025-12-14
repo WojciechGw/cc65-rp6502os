@@ -20,10 +20,10 @@ int main(void) {
     static cmdline_t cmdline = {0};
     
     tx_string(CSI_RESET);
-    // printf(CSI_CURSOR_HIDE); // hide cursor
+    printf(CSI_CURSOR_HIDE); // hide cursor
     printf(APP_MSG_START);
-    PAUSE(50);
-    // printf(CSI_CURSOR_SHOW); // show cursor
+    PAUSE(200);
+    printf(CSI_CURSOR_SHOW); // show cursor
     tx_string(CSI_RESET);
 
     f_chdrive("0:");

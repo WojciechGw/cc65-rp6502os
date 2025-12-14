@@ -57,19 +57,28 @@ int main(int argc, char **argv) {
     show_particular = 0;
     quarter_start = ((month - 1) / 3) * 3 + 1;
 
-    if(argc > 1 && strcmp(argv[1], "/?") == 0) {
-        printf ("\r\nCalendar\r\n\r\nshows calendar (current month, neighbours month, quarter, year)\r\nUsage: cal [/n|/q|/y]\r\n\r\n"); 
+    if(argc > 0){
+        if (strcmp(argv[0], "/?") == 0){
+            printf ("\r\nCalendar\r\n\r\n"
+                    "shows calendar:\r\n"
+                    "without parameters - current month\r\n"
+                    "/p yyyy mm - particular month\r\n"
+                    "/n         - current and neighbouring months\r\n"
+                    "/q         - current quarter\r\n"
+                    "/y         - current year\r\n"
+                    "\r\n");
+        } else if (strcmp(argv[0], "/debug") == 0){
+            {
+                int i;
+                printf("\r\n--------------\r\nargc=%d\r\n", argc);
+                for(i = 0; i < argc; i++) {
+                    printf("argv[%d]=\"%s\"\r\n", i, argv[i]);
+                }
+            }
+        }
+        return 0;
     }
     
-    /*
-    {
-        int i;
-        printf("\r\n--------------\r\nargc=%d\r\n", argc);
-        for(i = 0; i < argc; i++) {
-            printf("argv[%d]=\"%s\"\r\n", i, argv[i]);
-        }
-    }
-    */
 
     if (argc > 0) {
         if (strcmp(argv[0], "/y") == 0 ) {
