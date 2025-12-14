@@ -1,15 +1,15 @@
 Modules list:
 -------------
-ext-keyboard.c.15028.0.o:
+ext-keyboard.c.20648.0.o:
     CODE              Offs=000000  Size=0005C4  Align=00001  Fill=0000
     RODATA            Offs=000000  Size=00040F  Align=00001  Fill=0000
     BSS               Offs=000000  Size=000467  Align=00001  Fill=0000
     DATA              Offs=000000  Size=000045  Align=00001  Fill=0000
-crt0_cmd.s.15028.1.o:
+crt0_cmd.s.20648.1.o:
     STARTUP           Offs=000000  Size=00001B  Align=00001  Fill=0000
-write_stub.c.15028.2.o:
+write_stub.c.20648.2.o:
     CODE              Offs=0005C4  Size=00004C  Align=00001  Fill=0000
-initmainargs.s.15028.3.o:
+initmainargs.s.20648.3.o:
     STARTUP           Offs=00001B  Size=000001  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(_file.o):
     DATA              Offs=000045  Size=00001E  Align=00001  Fill=0000
@@ -162,64 +162,64 @@ Segment list:
 Name                   Start     End    Size  Align
 ----------------------------------------------------
 ZEROPAGE              000000  000019  00001A  00001
-STARTUP               00A000  00A01B  00001C  00001
-ONCE                  00A01C  00A029  00000E  00001
-CODE                  00A02A  00B117  0010EE  00001
-RODATA                00B118  00B5CD  0004B6  00001
-DATA                  00B5CE  00B660  000093  00001
-BSS                   00B661  00BAF7  000497  00001
+STARTUP               00C000  00C01B  00001C  00001
+ONCE                  00C01C  00C029  00000E  00001
+CODE                  00C02A  00D117  0010EE  00001
+RODATA                00D118  00D5CD  0004B6  00001
+DATA                  00D5CE  00D660  000093  00001
+BSS                   00D661  00DAF7  000497  00001
 
 
 Exports list by name:
 ---------------------
-__CONSTRUCTOR_COUNT__     000001 REA    __CONSTRUCTOR_TABLE__     00A028 RLA    
-__DESTRUCTOR_COUNT__      000000 REA    __DESTRUCTOR_TABLE__      00B5CE RLA    
-__STACKSIZE__             000800 REA    __STARTUP__               00A000 RLA    
-___errno                  00FFED RLA    ___seterrno               00A9DB RLA    
-__ctype                   00B543 RLA    __ctypeidx                00B54E RLA    
-__hextab                  00B527 RLA    __longminstr              00B537 RLA    
-__printf                  00A72B RLA    _clock                    00AA34 RLA    
-_errno_opt_constructor    00AABC  LAI   _fputc                    00AAC6 RLA    
-_fwrite                   00AB0D RLA    _ltoa                     00AC98 RLA    
-_main                     00A41A RLA    _memcpy                   00AD45 RLA    
-_memset                   00AD89 RLA    _printf                   00AE81 RLA    
-_putchar                  00AF1B RLA    _ria_call_int             00AF62 RLA    
-_ria_call_long            00AF68 RLA    _stdout                   00B62D RLA    
-_strlen                   00AF84 RLA    _strlower                 00AF9A RLA    
-_ultoa                    00ACD7 RLA    _vfprintf                 00B05C RLA    
-_write                    00A5EE RLA    _xregn                    00B085 RLA    
-addeqysp                  00A9E6 RLA    addysp                    00A9F6 RLA    
-asrax1                    00AA03 RLA    axlong                    00AA0D RLA    
-axulong                   00AA13 RLA    bnega                     00AA1E RLA    
-boolult                   00AD38 RLA    c_sp                      000000 RLZ    
-checkferror               00AA28 RLA    ctypemaskdirect           00AA49 RLA    
-decax1                    00AA63 RLA    decax2                    00AA6A RLA    
-decsp1                    00AA71 RLA    decsp2                    00AA7A RLA    
-decsp4                    00AA87 RLA    decsp5                    00AA94 RLA    
-decsp6                    00AAA1 RLA    donelib                   00AA39 RLA    
-enter                     00AAAE RLA    incax2                    00AB84 RLA    
-inceaxy                   00AC33 RLA    incsp1                    00AB8B RLA    
-incsp2                    00AB99 RLA    incsp4                    00ABA7 RLA    
-incsp5                    00ABAC RLA    incsp6                    00ABB1 RLA    
-incsp8                    00ABB6 RLA    initlib                   00A01C RLA    
-initmainargs              00A01B REA    ldaxi                     00ABF6 RLA    
-ldaxysp                   00AC05 RLA    leaa0sp                   00AC0C RLA    
-leavey                    00AC22 RLA    mul8x16                   00AE25 RLA    
-mul8x16a                  00AE2F RLA    mulax6                    00AE5D RLA    
-negeax                    00AC44 RLA    popax                     00AB92 RLA    
-popptr1                   00AE73 RLA    ptr1                      000008 RLZ    
+__CONSTRUCTOR_COUNT__     000001 REA    __CONSTRUCTOR_TABLE__     00C028 RLA    
+__DESTRUCTOR_COUNT__      000000 REA    __DESTRUCTOR_TABLE__      00D5CE RLA    
+__STACKSIZE__             000800 REA    __STARTUP__               00C000 RLA    
+___errno                  00FFED RLA    ___seterrno               00C9DB RLA    
+__ctype                   00D543 RLA    __ctypeidx                00D54E RLA    
+__hextab                  00D527 RLA    __longminstr              00D537 RLA    
+__printf                  00C72B RLA    _clock                    00CA34 RLA    
+_errno_opt_constructor    00CABC  LAI   _fputc                    00CAC6 RLA    
+_fwrite                   00CB0D RLA    _ltoa                     00CC98 RLA    
+_main                     00C41A RLA    _memcpy                   00CD45 RLA    
+_memset                   00CD89 RLA    _printf                   00CE81 RLA    
+_putchar                  00CF1B RLA    _ria_call_int             00CF62 RLA    
+_ria_call_long            00CF68 RLA    _stdout                   00D62D RLA    
+_strlen                   00CF84 RLA    _strlower                 00CF9A RLA    
+_ultoa                    00CCD7 RLA    _vfprintf                 00D05C RLA    
+_write                    00C5EE RLA    _xregn                    00D085 RLA    
+addeqysp                  00C9E6 RLA    addysp                    00C9F6 RLA    
+asrax1                    00CA03 RLA    axlong                    00CA0D RLA    
+axulong                   00CA13 RLA    bnega                     00CA1E RLA    
+boolult                   00CD38 RLA    c_sp                      000000 RLZ    
+checkferror               00CA28 RLA    ctypemaskdirect           00CA49 RLA    
+decax1                    00CA63 RLA    decax2                    00CA6A RLA    
+decsp1                    00CA71 RLA    decsp2                    00CA7A RLA    
+decsp4                    00CA87 RLA    decsp5                    00CA94 RLA    
+decsp6                    00CAA1 RLA    donelib                   00CA39 RLA    
+enter                     00CAAE RLA    incax2                    00CB84 RLA    
+inceaxy                   00CC33 RLA    incsp1                    00CB8B RLA    
+incsp2                    00CB99 RLA    incsp4                    00CBA7 RLA    
+incsp5                    00CBAC RLA    incsp6                    00CBB1 RLA    
+incsp8                    00CBB6 RLA    initlib                   00C01C RLA    
+initmainargs              00C01B REA    ldaxi                     00CBF6 RLA    
+ldaxysp                   00CC05 RLA    leaa0sp                   00CC0C RLA    
+leavey                    00CC22 RLA    mul8x16                   00CE25 RLA    
+mul8x16a                  00CE2F RLA    mulax6                    00CE5D RLA    
+negeax                    00CC44 RLA    popax                     00CB92 RLA    
+popptr1                   00CE73 RLA    ptr1                      000008 RLZ    
 ptr2                      00000A RLZ    ptr3                      00000C RLZ    
-ptr4                      00000E RLZ    push1                     00AEB4 RLA    
-pusha                     00AEBD RLA    pusha0                    00AED1 RLA    
-pushax                    00AED3 RLA    pusheax                   00AC69 RLA    
-pushptr1                  00AEE9 RLA    pushw                     00AEF0 RLA    
-pushwysp                  00AF01 RLA    regbank                   000014 RLZ    
-regsave                   000004 RLZ    returnFFFF                00AF27 RLA    
-sreg                      000002 RLZ    stax0sp                   00AF79 RLA    
-subeq0sp                  00AFC1 RLA    tmp1                      000010 RLZ    
-toslcmp                   00ABBB RLA    tosmula0                  00AE23 RLA    
-tosudivax                 00AFD8 RLA    tosulteax                 00AD13 RLA    
-tosumulax                 00ADDE RLA    
+ptr4                      00000E RLZ    push1                     00CEB4 RLA    
+pusha                     00CEBD RLA    pusha0                    00CED1 RLA    
+pushax                    00CED3 RLA    pusheax                   00CC69 RLA    
+pushptr1                  00CEE9 RLA    pushw                     00CEF0 RLA    
+pushwysp                  00CF01 RLA    regbank                   000014 RLZ    
+regsave                   000004 RLZ    returnFFFF                00CF27 RLA    
+sreg                      000002 RLZ    stax0sp                   00CF79 RLA    
+subeq0sp                  00CFC1 RLA    tmp1                      000010 RLZ    
+toslcmp                   00CBBB RLA    tosmula0                  00CE23 RLA    
+tosudivax                 00CFD8 RLA    tosulteax                 00CD13 RLA    
+tosumulax                 00CDDE RLA    
 
 
 Exports list by value:
@@ -230,47 +230,47 @@ regsave                   000004 RLZ    ptr1                      000008 RLZ
 ptr2                      00000A RLZ    ptr3                      00000C RLZ    
 ptr4                      00000E RLZ    tmp1                      000010 RLZ    
 regbank                   000014 RLZ    __STACKSIZE__             000800 REA    
-__STARTUP__               00A000 RLA    initmainargs              00A01B REA    
-initlib                   00A01C RLA    __CONSTRUCTOR_TABLE__     00A028 RLA    
-_main                     00A41A RLA    _write                    00A5EE RLA    
-__printf                  00A72B RLA    ___seterrno               00A9DB RLA    
-addeqysp                  00A9E6 RLA    addysp                    00A9F6 RLA    
-asrax1                    00AA03 RLA    axlong                    00AA0D RLA    
-axulong                   00AA13 RLA    bnega                     00AA1E RLA    
-checkferror               00AA28 RLA    _clock                    00AA34 RLA    
-donelib                   00AA39 RLA    ctypemaskdirect           00AA49 RLA    
-decax1                    00AA63 RLA    decax2                    00AA6A RLA    
-decsp1                    00AA71 RLA    decsp2                    00AA7A RLA    
-decsp4                    00AA87 RLA    decsp5                    00AA94 RLA    
-decsp6                    00AAA1 RLA    enter                     00AAAE RLA    
-_errno_opt_constructor    00AABC  LAI   _fputc                    00AAC6 RLA    
-_fwrite                   00AB0D RLA    incax2                    00AB84 RLA    
-incsp1                    00AB8B RLA    popax                     00AB92 RLA    
-incsp2                    00AB99 RLA    incsp4                    00ABA7 RLA    
-incsp5                    00ABAC RLA    incsp6                    00ABB1 RLA    
-incsp8                    00ABB6 RLA    toslcmp                   00ABBB RLA    
-ldaxi                     00ABF6 RLA    ldaxysp                   00AC05 RLA    
-leaa0sp                   00AC0C RLA    leavey                    00AC22 RLA    
-inceaxy                   00AC33 RLA    negeax                    00AC44 RLA    
-pusheax                   00AC69 RLA    _ltoa                     00AC98 RLA    
-_ultoa                    00ACD7 RLA    tosulteax                 00AD13 RLA    
-boolult                   00AD38 RLA    _memcpy                   00AD45 RLA    
-_memset                   00AD89 RLA    tosumulax                 00ADDE RLA    
-tosmula0                  00AE23 RLA    mul8x16                   00AE25 RLA    
-mul8x16a                  00AE2F RLA    mulax6                    00AE5D RLA    
-popptr1                   00AE73 RLA    _printf                   00AE81 RLA    
-push1                     00AEB4 RLA    pusha                     00AEBD RLA    
-pusha0                    00AED1 RLA    pushax                    00AED3 RLA    
-pushptr1                  00AEE9 RLA    pushw                     00AEF0 RLA    
-pushwysp                  00AF01 RLA    _putchar                  00AF1B RLA    
-returnFFFF                00AF27 RLA    _ria_call_int             00AF62 RLA    
-_ria_call_long            00AF68 RLA    stax0sp                   00AF79 RLA    
-_strlen                   00AF84 RLA    _strlower                 00AF9A RLA    
-subeq0sp                  00AFC1 RLA    tosudivax                 00AFD8 RLA    
-_vfprintf                 00B05C RLA    _xregn                    00B085 RLA    
-__hextab                  00B527 RLA    __longminstr              00B537 RLA    
-__ctype                   00B543 RLA    __ctypeidx                00B54E RLA    
-__DESTRUCTOR_TABLE__      00B5CE RLA    _stdout                   00B62D RLA    
+__STARTUP__               00C000 RLA    initmainargs              00C01B REA    
+initlib                   00C01C RLA    __CONSTRUCTOR_TABLE__     00C028 RLA    
+_main                     00C41A RLA    _write                    00C5EE RLA    
+__printf                  00C72B RLA    ___seterrno               00C9DB RLA    
+addeqysp                  00C9E6 RLA    addysp                    00C9F6 RLA    
+asrax1                    00CA03 RLA    axlong                    00CA0D RLA    
+axulong                   00CA13 RLA    bnega                     00CA1E RLA    
+checkferror               00CA28 RLA    _clock                    00CA34 RLA    
+donelib                   00CA39 RLA    ctypemaskdirect           00CA49 RLA    
+decax1                    00CA63 RLA    decax2                    00CA6A RLA    
+decsp1                    00CA71 RLA    decsp2                    00CA7A RLA    
+decsp4                    00CA87 RLA    decsp5                    00CA94 RLA    
+decsp6                    00CAA1 RLA    enter                     00CAAE RLA    
+_errno_opt_constructor    00CABC  LAI   _fputc                    00CAC6 RLA    
+_fwrite                   00CB0D RLA    incax2                    00CB84 RLA    
+incsp1                    00CB8B RLA    popax                     00CB92 RLA    
+incsp2                    00CB99 RLA    incsp4                    00CBA7 RLA    
+incsp5                    00CBAC RLA    incsp6                    00CBB1 RLA    
+incsp8                    00CBB6 RLA    toslcmp                   00CBBB RLA    
+ldaxi                     00CBF6 RLA    ldaxysp                   00CC05 RLA    
+leaa0sp                   00CC0C RLA    leavey                    00CC22 RLA    
+inceaxy                   00CC33 RLA    negeax                    00CC44 RLA    
+pusheax                   00CC69 RLA    _ltoa                     00CC98 RLA    
+_ultoa                    00CCD7 RLA    tosulteax                 00CD13 RLA    
+boolult                   00CD38 RLA    _memcpy                   00CD45 RLA    
+_memset                   00CD89 RLA    tosumulax                 00CDDE RLA    
+tosmula0                  00CE23 RLA    mul8x16                   00CE25 RLA    
+mul8x16a                  00CE2F RLA    mulax6                    00CE5D RLA    
+popptr1                   00CE73 RLA    _printf                   00CE81 RLA    
+push1                     00CEB4 RLA    pusha                     00CEBD RLA    
+pusha0                    00CED1 RLA    pushax                    00CED3 RLA    
+pushptr1                  00CEE9 RLA    pushw                     00CEF0 RLA    
+pushwysp                  00CF01 RLA    _putchar                  00CF1B RLA    
+returnFFFF                00CF27 RLA    _ria_call_int             00CF62 RLA    
+_ria_call_long            00CF68 RLA    stax0sp                   00CF79 RLA    
+_strlen                   00CF84 RLA    _strlower                 00CF9A RLA    
+subeq0sp                  00CFC1 RLA    tosudivax                 00CFD8 RLA    
+_vfprintf                 00D05C RLA    _xregn                    00D085 RLA    
+__hextab                  00D527 RLA    __longminstr              00D537 RLA    
+__ctype                   00D543 RLA    __ctypeidx                00D54E RLA    
+__DESTRUCTOR_TABLE__      00D5CE RLA    _stdout                   00D62D RLA    
 ___errno                  00FFED RLA    
 
 
@@ -285,10 +285,10 @@ __DESTRUCTOR_COUNT__ ([linker generated]):
 __DESTRUCTOR_TABLE__ ([linker generated]):
     condes.o                  runtime/condes.s:19
 __STACKSIZE__ ([linker generated]):
-    [linker generated]        ../ext-keyboard.cfg:8
-__STARTUP__ (crt0_cmd.s.15028.1.o):
-    ext-keyboard.c.15028.0.o  ext-keyboard.c.15028.0.s:13
-    [linker generated]        ../ext-keyboard.cfg:2
+    [linker generated]        ../ext0xC000.cfg:8
+__STARTUP__ (crt0_cmd.s.20648.1.o):
+    ext-keyboard.c.20648.0.o  ext-keyboard.c.20648.0.s:13
+    [linker generated]        ../ext0xC000.cfg:2
 ___errno (errno.o):
     _seterrno.o               /home/wojciech/git/WojciechGw/cc65/asminc/errno.inc:7
 ___seterrno (_seterrno.o):
@@ -304,23 +304,23 @@ __longminstr (_longminstr.o):
 __printf (_printf.o):
     vfprintf.o                common/vfprintf.s:10
 _clock (clock.o):
-    ext-keyboard.c.15028.0.o  ext-keyboard.c.15028.0.s:22
+    ext-keyboard.c.20648.0.o  ext-keyboard.c.20648.0.s:22
 _fputc (fputc.o):
     putchar.o                 common/putchar.s:10
 _fwrite (fwrite.o):
     vfprintf.o                common/vfprintf.s:10
 _ltoa (ltoa.o):
     _printf.o                 common/_printf.s:12
-_main (ext-keyboard.c.15028.0.o):
-    crt0_cmd.s.15028.1.o      crt0_cmd.s:2
+_main (ext-keyboard.c.20648.0.o):
+    crt0_cmd.s.20648.1.o      crt0_cmd.s:2
 _memcpy (memcpy.o):
-    ext-keyboard.c.15028.0.o  ext-keyboard.c.15028.0.s:20
+    ext-keyboard.c.20648.0.o  ext-keyboard.c.20648.0.s:20
 _memset (memset.o):
-    ext-keyboard.c.15028.0.o  ext-keyboard.c.15028.0.s:21
+    ext-keyboard.c.20648.0.o  ext-keyboard.c.20648.0.s:21
 _printf (printf.o):
-    ext-keyboard.c.15028.0.o  ext-keyboard.c.15028.0.s:16
+    ext-keyboard.c.20648.0.o  ext-keyboard.c.20648.0.s:16
 _putchar (putchar.o):
-    ext-keyboard.c.15028.0.o  ext-keyboard.c.15028.0.s:17
+    ext-keyboard.c.20648.0.o  ext-keyboard.c.20648.0.s:17
 _ria_call_int (ria.o):
     errno.o                   rp6502/errno.s:12
     xregn.o                   ../libwrk/rp6502/xregn.s:17
@@ -331,20 +331,20 @@ _stdout (_file.o):
     printf.o                  common/printf.s:8
 _strlen (strlen.o):
     _printf.o                 common/_printf.s:13
-    ext-keyboard.c.15028.0.o  ext-keyboard.c.15028.0.s:19
+    ext-keyboard.c.20648.0.o  ext-keyboard.c.20648.0.s:19
 _strlower (strlower.o):
     _printf.o                 common/_printf.s:13
 _ultoa (ltoa.o):
     _printf.o                 common/_printf.s:12
 _vfprintf (vfprintf.o):
     printf.o                  common/printf.s:8
-_write (write_stub.c.15028.2.o):
+_write (write_stub.c.20648.2.o):
     fwrite.o                  common/fwrite.s:10
     fputc.o                   common/fputc.s:9
 _xregn (xregn.o):
-    ext-keyboard.c.15028.0.o  ext-keyboard.c.15028.0.s:15
+    ext-keyboard.c.20648.0.o  ext-keyboard.c.20648.0.s:15
 addeqysp (addeqsp.o):
-    write_stub.c.15028.2.o    write_stub.c.15028.2.s:64
+    write_stub.c.20648.2.o    write_stub.c.20648.2.s:64
 addysp (addysp.o):
     incsp4.o                  runtime/incsp4.s:8
     leave.o                   runtime/leave.s:14
@@ -353,18 +353,18 @@ addysp (addysp.o):
     printf.o                  common/printf.s:8
     incsp8.o                  runtime/incsp8.s:8
     incsp5.o                  runtime/incsp5.s:8
-    write_stub.c.15028.2.o    write_stub.c.15028.2.s:64
+    write_stub.c.20648.2.o    write_stub.c.20648.2.s:64
 asrax1 (asrax1.o):
-    ext-keyboard.c.15028.0.o  ext-keyboard.c.15028.0.s:1565
+    ext-keyboard.c.20648.0.o  ext-keyboard.c.20648.0.s:1565
 axlong (axlong.o):
     _printf.o                 common/_printf.s:11
 axulong (axlong.o):
     _printf.o                 common/_printf.s:11
 bnega (bneg.o):
-    ext-keyboard.c.15028.0.o  ext-keyboard.c.15028.0.s:1565
+    ext-keyboard.c.20648.0.o  ext-keyboard.c.20648.0.s:1565
 boolult (makebool.o):
     lult.o                    runtime/lult.s:8
-    ext-keyboard.c.15028.0.o  ext-keyboard.c.15028.0.s:1565
+    ext-keyboard.c.20648.0.o  ext-keyboard.c.20648.0.s:1565
 c_sp (zeropage.o):
     staxsp.o                  runtime/staxsp.s:8
     leave.o                   runtime/leave.s:15
@@ -393,8 +393,8 @@ c_sp (zeropage.o):
     decsp1.o                  runtime/decsp1.s:8
     addysp.o                  runtime/addysp.s:8
     addeqsp.o                 runtime/addeqsp.s:8
-    write_stub.c.15028.2.o    write_stub.c.15028.2.s:10
-    ext-keyboard.c.15028.0.o  ext-keyboard.c.15028.0.s:10
+    write_stub.c.20648.2.o    write_stub.c.20648.2.s:10
+    ext-keyboard.c.20648.0.o  ext-keyboard.c.20648.0.s:10
 checkferror (checkferror.o):
     fputc.o                   common/fputc.s:9
 ctypemaskdirect (ctypemask.o):
@@ -404,30 +404,30 @@ decax1 (decax1.o):
 decax2 (decax2.o):
     xregn.o                   ../libwrk/rp6502/xregn.s:118
 decsp1 (decsp1.o):
-    ext-keyboard.c.15028.0.o  ext-keyboard.c.15028.0.s:1565
-    ext-keyboard.c.15028.0.o  ext-keyboard.c.15028.0.s:1565
-    ext-keyboard.c.15028.0.o  ext-keyboard.c.15028.0.s:1565
+    ext-keyboard.c.20648.0.o  ext-keyboard.c.20648.0.s:1565
+    ext-keyboard.c.20648.0.o  ext-keyboard.c.20648.0.s:1565
+    ext-keyboard.c.20648.0.o  ext-keyboard.c.20648.0.s:1565
 decsp2 (decsp2.o):
     xregn.o                   ../libwrk/rp6502/xregn.s:118
-    ext-keyboard.c.15028.0.o  ext-keyboard.c.15028.0.s:1565
+    ext-keyboard.c.20648.0.o  ext-keyboard.c.20648.0.s:1565
 decsp4 (decsp4.o):
     lpush.o                   runtime/lpush.s:12
 decsp5 (decsp5.o):
-    ext-keyboard.c.15028.0.o  ext-keyboard.c.15028.0.s:1565
+    ext-keyboard.c.20648.0.o  ext-keyboard.c.20648.0.s:1565
 decsp6 (decsp6.o):
     _printf.o                 common/_printf.s:11
 donelib (condes.o):
-    crt0_cmd.s.15028.1.o      crt0_cmd.s:2
+    crt0_cmd.s.20648.1.o      crt0_cmd.s:2
 enter (enter.o):
     xregn.o                   ../libwrk/rp6502/xregn.s:118
 incax2 (incax2.o):
     xregn.o                   ../libwrk/rp6502/xregn.s:118
 inceaxy (linc.o):
-    ext-keyboard.c.15028.0.o  ext-keyboard.c.15028.0.s:1565
+    ext-keyboard.c.20648.0.o  ext-keyboard.c.20648.0.s:1565
 incsp1 (incsp1.o):
-    ext-keyboard.c.15028.0.o  ext-keyboard.c.15028.0.s:1565
-    ext-keyboard.c.15028.0.o  ext-keyboard.c.15028.0.s:1565
-    ext-keyboard.c.15028.0.o  ext-keyboard.c.15028.0.s:1565
+    ext-keyboard.c.20648.0.o  ext-keyboard.c.20648.0.s:1565
+    ext-keyboard.c.20648.0.o  ext-keyboard.c.20648.0.s:1565
+    ext-keyboard.c.20648.0.o  ext-keyboard.c.20648.0.s:1565
 incsp2 (incsp2.o):
     fputc.o                   common/fputc.s:10
     xregn.o                   ../libwrk/rp6502/xregn.s:118
@@ -435,16 +435,16 @@ incsp2 (incsp2.o):
 incsp4 (incsp4.o):
     lcmp.o                    runtime/lcmp.s:9
 incsp5 (incsp5.o):
-    ext-keyboard.c.15028.0.o  ext-keyboard.c.15028.0.s:1565
+    ext-keyboard.c.20648.0.o  ext-keyboard.c.20648.0.s:1565
 incsp6 (incsp6.o):
     fwrite.o                  common/fwrite.s:11
     vfprintf.o                common/vfprintf.s:9
 incsp8 (incsp8.o):
-    ext-keyboard.c.15028.0.o  ext-keyboard.c.15028.0.s:1565
+    ext-keyboard.c.20648.0.o  ext-keyboard.c.20648.0.s:1565
 initlib (condes.o):
-    crt0_cmd.s.15028.1.o      crt0_cmd.s:2
-initmainargs (initmainargs.s.15028.3.o):
-    ext-keyboard.c.15028.0.o  ext-keyboard.c.15028.0.s:14
+    crt0_cmd.s.20648.1.o      crt0_cmd.s:2
+initmainargs (initmainargs.s.20648.3.o):
+    ext-keyboard.c.20648.0.o  ext-keyboard.c.20648.0.s:14
 ldaxi (ldaxi.o):
     xregn.o                   ../libwrk/rp6502/xregn.s:118
 ldaxysp (ldaxsp.o):
@@ -458,7 +458,7 @@ mul8x16 (mul8.o):
 mul8x16a (mul8.o):
     mul.o                     runtime/mul.s:8
 mulax6 (mulax6.o):
-    ext-keyboard.c.15028.0.o  ext-keyboard.c.15028.0.s:1565
+    ext-keyboard.c.20648.0.o  ext-keyboard.c.20648.0.s:1565
 negeax (lneg.o):
     ltoa.o                    common/ltoa.s:9
 popax (incsp2.o):
@@ -495,8 +495,8 @@ ptr1 (zeropage.o):
     mul8.o                    runtime/mul8.s:10
     memset.o                  common/memset.s:20
     memcpy.o                  common/memcpy.s:15
-    write_stub.c.15028.2.o    write_stub.c.15028.2.s:11
-    ext-keyboard.c.15028.0.o  ext-keyboard.c.15028.0.s:11
+    write_stub.c.20648.2.o    write_stub.c.20648.2.s:11
+    ext-keyboard.c.20648.0.o  ext-keyboard.c.20648.0.s:11
 ptr2 (zeropage.o):
     strlower.o                common/strlower.s:13
     ltoa.o                    common/ltoa.s:11
@@ -517,17 +517,17 @@ push1 (push1.o):
     _printf.o                 common/_printf.s:11
     vfprintf.o                common/vfprintf.s:9
 pusha (pusha.o):
-    ext-keyboard.c.15028.0.o  ext-keyboard.c.15028.0.s:1565
-    ext-keyboard.c.15028.0.o  ext-keyboard.c.15028.0.s:1565
-    ext-keyboard.c.15028.0.o  ext-keyboard.c.15028.0.s:1565
+    ext-keyboard.c.20648.0.o  ext-keyboard.c.20648.0.s:1565
+    ext-keyboard.c.20648.0.o  ext-keyboard.c.20648.0.s:1565
+    ext-keyboard.c.20648.0.o  ext-keyboard.c.20648.0.s:1565
 pusha0 (pushax.o):
     push1.o                   runtime/push1.s:8
     fwrite.o                  common/fwrite.s:11
     fputc.o                   common/fputc.s:10
-    ext-keyboard.c.15028.0.o  ext-keyboard.c.15028.0.s:1565
-    ext-keyboard.c.15028.0.o  ext-keyboard.c.15028.0.s:1565
-    ext-keyboard.c.15028.0.o  ext-keyboard.c.15028.0.s:1565
-    ext-keyboard.c.15028.0.o  ext-keyboard.c.15028.0.s:1565
+    ext-keyboard.c.20648.0.o  ext-keyboard.c.20648.0.s:1565
+    ext-keyboard.c.20648.0.o  ext-keyboard.c.20648.0.s:1565
+    ext-keyboard.c.20648.0.o  ext-keyboard.c.20648.0.s:1565
+    ext-keyboard.c.20648.0.o  ext-keyboard.c.20648.0.s:1565
 pushax (pushax.o):
     pushw.o                   runtime/pushw.s:8
     pushptr1.o                runtime/pushptr1.s:8
@@ -536,13 +536,13 @@ pushax (pushax.o):
     _printf.o                 common/_printf.s:11
     putchar.o                 common/putchar.s:8
     printf.o                  common/printf.s:8
-    write_stub.c.15028.2.o    write_stub.c.15028.2.s:64
-    ext-keyboard.c.15028.0.o  ext-keyboard.c.15028.0.s:1565
-    ext-keyboard.c.15028.0.o  ext-keyboard.c.15028.0.s:1565
-    ext-keyboard.c.15028.0.o  ext-keyboard.c.15028.0.s:1565
+    write_stub.c.20648.2.o    write_stub.c.20648.2.s:64
+    ext-keyboard.c.20648.0.o  ext-keyboard.c.20648.0.s:1565
+    ext-keyboard.c.20648.0.o  ext-keyboard.c.20648.0.s:1565
+    ext-keyboard.c.20648.0.o  ext-keyboard.c.20648.0.s:1565
 pusheax (lpush.o):
     _printf.o                 common/_printf.s:11
-    ext-keyboard.c.15028.0.o  ext-keyboard.c.15028.0.s:1565
+    ext-keyboard.c.20648.0.o  ext-keyboard.c.20648.0.s:1565
 pushptr1 (pushptr1.o):
     fputc.o                   common/fputc.s:11
 pushw (pushw.o):
@@ -550,12 +550,12 @@ pushw (pushw.o):
 pushwysp (pushwsp.o):
     fwrite.o                  common/fwrite.s:11
     vfprintf.o                common/vfprintf.s:9
-    write_stub.c.15028.2.o    write_stub.c.15028.2.s:64
+    write_stub.c.20648.2.o    write_stub.c.20648.2.s:64
 regbank (zeropage.o):
     _printf.o                 /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:14
 regsave (zeropage.o):
     xregn.o                   ../libwrk/rp6502/xregn.s:10
-    ext-keyboard.c.15028.0.o  ext-keyboard.c.15028.0.s:10
+    ext-keyboard.c.20648.0.o  ext-keyboard.c.20648.0.s:10
 returnFFFF (returnFFFF.o):
     fputc.o                   common/fputc.s:11
 sreg (zeropage.o):
@@ -569,12 +569,12 @@ sreg (zeropage.o):
     ria.o                     rp6502/ria.s:13
     lpush.o                   runtime/lpush.s:13
     linc.o                    runtime/linc.s:8
-    ext-keyboard.c.15028.0.o  ext-keyboard.c.15028.0.s:10
+    ext-keyboard.c.20648.0.o  ext-keyboard.c.20648.0.s:10
 stax0sp (staxsp.o):
     xregn.o                   ../libwrk/rp6502/xregn.s:118
 subeq0sp (subeqsp.o):
     xregn.o                   ../libwrk/rp6502/xregn.s:118
-    write_stub.c.15028.2.o    write_stub.c.15028.2.s:64
+    write_stub.c.20648.2.o    write_stub.c.20648.2.s:64
 tmp1 (zeropage.o):
     mul.o                     runtime/mul.s:10
     ltoa.o                    common/ltoa.s:11
@@ -583,13 +583,13 @@ tmp1 (zeropage.o):
 toslcmp (lcmp.o):
     lult.o                    runtime/lult.s:8
 tosmula0 (mul8.o):
-    ext-keyboard.c.15028.0.o  ext-keyboard.c.15028.0.s:1565
-    ext-keyboard.c.15028.0.o  ext-keyboard.c.15028.0.s:1565
-    ext-keyboard.c.15028.0.o  ext-keyboard.c.15028.0.s:1565
+    ext-keyboard.c.20648.0.o  ext-keyboard.c.20648.0.s:1565
+    ext-keyboard.c.20648.0.o  ext-keyboard.c.20648.0.s:1565
+    ext-keyboard.c.20648.0.o  ext-keyboard.c.20648.0.s:1565
 tosudivax (udiv.o):
     fwrite.o                  common/fwrite.s:12
 tosulteax (lult.o):
-    ext-keyboard.c.15028.0.o  ext-keyboard.c.15028.0.s:1565
+    ext-keyboard.c.20648.0.o  ext-keyboard.c.20648.0.s:1565
 tosumulax (mul.o):
     fwrite.o                  common/fwrite.s:12
 

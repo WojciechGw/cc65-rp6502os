@@ -52,6 +52,7 @@ try {
     try {
         $serialPort.Open()
         Start-Sleep -Milliseconds 200
+        Send-LineAndWait -port $serialPort -text "exit" -label "exit"        
         Send-LineAndWait -port $serialPort -text "0:" -label "0:"
         Send-LineAndWait -port $serialPort -text "cd /" -label "cd /"
         $serialPort.Close()

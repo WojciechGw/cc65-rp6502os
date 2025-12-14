@@ -22,7 +22,7 @@
 #include "colors.h"
 
 extern struct _timezone _tz;
-#define SHELLVER "202512141207"
+#define SHELLVER "20251214.1410"
 #define SHELLDIR "USB0:/SHELL/"
 #define APP_MSG_START "\x1b" "[15;25HOS Shell activates, please wait ... "
 #define APP_MSG_TITLE "\r\nOS Shell for Picocomputer 6502 (native mode)" NEWLINE "version " SHELLVER NEWLINE "--------------------------------------------------------------------------------" NEWLINE
@@ -32,7 +32,7 @@ extern struct _timezone _tz;
     #define __STACKSIZE__ 0x0800
 #endif
 #define MEMTOP (0xFD00-__STACKSIZE__)
-#define COM_LOAD_ADDR 0xA000      /* where to upload the code (binary shell extensions - .com files) */
+#define COM_LOAD_ADDR 0xC000      /* where to upload the code (binary shell extensions - .com files) */
 
 #define GFX_CANVAS_CONSOLE 0
 #define GFX_CANVAS_320x240 1
@@ -126,6 +126,9 @@ static uint8_t bg_clr = BLACK;
 #define CHAR_RIGHT  0x43
 #define CHAR_LEFT   0x44
 #define CHAR_F1     0x50
+#define CHAR_F2     0x51
+#define CHAR_F3     0x52
+#define CHAR_F4     0x53
 
 #define KEY_DEL     0x7F
 #define TAB         "\t"

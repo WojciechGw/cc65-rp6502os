@@ -217,6 +217,26 @@ int main(void) {
                     prompt();
                     continue;
                 }
+                if(rx == CHAR_F2 || rx == 'Q') {
+                    char path[FNAMELEN];
+                    int com_argc = 2;
+                    tx_string(NEWLINE);
+                    strcpy(path, SHELLDIR);
+                    strcat(path, "keyboard.com");
+                    com_argv[0] = (char *)"com";
+                    com_argv[1] = path;
+                    /* Pass current input line as argument if present */
+                    if(cmdline.bytes > 0) {
+                        cmdline.buffer[cmdline.bytes] = 0; /* ensure NUL */
+                        com_argv[2] = cmdline.buffer;
+                        com_argc = 3;
+                    }
+                    cmd_com(com_argc, com_argv);
+                    cmdline.bytes = 0;
+                    cmdline.buffer[0] = 0;
+                    prompt();
+                    continue;
+                }
             // Normal character (ASCII printable or extended 8-bit, exclude DEL), just put it on the pile.
             } else if(((unsigned char)rx >= 32) && (rx != 127)) {
                 ext_rx = 0;

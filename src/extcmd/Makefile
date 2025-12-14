@@ -3,7 +3,7 @@ CMD ?= EXTCMD
 
 TARGET = $(CMD)
 SRCS = ../ext-$(TARGET).c crt0_cmd.s write_stub.c initmainargs.s
-CFG = ../ext-$(TARGET).cfg
+CFG = ../ext0xC000.cfg
 MAP = ext-$(TARGET).map
 
 all: $(TARGET)
