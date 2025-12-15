@@ -32,7 +32,7 @@ static const cmd_t commands[] = {
     { "rename", "rename a file or directory",
                 "rename <oldname> <newname>"},
     { "rm",     "remove a file/files, wildcards allowed",
-                "cmd_rm"},
+                "rm <filename>"},
     { "list",   "show a file content",
                 "list <filename>"},
     { "ls",     "list active directory",
@@ -132,7 +132,7 @@ int main(int argc, char **argv) {
 
     /* No args: print full list */
     printf("\x1b" "c" "OS Shell help information" NEWLINE NEWLINE
-           "Description of a specific command : help <command name>" NEWLINE NEWLINE
+           "Description of a specified command : help <command>" NEWLINE NEWLINE
            "internal commands (case sensitive):" NEWLINE NEWLINE);
     for(i = 0; i < ARRAY_SIZE(commands); i++) {
         printf("%-10s", commands[i].cmd);
@@ -141,7 +141,7 @@ int main(int argc, char **argv) {
         }
     }
     printf(NEWLINE NEWLINE
-           "external commands (*.com in folder <0:-7:>/SHELL) (case insensitive):" NEWLINE NEWLINE);
+           "external commands (*.com files in <0:-7:>/SHELL) (case insensitive):" NEWLINE NEWLINE);
     for(i = 0; i < ARRAY_SIZE(commands_ext); i++) {
         printf("%-10s", commands_ext[i].cmd);
         if((i & 7) == 7) {
@@ -156,7 +156,7 @@ int main(int argc, char **argv) {
     printf("<LEFT>  change active drive to previous if available" NEWLINE);
     printf("<RIGHT> change active drive to next if available" NEWLINE);
     printf("<UP>    recall last command" NEWLINE);
-    printf("<DOWN>  a directory of active drive" NEWLINE NEWLINE);
+    printf("<DOWN>  a directory of active drive/catalog" NEWLINE NEWLINE);
 
     return 0;
 }

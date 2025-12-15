@@ -196,7 +196,7 @@ int main(int argc, char **argv) {
         if(!*mask) mask = "*";
     }
     /* Parse optional flags /da /dd /sa /sd */
-    for(i = 2; i < argc; i++) {
+    for(i = 0; i < argc; i++) {
         if(argv[i][0] == '/') {
             if(!strcmp(argv[i], "/da")) sort_mode = 1;
             else if(!strcmp(argv[i], "/dd")) sort_mode = 2;

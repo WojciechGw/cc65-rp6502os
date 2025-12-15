@@ -22,8 +22,8 @@
 #include "colors.h"
 
 extern struct _timezone _tz;
-#define SHELLVER "20251215.0631"
-#define SHELLDIR "USB0:/SHELL/"
+#define SHELLVER "20251215.1319"
+#define SHELLDIRDEFAULT "USB0:/SHELL/"
 #define NEWLINE  "\r\n"
 #define APP_MSG_START "\x1b" "[14;24HOS Shell activates, please wait ..."
 #define APP_MSG_TITLE "OS Shell for Picocomputer 6502 (native mode)               version " SHELLVER NEWLINE "--------------------------------------------------------------------------------" NEWLINE
@@ -156,6 +156,8 @@ static uint8_t bg_clr = BLACK;
 uint32_t ticks = 0; // for PAUSE(millis)
 #define PAUSE(millis) ticks=clock(); while(clock() < (ticks + millis)){}
 
+static const char default_shelldir[] = SHELLDIRDEFAULT;
+char shelldir[64];
 char *filename[20] = {"                    "};
 static char msg[80] = {0};
 
@@ -247,11 +249,9 @@ static const cmd_t commands[] = {
     { "cd",     "", "", cmd_cd},
     { "chmod",  "", "", cmd_chmod},
     { "cls",    "", "", cmd_cls },
-    { "copier", "", "", cmd_cm},
     { "cm",     "", "", cmd_cm},
-    { "com",    "", "", cmd_com},
-    { "copy",   "", "", cmd_cp},
     { "cp",     "", "", cmd_cp},
+    { "com",    "", "", cmd_com},
  //   { "dir",    "", "", cmd_dir},
     { "ls",     "", "", cmd_ls},
     { "drive",  "", "", cmd_drive},
@@ -267,12 +267,12 @@ static const cmd_t commands[] = {
     { "phi2",   "", "", cmd_phi2},
     { "rename", "", "", cmd_rename},
     { "rm",     "", "", cmd_rm},
-    { "delete", "", "", cmd_rm},
     { "run",    "", "", cmd_run},
     { "stat",   "", "", cmd_stat},
     { "time",   "", "", cmd_time },
 };
 
+static void load_shelldir(void);
 inline void tx_char(char c);
 void tx_chars(const char *buf, int ct);
 void tx_string(const char *buf);

@@ -46,6 +46,8 @@ int main(void) {
         args[0] = (char *)"";
         cmd_drives(1, args);
     }
+    
+    load_shelldir();
 
 /*
     // ClearDisplayMemory();
@@ -160,7 +162,7 @@ int main(void) {
                     char path[FNAMELEN];
                     int com_argc = 2;
                     tx_string(NEWLINE);
-                    strcpy(path, SHELLDIR);
+                    strcpy(path, shelldir);
                     strcat(path, "help.com");
                     com_argv[0] = (char *)"com";
                     com_argv[1] = path;
@@ -180,7 +182,7 @@ int main(void) {
                     char path[FNAMELEN];
                     int com_argc = 2;
                     tx_string(NEWLINE);
-                    strcpy(path, SHELLDIR);
+                    strcpy(path, shelldir);
                     strcat(path, "keyboard.com");
                     com_argv[0] = (char *)"com";
                     com_argv[1] = path;
@@ -210,7 +212,7 @@ int main(void) {
                     cmdline.bytes = 0;
                     cmdline.buffer[0] = 0;
 
-                    strcpy(path, SHELLDIR);
+                    strcpy(path, shelldir);
                     strcat(path, "calendar.com");
                     com_argv[0] = (char *)"com";
                     com_argv[1] = path;
@@ -267,6 +269,31 @@ int main(void) {
         }
     }
 }
+
+static void load_shelldir(void) {
+    FILE *f;
+    char *nl;
+
+    strncpy(shelldir, default_shelldir, sizeof(shelldir));
+    shelldir[sizeof(shelldir) - 1] = '\0';
+
+    f = fopen("USB0:/shell.txt", "r");
+    if (!f) return;
+
+    if (fgets(shelldir, sizeof(shelldir), f)) {
+        nl = strpbrk(shelldir, "\r\n");
+        if (nl) *nl = '\0';
+        if (shelldir[0] == '\0') {
+            strncpy(shelldir, default_shelldir, sizeof(shelldir));
+            shelldir[sizeof(shelldir) - 1] = '\0';
+        }
+    } else {
+        strncpy(shelldir, default_shelldir, sizeof(shelldir));
+        shelldir[sizeof(shelldir) - 1] = '\0';
+    }
+    fclose(f);
+}
+
 
 inline void tx_char(char c) {
     TX_READY_SPIN;
@@ -658,11 +685,11 @@ int execute(cmdline_t *cl) {
     /* Try implicit .com execution: SHELLDIR/<name>.com */
     {
         unsigned name_len = (unsigned)strlen(tokenList[0]);
-        unsigned prefix_len = (unsigned)strlen(SHELLDIR);
+        unsigned prefix_len = (unsigned)strlen(shelldir);
         int com_argc;
         int j;
         if(prefix_len + name_len + 5 < sizeof(com_fname)) {
-            memcpy(com_fname, SHELLDIR, prefix_len);
+            memcpy(com_fname, shelldir, prefix_len);
             memcpy(com_fname + prefix_len, tokenList[0], name_len);
             memcpy(com_fname + prefix_len + name_len, ".com", 5); /* includes NUL */
             com_argv[0] = (char *)"com";
@@ -1849,7 +1876,7 @@ void InitTerminalFont(void){
         RIA.rw0 = 0;
     }
     // read data and place them in xram from bottom to top [8x8inorder16x16]
-    sprintf(*filename,"%s",SHELLDIR "[font8x8]font00.bmp\0");
+    sprintf(*filename,"%s%s", shelldir, "[font8x8]font00.bmp\0");
     fd = open(*filename, O_RDONLY);
     if(fd){
         // lseek(fd,0x003E,SEEK_SET); // problems ...
