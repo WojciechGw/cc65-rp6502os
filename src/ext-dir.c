@@ -4,10 +4,6 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <time.h>
 
 #define NEWLINE "\r\n"
 #define FNAMELEN 64
@@ -23,8 +19,6 @@ typedef struct {
 
 static char dir_cwd[FNAMELEN];
 static f_stat_t dir_ent;
-static char current_drive = '0';
-static const char hexdigits[] = "0123456789ABCDEF";
 static char dir_dt_buf[20];
 
 #ifndef AM_DIR
@@ -53,28 +47,6 @@ void tx_chars(const char *buf, int ct) {
 void tx_string(const char *buf) {
     while(*buf) tx_char(*buf++);
     return;
-}
-
-// Print a 32-bit value as 8 hex digits.
-void tx_hex32(unsigned long val) {
-    char out[8];
-    int i;
-    for(i = 7; i >= 0; i--) {
-        out[i] = hexdigits[val & 0xF];
-        val >>= 4;
-    }
-    tx_chars(out, sizeof(out));
-}
-
-/* Print 16-bit value as 4 hex digits */
-void tx_hex16(uint16_t val) {
-    char out[4];
-    int i;
-    for(i = 3; i >= 0; i--) {
-        out[i] = hexdigits[val & 0xF];
-        val >>= 4;
-    }
-    tx_chars(out, sizeof(out));
 }
 
 // Simple wildcard match supporting '*' (0+ chars) and '?' (1 char).
@@ -163,10 +135,10 @@ int main(int argc, char **argv) {
     unsigned dirs_count = 0;
     unsigned long total_bytes = 0;
     char dir_drive[3] = {0};
-    char *dir_arg = malloc(FNAMELEN);
-    char *dir_path_buf = malloc(FNAMELEN);
-    char *dir_mask_buf = malloc(FNAMELEN);
-    dir_list_entry_t *dir_entries = malloc(sizeof(dir_list_entry_t) * DIR_LIST_MAX);
+    static char dir_arg[FNAMELEN];
+    static char dir_path_buf[FNAMELEN];
+    static char dir_mask_buf[FNAMELEN];
+    static dir_list_entry_t dir_entries[DIR_LIST_MAX];
     dir_list_entry_t dir_tmp;
     unsigned dir_entries_count = 0;
     unsigned dir_i = 0, dir_j = 0;
@@ -176,12 +148,6 @@ int main(int argc, char **argv) {
                 "Usage:" NEWLINE
                 "dir *.rp6502 (only .rp6502 files)" NEWLINE
                 "dir /da (sorted by date ascending)" NEWLINE NEWLINE);
-        return -1;
-    }
-
-    if(!dir_arg || !dir_path_buf || !dir_mask_buf || !dir_entries) {
-        tx_string(NEWLINE "ERROR: heap size too small - reduce __STACKSIZE__" NEWLINE NEWLINE);
-        free(dir_arg); free(dir_path_buf); free(dir_mask_buf); free(dir_entries);
         return -1;
     }
 
@@ -203,7 +169,6 @@ int main(int argc, char **argv) {
                 rc = -1;
                 goto cleanup;
             }
-            current_drive = dir_drive[0];
             p = dir_arg + 2;
         } else {
             p = dir_arg;
@@ -380,14 +345,9 @@ int main(int argc, char **argv) {
     tx_string("  Bytes: ");
     tx_dec32(total_bytes);
     tx_string(NEWLINE NEWLINE);
+
 cleanup:
     if(dirdes >= 0) f_closedir(dirdes);
-    free(dir_arg);
-    free(dir_path_buf);
-    free(dir_mask_buf);
-    free(dir_entries);
-
-// --------------------------
 
     return 0;
 }

@@ -259,7 +259,7 @@ int main(int argc, char **argv) {
     if(argc == 1 && strcmp(argv[0], "/?") == 0) {
         // notice lack of filename extension
         printf (NEWLINE 
-                "Keyboard Status Visualiser for Picocomputer 6502" NEWLINE
+                "Keyboard Status Visualiser " NEWLINE
                 NEWLINE
                 "press and hold both Shift keys to exit" NEWLINE
                 NEWLINE
@@ -274,7 +274,7 @@ int main(int argc, char **argv) {
     }
 
     printf("\x1b" "c" "\x1b[?25l");
-    printf("\x1b" POS_APPHEADER "Picocomputer 6502 - Keyboard status visualiser");
+    printf("\x1b" POS_APPHEADER "Keyboard Status Visualiser");
     
     #ifdef VSYNCWAIT 
     v = RIA.vsync;

@@ -12,9 +12,6 @@ typedef struct {
 } cmd_t;
 
 static const cmd_t commands[] = {
-    { "dir",    "show active drive directory, wildcards allowed",
-                "dir *.rp6502 (only .rp6502 files)" NEWLINE
-                "dir /da (sorted by date ascending)"},
     { "drive",  "set active drive", 
                 "drive 0:"},
     { "drives", "show available drives", 
@@ -36,8 +33,10 @@ static const cmd_t commands[] = {
                 "cmd_rename"},
     { "rm",     "remove a file/files",
                 "cmd_rm"},
-    { "list",   "show a file content", 
-                "cmd_list"},
+    { "list",   "show a file content",
+                "list <filename>"},
+    { "ls",     "list active directory",
+                "ls"},
     { "edit",   "simple text editor",
                 "cmd_edit"},
     { "stat",   "show file/directory info", 
@@ -61,7 +60,7 @@ static const cmd_t commands[] = {
                 "memx 0xA500 256 (show 256 bytes of XRAM from address 0xA500)" },
     { "cls",    "clear terminal", 
                 "cls" },
-    { "time",   "show local time", 
+    { "time",   "show local date and time", 
                 "time" },
     { "phi2",   "show CPU clock frequency", 
                 "phi2"},
@@ -70,12 +69,15 @@ static const cmd_t commands[] = {
 };
 
 static const cmd_t commands_ext[] = {
-    { "cal",        "run calendar application", 
-                    "cal            - current month" NEWLINE
-                    "cal /p yyyy mm - particular month" NEWLINE
-                    "cal /n         - current and neighbouring months" NEWLINE
-                    "cal /q         - current quarter" NEWLINE
-                    "cal /y         - current year" },
+    { "calendar",   "run calendar application", 
+                    "calendar                - current month" NEWLINE
+                    "calendar /p yyyy [1-12] - particular month" NEWLINE
+                    "calendar /n [yyyy]      - current or particular and neighbouring months" NEWLINE
+                    "calendar /q [1-4]       - current or particular quarter" NEWLINE
+                    "calendar /y [yyyy]      - current or particular year" },
+    { "dir",        "show active drive directory, wildcards allowed",
+                    "dir *.rp6502 (only .rp6502 files)" NEWLINE
+                    "dir /da (sorted by date ascending)"},
     { "help",       "show these informations", 
                     "help" NEWLINE
                     "help mkdir" NEWLINE
@@ -147,9 +149,10 @@ int main(int argc, char **argv) {
         }
     }
 
-    printf(NEWLINE "Keys:" NEWLINE NEWLINE);
+    printf(NEWLINE NEWLINE "Keyboard:" NEWLINE NEWLINE);
     printf("<F1>    show these informations" NEWLINE);
     printf("<F2>    show keyboard status visualiser" NEWLINE);
+    printf("<F3>    current date/time and calendar" NEWLINE);
     printf("<LEFT>  change active drive to previous if available" NEWLINE);
     printf("<RIGHT> change active drive to next if available" NEWLINE);
     printf("<UP>    recall last command" NEWLINE);

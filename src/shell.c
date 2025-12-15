@@ -103,7 +103,7 @@ int main(void) {
                 if(rx == CHAR_NCHR) {
                     ext_rx = 2;
                     continue;
-                } else if(rx == 'O') { /* CSI-less F1 from some terminals */
+                } else if(rx == 'O') {
                     ext_rx = 6;
                     continue;
                 }
@@ -122,9 +122,11 @@ int main(void) {
                     ext_rx = 0;
                     {
                         char *args[1];
-                        args[0] = (char *)"dir";
+                        args[0] = (char *)"ls";
                         tx_string(NEWLINE);
-                        cmd_dir(1, args);
+                        cmd_ls(1, args);
+                        cmdline.bytes = 0;
+                        cmdline.buffer[0] = 0;
                         prompt();
                     }
                     continue;
@@ -140,57 +142,20 @@ int main(void) {
                     drv_args_buf[2] = 0;
                     cmd_drive(2, drv_args);
                     tx_string("\r\x1b[K");
+                    cmdline.bytes = 0;
+                    cmdline.buffer[0] = 0;
                     prompt();
                     ext_rx = 0;
                     continue;
-                } else if(rx == '1') {
-                    ext_rx = 3; // possible ctrl+arrow sequence
-                    continue;
-                } else if(rx == 'O') { /* F1 in xterm-style ESC O P */
+                } else if(rx == 'O') { /* F1-F4 in xterm-style ESC O P|Q|R|S  */
                     ext_rx = 6;
                     continue;
                 } else {
                     ext_rx = 0;
                 }
-            } else if(ext_rx == 3) {
-                if(rx == ';') {
-                    ext_rx = 4;
-                    continue;
-                }
-                ext_rx = 0;
-            } else if(ext_rx == 4) {
-                if(rx == '5') {
-                    ext_rx = 5;
-                    continue;
-                }
-                ext_rx = 0;
-            } else if(ext_rx == 5) {
-                ext_rx = 0;
-                if(rx == CHAR_DOWN) {
-                    char *args[1];
-                    args[0] = (char *)"dir";
-                    tx_string(NEWLINE);
-                    cmd_dir(1, args);
-                    prompt();
-                    continue;
-                } else if(rx == CHAR_LEFT || rx == CHAR_RIGHT) {
-                    char next = current_drive;
-                    if(rx == CHAR_LEFT) {
-                        if(next > '0') next--;
-                    } else {
-                        if(next < '7') next++;
-                    }
-                    drv_args_buf[0] = next;
-                    drv_args_buf[1] = ':';
-                    drv_args_buf[2] = 0;
-                    cmd_drive(2, drv_args);
-                    tx_string("\r\x1b[K");
-                    prompt();
-                    continue;
-                }
             } else if(ext_rx == 6) {
-                /* Expecting CHAR_F1 */
                 ext_rx = 0;
+                // putchar(rx);
                 if(rx == CHAR_F1 || rx == 'P') {
                     char path[FNAMELEN];
                     int com_argc = 2;
@@ -208,12 +173,6 @@ int main(void) {
                     cmd_com(com_argc, com_argv);
                     cmdline.bytes = 0;
                     cmdline.buffer[0] = 0;
-                    /*
-                    char *args[1];
-                    args[0] = (char *)"help";
-                    tx_string(NEWLINE);
-                    // cmd_help(1, args);
-                    */
                     prompt();
                     continue;
                 }
@@ -235,6 +194,35 @@ int main(void) {
                     cmdline.bytes = 0;
                     cmdline.buffer[0] = 0;
                     cls();
+                    prompt();
+                    continue;
+                }
+                if(rx == CHAR_F3 || rx == 'R') {
+                    // for external command call
+                    char path[FNAMELEN];
+                    int com_argc = 2;
+                    // for internal command call
+                    char *args[1];
+                    args[0] = (char *)"time";
+
+                    tx_string(NEWLINE NEWLINE "The current time is" NEWLINE);
+                    cmd_time(1, args);
+                    cmdline.bytes = 0;
+                    cmdline.buffer[0] = 0;
+
+                    strcpy(path, SHELLDIR);
+                    strcat(path, "calendar.com");
+                    com_argv[0] = (char *)"com";
+                    com_argv[1] = path;
+                    /* Pass current input line as argument if present */
+                    if(cmdline.bytes > 0) {
+                        cmdline.buffer[cmdline.bytes] = 0; /* ensure NUL */
+                        com_argv[2] = cmdline.buffer;
+                        com_argc = 3;
+                    }
+                    cmd_com(com_argc, com_argv);
+                    cmdline.bytes = 0;
+                    cmdline.buffer[0] = 0;
                     prompt();
                     continue;
                 }
@@ -1544,7 +1532,7 @@ int cmd_chmod(int argc, char **argv) {
     }
     return 0;
 }
-
+/*
 int cmd_dir(int argc, char **argv) {
     const char *mask = "*";
     const char *path = ".";
@@ -1771,6 +1759,68 @@ cleanup:
     free(dir_path_buf);
     free(dir_mask_buf);
     free(dir_entries);
+    return rc;
+}
+*/
+int cmd_ls(int argc, char **argv){
+    int dirdes;
+    int rc = 0;
+    (void)argc;
+    (void)argv;
+
+    dirdes = f_opendir(".");
+    if(dirdes < 0) {
+        tx_string("opendir failed" NEWLINE);
+        return -1;
+    }
+
+    tx_string(NEWLINE 
+              "size      file/directory name" NEWLINE
+              "--------- -------------------" NEWLINE
+              );
+
+    while(1) {
+        rc = f_readdir(&dir_ent, dirdes);
+        if(rc < 0) {
+            tx_string("readdir failed" NEWLINE);
+            break;
+        }
+        if(!dir_ent.fname[0]) break; /* end of directory */
+
+        /* Column 1: size or <DIR>, left aligned to width 6 */
+        if(dir_ent.fattrib & AM_DIR) {
+            const char *label = "<DIR>     ";
+            tx_string(label);
+        } else {
+            char buf[12];
+            unsigned long val = dir_ent.fsize;
+            int pos = 0;
+            if(val == 0) {
+                buf[pos++] = '0';
+            } else {
+                char tmp[12];
+                int tpos = 0;
+                while(val && tpos < (int)sizeof(tmp)) {
+                    tmp[tpos++] = '0' + (val % 10);
+                    val /= 10;
+                }
+                while(tpos) buf[pos++] = tmp[--tpos];
+            }
+            buf[pos] = 0;
+            tx_string(buf);
+            while(pos++ < 10) tx_char(' ');
+        }
+
+        /* Column 2: entry name */
+        tx_string(dir_ent.fname);
+        tx_string(NEWLINE);
+    }
+
+    if(f_closedir(dirdes) < 0 && rc >= 0) {
+        tx_string("closedir failed" NEWLINE);
+        rc = -1;
+    }
+    tx_string(NEWLINE);
     return rc;
 }
 

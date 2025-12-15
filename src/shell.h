@@ -22,7 +22,7 @@
 #include "colors.h"
 
 extern struct _timezone _tz;
-#define SHELLVER "20251214.1841"
+#define SHELLVER "20251215.0554"
 #define SHELLDIR "USB0:/SHELL/"
 #define NEWLINE  "\r\n"
 #define APP_MSG_START "\x1b" "[14;24HOS Shell activates, please wait ..."
@@ -221,7 +221,8 @@ int cmd_cls(int, char **);
 int cmd_cm(int, char **);
 int cmd_com(int, char **);
 int cmd_cp(int, char **);
-int cmd_dir(int, char **);
+// int cmd_dir(int, char **);
+int cmd_ls(int, char **);
 int cmd_drive(int, char **);
 int cmd_drives(int, char **);
 int cmd_edit(int, char **);
@@ -252,7 +253,7 @@ static const cmd_t commands[] = {
     { "copy",   "", "", cmd_cp},
     { "cp",     "", "", cmd_cp},
  //   { "dir",    "", "", cmd_dir},
-    { "ls",     "", "", cmd_dir},
+    { "ls",     "", "", cmd_ls},
     { "drive",  "", "", cmd_drive},
     { "drives", "", "", cmd_drives},
     { "edit",   "", "", cmd_edit},
@@ -311,7 +312,8 @@ int cmd_cls(int, char **);
 int cmd_cm(int argc, char **argv);
 int cmd_com(int argc, char **argv);
 int cmd_cp(int argc, char **argv);
-int cmd_dir(int argc, char **argv);
+// int cmd_dir(int argc, char **argv);
+int cmd_ls(int argc, char **argv);
 int cmd_drive(int argc, char **argv);
 int cmd_drives(int argc, char **argv);
 int cmd_edit(int argc, char **argv);
