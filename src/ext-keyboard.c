@@ -14,6 +14,8 @@
 #include <time.h>
 #include "usb_hid_keys.h"
 
+#define VERSION "20251215.1928"
+
 // Keyboard related
 //
 // XRAM locations
@@ -45,6 +47,8 @@ uint8_t keystates[KEYBOARD_BYTES] = {0};
 // wait on clock
 uint32_t ticks = 0; // for PAUSE(millis)
 #define PAUSE(millis) ticks=clock(); while(clock() < (ticks + millis)){}
+
+#define RX_READY (RIA.ready & RIA_READY_RX_BIT)
 
 typedef struct {
     uint8_t row;
@@ -179,6 +183,11 @@ static char keyboard_canvas[KB_VIEW_ROWS][KB_VIEW_COLS + 1];
 static uint8_t last_rendered_states[KEYBOARD_BYTES] = {0};
 static bool keyboard_view_initialized = false;
 
+static void drop_console_rx(void) {
+    int i;
+    while (RX_READY) i = RIA.rx;
+}
+
 static void clear_keyboard_canvas(void) {
     uint8_t r;
     for (r = 0; r < KB_VIEW_ROWS; r++) {
@@ -251,7 +260,7 @@ static void render_keyboard_view(void) {
 int main(int argc, char **argv) {
     
 	bool handled_key = false;
-	uint8_t i,j,new_key,new_keys, lastkey;
+	uint8_t i,j,new_key,new_keys;
     #ifdef VSYNCWAIT 
     uint8_t v;
     #endif
@@ -298,8 +307,7 @@ int main(int argc, char **argv) {
                 uint8_t code = (i << 3) + j;
                 new_key = (new_keys & (1<<j));
                 if ((code>3) && (new_key != (keystates[i] & (1<<j)))) {
-                    lastkey = code;
-                    printf("\x1b" POS_KEYPRESS " keycode 0x%02X %s", lastkey, (new_key ?  CHAR_DOWN : CHAR_UP));
+                    printf("\x1b" POS_KEYPRESS " keycode 0x%02X %s", code, (new_key ?  CHAR_DOWN : CHAR_UP));
                 }
             }
             keystates[i] = new_keys;
@@ -311,22 +319,9 @@ int main(int argc, char **argv) {
         
         render_keyboard_view();
 
-        /*
-        if (!(keystates[0] & 1)) {
-            if (!handled_key) {
-                if (key(KEY_ESC)) {
-                }
-                handled_key = true;
-            }
-        } else {
-            handled_key = false;
-            PAUSE(50);
-            printf("\x1b" POS_KEYPRESS "               ");
-        }
-        */
-
     }
-    
+
+    drop_console_rx();
     printf("\x1b" "c" "\x1b[?25h");
     return 0;
 
