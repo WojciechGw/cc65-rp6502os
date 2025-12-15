@@ -763,7 +763,7 @@ int cmd_drives(int argc, char **argv) {
         if(!*saved_path) saved_path = "/";
     }
 
-    tx_string(NEWLINE "Drives available" NEWLINE NEWLINE "drive" TAB "label      " TAB "[MB]" TAB "free" NEWLINE
+    tx_string(NEWLINE "Drives list" NEWLINE NEWLINE "drive" TAB "label      " TAB "[MB]" TAB "free" NEWLINE
               "-----" TAB "-----------" TAB "------" TAB "----" NEWLINE);
     for(i = 0; i < 8; i++) {
         drv[0] = '0' + i;

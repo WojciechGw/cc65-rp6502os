@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define VERSION "20251215.1640"
 #define NEWLINE "\r\n"
 #define FNAMELEN 64
 #define DIR_LIST_MAX 40
@@ -125,7 +126,7 @@ const char *format_fat_datetime(unsigned fdate, unsigned ftime) {
 int main(int argc, char **argv) {
 
     int i;
-    const char *mask = "*";
+    const char *mask = "*.*";
     const char *path = ".";
     char *p;
     int dirdes = -1;
@@ -146,54 +147,58 @@ int main(int argc, char **argv) {
     if(argc == 1 && strcmp(argv[0],"/?") == 0) {
         printf( "Command : dir" NEWLINE NEWLINE "show active drive directory, wildcards allowed" NEWLINE NEWLINE
                 "Usage:" NEWLINE
-                "dir *.rp6502 (only .rp6502 files)" NEWLINE
+                "dir *.rp6502 (.rp6502 files only)" NEWLINE
                 "dir /da (sorted by date ascending)" NEWLINE NEWLINE);
         return -1;
     }
 
     dir_drive[0] = dir_drive[1] = dir_drive[2] = 0;
-    if(argc >= 2) {
-        strcpy(dir_arg, argv[1]);
-        // Handle drive prefix like "0:" or "A:"
-        if(dir_arg[1] == ':') {
-            if(dir_arg[0] < '0' || dir_arg[0] > '7') {
-                tx_string("Invalid drive" NEWLINE);
-                rc = -1;
-                goto cleanup;
-            }
-            dir_drive[0] = dir_arg[0];
-            dir_drive[1] = ':';
-            dir_drive[2] = 0;
-            if(f_chdrive(dir_drive) < 0) {
-                tx_string("Invalid drive" NEWLINE);
-                rc = -1;
-                goto cleanup;
-            }
-            p = dir_arg + 2;
+    if(argc >= 1) {
+        strcpy(dir_arg, argv[0]);
+        if(dir_arg[0] == '/'){
+            path = ".";
         } else {
-            p = dir_arg;
-        }
-        if(*p == '/' || *p == '\\') p++;
-        if(*p) {
-            char *last_sep = 0;
-            char *iter = p;
-            while(*iter) {
-                if(*iter == '/' || *iter == '\\') last_sep = iter;
-                iter++;
-            }
-            if(last_sep) {
-                *last_sep = 0;
-                mask = last_sep + 1;
-                path = (*p) ? p : ".";
+            // Handle drive prefix like "0:" or "A:"
+            if(dir_arg[1] == ':') {
+                if(dir_arg[0] < '0' || dir_arg[0] > '7') {
+                    tx_string("Invalid drive" NEWLINE);
+                    rc = -1;
+                    goto cleanup;
+                }
+                dir_drive[0] = dir_arg[0];
+                dir_drive[1] = ':';
+                dir_drive[2] = 0;
+                if(f_chdrive(dir_drive) < 0) {
+                    tx_string("Invalid drive" NEWLINE);
+                    rc = -1;
+                    goto cleanup;
+                }
+                p = dir_arg + 2;
             } else {
-                mask = p;
+                p = dir_arg;
+            }
+            if(*p == '/' || *p == '\\') p++;
+            if(*p) {
+                char *last_sep = 0;
+                char *iter = p;
+                while(*iter) {
+                    if(*iter == '/' || *iter == '\\') last_sep = iter;
+                    iter++;
+                }
+                if(last_sep) {
+                    *last_sep = 0;
+                    mask = last_sep + 1;
+                    path = (*p) ? p : ".";
+                } else {
+                    mask = p;
+                    path = ".";
+                }
+            } else {
+                mask = "*.*";
                 path = ".";
             }
-        } else {
-            mask = "*";
-            path = ".";
+            if(!*mask) mask = "*.*";
         }
-        if(!*mask) mask = "*";
     }
     /* Parse optional flags /da /dd /sa /sd */
     for(i = 0; i < argc; i++) {

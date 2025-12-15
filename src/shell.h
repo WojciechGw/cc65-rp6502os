@@ -22,7 +22,7 @@
 #include "colors.h"
 
 extern struct _timezone _tz;
-#define SHELLVER "20251215.1319"
+#define SHELLVER "20251215.1620"
 #define SHELLDIRDEFAULT "USB0:/SHELL/"
 #define NEWLINE  "\r\n"
 #define APP_MSG_START "\x1b" "[14;24HOS Shell activates, please wait ..."
