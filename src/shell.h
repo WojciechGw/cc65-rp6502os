@@ -22,7 +22,7 @@
 #include "colors.h"
 
 extern struct _timezone _tz;
-#define SHELLVER "20251215.1930"
+#define SHELLVER "20251216.0533"
 #define SHELLDIRDEFAULT "USB0:/SHELL/"
 #define SHELLPROMPT "> "
 #define SHELLPROMPT_1ST "> press F1 for help > "
