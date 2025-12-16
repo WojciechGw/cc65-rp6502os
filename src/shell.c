@@ -88,7 +88,7 @@ int main(void) {
     DrawFontTable(50, 10, WHITE, BLACK, DARK_GREEN, DARK_RED);
     DrawLetters_PL(2, 57, WHITE, DARK_GRAY);
 */
-    prompt();
+    prompt(true);
 
     v = RIA.vsync;
     while (1)
@@ -114,7 +114,7 @@ int main(void) {
                 if(rx == CHAR_UP){
                     ext_rx = 0;
                     tx_string("\r\x1b[K");
-                    prompt();
+                    prompt(false);
                     cmdline.bytes = cmdline.lastbytes;
                     memcpy(cmdline.buffer, cmdline.lastbuffer, cmdline.lastbytes);
                     cmdline.buffer[cmdline.bytes] = 0;
@@ -129,7 +129,7 @@ int main(void) {
                         cmd_ls(1, args);
                         cmdline.bytes = 0;
                         cmdline.buffer[0] = 0;
-                        prompt();
+                        prompt(false);
                     }
                     continue;
                 } else if(rx == CHAR_LEFT || rx == CHAR_RIGHT) {
@@ -146,7 +146,7 @@ int main(void) {
                     tx_string("\r\x1b[K");
                     cmdline.bytes = 0;
                     cmdline.buffer[0] = 0;
-                    prompt();
+                    prompt(false);
                     ext_rx = 0;
                     continue;
                 } else if(rx == 'O') { /* F1-F4 in xterm-style ESC O P|Q|R|S  */
@@ -175,7 +175,7 @@ int main(void) {
                     cmd_com(com_argc, com_argv);
                     cmdline.bytes = 0;
                     cmdline.buffer[0] = 0;
-                    prompt();
+                    prompt(false);
                     continue;
                 }
                 if(rx == CHAR_F2 || rx == 'Q') {
@@ -196,7 +196,7 @@ int main(void) {
                     cmdline.bytes = 0;
                     cmdline.buffer[0] = 0;
                     cls();
-                    prompt();
+                    prompt(false);
                     continue;
                 }
                 if(rx == CHAR_F3 || rx == 'R') {
@@ -225,7 +225,7 @@ int main(void) {
                     cmd_com(com_argc, com_argv);
                     cmdline.bytes = 0;
                     cmdline.buffer[0] = 0;
-                    prompt();
+                    prompt(false);
                     continue;
                 }
             // Normal character (ASCII printable or extended 8-bit, exclude DEL), just put it on the pile.
@@ -261,7 +261,7 @@ int main(void) {
                     cmdline.bytes = 0;
                     cmdline.buffer[0] = 0;
                 }
-                prompt();
+                prompt(false);
             } else {
                 ext_rx = 0;
             }
@@ -561,15 +561,15 @@ void cls(){
     return;
 }
 
-void prompt() {
+void prompt(bool first_time) {
     if(f_getcwd(dir_cwd, sizeof(dir_cwd)) >= 0) {
         if(dir_cwd[1] == ':') current_drive = dir_cwd[0];
         tx_string(dir_cwd);
-        tx_string("> ");
     } else {
         tx_char(current_drive);
-        tx_string(":> ");
+        tx_string(":");
     }
+    tx_string(first_time ? SHELLPROMPT_1ST : SHELLPROMPT);
     return;
 }
 

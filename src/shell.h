@@ -22,12 +22,16 @@
 #include "colors.h"
 
 extern struct _timezone _tz;
-#define SHELLVER "20251215.1620"
+#define SHELLVER "20251215.1930"
 #define SHELLDIRDEFAULT "USB0:/SHELL/"
-#define NEWLINE  "\r\n"
+#define SHELLPROMPT "> "
+#define SHELLPROMPT_1ST "> press F1 for help > "
+
 #define APP_MSG_START "\x1b" "[14;24HOS Shell activates, please wait ..."
 #define APP_MSG_TITLE "OS Shell for Picocomputer 6502 (native mode)               version " SHELLVER NEWLINE "--------------------------------------------------------------------------------" NEWLINE
 #define APP_MSG_EXIT NEWLINE "Exiting to the monitor." NEWLINE "Bye, bye !" NEWLINE NEWLINE
+
+#define NEWLINE  "\r\n"
 
 #ifndef __STACKSIZE__
     #define __STACKSIZE__ 0x0800
@@ -294,7 +298,7 @@ void show_time(void);
 int hexstr(char *str, uint8_t val);
 void hexdump(uint16_t addr, uint16_t bytes, char_stream_func_t streamer, read_data_func_t reader);
 void cls();
-void prompt();
+void prompt(bool first_time);
 void help();
 int tokenize(char *buf, int maxBuf, char **tokenList, int maxTokens);
 int execute(cmdline_t *cl);
