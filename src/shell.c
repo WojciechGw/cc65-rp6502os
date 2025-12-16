@@ -161,7 +161,7 @@ int main(void) {
                 if(rx == CHAR_F1 || rx == 'P') {
                     char path[FNAMELEN];
                     int com_argc = 2;
-                    tx_string(NEWLINE);
+                    tx_string(NEWLINE "loading, please wait ...");
                     strcpy(path, shelldir);
                     strcat(path, "help.com");
                     com_argv[0] = (char *)"com";
@@ -181,7 +181,7 @@ int main(void) {
                 if(rx == CHAR_F2 || rx == 'Q') {
                     char path[FNAMELEN];
                     int com_argc = 2;
-                    tx_string(NEWLINE);
+                    tx_string(NEWLINE "loading, please wait ...");
                     strcpy(path, shelldir);
                     strcat(path, "keyboard.com");
                     com_argv[0] = (char *)"com";
@@ -195,7 +195,6 @@ int main(void) {
                     cmd_com(com_argc, com_argv);
                     cmdline.bytes = 0;
                     cmdline.buffer[0] = 0;
-                    cls();
                     prompt(false);
                     continue;
                 }
@@ -512,6 +511,7 @@ void show_time(void) {
         tmnow = 0;
     }
     if(tmnow) {
+        if((tmnow->tm_year + 1900) == 1970) printf(NEWLINE "[INFO] Real Time Clock is not set." NEWLINE);
         strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S %Z", tmnow);
         tx_string(buf);
     }
@@ -763,7 +763,7 @@ int cmd_drives(int argc, char **argv) {
         if(!*saved_path) saved_path = "/";
     }
 
-    tx_string(NEWLINE "Drives list" NEWLINE NEWLINE "drive" TAB "label      " TAB "[MB]" TAB "free" NEWLINE
+    tx_string(NEWLINE "Drives" NEWLINE NEWLINE "drive" TAB "label      " TAB "[MB]" TAB "free" NEWLINE
               "-----" TAB "-----------" TAB "------" TAB "----" NEWLINE);
     for(i = 0; i < 8; i++) {
         drv[0] = '0' + i;
