@@ -4,10 +4,17 @@ project(MY-RP6502-PROJECT C ASM)
 
 add_subdirectory(tools)
 
+add_executable(ext-qasm)
+rp6502_executable(ext-qasm DATA 0x0200 RESET 0x0200)
+target_sources(ext-qasm PRIVATE
+    src/ext-qasm.c
+)
+
+
 add_executable(qasm)
 rp6502_executable(qasm
-    DATA 0x200
-    RESET 0x200
+    DATA 0x0200
+    RESET 0x0200
     ${CMAKE_CURRENT_SOURCE_DIR}/src/qasm.hlp
 )
 target_sources(qasm PRIVATE

@@ -1,4 +1,5 @@
 param(
+    [string]$shellextstart = 'A000',
     [string]$shellextcmdname = 'help'
 )
 
@@ -44,7 +45,7 @@ function Send-LineAndWait([System.IO.Ports.SerialPort]$port, [string]$text, [str
 
 Push-Location "$PSScriptRoot/..//src/extcmd"
 try {
-    make CMD=${shellextcmdname}
+    make CMD=${shellextcmdname} START=${shellextstart}
 }
 finally {
     Pop-Location
