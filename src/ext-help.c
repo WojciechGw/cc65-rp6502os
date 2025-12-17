@@ -83,7 +83,8 @@ static const cmd_t commands_ext[] = {
                     "help mkdir" NEWLINE
                     "user can also write command and press <F1> key to get help information" },
     { "keyboard",   "run keyboard status visualiser application", 
-                    "keyboard" },
+                    "keyboard" NEWLINE
+                    "for exit press both Shift keys" },
     { "label",      "show or set active drive's volume label", 
                     "label          - show active drive's label" NEWLINE
                     "label NEWLABEL - set active drive label to NEWLABEL" },

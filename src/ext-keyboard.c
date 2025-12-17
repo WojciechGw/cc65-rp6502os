@@ -62,33 +62,27 @@ static bool keyboard_pressed[KB_VIEW_ROWS][KB_VIEW_COLS];
 
 static const key_shape_t keyboard_shapes[] = {
     {0,  0, 5,  KEY_ESC,        "ESC"},
-    
     {0,  6, 4,  KEY_F1,         "F1"},
     {0, 10, 4,  KEY_F2,         "F2"},
     {0, 14, 4,  KEY_F3,         "F3"},
     {0, 18, 4,  KEY_F4,         "F4"},
-    
     {0, 23, 4,  KEY_F5,         "F5"},
     {0, 27, 4,  KEY_F6,         "F6"},
     {0, 31, 4,  KEY_F7,         "F7"},
     {0, 35, 4,  KEY_F8,         "F8"},
-    
     {0, 40, 4,  KEY_F9,         "F9"},
     {0, 44, 5,  KEY_F10,        "F10"},
     {0, 49, 5,  KEY_F11,        "F11"},
     {0, 54, 5,  KEY_F12,        "F12"},
-
     {0, 60, 8,  KEY_SYSRQ,      "PrtScr"}, // Keyboard Print Screen
     {0, 68, 7,  KEY_SCROLLLOCK, "ScrLk"}, // Keyboard Scroll Lock
     {0, 75, 5,  KEY_PAUSE,      "Brk"}, // Keyboard Pause
-
-    {2, 50, 5,  KEY_INSERT,   "Ins"}, // Keyboard Insert
-    {2, 55, 5,  KEY_HOME,     "Hom"}, // Keyboard Home
-    {2, 60, 5,  KEY_PAGEUP,   "PgU"}, // Keyboard Page Up
-    {3, 50, 5,  KEY_DELETE,   "Del"}, // Keyboard Delete Forward
-    {3, 55, 5,  KEY_END,      "End"}, // Keyboard End
-    {3, 60, 5,  KEY_PAGEDOWN, "PgD"}, // Keyboard Page Down
-
+    {2, 50, 5,  KEY_INSERT,     "Ins"}, // Keyboard Insert
+    {2, 55, 5,  KEY_HOME,       "Hom"}, // Keyboard Home
+    {2, 60, 5,  KEY_PAGEUP,     "PgU"}, // Keyboard Page Up
+    {3, 50, 5,  KEY_DELETE,     "Del"}, // Keyboard Delete Forward
+    {3, 55, 5,  KEY_END,        "End"}, // Keyboard End
+    {3, 60, 5,  KEY_PAGEDOWN,   "PgD"}, // Keyboard Page Down
     {2,  0, 3,  KEY_GRAVE,      "`"},
     {2,  3, 3,  KEY_1,          "1"},
     {2,  6, 3,  KEY_2,          "2"},
@@ -150,33 +144,27 @@ static const key_shape_t keyboard_shapes[] = {
     {6, 37, 3,  KEY_COMPOSE,    "\x7f"},
     {6, 40, 3,  KEY_RIGHTMETA,  "\x03"},  
     {6, 43, 6,  KEY_RIGHTCTRL,  "Ctrl"},
-
     {5, 55, 5,  KEY_UP,         CHAR_UP},
     {6, 50, 5,  KEY_LEFT,       CHAR_LEFT},
     {6, 55, 5,  KEY_DOWN,       CHAR_DOWN},
     {6, 60, 5,  KEY_RIGHT,      CHAR_RIGHT},
-
     {2, 66, 5,  KEY_NUMLOCK,    "Num"},
     {2, 71, 3,  KEY_KPSLASH,    "/"},  // Keypad /
     {2, 74, 3,  KEY_KPASTERISK, "*"},  // Keypad *
     {2, 77, 3,  KEY_KPMINUS,    "-"},  // Keypad -
-
-    {3, 68, 3,  KEY_KP7,    "7"},  // Keypad 7 and Home
-    {3, 71, 3,  KEY_KP8,    "8"},  // Keypad 8 and Up Arrow
-    {3, 74, 3,  KEY_KP9,    "9"},  // Keypad 9 and Page Up
-    {3, 77, 3,  KEY_KPPLUS, "+"},  // Keypad +
-
-    {4, 68, 3,  KEY_KP4,    "4"},  // Keypad 4 and Left Arrow
-    {4, 71, 3,  KEY_KP5,    "5"},  // Keypad 5
-    {4, 74, 3,  KEY_KP6,    "6"},  // Keypad 6 and Right Arrow
-
-    {5, 68, 3,  KEY_KP1,    "1"},  // Keypad 1 and End
-    {5, 71, 3,  KEY_KP2,    "2"},  // Keypad 2 and Down Arrow
-    {5, 74, 3,  KEY_KP3,    "3"},  // Keypad 3 and PageDn
-
-    {6, 68, 3,  KEY_KP0,     "0"},  // Keypad 0 and Insert
-    {6, 74, 3,  KEY_KPDOT,   "."},  // Keypad . and Delete
-    {6, 77, 3,  KEY_KPENTER, "="},  // Keypad ENTER
+    {3, 68, 3,  KEY_KP7,        "7"},  // Keypad 7 and Home
+    {3, 71, 3,  KEY_KP8,        "8"},  // Keypad 8 and Up Arrow
+    {3, 74, 3,  KEY_KP9,        "9"},  // Keypad 9 and Page Up
+    {3, 77, 3,  KEY_KPPLUS,     "+"},  // Keypad +
+    {4, 68, 3,  KEY_KP4,        "4"},  // Keypad 4 and Left Arrow
+    {4, 71, 3,  KEY_KP5,        "5"},  // Keypad 5
+    {4, 74, 3,  KEY_KP6,        "6"},  // Keypad 6 and Right Arrow
+    {5, 68, 3,  KEY_KP1,        "1"},  // Keypad 1 and End
+    {5, 71, 3,  KEY_KP2,        "2"},  // Keypad 2 and Down Arrow
+    {5, 74, 3,  KEY_KP3,        "3"},  // Keypad 3 and PageDn
+    {6, 68, 3,  KEY_KP0,        "0"},  // Keypad 0 and Insert
+    {6, 74, 3,  KEY_KPDOT,      "."},  // Keypad . and Delete
+    {6, 77, 3,  KEY_KPENTER,    "="},  // Keypad ENTER
 };
 
 static char keyboard_canvas[KB_VIEW_ROWS][KB_VIEW_COLS + 1];

@@ -1,16 +1,16 @@
 Modules list:
 -------------
-ext-calendar.c.1096.0.o:
-    CODE              Offs=000000  Size=0015BC  Align=00001  Fill=0000
+ext-calendar.c.4332.0.o:
+    CODE              Offs=000000  Size=001619  Align=00001  Fill=0000
     RODATA            Offs=000000  Size=00029A  Align=00001  Fill=0000
-crt0_cmd.s.1096.1.o:
+crt0_cmd.s.4332.1.o:
     STARTUP           Offs=000000  Size=00001B  Align=00001  Fill=0000
-write_stub.c.1096.2.o:
-    CODE              Offs=0015BC  Size=00004C  Align=00001  Fill=0000
-initmainargs.s.1096.3.o:
+write_stub.c.4332.2.o:
+    CODE              Offs=001619  Size=00004C  Align=00001  Fill=0000
+initmainargs.s.4332.3.o:
     STARTUP           Offs=00001B  Size=000001  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(_directerrno.o):
-    CODE              Offs=001608  Size=000009  Align=00001  Fill=0000
+    CODE              Offs=001665  Size=000009  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(_file.o):
     DATA              Offs=000000  Size=00001E  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(_hextab.o):
@@ -20,170 +20,170 @@ C:\@prg\cc65\lib/rp6502.lib(_longminstr.o):
 C:\@prg\cc65\lib/rp6502.lib(_oserror.o):
     BSS               Offs=000000  Size=000001  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(_printf.o):
-    CODE              Offs=001611  Size=0003A1  Align=00001  Fill=0000
+    CODE              Offs=00166E  Size=0003A1  Align=00001  Fill=0000
     BSS               Offs=000001  Size=00002B  Align=00001  Fill=0000
     DATA              Offs=00001E  Size=000003  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(_seterrno.o):
-    CODE              Offs=0019B2  Size=000009  Align=00001  Fill=0000
+    CODE              Offs=001A0F  Size=000009  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(_time_t_to_tm.o):
-    CODE              Offs=0019BB  Size=000070  Align=00001  Fill=0000
+    CODE              Offs=001A18  Size=000070  Align=00001  Fill=0000
     BSS               Offs=00002C  Size=000012  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(addeqsp.o):
-    CODE              Offs=001A2B  Size=000011  Align=00001  Fill=0000
+    CODE              Offs=001A88  Size=000011  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(addysp.o):
-    CODE              Offs=001A3C  Size=00000E  Align=00001  Fill=0000
+    CODE              Offs=001A99  Size=00000E  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(aslax2.o):
-    CODE              Offs=001A4A  Size=00000B  Align=00001  Fill=0000
+    CODE              Offs=001AA7  Size=00000B  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(atoi.o):
-    CODE              Offs=001A55  Size=000091  Align=00001  Fill=0000
+    CODE              Offs=001AB2  Size=000091  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(axlong.o):
-    CODE              Offs=001AE6  Size=00000D  Align=00001  Fill=0000
+    CODE              Offs=001B43  Size=00000D  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(condes.o):
-    CODE              Offs=001AF3  Size=00000C  Align=00001  Fill=0000
+    CODE              Offs=001B50  Size=00000C  Align=00001  Fill=0000
     DATA              Offs=000021  Size=000025  Align=00001  Fill=0000
     ONCE              Offs=000000  Size=00000C  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(ctype.o):
     RODATA            Offs=0002B6  Size=00008B  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(ctypemask.o):
-    CODE              Offs=001AFF  Size=00001E  Align=00001  Fill=0000
+    CODE              Offs=001B5C  Size=00001E  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(decsp1.o):
-    CODE              Offs=001B1D  Size=000009  Align=00001  Fill=0000
+    CODE              Offs=001B7A  Size=000009  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(decsp2.o):
-    CODE              Offs=001B26  Size=00000D  Align=00001  Fill=0000
+    CODE              Offs=001B83  Size=00000D  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(decsp4.o):
-    CODE              Offs=001B33  Size=00000D  Align=00001  Fill=0000
+    CODE              Offs=001B90  Size=00000D  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(decsp6.o):
-    CODE              Offs=001B40  Size=00000D  Align=00001  Fill=0000
+    CODE              Offs=001B9D  Size=00000D  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(div.o):
-    CODE              Offs=001B4D  Size=000015  Align=00001  Fill=0000
+    CODE              Offs=001BAA  Size=000015  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(divt.o):
-    CODE              Offs=001B62  Size=000015  Align=00001  Fill=0000
+    CODE              Offs=001BBF  Size=000015  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(errno.o):
-    CODE              Offs=001B77  Size=00000A  Align=00001  Fill=0000
+    CODE              Offs=001BD4  Size=00000A  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(fwrite.o):
-    CODE              Offs=001B81  Size=000077  Align=00001  Fill=0000
+    CODE              Offs=001BDE  Size=000077  Align=00001  Fill=0000
     BSS               Offs=00003E  Size=000002  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(gettime.o):
-    CODE              Offs=001BF8  Size=000017  Align=00001  Fill=0000
+    CODE              Offs=001C55  Size=000017  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(gettimespec.o):
-    CODE              Offs=001C0F  Size=000031  Align=00001  Fill=0000
+    CODE              Offs=001C6C  Size=000031  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(gettimezone.o):
-    CODE              Offs=001C40  Size=000054  Align=00001  Fill=0000
+    CODE              Offs=001C9D  Size=000054  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(gmtime.o):
-    CODE              Offs=001C94  Size=00000F  Align=00001  Fill=0000
+    CODE              Offs=001CF1  Size=00000F  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(icmp.o):
-    CODE              Offs=001CA3  Size=00002E  Align=00001  Fill=0000
+    CODE              Offs=001D00  Size=00002E  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(incsp1.o):
-    CODE              Offs=001CD1  Size=000007  Align=00001  Fill=0000
+    CODE              Offs=001D2E  Size=000007  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(incsp2.o):
-    CODE              Offs=001CD8  Size=000015  Align=00001  Fill=0000
+    CODE              Offs=001D35  Size=000015  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(incsp3.o):
-    CODE              Offs=001CED  Size=000005  Align=00001  Fill=0000
+    CODE              Offs=001D4A  Size=000005  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(incsp4.o):
-    CODE              Offs=001CF2  Size=000005  Align=00001  Fill=0000
+    CODE              Offs=001D4F  Size=000005  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(incsp5.o):
-    CODE              Offs=001CF7  Size=000005  Align=00001  Fill=0000
+    CODE              Offs=001D54  Size=000005  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(incsp6.o):
-    CODE              Offs=001CFC  Size=000005  Align=00001  Fill=0000
+    CODE              Offs=001D59  Size=000005  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(ladd.o):
-    CODE              Offs=001D01  Size=000024  Align=00001  Fill=0000
+    CODE              Offs=001D5E  Size=000024  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(lcmp.o):
-    CODE              Offs=001D25  Size=00003B  Align=00001  Fill=0000
+    CODE              Offs=001D82  Size=00003B  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(ldaxsp.o):
-    CODE              Offs=001D60  Size=000009  Align=00001  Fill=0000
+    CODE              Offs=001DBD  Size=000009  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(ldeaxi.o):
-    CODE              Offs=001D69  Size=000017  Align=00001  Fill=0000
+    CODE              Offs=001DC6  Size=000017  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(ldeaxysp.o):
-    CODE              Offs=001D80  Size=000013  Align=00001  Fill=0000
+    CODE              Offs=001DDD  Size=000013  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(leq.o):
-    CODE              Offs=001D93  Size=000006  Align=00001  Fill=0000
+    CODE              Offs=001DF0  Size=000006  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(lmul.o):
-    CODE              Offs=001D99  Size=000059  Align=00001  Fill=0000
+    CODE              Offs=001DF6  Size=000059  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(lneg.o):
-    CODE              Offs=001DF2  Size=00001E  Align=00001  Fill=0000
+    CODE              Offs=001E4F  Size=00001E  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(localtime.o):
-    CODE              Offs=001E10  Size=000025  Align=00001  Fill=0000
+    CODE              Offs=001E6D  Size=000025  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(lpush.o):
-    CODE              Offs=001E35  Size=00001E  Align=00001  Fill=0000
+    CODE              Offs=001E92  Size=00001E  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(lsub.o):
-    CODE              Offs=001E53  Size=000024  Align=00001  Fill=0000
+    CODE              Offs=001EB0  Size=000024  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(ltoa.o):
-    CODE              Offs=001E77  Size=000093  Align=00001  Fill=0000
+    CODE              Offs=001ED4  Size=000093  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(ludiv.o):
-    CODE              Offs=001F0A  Size=000077  Align=00001  Fill=0000
+    CODE              Offs=001F67  Size=000077  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(makebool.o):
-    CODE              Offs=001F81  Size=00002C  Align=00001  Fill=0000
+    CODE              Offs=001FDE  Size=00002C  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(memcpy.o):
-    CODE              Offs=001FAD  Size=00003C  Align=00001  Fill=0000
+    CODE              Offs=00200A  Size=00003C  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(mktime.o):
-    CODE              Offs=001FE9  Size=000257  Align=00001  Fill=0000
+    CODE              Offs=002046  Size=000257  Align=00001  Fill=0000
     BSS               Offs=000040  Size=000005  Align=00001  Fill=0000
     DATA              Offs=000046  Size=000024  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(mod.o):
-    CODE              Offs=002240  Size=000011  Align=00001  Fill=0000
+    CODE              Offs=00229D  Size=000011  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(mul.o):
-    CODE              Offs=002251  Size=000045  Align=00001  Fill=0000
+    CODE              Offs=0022AE  Size=000045  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(mul8.o):
-    CODE              Offs=002296  Size=00003A  Align=00001  Fill=0000
+    CODE              Offs=0022F3  Size=00003A  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(mulax3.o):
-    CODE              Offs=0022D0  Size=000011  Align=00001  Fill=0000
+    CODE              Offs=00232D  Size=000011  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(negabs.o):
-    CODE              Offs=0022E1  Size=000012  Align=00001  Fill=0000
+    CODE              Offs=00233E  Size=000012  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(popptr1.o):
-    CODE              Offs=0022F3  Size=00000E  Align=00001  Fill=0000
+    CODE              Offs=002350  Size=00000E  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(printf.o):
-    CODE              Offs=002301  Size=000033  Align=00001  Fill=0000
+    CODE              Offs=00235E  Size=000033  Align=00001  Fill=0000
     BSS               Offs=000045  Size=000001  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(push1.o):
-    CODE              Offs=002334  Size=000005  Align=00001  Fill=0000
+    CODE              Offs=002391  Size=000005  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(pusha.o):
-    CODE              Offs=002339  Size=000016  Align=00001  Fill=0000
+    CODE              Offs=002396  Size=000016  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(pushax.o):
-    CODE              Offs=00234F  Size=00001A  Align=00001  Fill=0000
+    CODE              Offs=0023AC  Size=00001A  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(pushwsp.o):
-    CODE              Offs=002369  Size=00001C  Align=00001  Fill=0000
+    CODE              Offs=0023C6  Size=00001C  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(ria.o):
-    CODE              Offs=002385  Size=00004E  Align=00001  Fill=0000
+    CODE              Offs=0023E2  Size=00004E  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(ria_tzset.o):
-    CODE              Offs=0023D3  Size=000018  Align=00001  Fill=0000
+    CODE              Offs=002430  Size=000018  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(shelp.o):
-    CODE              Offs=0023EB  Size=000020  Align=00001  Fill=0000
+    CODE              Offs=002448  Size=000020  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(shrax2.o):
-    CODE              Offs=00240B  Size=00000B  Align=00001  Fill=0000
+    CODE              Offs=002468  Size=00000B  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(sprintf.o):
-    CODE              Offs=002416  Size=00002B  Align=00001  Fill=0000
+    CODE              Offs=002473  Size=00002B  Align=00001  Fill=0000
     BSS               Offs=000046  Size=000001  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(staxsp.o):
-    CODE              Offs=002441  Size=00000B  Align=00001  Fill=0000
+    CODE              Offs=00249E  Size=00000B  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(staxspi.o):
-    CODE              Offs=00244C  Size=00001A  Align=00001  Fill=0000
+    CODE              Offs=0024A9  Size=00001A  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(steaxspi.o):
-    CODE              Offs=002466  Size=000022  Align=00001  Fill=0000
+    CODE              Offs=0024C3  Size=000022  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(strlen.o):
-    CODE              Offs=002488  Size=000016  Align=00001  Fill=0000
+    CODE              Offs=0024E5  Size=000016  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(strlower.o):
-    CODE              Offs=00249E  Size=000027  Align=00001  Fill=0000
+    CODE              Offs=0024FB  Size=000027  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(subeqsp.o):
-    CODE              Offs=0024C5  Size=000015  Align=00001  Fill=0000
+    CODE              Offs=002522  Size=000015  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(subysp.o):
-    CODE              Offs=0024DA  Size=00000D  Align=00001  Fill=0000
+    CODE              Offs=002537  Size=00000D  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(time.o):
-    CODE              Offs=0024E7  Size=00003F  Align=00001  Fill=0000
+    CODE              Offs=002544  Size=00003F  Align=00001  Fill=0000
     BSS               Offs=000047  Size=000008  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(timezone.o):
     DATA              Offs=00006A  Size=00000F  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(udiv.o):
-    CODE              Offs=002526  Size=00004F  Align=00001  Fill=0000
+    CODE              Offs=002583  Size=00004F  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(umod.o):
-    CODE              Offs=002575  Size=000011  Align=00001  Fill=0000
+    CODE              Offs=0025D2  Size=000011  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(vfprintf.o):
-    CODE              Offs=002586  Size=000060  Align=00001  Fill=0000
+    CODE              Offs=0025E3  Size=000060  Align=00001  Fill=0000
     DATA              Offs=000079  Size=000008  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(vsnprintf.o):
-    CODE              Offs=0025E6  Size=0000DA  Align=00001  Fill=0000
+    CODE              Offs=002643  Size=0000DA  Align=00001  Fill=0000
     DATA              Offs=000081  Size=000008  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(vsprintf.o):
-    CODE              Offs=0026C0  Size=000012  Align=00001  Fill=0000
+    CODE              Offs=00271D  Size=000012  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(zeropage.o):
     ZEROPAGE          Offs=000000  Size=00001A  Align=00001  Fill=0000
 
@@ -195,75 +195,75 @@ Name                   Start     End    Size  Align
 ZEROPAGE              000000  000019  00001A  00001
 STARTUP               00C000  00C01B  00001C  00001
 ONCE                  00C01C  00C029  00000E  00001
-CODE                  00C02A  00E6FB  0026D2  00001
-RODATA                00E6FC  00EA3C  000341  00001
-DATA                  00EA3D  00EAC5  000089  00001
-BSS                   00EAC6  00EB14  00004F  00001
+CODE                  00C02A  00E758  00272F  00001
+RODATA                00E759  00EA99  000341  00001
+DATA                  00EA9A  00EB22  000089  00001
+BSS                   00EB23  00EB71  00004F  00001
 
 
 Exports list by name:
 ---------------------
 __CONSTRUCTOR_COUNT__     000001 REA    __CONSTRUCTOR_TABLE__     00C028 RLA    
-__DESTRUCTOR_COUNT__      000000 REA    __DESTRUCTOR_TABLE__      00EA3D RLA    
+__DESTRUCTOR_COUNT__      000000 REA    __DESTRUCTOR_TABLE__      00EA9A RLA    
 __STACKSIZE__             000400 REA    __STARTUP__               00C000 RLA    
-___clock_gettimespec      00DC39 RLA    ___directerrno            00D632 RLA    
-___errno                  00FFED RLA    ___oserror                00EAC6 RLA    
-___seterrno               00D9DC RLA    __ctype                   00E9B2 RLA    
-__ctypeidx                00E9BD RLA    __hextab                  00E996 RLA    
-__longminstr              00E9A6 RLA    __printf                  00D72C RLA    
-__time_t_to_tm            00D9E5 RLA    __tz                      00EAA7 RLA    
-_atoi                     00DA7F RLA    _clock_gettime            00DC22 RLA    
-_clock_gettimezone        00DC6A RLA    _div                      00DB8C RLA    
-_errno_opt_constructor    00DBA1  LAI   _fwrite                   00DBAB RLA    
-_gmtime                   00DCBE RLA    _localtime                00DE3A RLA    
-_ltoa                     00DEB9 RLA    _main                     00D0FB RLA    
-_memcpy                   00DFD7 RLA    _mktime                   00E09E RLA    
-_printf                   00E32B RLA    _ria_call_int             00E3E6 RLA    
-_ria_pop_long             00E3C0 RLA    _ria_push_long            00E3AF RLA    
-_ria_set_ax               00E3DF RLA    _ria_tzset                00E3FD RLA    
-_sprintf                  00E440 RLA    _stdout                   00EA57 RLA    
-_strlen                   00E4B2 RLA    _strlower                 00E4C8 RLA    
-_time                     00E511 RLA    _ultoa                    00DEF8 RLA    
-_vfprintf                 00E5E7 RLA    _vsprintf                 00E6EA RLA    
-_write                    00D5E6 RLA    addeq0sp                  00DA55 RLA    
-addeqysp                  00DA57 RLA    addysp                    00DA67 RLA    
-addysp1                   00DA66 RLA    aslax2                    00DA74 RLA    
-axlong                    00DB10 RLA    axulong                   00DB16 RLA    
-booleq                    00DFB1 RLA    c_sp                      000000 RLZ    
-ctypemaskdirect           00DB2D RLA    decsp1                    00DB47 RLA    
-decsp2                    00DB50 RLA    decsp4                    00DB5D RLA    
-decsp6                    00DB6A RLA    donelib                   00DB1D RLA    
-incsp1                    00DCFB RLA    incsp2                    00DD09 RLA    
-incsp3                    00DD17 RLA    incsp4                    00DD1C RLA    
-incsp5                    00DD21 RLA    incsp6                    00DD26 RLA    
+___clock_gettimespec      00DC96 RLA    ___directerrno            00D68F RLA    
+___errno                  00FFED RLA    ___oserror                00EB23 RLA    
+___seterrno               00DA39 RLA    __ctype                   00EA0F RLA    
+__ctypeidx                00EA1A RLA    __hextab                  00E9F3 RLA    
+__longminstr              00EA03 RLA    __printf                  00D789 RLA    
+__time_t_to_tm            00DA42 RLA    __tz                      00EB04 RLA    
+_atoi                     00DADC RLA    _clock_gettime            00DC7F RLA    
+_clock_gettimezone        00DCC7 RLA    _div                      00DBE9 RLA    
+_errno_opt_constructor    00DBFE  LAI   _fwrite                   00DC08 RLA    
+_gmtime                   00DD1B RLA    _localtime                00DE97 RLA    
+_ltoa                     00DF16 RLA    _main                     00D0FB RLA    
+_memcpy                   00E034 RLA    _mktime                   00E0FB RLA    
+_printf                   00E388 RLA    _ria_call_int             00E443 RLA    
+_ria_pop_long             00E41D RLA    _ria_push_long            00E40C RLA    
+_ria_set_ax               00E43C RLA    _ria_tzset                00E45A RLA    
+_sprintf                  00E49D RLA    _stdout                   00EAB4 RLA    
+_strlen                   00E50F RLA    _strlower                 00E525 RLA    
+_time                     00E56E RLA    _ultoa                    00DF55 RLA    
+_vfprintf                 00E644 RLA    _vsprintf                 00E747 RLA    
+_write                    00D643 RLA    addeq0sp                  00DAB2 RLA    
+addeqysp                  00DAB4 RLA    addysp                    00DAC4 RLA    
+addysp1                   00DAC3 RLA    aslax2                    00DAD1 RLA    
+axlong                    00DB6D RLA    axulong                   00DB73 RLA    
+booleq                    00E00E RLA    c_sp                      000000 RLZ    
+ctypemaskdirect           00DB8A RLA    decsp1                    00DBA4 RLA    
+decsp2                    00DBAD RLA    decsp4                    00DBBA RLA    
+decsp6                    00DBC7 RLA    donelib                   00DB7A RLA    
+incsp1                    00DD58 RLA    incsp2                    00DD66 RLA    
+incsp3                    00DD74 RLA    incsp4                    00DD79 RLA    
+incsp5                    00DD7E RLA    incsp6                    00DD83 RLA    
 initlib                   00C01C RLA    initmainargs              00C01B REA    
-ldax0sp                   00DD8A RLA    ldaxysp                   00DD8C RLA    
-ldeax0sp                  00DDAA RLA    ldeaxi                    00DD93 RLA    
-ldeaxysp                  00DDAC RLA    mul8x16                   00E2C2 RLA    
-mul8x16a                  00E2CC RLA    mulax3                    00E2FA RLA    
-negax                     00E30F RLA    negeax                    00DE1C RLA    
-popax                     00DD02 RLA    popptr1                   00E31D RLA    
-popsargsudiv16            00E415 RLA    ptr1                      000008 RLZ    
+ldax0sp                   00DDE7 RLA    ldaxysp                   00DDE9 RLA    
+ldeax0sp                  00DE07 RLA    ldeaxi                    00DDF0 RLA    
+ldeaxysp                  00DE09 RLA    mul8x16                   00E31F RLA    
+mul8x16a                  00E329 RLA    mulax3                    00E357 RLA    
+negax                     00E36C RLA    negeax                    00DE79 RLA    
+popax                     00DD5F RLA    popptr1                   00E37A RLA    
+popsargsudiv16            00E472 RLA    ptr1                      000008 RLZ    
 ptr2                      00000A RLZ    ptr3                      00000C RLZ    
-ptr4                      00000E RLZ    push0                     00E379 RLA    
-push1                     00E35E RLA    pusha                     00E367 RLA    
-pusha0                    00E37B RLA    pushax                    00E37D RLA    
-pusheax                   00DE66 RLA    pushw0sp                  00E393 RLA    
-pushwysp                  00E395 RLA    regbank                   000014 RLZ    
-shrax2                    00E435 RLA    sreg                      000002 RLZ    
-stax0sp                   00E46B RLA    staxspidx                 00E476 RLA    
-staxysp                   00E46D RLA    steaxspidx                00E490 RLA    
-subeq0sp                  00E4EF RLA    subysp                    00E504 RLA    
+ptr4                      00000E RLZ    push0                     00E3D6 RLA    
+push1                     00E3BB RLA    pusha                     00E3C4 RLA    
+pusha0                    00E3D8 RLA    pushax                    00E3DA RLA    
+pusheax                   00DEC3 RLA    pushw0sp                  00E3F0 RLA    
+pushwysp                  00E3F2 RLA    regbank                   000014 RLZ    
+shrax2                    00E492 RLA    sreg                      000002 RLZ    
+stax0sp                   00E4C8 RLA    staxspidx                 00E4D3 RLA    
+staxysp                   00E4CA RLA    steaxspidx                00E4ED RLA    
+subeq0sp                  00E54C RLA    subysp                    00E561 RLA    
 tmp1                      000010 RLZ    tmp2                      000011 RLZ    
 tmp3                      000012 RLZ    tmp4                      000013 RLZ    
-tosaddeax                 00DD31 RLA    tosdiva0                  00DB77 RLA    
-tosdivax                  00DB79 RLA    toseqeax                  00DDBD RLA    
-tosicmp                   00DCCF RLA    toslcmp                   00DD4F RLA    
-tosmoda0                  00E26A RLA    tosmodax                  00E26C RLA    
-tossubeax                 00DE81 RLA    tosudivax                 00E552 RLA    
-tosumodax                 00E5A1 RLA    tosumulax                 00E27B RLA    
-tosumuleax                00DDC7 RLA    udiv16                    00E561 RLA    
-udiv32                    00DF66 RLA    vsnprintf                 00E613 RLA    
+tosaddeax                 00DD8E RLA    tosdiva0                  00DBD4 RLA    
+tosdivax                  00DBD6 RLA    toseqeax                  00DE1A RLA    
+tosicmp                   00DD2C RLA    toslcmp                   00DDAC RLA    
+tosmoda0                  00E2C7 RLA    tosmodax                  00E2C9 RLA    
+tossubeax                 00DEDE RLA    tosudivax                 00E5AF RLA    
+tosumodax                 00E5FE RLA    tosumulax                 00E2D8 RLA    
+tosumuleax                00DE24 RLA    udiv16                    00E5BE RLA    
+udiv32                    00DFC3 RLA    vsnprintf                 00E670 RLA    
 
 
 
@@ -278,58 +278,58 @@ tmp3                      000012 RLZ    tmp4                      000013 RLZ
 regbank                   000014 RLZ    __STACKSIZE__             000400 REA    
 __STARTUP__               00C000 RLA    initmainargs              00C01B REA    
 initlib                   00C01C RLA    __CONSTRUCTOR_TABLE__     00C028 RLA    
-_main                     00D0FB RLA    _write                    00D5E6 RLA    
-___directerrno            00D632 RLA    __printf                  00D72C RLA    
-___seterrno               00D9DC RLA    __time_t_to_tm            00D9E5 RLA    
-addeq0sp                  00DA55 RLA    addeqysp                  00DA57 RLA    
-addysp1                   00DA66 RLA    addysp                    00DA67 RLA    
-aslax2                    00DA74 RLA    _atoi                     00DA7F RLA    
-axlong                    00DB10 RLA    axulong                   00DB16 RLA    
-donelib                   00DB1D RLA    ctypemaskdirect           00DB2D RLA    
-decsp1                    00DB47 RLA    decsp2                    00DB50 RLA    
-decsp4                    00DB5D RLA    decsp6                    00DB6A RLA    
-tosdiva0                  00DB77 RLA    tosdivax                  00DB79 RLA    
-_div                      00DB8C RLA    _errno_opt_constructor    00DBA1  LAI   
-_fwrite                   00DBAB RLA    _clock_gettime            00DC22 RLA    
-___clock_gettimespec      00DC39 RLA    _clock_gettimezone        00DC6A RLA    
-_gmtime                   00DCBE RLA    tosicmp                   00DCCF RLA    
-incsp1                    00DCFB RLA    popax                     00DD02 RLA    
-incsp2                    00DD09 RLA    incsp3                    00DD17 RLA    
-incsp4                    00DD1C RLA    incsp5                    00DD21 RLA    
-incsp6                    00DD26 RLA    tosaddeax                 00DD31 RLA    
-toslcmp                   00DD4F RLA    ldax0sp                   00DD8A RLA    
-ldaxysp                   00DD8C RLA    ldeaxi                    00DD93 RLA    
-ldeax0sp                  00DDAA RLA    ldeaxysp                  00DDAC RLA    
-toseqeax                  00DDBD RLA    tosumuleax                00DDC7 RLA    
-negeax                    00DE1C RLA    _localtime                00DE3A RLA    
-pusheax                   00DE66 RLA    tossubeax                 00DE81 RLA    
-_ltoa                     00DEB9 RLA    _ultoa                    00DEF8 RLA    
-udiv32                    00DF66 RLA    booleq                    00DFB1 RLA    
-_memcpy                   00DFD7 RLA    _mktime                   00E09E RLA    
-tosmoda0                  00E26A RLA    tosmodax                  00E26C RLA    
-tosumulax                 00E27B RLA    mul8x16                   00E2C2 RLA    
-mul8x16a                  00E2CC RLA    mulax3                    00E2FA RLA    
-negax                     00E30F RLA    popptr1                   00E31D RLA    
-_printf                   00E32B RLA    push1                     00E35E RLA    
-pusha                     00E367 RLA    push0                     00E379 RLA    
-pusha0                    00E37B RLA    pushax                    00E37D RLA    
-pushw0sp                  00E393 RLA    pushwysp                  00E395 RLA    
-_ria_push_long            00E3AF RLA    _ria_pop_long             00E3C0 RLA    
-_ria_set_ax               00E3DF RLA    _ria_call_int             00E3E6 RLA    
-_ria_tzset                00E3FD RLA    popsargsudiv16            00E415 RLA    
-shrax2                    00E435 RLA    _sprintf                  00E440 RLA    
-stax0sp                   00E46B RLA    staxysp                   00E46D RLA    
-staxspidx                 00E476 RLA    steaxspidx                00E490 RLA    
-_strlen                   00E4B2 RLA    _strlower                 00E4C8 RLA    
-subeq0sp                  00E4EF RLA    subysp                    00E504 RLA    
-_time                     00E511 RLA    tosudivax                 00E552 RLA    
-udiv16                    00E561 RLA    tosumodax                 00E5A1 RLA    
-_vfprintf                 00E5E7 RLA    vsnprintf                 00E613 RLA    
-_vsprintf                 00E6EA RLA    __hextab                  00E996 RLA    
-__longminstr              00E9A6 RLA    __ctype                   00E9B2 RLA    
-__ctypeidx                00E9BD RLA    __DESTRUCTOR_TABLE__      00EA3D RLA    
-_stdout                   00EA57 RLA    __tz                      00EAA7 RLA    
-___oserror                00EAC6 RLA    ___errno                  00FFED RLA    
+_main                     00D0FB RLA    _write                    00D643 RLA    
+___directerrno            00D68F RLA    __printf                  00D789 RLA    
+___seterrno               00DA39 RLA    __time_t_to_tm            00DA42 RLA    
+addeq0sp                  00DAB2 RLA    addeqysp                  00DAB4 RLA    
+addysp1                   00DAC3 RLA    addysp                    00DAC4 RLA    
+aslax2                    00DAD1 RLA    _atoi                     00DADC RLA    
+axlong                    00DB6D RLA    axulong                   00DB73 RLA    
+donelib                   00DB7A RLA    ctypemaskdirect           00DB8A RLA    
+decsp1                    00DBA4 RLA    decsp2                    00DBAD RLA    
+decsp4                    00DBBA RLA    decsp6                    00DBC7 RLA    
+tosdiva0                  00DBD4 RLA    tosdivax                  00DBD6 RLA    
+_div                      00DBE9 RLA    _errno_opt_constructor    00DBFE  LAI   
+_fwrite                   00DC08 RLA    _clock_gettime            00DC7F RLA    
+___clock_gettimespec      00DC96 RLA    _clock_gettimezone        00DCC7 RLA    
+_gmtime                   00DD1B RLA    tosicmp                   00DD2C RLA    
+incsp1                    00DD58 RLA    popax                     00DD5F RLA    
+incsp2                    00DD66 RLA    incsp3                    00DD74 RLA    
+incsp4                    00DD79 RLA    incsp5                    00DD7E RLA    
+incsp6                    00DD83 RLA    tosaddeax                 00DD8E RLA    
+toslcmp                   00DDAC RLA    ldax0sp                   00DDE7 RLA    
+ldaxysp                   00DDE9 RLA    ldeaxi                    00DDF0 RLA    
+ldeax0sp                  00DE07 RLA    ldeaxysp                  00DE09 RLA    
+toseqeax                  00DE1A RLA    tosumuleax                00DE24 RLA    
+negeax                    00DE79 RLA    _localtime                00DE97 RLA    
+pusheax                   00DEC3 RLA    tossubeax                 00DEDE RLA    
+_ltoa                     00DF16 RLA    _ultoa                    00DF55 RLA    
+udiv32                    00DFC3 RLA    booleq                    00E00E RLA    
+_memcpy                   00E034 RLA    _mktime                   00E0FB RLA    
+tosmoda0                  00E2C7 RLA    tosmodax                  00E2C9 RLA    
+tosumulax                 00E2D8 RLA    mul8x16                   00E31F RLA    
+mul8x16a                  00E329 RLA    mulax3                    00E357 RLA    
+negax                     00E36C RLA    popptr1                   00E37A RLA    
+_printf                   00E388 RLA    push1                     00E3BB RLA    
+pusha                     00E3C4 RLA    push0                     00E3D6 RLA    
+pusha0                    00E3D8 RLA    pushax                    00E3DA RLA    
+pushw0sp                  00E3F0 RLA    pushwysp                  00E3F2 RLA    
+_ria_push_long            00E40C RLA    _ria_pop_long             00E41D RLA    
+_ria_set_ax               00E43C RLA    _ria_call_int             00E443 RLA    
+_ria_tzset                00E45A RLA    popsargsudiv16            00E472 RLA    
+shrax2                    00E492 RLA    _sprintf                  00E49D RLA    
+stax0sp                   00E4C8 RLA    staxysp                   00E4CA RLA    
+staxspidx                 00E4D3 RLA    steaxspidx                00E4ED RLA    
+_strlen                   00E50F RLA    _strlower                 00E525 RLA    
+subeq0sp                  00E54C RLA    subysp                    00E561 RLA    
+_time                     00E56E RLA    tosudivax                 00E5AF RLA    
+udiv16                    00E5BE RLA    tosumodax                 00E5FE RLA    
+_vfprintf                 00E644 RLA    vsnprintf                 00E670 RLA    
+_vsprintf                 00E747 RLA    __hextab                  00E9F3 RLA    
+__longminstr              00EA03 RLA    __ctype                   00EA0F RLA    
+__ctypeidx                00EA1A RLA    __DESTRUCTOR_TABLE__      00EA9A RLA    
+_stdout                   00EAB4 RLA    __tz                      00EB04 RLA    
+___oserror                00EB23 RLA    ___errno                  00FFED RLA    
 
 
 
@@ -345,8 +345,8 @@ __DESTRUCTOR_TABLE__ ([linker generated]):
     condes.o                  runtime/condes.s:19
 __STACKSIZE__ ([linker generated]):
     [linker generated]        ../ext0xC000.cfg:8
-__STARTUP__ (crt0_cmd.s.1096.1.o):
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:13
+__STARTUP__ (crt0_cmd.s.4332.1.o):
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:13
     [linker generated]        ../ext0xC000.cfg:2
 ___clock_gettimespec (gettimespec.o):
     gettime.o                 ../libwrk/rp6502/gettime.s:19
@@ -377,9 +377,9 @@ __tz (timezone.o):
     ria_tzset.o               ../libwrk/rp6502/ria_tzset.s:19
     mktime.o                  common/mktime.s:12
     localtime.o               common/localtime.s:8
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:22
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:22
 _atoi (atoi.o):
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:24
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:24
 _clock_gettime (gettime.o):
     time.o                    /home/wojciech/git/WojciechGw/cc65/asminc/time.inc:65
 _clock_gettimezone (gettimezone.o):
@@ -389,20 +389,20 @@ _div (divt.o):
 _fwrite (fwrite.o):
     vfprintf.o                common/vfprintf.s:10
 _gmtime (gmtime.o):
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:18
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:18
 _localtime (localtime.o):
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:19
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:19
 _ltoa (ltoa.o):
     _printf.o                 common/_printf.s:12
-_main (ext-calendar.c.1096.0.o):
-    crt0_cmd.s.1096.1.o       crt0_cmd.s:2
+_main (ext-calendar.c.4332.0.o):
+    crt0_cmd.s.4332.1.o       crt0_cmd.s:2
 _memcpy (memcpy.o):
     vsnprintf.o               common/vsnprintf.s:10
 _mktime (mktime.o):
     _time_t_to_tm.o           common/_time_t_to_tm.s:14
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:20
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:20
 _printf (printf.o):
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:16
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:16
 _ria_call_int (ria.o):
     errno.o                   rp6502/errno.s:12
     gettimezone.o             ../libwrk/rp6502/gettimezone.s:19
@@ -415,9 +415,9 @@ _ria_set_ax (ria.o):
     gettimezone.o             ../libwrk/rp6502/gettimezone.s:18
     gettime.o                 ../libwrk/rp6502/gettime.s:17
 _ria_tzset (ria_tzset.o):
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:15
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:15
 _sprintf (sprintf.o):
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:17
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:17
 _stdout (_file.o):
     printf.o                  common/printf.s:8
 _strlen (strlen.o):
@@ -425,23 +425,23 @@ _strlen (strlen.o):
 _strlower (strlower.o):
     _printf.o                 common/_printf.s:13
 _time (time.o):
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:21
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:21
 _ultoa (ltoa.o):
     _printf.o                 common/_printf.s:12
 _vfprintf (vfprintf.o):
     printf.o                  common/printf.s:8
 _vsprintf (vsprintf.o):
     sprintf.o                 common/sprintf.s:8
-_write (write_stub.c.1096.2.o):
+_write (write_stub.c.4332.2.o):
     fwrite.o                  common/fwrite.s:10
 addeq0sp (addeqsp.o):
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
 addeqysp (addeqsp.o):
-    write_stub.c.1096.2.o     write_stub.c.1096.2.s:64
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
+    write_stub.c.4332.2.o     write_stub.c.4332.2.s:64
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
 addysp (addysp.o):
     incsp6.o                  runtime/incsp6.s:8
     incsp5.o                  runtime/incsp5.s:8
@@ -451,20 +451,20 @@ addysp (addysp.o):
     sprintf.o                 common/sprintf.s:8
     printf.o                  common/printf.s:8
     incsp4.o                  runtime/incsp4.s:8
-    write_stub.c.1096.2.o     write_stub.c.1096.2.s:64
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
+    write_stub.c.4332.2.o     write_stub.c.4332.2.s:64
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
 addysp1 (addysp.o):
     ludiv.o                   runtime/ludiv.s:9
     lsub.o                    runtime/lsub.s:11
     lmul.o                    runtime/lmul.s:9
     ladd.o                    runtime/ladd.s:8
 aslax2 (aslax2.o):
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
 axlong (axlong.o):
     _printf.o                 common/_printf.s:11
 axulong (axlong.o):
@@ -506,8 +506,8 @@ c_sp (zeropage.o):
     decsp2.o                  runtime/decsp2.s:8
     addysp.o                  runtime/addysp.s:8
     addeqsp.o                 runtime/addeqsp.s:8
-    write_stub.c.1096.2.o     write_stub.c.1096.2.s:10
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:10
+    write_stub.c.4332.2.o     write_stub.c.4332.2.s:10
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:10
 ctypemaskdirect (ctypemask.o):
     strlower.o                common/strlower.s:14
     atoi.o                    common/atoi.s:11
@@ -515,33 +515,33 @@ decsp1 (decsp1.o):
     gettimezone.o             ../libwrk/rp6502/gettimezone.s:90
 decsp2 (decsp2.o):
     gettimezone.o             ../libwrk/rp6502/gettimezone.s:90
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
 decsp4 (decsp4.o):
     sprintf.o                 common/sprintf.s:8
     lpush.o                   runtime/lpush.s:12
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
 decsp6 (decsp6.o):
     _printf.o                 common/_printf.s:11
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
 donelib (condes.o):
-    crt0_cmd.s.1096.1.o       crt0_cmd.s:2
+    crt0_cmd.s.4332.1.o       crt0_cmd.s:2
 incsp1 (incsp1.o):
     gettimezone.o             ../libwrk/rp6502/gettimezone.s:90
 incsp2 (incsp2.o):
     vsnprintf.o               common/vsnprintf.s:9
     staxspi.o                 runtime/staxspi.s:9
     popptr1.o                 runtime/popptr1.s:8
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
 incsp3 (incsp3.o):
     gettime.o                 ../libwrk/rp6502/gettime.s:51
 incsp4 (incsp4.o):
     lcmp.o                    runtime/lcmp.s:9
     ria_tzset.o               ../libwrk/rp6502/ria_tzset.s:50
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
 incsp5 (incsp5.o):
     gettimespec.o             ../libwrk/rp6502/gettimespec.s:65
 incsp6 (incsp6.o):
@@ -549,9 +549,9 @@ incsp6 (incsp6.o):
     fwrite.o                  common/fwrite.s:11
     vfprintf.o                common/vfprintf.s:9
 initlib (condes.o):
-    crt0_cmd.s.1096.1.o       crt0_cmd.s:2
-initmainargs (initmainargs.s.1096.3.o):
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:14
+    crt0_cmd.s.4332.1.o       crt0_cmd.s:2
+initmainargs (initmainargs.s.4332.3.o):
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:14
 ldax0sp (ldaxsp.o):
     gettimezone.o             ../libwrk/rp6502/gettimezone.s:90
     gettimespec.o             ../libwrk/rp6502/gettimespec.s:65
@@ -565,14 +565,14 @@ ldeaxi (ldeaxi.o):
     gmtime.o                  common/gmtime.s:9
 ldeaxysp (ldeaxysp.o):
     gettimezone.o             ../libwrk/rp6502/gettimezone.s:90
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
 mul8x16 (mul8.o):
     mul.o                     runtime/mul.s:8
 mul8x16a (mul8.o):
     mul.o                     runtime/mul.s:8
 mulax3 (mulax3.o):
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
 negax (negabs.o):
     divt.o                    common/divt.s:17
     shelp.o                   runtime/shelp.s:11
@@ -625,8 +625,8 @@ ptr1 (zeropage.o):
     ldeaxi.o                  runtime/ldeaxi.s:8
     div.o                     runtime/div.s:12
     atoi.o                    common/atoi.s:10
-    write_stub.c.1096.2.o     write_stub.c.1096.2.s:11
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:11
+    write_stub.c.4332.2.o     write_stub.c.4332.2.s:11
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:11
 ptr2 (zeropage.o):
     memcpy.o                  common/memcpy.s:15
     strlower.o                common/strlower.s:13
@@ -653,7 +653,7 @@ ptr4 (zeropage.o):
     mul8.o                    runtime/mul8.s:10
     mul.o                     runtime/mul.s:10
 push0 (pushax.o):
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
 push1 (push1.o):
     _printf.o                 common/_printf.s:11
     vfprintf.o                common/vfprintf.s:9
@@ -673,22 +673,22 @@ pushax (pushax.o):
     _printf.o                 common/_printf.s:11
     printf.o                  common/printf.s:8
     mktime.o                  common/mktime.s:13
-    write_stub.c.1096.2.o     write_stub.c.1096.2.s:64
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
+    write_stub.c.4332.2.o     write_stub.c.4332.2.s:64
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
 pusheax (lpush.o):
     _printf.o                 common/_printf.s:11
     ria_tzset.o               ../libwrk/rp6502/ria_tzset.s:50
     mktime.o                  common/mktime.s:13
     localtime.o               common/localtime.s:9
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
 pushw0sp (pushwsp.o):
     gettime.o                 ../libwrk/rp6502/gettime.s:51
     vsprintf.o                common/vsprintf.s:8
@@ -696,13 +696,13 @@ pushwysp (pushwsp.o):
     gettimespec.o             ../libwrk/rp6502/gettimespec.s:65
     fwrite.o                  common/fwrite.s:11
     vfprintf.o                common/vfprintf.s:9
-    write_stub.c.1096.2.o     write_stub.c.1096.2.s:64
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
+    write_stub.c.4332.2.o     write_stub.c.4332.2.s:64
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
 regbank (zeropage.o):
     _printf.o                 /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:14
 shrax2 (shrax2.o):
@@ -732,34 +732,34 @@ sreg (zeropage.o):
     ldeaxi.o                  runtime/ldeaxi.s:8
     icmp.o                    runtime/icmp.s:9
     atoi.o                    common/atoi.s:10
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:10
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:10
 stax0sp (staxsp.o):
     gettimezone.o             ../libwrk/rp6502/gettimezone.s:90
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
 staxspidx (staxspi.o):
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
 staxysp (staxsp.o):
     vsprintf.o                common/vsprintf.s:8
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
 steaxspidx (steaxspi.o):
     gettimespec.o             ../libwrk/rp6502/gettimespec.s:65
 subeq0sp (subeqsp.o):
-    write_stub.c.1096.2.o     write_stub.c.1096.2.s:64
+    write_stub.c.4332.2.o     write_stub.c.4332.2.s:64
 subysp (subysp.o):
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
 tmp1 (zeropage.o):
     steaxspi.o                runtime/steaxspi.s:10
     ltoa.o                    common/ltoa.s:11
@@ -774,7 +774,7 @@ tmp1 (zeropage.o):
     div.o                     runtime/div.s:12
     atoi.o                    common/atoi.s:10
     aslax2.o                  runtime/aslax2.s:8
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:11
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:11
 tmp2 (zeropage.o):
     steaxspi.o                runtime/steaxspi.s:10
     lmul.o                    runtime/lmul.s:10
@@ -793,23 +793,23 @@ tosaddeax (ladd.o):
     mktime.o                  common/mktime.s:14
     localtime.o               common/localtime.s:9
 tosdiva0 (div.o):
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
 tosdivax (div.o):
     divt.o                    common/divt.s:17
 toseqeax (leq.o):
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
 tosicmp (icmp.o):
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
 toslcmp (lcmp.o):
     leq.o                     runtime/leq.s:8
 tosmoda0 (mod.o):
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
 tosmodax (mod.o):
-    ext-calendar.c.1096.0.o   ext-calendar.c.1096.0.s:3253
+    ext-calendar.c.4332.0.o   ext-calendar.c.4332.0.s:3305
 tossubeax (lsub.o):
     mktime.o                  common/mktime.s:14
 tosudivax (udiv.o):

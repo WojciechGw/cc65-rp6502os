@@ -16,7 +16,7 @@ function Wait-ForBracket([System.IO.Ports.SerialPort]$port, [int]$timeoutMs) {
             }
         }
         catch [System.TimeoutException] {
-            # próbujemy dalej aż do przekroczenia timeoutu
+            # try till timeout
         }
     }
     return $false
@@ -28,7 +28,7 @@ function Send-LineAndWait([System.IO.Ports.SerialPort]$port, [string]$text, [str
         try {
             $port.WriteLine($text)
             if (-not (Wait-ForBracket -port $port -timeoutMs $promptTimeoutMs)) {
-                Write-Warning "Timeout na ']' po wysłaniu '$label'"
+                Write-Warning "Timeout for ']' after sent '$label'"
             }
             return
         }
@@ -60,14 +60,17 @@ try {
     $serialPort.RtsEnable = $true
     try {
         $serialPort.Open()
-        Start-Sleep -Milliseconds 200
+        Start-Sleep -Milliseconds 400
         Send-LineAndWait -port $serialPort -text "exit" -label "exit"
+        Start-Sleep -Milliseconds 400
         Send-LineAndWait -port $serialPort -text "0:" -label "0:"
+        Start-Sleep -Milliseconds 400
         Send-LineAndWait -port $serialPort -text "cd /SHELL" -label "cd /SHELL"
+        Start-Sleep -Milliseconds 400
         $serialPort.Close()
     }
     catch {
-        Write-Warning "Nie można wysłać na COM4: $_"
+        Write-Warning "COM4: is not available $_"
     }
     finally {
         if ($serialPort) {
@@ -80,12 +83,12 @@ try {
 
    try {
         $serialPort.Open()
-        Start-Sleep -Milliseconds 200
+        Start-Sleep -Milliseconds 400
         Send-LineAndWait -port $serialPort -text "shell" -label "shell"
         $serialPort.Close()
     }
     catch {
-        Write-Warning "Nie można wysłać na COM4: $_"
+        Write-Warning "COM4: is not available $_"
     }
     finally {
         if ($serialPort) {

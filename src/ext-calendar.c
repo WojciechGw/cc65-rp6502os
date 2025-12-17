@@ -106,13 +106,18 @@ int main(int argc, char **argv) {
             print_calendar_year(year, month, day);
             break;
         case SHOW_QUARTER:
+            if (argc > 1){
+                year = atoi(argv[1]);
+                month = atoi(argv[2]);
+                day = 0;
+            }
             quarter_start = ((month - 1) / 3) * 3 + 1;
             print_calendar_quarter(year, quarter_start, month, day);
             break;
         case SHOW_NEIGHBOURS:
             if (argc > 1){
                 year = atoi(argv[1]);
-                month = atoi(argv[1]);
+                month = atoi(argv[2]);
                 day = 0;
             }
             print_calendar_neighbours(year, month, day);

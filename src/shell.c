@@ -19,6 +19,7 @@ int main(void) {
     char ext_rx = 0;
     static cmdline_t cmdline = {0};
     
+    PAUSE(200);
     tx_string(CSI_RESET);
     printf(CSI_CURSOR_HIDE); // hide cursor
     printf(APP_MSG_START);
@@ -40,23 +41,18 @@ int main(void) {
         cmd_phi2(1, args);
     }
     show_time();
-    */
     {
         char *args[1];
         args[0] = (char *)"";
         cmd_drives(1, args);
     }
-    
+    */
     load_shelldir();
 
-/*
     // ClearDisplayMemory();
-    InitTerminalFont();
-    
-    // PAUSE(500);
-
-    InitDisplay();
-
+    // InitTerminalFont();
+    // InitDisplay();
+/*
     // draw alphabet
     for(i=0;i<26;i++){
         DrawChar(55, i + 2, 0x41 + i, LIGHT_GRAY, BLACK);
@@ -1946,16 +1942,27 @@ void InitDisplay(void){
     // initialize the canvas
     xreg(1, 0, 0, canvas_type);
 
-    xram0_struct_set(canvas_struct, vga_mode1_config_t, x_wrap, false);
-    xram0_struct_set(canvas_struct, vga_mode1_config_t, y_wrap, false);
-    xram0_struct_set(canvas_struct, vga_mode1_config_t, x_pos_px, x_offset);
-    xram0_struct_set(canvas_struct, vga_mode1_config_t, y_pos_px, y_offset);
-    xram0_struct_set(canvas_struct, vga_mode1_config_t, width_chars, canvas_c);
-    xram0_struct_set(canvas_struct, vga_mode1_config_t, height_chars, canvas_r);
-    xram0_struct_set(canvas_struct, vga_mode1_config_t, xram_data_ptr, canvas_data);
-    xram0_struct_set(canvas_struct, vga_mode1_config_t, xram_palette_ptr, GFX_CHARACTER_PAL_PTR);
-    xram0_struct_set(canvas_struct, vga_mode1_config_t, xram_font_ptr, GFX_CHARACTER_FONT_PTR);
-    xreg(1, 0, 1, GFX_MODE_CHARACTER, font_bpp_opt, canvas_struct, GFX_PLANE_1);
+   // show initial game screen
+    xreg(1, 0, 0, GFX_CANVAS_320x240);
+    // xreg(1, 0, 1, GFX_MODE_BITMAP, GFX_BITMAP_bpp8, GFX_TARGETPART2_STRUCT, GFX_PLANE_0, 114, 204);
+
+    // CONSOLE
+    xram0_struct_set(canvas_struct - 0x10, vga_mode1_config_t, x_wrap, false);
+    xram0_struct_set(canvas_struct - 0x10, vga_mode1_config_t, y_wrap, false);
+    xram0_struct_set(canvas_struct - 0x10, vga_mode1_config_t, x_pos_px, x_offset);
+    xram0_struct_set(canvas_struct - 0x10, vga_mode1_config_t, y_pos_px, y_offset);
+    xram0_struct_set(canvas_struct - 0x10, vga_mode1_config_t, width_chars, canvas_c);
+    xram0_struct_set(canvas_struct - 0x10, vga_mode1_config_t, height_chars, canvas_r);
+    xram0_struct_set(canvas_struct - 0x10, vga_mode1_config_t, xram_data_ptr, canvas_data);
+    xram0_struct_set(canvas_struct - 0x10, vga_mode1_config_t, xram_palette_ptr, GFX_CHARACTER_PAL_PTR);
+    xram0_struct_set(canvas_struct - 0x10, vga_mode1_config_t, xram_font_ptr, GFX_CHARACTER_FONT_PTR);
+
+    /* Top 16 scanlines as CONSOLE */
+    xreg(1, 0, 1, GFX_MODE_CONSOLE, GFX_PLANE_0, 1,16);
+    /* Next 8 scanlines as CHARACTER */
+    xreg(1, 0, 1, GFX_MODE_CHARACTER, font_bpp_opt, canvas_struct, GFX_PLANE_0,17,24);
+    /* Remaining scanlines as CONSOLE */
+    xreg(1, 0, 1, GFX_MODE_CONSOLE, GFX_PLANE_0,25,canvas_r);
 
     ClearDisplay(fg_clr, bg_clr);
 
