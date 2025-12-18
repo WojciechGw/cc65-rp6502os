@@ -1,6 +1,6 @@
 CC65 ?= cl65
 CMD ?= EXTCMD
-START ?= C000
+START ?= 9A00
 
 TARGET = $(CMD)
 SRCS = ../ext-$(TARGET).c crt0_cmd.s write_stub.c initmainargs.s

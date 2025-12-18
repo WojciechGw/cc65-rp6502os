@@ -4,12 +4,10 @@ project(MY-RP6502-PROJECT C ASM)
 
 add_subdirectory(tools)
 
-add_executable(ext-qasm)
-rp6502_executable(ext-qasm DATA 0x0200 RESET 0x0200)
-target_sources(ext-qasm PRIVATE
-    src/ext-qasm.c
-)
-
+add_executable(ext-mass)
+rp6502_executable(ext-mass DATA 0x9A00 RESET 0x9A00)
+target_sources(ext-mass PRIVATE src/ext-mass.c)
+target_link_options(ext-mass PRIVATE -C ${CMAKE_CURRENT_LIST_DIR}/tools/rp6502_9A00.cfg)
 
 add_executable(qasm)
 rp6502_executable(qasm

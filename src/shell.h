@@ -22,7 +22,7 @@
 #include "colors.h"
 
 extern struct _timezone _tz;
-#define SHELLVER "20251216.2300"
+#define SHELLVER "20251217.2359"
 #define SHELLDIRDEFAULT "USB0:/SHELL/"
 #define SHELLPROMPT "> "
 #define SHELLPROMPT_1ST "> " ANSI_GREEN "press F1 for help" ANSI_RESET " > "
@@ -37,7 +37,7 @@ extern struct _timezone _tz;
     #define __STACKSIZE__ 0x0800
 #endif
 #define MEMTOP (0xFD00-__STACKSIZE__)
-#define COM_LOAD_ADDR 0xA000      /* where to upload the code (binary shell extensions - .com files) */
+#define COM_LOAD_ADDR 0x9A00      /* where to upload the code (binary shell extensions - .com files) */
 
 #define GFX_CANVAS_CONSOLE 0
 #define GFX_CANVAS_320x240 1

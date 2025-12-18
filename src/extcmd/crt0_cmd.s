@@ -1,4 +1,4 @@
-.export __STARTUP__
+;.export __STARTUP__
 .import _main, initlib, donelib
 
 ARGC_LOC = $0200           ; must match shell RUN_ARGS_BASE

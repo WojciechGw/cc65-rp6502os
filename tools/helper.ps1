@@ -1,5 +1,5 @@
 param(
-    [string]$shellextstart = 'A000',
+    [string]$shellextstart = '9A00',
     [string]$shellextcmdname = 'help'
 )
 
