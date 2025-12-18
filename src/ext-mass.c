@@ -9,6 +9,8 @@
 #include <stdint.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include "ext-mass-opcodes.h"
+// #define OPCODES
 
 /* --- limity --- */
 #define MAXLINES    256
@@ -138,80 +140,10 @@ typedef struct {
 } asm_value_t;
 
 /* --- tryby i opkody --- */
-typedef enum {
-    M_IMP, M_ACC, M_IMM, M_ZP, M_ZPX, M_ZPY, M_ABS, M_ABSX, M_ABSY,
-    M_INDX, M_INDY, M_INDZP, M_INDABS, M_REL, M__COUNT
-} asm_mode_t;
-
-typedef struct {
-    const char* name;
-    int16_t op[M__COUNT];
-} asm_opdef_t;
-
-static const asm_opdef_t* g_def;
+// typedef struct { const char* name; int16_t op[M__COUNT]; } asm_opdef_t;
+// static const asm_opdef_t* g_def;
 static asm_value_t g_val;
 static asm_mode_t g_mode;
-
-#define XXXX -1
-static const asm_opdef_t ops[] = {
-/*      IMP    ACC   IMM   ZP    ZPX   ZPY   ABS   ABSX  ABSY  INDX  INDY INDZP INDABS REL */
-{"ADC", {XXXX, XXXX, 0x69, 0x65, 0x75, XXXX, 0x6D, 0x7D, 0x79, 0x61, 0x71, 0x72, XXXX, XXXX}}, 
-{"AND", {XXXX, XXXX, 0x29, 0x25, 0x35, XXXX, 0x2D, 0x3D, 0x39, 0x21, 0x31, 0x32, XXXX, XXXX}}, 
-{"ASL", {0x0A, 0x0A, XXXX, 0x06, 0x16, XXXX, 0x0E, 0x1E, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX}}, 
-{"BCC", {XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, 0x90}}, 
-{"BCS", {XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, 0xB0}}, 
-{"BEQ", {XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, 0xF0}}, 
-{"BMI", {XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, 0x30}}, 
-{"BNE", {XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, 0xD0}}, 
-{"BPL", {XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, 0x10}}, 
-{"BRA", {XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, 0x80}}, 
-{"BRK", {0x00, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX}}, 
-{"BVC", {XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, 0x50}}, 
-{"BVS", {XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, 0x70}}, 
-{"CLC", {0x18, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX}}, 
-{"CLD", {0xD8, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX}}, 
-{"CLI", {0x58, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX}}, 
-{"CLV", {0xB8, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX}}, 
-{"CMP", {XXXX, XXXX, 0xC9, 0xC5, 0xD5, XXXX, 0xCD, 0xDD, 0xD9, 0xC1, 0xD1, 0xD2, XXXX, XXXX}}, 
-{"CPX", {XXXX, XXXX, 0xE0, 0xE4, XXXX, XXXX, 0xEC, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX}}, 
-{"CPY", {XXXX, XXXX, 0xC0, 0xC4, XXXX, XXXX, 0xCC, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX}}, 
-{"DEC", {XXXX, XXXX, XXXX, 0xC6, 0xD6, XXXX, 0xCE, 0xDE, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX}}, 
-{"EOR", {XXXX, XXXX, 0x49, 0x45, 0x55, XXXX, 0x4D, 0x5D, 0x59, 0x41, 0x51, 0x52, XXXX, XXXX}}, 
-{"INC", {XXXX, XXXX, XXXX, 0xE6, 0xF6, XXXX, 0xEE, 0xFE, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX}}, 
-{"INX", {0xE8, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX}}, 
-{"INY", {0xC8, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX}}, 
-{"JMP", {XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, 0x4C, XXXX, XXXX, XXXX, XXXX, XXXX, 0x6C, XXXX}}, 
-{"JSR", {XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, 0x20, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX}}, 
-{"LDA", {XXXX, XXXX, 0xA9, 0xA5, 0xB5, XXXX, 0xAD, 0xBD, 0xB9, 0xA1, 0xB1, 0xB2, XXXX, XXXX}}, 
-{"LDX", {XXXX, XXXX, 0xA2, 0xA6, XXXX, 0xB6, 0xAE, 0xBE, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX}}, 
-{"LDY", {XXXX, XXXX, 0xA0, 0xA4, 0xB4, XXXX, 0xAC, 0xBC, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX}}, 
-{"LSR", {0x4A, 0x4A, XXXX, 0x46, 0x56, XXXX, 0x4E, 0x5E, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX}}, 
-{"NOP", {0xEA, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX}}, 
-{"ORA", {XXXX, XXXX, 0x09, 0x05, 0x15, XXXX, 0x0D, 0x1D, 0x19, 0x01, 0x11, 0x12, XXXX, XXXX}}, 
-{"PHA", {0x48, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX}}, 
-{"PHP", {0x08, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX}}, 
-{"PLA", {0x68, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX}}, 
-{"PLP", {0x28, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX}}, 
-{"ROL", {0x2A, 0x2A, XXXX, 0x26, 0x36, XXXX, 0x2E, 0x3E, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX}}, 
-{"ROR", {0x6A, 0x6A, XXXX, 0x66, 0x76, XXXX, 0x6E, 0x7E, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX}}, 
-{"RTI", {0x40, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX}}, 
-{"RTS", {0x60, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX}}, 
-{"SBC", {XXXX, XXXX, 0xE9, 0xE5, 0xF5, XXXX, 0xED, 0xFD, 0xF9, 0xE1, 0xF1, 0xF2, XXXX, XXXX}}, 
-{"SEC", {0x38, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX}}, 
-{"SED", {0xF8, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX}}, 
-{"SEI", {0x78, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX}}, 
-{"STA", {XXXX, XXXX, XXXX, 0x85, 0x95, XXXX, 0x8D, 0x9D, 0x99, 0x81, 0x91, 0x92, XXXX, XXXX}}, 
-{"STX", {XXXX, XXXX, XXXX, 0x86, XXXX, 0x96, 0x8E, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX}}, 
-{"STY", {XXXX, XXXX, XXXX, 0x84, 0x94, XXXX, 0x8C, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX}}, 
-{"STZ", {XXXX, XXXX, XXXX, 0x64, 0x74, XXXX, 0x9C, 0x9E, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX}}, 
-{"TAX", {0xAA, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX}}, 
-{"TAY", {0xA8, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX}}, 
-{"TSX", {0xBA, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX}}, 
-{"TXA", {0x8A, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX}}, 
-{"TXS", {0x9A, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX}}, 
-{"TYA", {0x98, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX, XXXX}}, 
-{0, {0}}
-};
 
 /* --- narzędzia --- */
 static int is_ident_start(int c){ return isalpha(c) || c=='_' || c=='.'; }
@@ -492,14 +424,14 @@ static asm_mode_t parse_operand_mode(const char* s, asm_value_t* val){
         if(len>79) len=79;
         memcpy(inner,s+1,len); inner[len]=0;
 
-        if(q[1]==',' && (q[2]=='Y'||q[2]=='y')){ parse_value_out(inner, val); val->force_zp = 0; return M_INDY; }
+        if(q[1]==',' && (q[2]=='Y'||q[2]=='y')){ parse_value_out(inner, val); val->force_zp = 0; return M_ZPINDY; }
         if(len>2 && inner[len-2]==',' && (inner[len-1]=='X'||inner[len-1]=='x')){
-            inner[len-2]=0; parse_value_out(inner, val); val->force_zp = 0; return M_INDX;
+            inner[len-2]=0; parse_value_out(inner, val); val->force_zp = 0; return M_ZPINDX;
         }
         parse_value_out(inner, val);
         val->force_zp = (unsigned)force_zp;
-        if(force_zp) return M_INDZP;
-        if(!val->is_label && val->op==V_NORMAL && val->num<=0xFF) return M_INDZP;
+        if(force_zp) return M_ZPIND;
+        if(!val->is_label && val->op==V_NORMAL && val->num<=0xFF) return M_ZPIND;
         return M_INDABS;
     }
 
@@ -681,13 +613,13 @@ static void pass1(void){
         g_mode = parse_operand_mode(g_op,&g_val);
         if(is_branch_mnemonic(g_MN)){
             parse_value_out(g_op, &g_val);
-            g_mode = M_REL;
+            g_mode = M_PCREL;
         }
         if(g_def->op[g_mode]<0){ printf("PASS1: unattended mode %s\n", g_MN); continue; }
 
         if(org==0xFFFF) org=pc;
         if(g_mode==M_IMP || g_mode==M_ACC) pc+=1;
-        else if(g_mode==M_IMM || g_mode==M_ZP || g_mode==M_ZPX || g_mode==M_ZPY || g_mode==M_INDX || g_mode==M_INDY || g_mode==M_INDZP || g_mode==M_REL) pc+=2;
+        else if(g_mode==M_IMM || g_mode==M_ZP || g_mode==M_ZPX || g_mode==M_ZPY || g_mode==M_ZPINDX || g_mode==M_ZPINDY || g_mode==M_ZPIND || g_mode==M_PCREL) pc+=2;
         else pc+=3;
     }
 }
@@ -807,15 +739,25 @@ static void pass2(void){
             g_mode   = parse_operand_mode(g_op,&g_val);
             if(is_branch_mnemonic(g_MN)){
                 parse_value_out(g_op, &g_val);
-                g_mode = M_REL;
+                g_mode = M_PCREL;
             }
+            #ifndef OPCODES
             g_opcode = g_def->op[g_mode];
+            #else
+            g_opcode = -1;
+            for (int i = 0; i < g_def->count; ++i) {
+                if (g_def->vars[i].mode == g_mode) {
+                    g_opcode = g_def->vars[i].opcode;
+                    break;
+                }
+            }
+            #endif
             if(g_opcode>=0){
                 emit_at((uint8_t)g_opcode, pc++);
                 if(g_mode==M_IMP || g_mode==M_ACC){
-                }else if(g_mode==M_IMM || g_mode==M_ZP || g_mode==M_ZPX || g_mode==M_ZPY || g_mode==M_INDX || g_mode==M_INDY || g_mode==M_INDZP){
+                }else if(g_mode==M_IMM || g_mode==M_ZP || g_mode==M_ZPX || g_mode==M_ZPY || g_mode==M_ZPINDX || g_mode==M_ZPINDY || g_mode==M_ZPIND){
                     uint16_t v16 = resolve_value(&g_val);
-                    if(g_val.force_zp && (g_mode==M_ZP || g_mode==M_ZPX || g_mode==M_ZPY || g_mode==M_INDZP) && v16 > 0xFF){
+                    if(g_val.force_zp && (g_mode==M_ZP || g_mode==M_ZPX || g_mode==M_ZPY || g_mode==M_ZPIND) && v16 > 0xFF){
                         printf("PASS2: warning: forced ZP truncates $%04X at line %d\n", v16, li+1);
                     }
                     emit_at((uint8_t)v16, pc++);
@@ -823,7 +765,7 @@ static void pass2(void){
                     uint16_t v16 = resolve_value(&g_val);
                     emit_at((uint8_t)(v16&0xFF), pc++);
                     emit_at((uint8_t)(v16>>8),   pc++);
-                }else if(g_mode==M_REL){
+                }else if(g_mode==M_PCREL){
                     uint16_t target = resolve_value(&g_val);
                     int16_t off = (int16_t)target - (int16_t)(pc + 1);
                     if(off < -128 || off > 127){
@@ -876,7 +818,6 @@ int main(int argc, char **argv){
     */
 
     printf("Mini ASSembler for 62C02S\r\n");
-    printf("Paste the code. Empty line start compilation.\r\n");
 
     nsym = 0;
     nlines = 0;
