@@ -81,8 +81,8 @@ static const cmd_t commands_ext[] = {
     { "help",       "show these informations", 
                     "help" NEWLINE
                     "help mkdir" NEWLINE
-                    "user can also write command and press <F1> key to get help information" },
-    { "keyboard",   "run keyboard status visualiser application", 
+                    "user can also write a command and press <F1> key to get help information" },
+    { "keyboard",   "run keyboard visualiser", 
                     "keyboard" NEWLINE
                     "for exit press both Shift keys" },
     { "label",      "show or set active drive's volume label", 
@@ -132,7 +132,7 @@ int main(int argc, char **argv) {
     }
 
     /* No args: print full list */
-    printf("\x1b" "c" "OS Shell help information" NEWLINE NEWLINE
+    printf("\x1b" "c" "OS Shell > Help information" NEWLINE NEWLINE
            "Description of a specified command : help <command>" NEWLINE NEWLINE
            "internal commands (case sensitive):" NEWLINE NEWLINE);
     for(i = 0; i < ARRAY_SIZE(commands); i++) {

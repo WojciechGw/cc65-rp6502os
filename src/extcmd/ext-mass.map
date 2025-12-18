@@ -1,15 +1,15 @@
 Modules list:
 -------------
-ext-mass.c.28852.0.o:
+ext-mass.c.12764.0.o:
     CODE              Offs=000000  Size=003AF0  Align=00001  Fill=0000
     RODATA            Offs=000000  Size=0008D2  Align=00001  Fill=0000
     BSS               Offs=000000  Size=000246  Align=00001  Fill=0000
     DATA              Offs=000000  Size=000008  Align=00001  Fill=0000
-crt0_cmd.s.28852.1.o:
+crt0_cmd.s.12764.1.o:
     STARTUP           Offs=000000  Size=00001B  Align=00001  Fill=0000
-write_stub.c.28852.2.o:
+write_stub.c.12764.2.o:
     CODE              Offs=003AF0  Size=00004C  Align=00001  Fill=0000
-initmainargs.s.28852.3.o:
+initmainargs.s.12764.3.o:
     STARTUP           Offs=00001B  Size=000001  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(_directerrno.o):
     CODE              Offs=003B3C  Size=000009  Align=00001  Fill=0000
@@ -236,96 +236,96 @@ Segment list:
 Name                   Start     End    Size  Align
 ----------------------------------------------------
 ZEROPAGE              000000  000019  00001A  00001
-STARTUP               009A00  009A46  000047  00001
-ONCE                  009A47  009A54  00000E  00001
-CODE                  009A55  00E780  004D2C  00001
-RODATA                00E781  00F0F9  000979  00001
-DATA                  00F0FA  00F14F  000056  00001
-BSS                   00F150  00F3CD  00027E  00001
+STARTUP               009000  009046  000047  00001
+ONCE                  009047  009054  00000E  00001
+CODE                  009055  00DD80  004D2C  00001
+RODATA                00DD81  00E6F9  000979  00001
+DATA                  00E6FA  00E74F  000056  00001
+BSS                   00E750  00E9CD  00027E  00001
 
 
 Exports list by name:
 ---------------------
-__BSS_RUN__               00F150 RLA    __BSS_SIZE__              00027E REA    
-__CONSTRUCTOR_COUNT__     000001 REA    __CONSTRUCTOR_TABLE__     009A53 RLA    
-__DATA_LOAD__             00F0FA RLA    __DATA_RUN__              00F0FA RLA    
+__BSS_RUN__               00E750 RLA    __BSS_SIZE__              00027E REA    
+__CONSTRUCTOR_COUNT__     000001 REA    __CONSTRUCTOR_TABLE__     009053 RLA    
+__DATA_LOAD__             00E6FA RLA    __DATA_RUN__              00E6FA RLA    
 __DATA_SIZE__             000056 REA    __DESTRUCTOR_COUNT__      000000 REA    
-__DESTRUCTOR_TABLE__      00F0FA RLA    __RAM_SIZE__              006100 REA    
-__RAM_START__             009A00 RLA    __STACKSIZE__             000200 REA    
-__STARTADDR__             009A00 REA    __STARTUP__               000001 REA    
-___directerrno            00D591 RLA    ___errno                  00FFED RLA    
-___oserror                00F398 RLA    ___seterrno               00D9D3 RLA    
-__ctype                   00F06F RLA    __ctypeidx                00F07A RLA    
-__fdesc                   00D59A RLA    __filetab                 00F102 RLA    
-__fopen                   00D5B7 RLA    __hextab                  00F053 RLA    
-__longminstr              00F063 RLA    __printf                  00D723 RLA    
-_close                    00DA3E RLA    _errno_opt_constructor    00DB05  LAI   
-_exit                     009A34 RLA    _fclose                   00DB0F RLA    
-_fgetc                    00DB2D RLA    _fgets                    00DB90 RLA    
-_fopen                    00DC09 RLA    _fwrite                   00DC21 RLA    
-_isalnum                  00DD00 RLA    _isalpha                  00DD08 RLA    
-_isdigit                  00DD10 RLA    _islower                  00DD18 RLA    
-_isspace                  00DD20 RLA    _isupper                  00DD28 RLA    
-_ltoa                     00DE9E RLA    _main                     00D053 RLA    
-_memcpy                   00DFD9 RLA    _open                     00E094 RLA    
-_printf                   00E113 RLA    _read                     00E19E RLA    
-_read_xstack              00E227 RLA    _ria_call_int             00E2C8 RLA    
-_ria_push_int             00E29B RLA    _ria_set_ax               00E2C1 RLA    
-_stdin                    00F11A RLA    _stdout                   00F11C RLA    
-_strchr                   00E32F RLA    _strcmp                   00E354 RLA    
-_strlen                   00E375 RLA    _strlower                 00E38B RLA    
-_strncpy                  00E3B2 RLA    _strrchr                  00E3F4 RLA    
-_strtoul                  00E418 RLA    _toupper                  00E67C RLA    
-_ultoa                    00DEDD RLA    _vfprintf                 00E714 RLA    
-_write                    00D545 RLA    _write_xram               00E73D RLA    
-addeq0sp                  00D9DC RLA    addeqysp                  00D9DE RLA    
-addysp                    00D9EE RLA    addysp1                   00D9ED RLA    
-axlong                    00DA17 RLA    axulong                   00DA1D RLA    
-bnegax                    00DA24 RLA    booleq                    00DFB3 RLA    
-boolugt                   00DFD2 RLA    c_sp                      000000 RLZ    
-checkferror               00DA32 RLA    copydata                  00DA5B RLA    
-ctypemask                 00DA88 RLA    ctypemaskdirect           00DA8C RLA    
-decax1                    00DAA6 RLA    decaxy                    00DAAD RLA    
-decsp2                    00DAB6 RLA    decsp3                    00DAC3 RLA    
-decsp4                    00DAD0 RLA    decsp6                    00DADD RLA    
-decsp8                    00DAEA RLA    donelib                   00DA4F RLA    
-enter                     00DAF7 RLA    getlop                    00DF28 RLA    
-incsp1                    00DCC6 RLA    incsp2                    00DCD4 RLA    
-incsp3                    00DCE2 RLA    incsp4                    00DCE7 RLA    
-incsp5                    00DCEC RLA    incsp6                    00DCF1 RLA    
-incsp7                    00DCF6 RLA    incsp8                    00DCFB RLA    
-initlib                   009A47 RLA    initmainargs              009A1B REA    
-ldax0sp                   00DD9C RLA    ldaxi                     00DD8F RLA    
-ldaxysp                   00DD9E RLA    ldeaxysp                  00DDA7 RLA    
-ldptr1ysp                 00DDBA RLA    leaa0sp                   00DDC4 RLA    
-leavey                    00DDDA RLA    mul8x16                   00E05C RLA    
-mul8x16a                  00E066 RLA    negeax                    00DE4A RLA    
-popax                     00DCCD RLA    popptr1                   00E105 RLA    
+__DESTRUCTOR_TABLE__      00E6FA RLA    __RAM_SIZE__              006B00 REA    
+__RAM_START__             009000 RLA    __STACKSIZE__             000200 REA    
+__STARTADDR__             009000 REA    __STARTUP__               000001 REA    
+___directerrno            00CB91 RLA    ___errno                  00FFED RLA    
+___oserror                00E998 RLA    ___seterrno               00CFD3 RLA    
+__ctype                   00E66F RLA    __ctypeidx                00E67A RLA    
+__fdesc                   00CB9A RLA    __filetab                 00E702 RLA    
+__fopen                   00CBB7 RLA    __hextab                  00E653 RLA    
+__longminstr              00E663 RLA    __printf                  00CD23 RLA    
+_close                    00D03E RLA    _errno_opt_constructor    00D105  LAI   
+_exit                     009034 RLA    _fclose                   00D10F RLA    
+_fgetc                    00D12D RLA    _fgets                    00D190 RLA    
+_fopen                    00D209 RLA    _fwrite                   00D221 RLA    
+_isalnum                  00D300 RLA    _isalpha                  00D308 RLA    
+_isdigit                  00D310 RLA    _islower                  00D318 RLA    
+_isspace                  00D320 RLA    _isupper                  00D328 RLA    
+_ltoa                     00D49E RLA    _main                     00C653 RLA    
+_memcpy                   00D5D9 RLA    _open                     00D694 RLA    
+_printf                   00D713 RLA    _read                     00D79E RLA    
+_read_xstack              00D827 RLA    _ria_call_int             00D8C8 RLA    
+_ria_push_int             00D89B RLA    _ria_set_ax               00D8C1 RLA    
+_stdin                    00E71A RLA    _stdout                   00E71C RLA    
+_strchr                   00D92F RLA    _strcmp                   00D954 RLA    
+_strlen                   00D975 RLA    _strlower                 00D98B RLA    
+_strncpy                  00D9B2 RLA    _strrchr                  00D9F4 RLA    
+_strtoul                  00DA18 RLA    _toupper                  00DC7C RLA    
+_ultoa                    00D4DD RLA    _vfprintf                 00DD14 RLA    
+_write                    00CB45 RLA    _write_xram               00DD3D RLA    
+addeq0sp                  00CFDC RLA    addeqysp                  00CFDE RLA    
+addysp                    00CFEE RLA    addysp1                   00CFED RLA    
+axlong                    00D017 RLA    axulong                   00D01D RLA    
+bnegax                    00D024 RLA    booleq                    00D5B3 RLA    
+boolugt                   00D5D2 RLA    c_sp                      000000 RLZ    
+checkferror               00D032 RLA    copydata                  00D05B RLA    
+ctypemask                 00D088 RLA    ctypemaskdirect           00D08C RLA    
+decax1                    00D0A6 RLA    decaxy                    00D0AD RLA    
+decsp2                    00D0B6 RLA    decsp3                    00D0C3 RLA    
+decsp4                    00D0D0 RLA    decsp6                    00D0DD RLA    
+decsp8                    00D0EA RLA    donelib                   00D04F RLA    
+enter                     00D0F7 RLA    getlop                    00D528 RLA    
+incsp1                    00D2C6 RLA    incsp2                    00D2D4 RLA    
+incsp3                    00D2E2 RLA    incsp4                    00D2E7 RLA    
+incsp5                    00D2EC RLA    incsp6                    00D2F1 RLA    
+incsp7                    00D2F6 RLA    incsp8                    00D2FB RLA    
+initlib                   009047 RLA    initmainargs              00901B REA    
+ldax0sp                   00D39C RLA    ldaxi                     00D38F RLA    
+ldaxysp                   00D39E RLA    ldeaxysp                  00D3A7 RLA    
+ldptr1ysp                 00D3BA RLA    leaa0sp                   00D3C4 RLA    
+leavey                    00D3DA RLA    mul8x16                   00D65C RLA    
+mul8x16a                  00D666 RLA    negeax                    00D44A RLA    
+popax                     00D2CD RLA    popptr1                   00D705 RLA    
 ptr1                      000008 RLZ    ptr2                      00000A RLZ    
 ptr3                      00000C RLZ    ptr4                      00000E RLZ    
-push0                     00E161 RLA    push1                     00E146 RLA    
-pusha                     00E14F RLA    pusha0                    00E163 RLA    
-pushax                    00E165 RLA    pusheax                   00DE6F RLA    
-pushl0                    00DE68 RLA    pushptr1                  00E17B RLA    
-pushw0sp                  00E182 RLA    pushwysp                  00E184 RLA    
+push0                     00D761 RLA    push1                     00D746 RLA    
+pusha                     00D74F RLA    pusha0                    00D763 RLA    
+pushax                    00D765 RLA    pusheax                   00D46F RLA    
+pushl0                    00D468 RLA    pushptr1                  00D77B RLA    
+pushw0sp                  00D782 RLA    pushwysp                  00D784 RLA    
 regbank                   000014 RLZ    regsave                   000004 RLZ    
-return0                   00E289 RLA    returnFFFF                00E28D RLA    
-shlax2                    00D9FB RLA    shlax4                    00DA06 RLA    
-sreg                      000002 RLZ    staspidx                  00E2DF RLA    
-stax0sp                   00E2F5 RLA    staxspidx                 00E300 RLA    
-staxysp                   00E2F7 RLA    steax0sp                  00E31A RLA    
-steaxysp                  00E31C RLA    subeq0sp                  00E65A RLA    
-subeqysp                  00E65C RLA    subysp                    00E66F RLA    
+return0                   00D889 RLA    returnFFFF                00D88D RLA    
+shlax2                    00CFFB RLA    shlax4                    00D006 RLA    
+sreg                      000002 RLZ    staspidx                  00D8DF RLA    
+stax0sp                   00D8F5 RLA    staxspidx                 00D900 RLA    
+staxysp                   00D8F7 RLA    steax0sp                  00D91A RLA    
+steaxysp                  00D91C RLA    subeq0sp                  00DC5A RLA    
+subeqysp                  00DC5C RLA    subysp                    00DC6F RLA    
 tmp1                      000010 RLZ    tmp2                      000011 RLZ    
 tmp3                      000012 RLZ    tmp4                      000013 RLZ    
-tosaddeax                 00DD36 RLA    toseqeax                  00DDEB RLA    
-tosicmp                   00DC9A RLA    tosicmp0                  00DC98 RLA    
-toslcmp                   00DD54 RLA    tossubax                  00E648 RLA    
-tosudivax                 00E690 RLA    tosudiveax                00DF1D RLA    
-tosugteax                 00DF90 RLA    tosumodeax                00DF9A RLA    
-tosumula0                 00E05A RLA    tosumulax                 00E015 RLA    
-tosumuleax                00DDF5 RLA    udiv32                    00DF4B RLA    
-zerobss                   00E75E RLA    
+tosaddeax                 00D336 RLA    toseqeax                  00D3EB RLA    
+tosicmp                   00D29A RLA    tosicmp0                  00D298 RLA    
+toslcmp                   00D354 RLA    tossubax                  00DC48 RLA    
+tosudivax                 00DC90 RLA    tosudiveax                00D51D RLA    
+tosugteax                 00D590 RLA    tosumodeax                00D59A RLA    
+tosumula0                 00D65A RLA    tosumulax                 00D615 RLA    
+tosumuleax                00D3F5 RLA    udiv32                    00D54B RLA    
+zerobss                   00DD5E RLA    
 
 
 Exports list by value:
@@ -339,76 +339,76 @@ tmp1                      000010 RLZ    tmp2                      000011 RLZ
 tmp3                      000012 RLZ    tmp4                      000013 RLZ    
 regbank                   000014 RLZ    __DATA_SIZE__             000056 REA    
 __STACKSIZE__             000200 REA    __BSS_SIZE__              00027E REA    
-__RAM_SIZE__              006100 REA    __STARTADDR__             009A00 REA    
-__RAM_START__             009A00 RLA    initmainargs              009A1B REA    
-_exit                     009A34 RLA    initlib                   009A47 RLA    
-__CONSTRUCTOR_TABLE__     009A53 RLA    _main                     00D053 RLA    
-_write                    00D545 RLA    ___directerrno            00D591 RLA    
-__fdesc                   00D59A RLA    __fopen                   00D5B7 RLA    
-__printf                  00D723 RLA    ___seterrno               00D9D3 RLA    
-addeq0sp                  00D9DC RLA    addeqysp                  00D9DE RLA    
-addysp1                   00D9ED RLA    addysp                    00D9EE RLA    
-shlax2                    00D9FB RLA    shlax4                    00DA06 RLA    
-axlong                    00DA17 RLA    axulong                   00DA1D RLA    
-bnegax                    00DA24 RLA    checkferror               00DA32 RLA    
-_close                    00DA3E RLA    donelib                   00DA4F RLA    
-copydata                  00DA5B RLA    ctypemask                 00DA88 RLA    
-ctypemaskdirect           00DA8C RLA    decax1                    00DAA6 RLA    
-decaxy                    00DAAD RLA    decsp2                    00DAB6 RLA    
-decsp3                    00DAC3 RLA    decsp4                    00DAD0 RLA    
-decsp6                    00DADD RLA    decsp8                    00DAEA RLA    
-enter                     00DAF7 RLA    _errno_opt_constructor    00DB05  LAI   
-_fclose                   00DB0F RLA    _fgetc                    00DB2D RLA    
-_fgets                    00DB90 RLA    _fopen                    00DC09 RLA    
-_fwrite                   00DC21 RLA    tosicmp0                  00DC98 RLA    
-tosicmp                   00DC9A RLA    incsp1                    00DCC6 RLA    
-popax                     00DCCD RLA    incsp2                    00DCD4 RLA    
-incsp3                    00DCE2 RLA    incsp4                    00DCE7 RLA    
-incsp5                    00DCEC RLA    incsp6                    00DCF1 RLA    
-incsp7                    00DCF6 RLA    incsp8                    00DCFB RLA    
-_isalnum                  00DD00 RLA    _isalpha                  00DD08 RLA    
-_isdigit                  00DD10 RLA    _islower                  00DD18 RLA    
-_isspace                  00DD20 RLA    _isupper                  00DD28 RLA    
-tosaddeax                 00DD36 RLA    toslcmp                   00DD54 RLA    
-ldaxi                     00DD8F RLA    ldax0sp                   00DD9C RLA    
-ldaxysp                   00DD9E RLA    ldeaxysp                  00DDA7 RLA    
-ldptr1ysp                 00DDBA RLA    leaa0sp                   00DDC4 RLA    
-leavey                    00DDDA RLA    toseqeax                  00DDEB RLA    
-tosumuleax                00DDF5 RLA    negeax                    00DE4A RLA    
-pushl0                    00DE68 RLA    pusheax                   00DE6F RLA    
-_ltoa                     00DE9E RLA    _ultoa                    00DEDD RLA    
-tosudiveax                00DF1D RLA    getlop                    00DF28 RLA    
-udiv32                    00DF4B RLA    tosugteax                 00DF90 RLA    
-tosumodeax                00DF9A RLA    booleq                    00DFB3 RLA    
-boolugt                   00DFD2 RLA    _memcpy                   00DFD9 RLA    
-tosumulax                 00E015 RLA    tosumula0                 00E05A RLA    
-mul8x16                   00E05C RLA    mul8x16a                  00E066 RLA    
-_open                     00E094 RLA    popptr1                   00E105 RLA    
-_printf                   00E113 RLA    push1                     00E146 RLA    
-pusha                     00E14F RLA    push0                     00E161 RLA    
-pusha0                    00E163 RLA    pushax                    00E165 RLA    
-pushptr1                  00E17B RLA    pushw0sp                  00E182 RLA    
-pushwysp                  00E184 RLA    _read                     00E19E RLA    
-_read_xstack              00E227 RLA    return0                   00E289 RLA    
-returnFFFF                00E28D RLA    _ria_push_int             00E29B RLA    
-_ria_set_ax               00E2C1 RLA    _ria_call_int             00E2C8 RLA    
-staspidx                  00E2DF RLA    stax0sp                   00E2F5 RLA    
-staxysp                   00E2F7 RLA    staxspidx                 00E300 RLA    
-steax0sp                  00E31A RLA    steaxysp                  00E31C RLA    
-_strchr                   00E32F RLA    _strcmp                   00E354 RLA    
-_strlen                   00E375 RLA    _strlower                 00E38B RLA    
-_strncpy                  00E3B2 RLA    _strrchr                  00E3F4 RLA    
-_strtoul                  00E418 RLA    tossubax                  00E648 RLA    
-subeq0sp                  00E65A RLA    subeqysp                  00E65C RLA    
-subysp                    00E66F RLA    _toupper                  00E67C RLA    
-tosudivax                 00E690 RLA    _vfprintf                 00E714 RLA    
-_write_xram               00E73D RLA    zerobss                   00E75E RLA    
-__hextab                  00F053 RLA    __longminstr              00F063 RLA    
-__ctype                   00F06F RLA    __ctypeidx                00F07A RLA    
-__DATA_LOAD__             00F0FA RLA    __DATA_RUN__              00F0FA RLA    
-__DESTRUCTOR_TABLE__      00F0FA RLA    __filetab                 00F102 RLA    
-_stdin                    00F11A RLA    _stdout                   00F11C RLA    
-__BSS_RUN__               00F150 RLA    ___oserror                00F398 RLA    
+__RAM_SIZE__              006B00 REA    __STARTADDR__             009000 REA    
+__RAM_START__             009000 RLA    initmainargs              00901B REA    
+_exit                     009034 RLA    initlib                   009047 RLA    
+__CONSTRUCTOR_TABLE__     009053 RLA    _main                     00C653 RLA    
+_write                    00CB45 RLA    ___directerrno            00CB91 RLA    
+__fdesc                   00CB9A RLA    __fopen                   00CBB7 RLA    
+__printf                  00CD23 RLA    ___seterrno               00CFD3 RLA    
+addeq0sp                  00CFDC RLA    addeqysp                  00CFDE RLA    
+addysp1                   00CFED RLA    addysp                    00CFEE RLA    
+shlax2                    00CFFB RLA    shlax4                    00D006 RLA    
+axlong                    00D017 RLA    axulong                   00D01D RLA    
+bnegax                    00D024 RLA    checkferror               00D032 RLA    
+_close                    00D03E RLA    donelib                   00D04F RLA    
+copydata                  00D05B RLA    ctypemask                 00D088 RLA    
+ctypemaskdirect           00D08C RLA    decax1                    00D0A6 RLA    
+decaxy                    00D0AD RLA    decsp2                    00D0B6 RLA    
+decsp3                    00D0C3 RLA    decsp4                    00D0D0 RLA    
+decsp6                    00D0DD RLA    decsp8                    00D0EA RLA    
+enter                     00D0F7 RLA    _errno_opt_constructor    00D105  LAI   
+_fclose                   00D10F RLA    _fgetc                    00D12D RLA    
+_fgets                    00D190 RLA    _fopen                    00D209 RLA    
+_fwrite                   00D221 RLA    tosicmp0                  00D298 RLA    
+tosicmp                   00D29A RLA    incsp1                    00D2C6 RLA    
+popax                     00D2CD RLA    incsp2                    00D2D4 RLA    
+incsp3                    00D2E2 RLA    incsp4                    00D2E7 RLA    
+incsp5                    00D2EC RLA    incsp6                    00D2F1 RLA    
+incsp7                    00D2F6 RLA    incsp8                    00D2FB RLA    
+_isalnum                  00D300 RLA    _isalpha                  00D308 RLA    
+_isdigit                  00D310 RLA    _islower                  00D318 RLA    
+_isspace                  00D320 RLA    _isupper                  00D328 RLA    
+tosaddeax                 00D336 RLA    toslcmp                   00D354 RLA    
+ldaxi                     00D38F RLA    ldax0sp                   00D39C RLA    
+ldaxysp                   00D39E RLA    ldeaxysp                  00D3A7 RLA    
+ldptr1ysp                 00D3BA RLA    leaa0sp                   00D3C4 RLA    
+leavey                    00D3DA RLA    toseqeax                  00D3EB RLA    
+tosumuleax                00D3F5 RLA    negeax                    00D44A RLA    
+pushl0                    00D468 RLA    pusheax                   00D46F RLA    
+_ltoa                     00D49E RLA    _ultoa                    00D4DD RLA    
+tosudiveax                00D51D RLA    getlop                    00D528 RLA    
+udiv32                    00D54B RLA    tosugteax                 00D590 RLA    
+tosumodeax                00D59A RLA    booleq                    00D5B3 RLA    
+boolugt                   00D5D2 RLA    _memcpy                   00D5D9 RLA    
+tosumulax                 00D615 RLA    tosumula0                 00D65A RLA    
+mul8x16                   00D65C RLA    mul8x16a                  00D666 RLA    
+_open                     00D694 RLA    popptr1                   00D705 RLA    
+_printf                   00D713 RLA    push1                     00D746 RLA    
+pusha                     00D74F RLA    push0                     00D761 RLA    
+pusha0                    00D763 RLA    pushax                    00D765 RLA    
+pushptr1                  00D77B RLA    pushw0sp                  00D782 RLA    
+pushwysp                  00D784 RLA    _read                     00D79E RLA    
+_read_xstack              00D827 RLA    return0                   00D889 RLA    
+returnFFFF                00D88D RLA    _ria_push_int             00D89B RLA    
+_ria_set_ax               00D8C1 RLA    _ria_call_int             00D8C8 RLA    
+staspidx                  00D8DF RLA    stax0sp                   00D8F5 RLA    
+staxysp                   00D8F7 RLA    staxspidx                 00D900 RLA    
+steax0sp                  00D91A RLA    steaxysp                  00D91C RLA    
+_strchr                   00D92F RLA    _strcmp                   00D954 RLA    
+_strlen                   00D975 RLA    _strlower                 00D98B RLA    
+_strncpy                  00D9B2 RLA    _strrchr                  00D9F4 RLA    
+_strtoul                  00DA18 RLA    tossubax                  00DC48 RLA    
+subeq0sp                  00DC5A RLA    subeqysp                  00DC5C RLA    
+subysp                    00DC6F RLA    _toupper                  00DC7C RLA    
+tosudivax                 00DC90 RLA    _vfprintf                 00DD14 RLA    
+_write_xram               00DD3D RLA    zerobss                   00DD5E RLA    
+__hextab                  00E653 RLA    __longminstr              00E663 RLA    
+__ctype                   00E66F RLA    __ctypeidx                00E67A RLA    
+__DATA_LOAD__             00E6FA RLA    __DATA_RUN__              00E6FA RLA    
+__DESTRUCTOR_TABLE__      00E6FA RLA    __filetab                 00E702 RLA    
+_stdin                    00E71A RLA    _stdout                   00E71C RLA    
+__BSS_RUN__               00E750 RLA    ___oserror                00E998 RLA    
 ___errno                  00FFED RLA    
 
 
@@ -437,13 +437,13 @@ __RAM_SIZE__ ([linker generated]):
 __RAM_START__ ([linker generated]):
     crt0.o                    rp6502/crt0.s:10
 __STACKSIZE__ ([linker generated]):
-    [linker generated]        ../ext0x9A00.cfg:9
+    [linker generated]        ../ext0x9000.cfg:9
 __STARTADDR__ ([linker generated]):
-    [linker generated]        ../ext0x9A00.cfg:9
-    [linker generated]        ../ext0x9A00.cfg:9
+    [linker generated]        ../ext0x9000.cfg:9
+    [linker generated]        ../ext0x9000.cfg:9
 __STARTUP__ (crt0.o):
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:13
-    [linker generated]        ../ext0x9A00.cfg:3
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:13
+    [linker generated]        ../ext0x9000.cfg:3
 ___directerrno (_directerrno.o):
     fclose.o                  common/fclose.s:10
 ___errno (errno.o):
@@ -476,45 +476,45 @@ __printf (_printf.o):
     vfprintf.o                common/vfprintf.s:10
 _close (close.o):
     fclose.o                  common/fclose.s:10
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:35
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:35
 _exit (crt0.o):
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:27
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:27
 _fclose (fclose.o):
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:17
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:17
 _fgetc (fgetc.o):
     fgets.o                   common/fgets.s:8
 _fgets (fgets.o):
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:18
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:18
 _fopen (fopen.o):
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:19
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:19
 _fwrite (fwrite.o):
     vfprintf.o                common/vfprintf.s:10
 _isalnum (isalnum.o):
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:29
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:29
 _isalpha (isalpha.o):
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:30
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:30
 _isdigit (isdigit.o):
     strtoul.o                 ../libwrk/rp6502/strtoul.s:18
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:31
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:31
 _islower (islower.o):
     strtoul.o                 ../libwrk/rp6502/strtoul.s:19
 _isspace (isspace.o):
     strtoul.o                 ../libwrk/rp6502/strtoul.s:20
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:32
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:32
 _isupper (isupper.o):
     strtoul.o                 ../libwrk/rp6502/strtoul.s:21
 _ltoa (ltoa.o):
     _printf.o                 common/_printf.s:12
-_main (ext-mass.c.28852.0.o):
+_main (ext-mass.c.12764.0.o):
     crt0.o                    rp6502/crt0.s:7
-    crt0_cmd.s.28852.1.o      crt0_cmd.s:2
+    crt0_cmd.s.12764.1.o      crt0_cmd.s:2
 _memcpy (memcpy.o):
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:26
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:26
 _open (open.o):
     _fopen.o                  common/_fopen.s:10
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:34
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:34
 _printf (printf.o):
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:20
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:20
 _read (read.o):
     fgetc.o                   common/fgetc.s:8
 _read_xstack (read_xstack.o):
@@ -534,59 +534,59 @@ _ria_set_ax (ria.o):
     open.o                    ../libwrk/rp6502/open.s:20
     close.o                   ../libwrk/rp6502/close.s:17
 _stdin (_file.o):
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:16
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:16
 _stdout (_file.o):
     printf.o                  common/printf.s:8
 _strchr (strchr.o):
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:21
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:21
 _strcmp (strcmp.o):
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:22
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:22
 _strlen (strlen.o):
     _printf.o                 common/_printf.s:13
     open.o                    ../libwrk/rp6502/open.s:23
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:23
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:23
 _strlower (strlower.o):
     _printf.o                 common/_printf.s:13
 _strncpy (strncpy.o):
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:24
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:24
 _strrchr (strrchr.o):
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:25
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:25
 _strtoul (strtoul.o):
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:28
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:28
 _toupper (toupper.o):
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:33
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:33
 _ultoa (ltoa.o):
     _printf.o                 common/_printf.s:12
 _vfprintf (vfprintf.o):
     printf.o                  common/printf.s:8
-_write (write_stub.c.28852.2.o):
+_write (write_stub.c.12764.2.o):
     fwrite.o                  common/fwrite.s:10
 _write_xram (write_xram.o):
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:15
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:15
 addeq0sp (addeqsp.o):
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
 addeqysp (addeqsp.o):
     read_xstack.o             ../libwrk/rp6502/read_xstack.s:94
     read.o                    ../libwrk/rp6502/read.s:116
     strtoul.o                 ../libwrk/rp6502/strtoul.s:369
-    write_stub.c.28852.2.o    write_stub.c.28852.2.s:64
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
+    write_stub.c.12764.2.o    write_stub.c.12764.2.s:64
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
 addysp (addysp.o):
     read_xstack.o             ../libwrk/rp6502/read_xstack.s:94
     read.o                    ../libwrk/rp6502/read.s:116
@@ -600,15 +600,15 @@ addysp (addysp.o):
     incsp5.o                  runtime/incsp5.s:8
     incsp4.o                  runtime/incsp4.s:8
     incsp3.o                  runtime/incsp3.s:8
-    write_stub.c.28852.2.o    write_stub.c.28852.2.s:64
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
+    write_stub.c.12764.2.o    write_stub.c.12764.2.s:64
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
 addysp1 (addysp.o):
     ludiv.o                   runtime/ludiv.s:9
     lmul.o                    runtime/lmul.s:9
@@ -621,10 +621,10 @@ axulong (axlong.o):
     _printf.o                 common/_printf.s:11
     strtoul.o                 ../libwrk/rp6502/strtoul.s:369
 bnegax (bneg.o):
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
 booleq (makebool.o):
     leq.o                     runtime/leq.s:8
 boolugt (makebool.o):
@@ -672,8 +672,8 @@ c_sp (zeropage.o):
     crt0.o                    /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:11
     addysp.o                  runtime/addysp.s:8
     addeqsp.o                 runtime/addeqsp.s:8
-    write_stub.c.28852.2.o    write_stub.c.28852.2.s:10
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:10
+    write_stub.c.12764.2.o    write_stub.c.12764.2.s:10
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:10
 checkferror (checkferror.o):
     fgetc.o                   common/fgetc.s:8
 copydata (copydata.o):
@@ -693,124 +693,124 @@ decax1 (decax1.o):
 decaxy (decaxy.o):
     strtoul.o                 ../libwrk/rp6502/strtoul.s:369
 decsp2 (decsp2.o):
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
 decsp3 (decsp3.o):
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
 decsp4 (decsp4.o):
     read_xstack.o             ../libwrk/rp6502/read_xstack.s:94
     lpush.o                   runtime/lpush.s:12
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
 decsp6 (decsp6.o):
     _printf.o                 common/_printf.s:11
     strtoul.o                 ../libwrk/rp6502/strtoul.s:369
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
 decsp8 (decsp8.o):
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
 donelib (condes.o):
     crt0.o                    rp6502/crt0.s:12
-    crt0_cmd.s.28852.1.o      crt0_cmd.s:2
+    crt0_cmd.s.12764.1.o      crt0_cmd.s:2
 enter (enter.o):
     open.o                    ../libwrk/rp6502/open.s:105
 getlop (ludiv.o):
     lumod.o                   runtime/lumod.s:9
 incsp1 (incsp1.o):
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
 incsp2 (incsp2.o):
     fgetc.o                   common/fgetc.s:9
     staxspi.o                 runtime/staxspi.s:9
     staspidx.o                runtime/staspidx.s:8
     popptr1.o                 runtime/popptr1.s:8
     close.o                   ../libwrk/rp6502/close.s:47
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
 incsp3 (incsp3.o):
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
 incsp4 (incsp4.o):
     lcmp.o                    runtime/lcmp.s:9
     read.o                    ../libwrk/rp6502/read.s:116
     _fopen.o                  common/_fopen.s:11
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
 incsp5 (incsp5.o):
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
 incsp6 (incsp6.o):
     fwrite.o                  common/fwrite.s:11
     write_xram.o              ../libwrk/rp6502/write_xram.s:57
     vfprintf.o                common/vfprintf.s:9
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
 incsp7 (incsp7.o):
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
 incsp8 (incsp8.o):
     read.o                    ../libwrk/rp6502/read.s:116
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
 initlib (condes.o):
     crt0.o                    rp6502/crt0.s:12
-    crt0_cmd.s.28852.1.o      crt0_cmd.s:2
-initmainargs (initmainargs.s.28852.3.o):
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:14
+    crt0_cmd.s.12764.1.o      crt0_cmd.s:2
+initmainargs (initmainargs.s.12764.3.o):
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:14
 ldax0sp (ldaxsp.o):
     read_xstack.o             ../libwrk/rp6502/read_xstack.s:94
     read.o                    ../libwrk/rp6502/read.s:116
@@ -892,8 +892,8 @@ ptr1 (zeropage.o):
     memcpy.o                  common/memcpy.s:15
     fgets.o                   common/fgets.s:9
     fclose.o                  common/fclose.s:11
-    write_stub.c.28852.2.o    write_stub.c.28852.2.s:11
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:11
+    write_stub.c.12764.2.o    write_stub.c.12764.2.s:11
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:11
 ptr2 (zeropage.o):
     strlower.o                common/strlower.s:13
     lumod.o                   runtime/lumod.s:10
@@ -920,32 +920,32 @@ ptr4 (zeropage.o):
 push0 (pushax.o):
     read.o                    ../libwrk/rp6502/read.s:116
     strtoul.o                 ../libwrk/rp6502/strtoul.s:369
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
 push1 (push1.o):
     _printf.o                 common/_printf.s:11
     vfprintf.o                common/vfprintf.s:9
 pusha (pusha.o):
     strtoul.o                 ../libwrk/rp6502/strtoul.s:369
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
 pusha0 (pushax.o):
     push1.o                   runtime/push1.s:8
     fwrite.o                  common/fwrite.s:11
     fgetc.o                   common/fgetc.s:9
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
 pushax (pushax.o):
     read_xstack.o             ../libwrk/rp6502/read_xstack.s:94
     read.o                    ../libwrk/rp6502/read.s:116
@@ -959,46 +959,46 @@ pushax (pushax.o):
     open.o                    ../libwrk/rp6502/open.s:105
     fopen.o                   common/fopen.s:11
     close.o                   ../libwrk/rp6502/close.s:47
-    write_stub.c.28852.2.o    write_stub.c.28852.2.s:64
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
+    write_stub.c.12764.2.o    write_stub.c.12764.2.s:64
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
 pusheax (lpush.o):
     _printf.o                 common/_printf.s:11
     strtoul.o                 ../libwrk/rp6502/strtoul.s:369
@@ -1007,35 +1007,35 @@ pushl0 (lpush.o):
 pushptr1 (pushptr1.o):
     fgets.o                   common/fgets.s:8
 pushw0sp (pushwsp.o):
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
 pushwysp (pushwsp.o):
     read.o                    ../libwrk/rp6502/read.s:116
     fwrite.o                  common/fwrite.s:11
     vfprintf.o                common/vfprintf.s:9
-    write_stub.c.28852.2.o    write_stub.c.28852.2.s:64
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
+    write_stub.c.12764.2.o    write_stub.c.12764.2.s:64
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
 regbank (zeropage.o):
     _printf.o                 /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:14
     strtoul.o                 ../libwrk/rp6502/strtoul.s:10
 regsave (zeropage.o):
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:10
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:10
 return0 (return0.o):
     _fopen.o                  common/_fopen.s:11
     _fdesc.o                  common/_fdesc.s:9
@@ -1043,9 +1043,9 @@ return0 (return0.o):
 returnFFFF (returnFFFF.o):
     fgetc.o                   common/fgetc.s:9
 shlax2 (aslax2.o):
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
 shlax4 (aslax4.o):
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
 sreg (zeropage.o):
     lcmp.o                    runtime/lcmp.s:10
     udiv.o                    runtime/udiv.s:10
@@ -1063,50 +1063,50 @@ sreg (zeropage.o):
     steaxsp.o                 runtime/steaxsp.s:8
     ria.o                     rp6502/ria.s:13
     icmp.o                    runtime/icmp.s:9
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:10
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:10
 staspidx (staspidx.o):
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
 stax0sp (staxsp.o):
     read_xstack.o             ../libwrk/rp6502/read_xstack.s:94
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
 staxspidx (staxspi.o):
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
 staxysp (staxsp.o):
     read_xstack.o             ../libwrk/rp6502/read_xstack.s:94
     strtoul.o                 ../libwrk/rp6502/strtoul.s:369
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
 steax0sp (steaxsp.o):
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
 steaxysp (steaxsp.o):
     strtoul.o                 ../libwrk/rp6502/strtoul.s:369
 subeq0sp (subeqsp.o):
     open.o                    ../libwrk/rp6502/open.s:105
-    write_stub.c.28852.2.o    write_stub.c.28852.2.s:64
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
+    write_stub.c.12764.2.o    write_stub.c.12764.2.s:64
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
 subeqysp (subeqsp.o):
     read.o                    ../libwrk/rp6502/read.s:116
 subysp (subysp.o):
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
 tmp1 (zeropage.o):
     mul.o                     runtime/mul.s:10
     ltoa.o                    common/ltoa.s:11
@@ -1122,7 +1122,7 @@ tmp1 (zeropage.o):
     staspidx.o                runtime/staspidx.s:9
     aslax4.o                  runtime/aslax4.s:8
     aslax2.o                  runtime/aslax2.s:8
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:11
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:11
 tmp2 (zeropage.o):
     lmul.o                    runtime/lmul.s:10
     strrchr.o                 common/strrchr.s:10
@@ -1141,17 +1141,17 @@ tosaddeax (ladd.o):
 toseqeax (leq.o):
     strtoul.o                 ../libwrk/rp6502/strtoul.s:369
 tosicmp (icmp.o):
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
 tosicmp0 (icmp.o):
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
 toslcmp (lcmp.o):
     lugt.o                    runtime/lugt.s:8
     leq.o                     runtime/leq.s:8
 tossubax (sub.o):
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
 tosudivax (udiv.o):
     fwrite.o                  common/fwrite.s:12
 tosudiveax (ludiv.o):
@@ -1161,7 +1161,7 @@ tosugteax (lugt.o):
 tosumodeax (lumod.o):
     strtoul.o                 ../libwrk/rp6502/strtoul.s:369
 tosumula0 (mul8.o):
-    ext-mass.c.28852.0.o      ext-mass.c.28852.0.s:9219
+    ext-mass.c.12764.0.o      ext-mass.c.12764.0.s:9219
 tosumulax (mul.o):
     fwrite.o                  common/fwrite.s:12
 tosumuleax (lmul.o):

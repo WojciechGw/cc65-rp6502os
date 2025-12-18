@@ -256,9 +256,9 @@ int main(int argc, char **argv) {
     if(argc == 1 && strcmp(argv[0], "/?") == 0) {
         // notice lack of filename extension
         printf (NEWLINE 
-                "Keyboard Status Visualiser " NEWLINE
+                "OS Shell > Keyboard Visualiser " NEWLINE
                 NEWLINE
-                "press and hold both Shift keys to exit" NEWLINE
+                "EXIT - press and hold both Shift keys" NEWLINE
                 NEWLINE
             ); 
         #ifdef DEBUG
@@ -271,7 +271,7 @@ int main(int argc, char **argv) {
     }
 
     printf("\x1b" "c" "\x1b[?25l");
-    printf("\x1b" POS_APPHEADER "Keyboard Status Visualiser");
+    printf("\x1b" POS_APPHEADER "OS Shell > Keyboard Visualiser");
     
     #ifdef VSYNCWAIT 
     v = RIA.vsync;

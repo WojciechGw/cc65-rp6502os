@@ -22,22 +22,26 @@
 #include "colors.h"
 
 extern struct _timezone _tz;
-#define SHELLVER "20251218.1830"
-#define SHELLDIRDEFAULT "USB0:/SHELL/"
-#define SHELLPROMPT "> "
-#define SHELLPROMPT_1ST "> " ANSI_GREEN "press F1 for help" ANSI_RESET " > "
-
-#define APP_MSG_START "\x1b" "[12;24HOS Shell activates, please wait ..."
-#define APP_MSG_TITLE "OS Shell for Picocomputer 6502 (native mode)               version " SHELLVER NEWLINE NEWLINE
-#define APP_MSG_EXIT NEWLINE "Exiting to the monitor." NEWLINE "Bye, bye !" NEWLINE NEWLINE
-
-#define NEWLINE  "\r\n"
 
 #ifndef __STACKSIZE__
     #define __STACKSIZE__ 0x0800
 #endif
 #define MEMTOP (0xFD00-__STACKSIZE__)
 #define COM_LOAD_ADDR 0x9000      /* where to upload the code (binary shell extensions - .com files) */
+#define STR_HELPER(x) #x
+#define STR(x) STR_HELPER(x)
+
+#define SHELLVER "20251218.1930"
+#define SHELLDIRDEFAULT "USB0:/SHELL/"
+#define SHELLPROMPT "> "
+#define SHELLPROMPT_1ST "> " ANSI_GREEN "[F1] help" ANSI_RESET " > "
+
+#define APP_MSG_START "\x1b[12;24HOS Shell activates, please wait \x1b[13;37H" ANSI_DARK_GRAY ".....\x1b[5D" ANSI_RESET
+#define APP_MSG_TITLE "\x1b[1;1HOS Shell for Picocomputer 6502 (native mode)               version " SHELLVER
+#define APP_MSG_HELP_COMADDRESS "\x1b[30;1H" ANSI_DARK_GRAY "Hint: press F1 for help RUN ADDRESS:" STR(COM_LOAD_ADDR) " version " SHELLVER ANSI_RESET
+#define APP_MSG_EXIT NEWLINE "Exiting to the monitor." NEWLINE "Bye, bye !" NEWLINE NEWLINE
+
+#define NEWLINE "\r\n"
 
 /*
 #define GFX_CANVAS_CONSOLE 0

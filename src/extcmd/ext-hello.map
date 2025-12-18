@@ -1,13 +1,13 @@
 Modules list:
 -------------
-ext-hello.c.14600.0.o:
+ext-hello.c.20944.0.o:
     CODE              Offs=000000  Size=0000BD  Align=00001  Fill=0000
     RODATA            Offs=000000  Size=000072  Align=00001  Fill=0000
-crt0_cmd.s.14600.1.o:
+crt0_cmd.s.20944.1.o:
     STARTUP           Offs=000000  Size=00001B  Align=00001  Fill=0000
-write_stub.c.14600.2.o:
+write_stub.c.20944.2.o:
     CODE              Offs=0000BD  Size=00004C  Align=00001  Fill=0000
-initmainargs.s.14600.3.o:
+initmainargs.s.20944.3.o:
     STARTUP           Offs=00001B  Size=000001  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(_file.o):
     DATA              Offs=000000  Size=00001E  Align=00001  Fill=0000
@@ -31,61 +31,67 @@ C:\@prg\cc65\lib/rp6502.lib(condes.o):
     CODE              Offs=0004DF  Size=00000C  Align=00001  Fill=0000
     DATA              Offs=000021  Size=000025  Align=00001  Fill=0000
     ONCE              Offs=000000  Size=00000C  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(copydata.o):
+    CODE              Offs=0004EB  Size=00002D  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(crt0.o):
+    STARTUP           Offs=00001C  Size=00002B  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(ctype.o):
     RODATA            Offs=00008E  Size=00008B  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(ctypemask.o):
-    CODE              Offs=0004EB  Size=00001E  Align=00001  Fill=0000
+    CODE              Offs=000518  Size=00001E  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(decsp2.o):
-    CODE              Offs=000509  Size=00000D  Align=00001  Fill=0000
+    CODE              Offs=000536  Size=00000D  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(decsp4.o):
-    CODE              Offs=000516  Size=00000D  Align=00001  Fill=0000
+    CODE              Offs=000543  Size=00000D  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(decsp6.o):
-    CODE              Offs=000523  Size=00000D  Align=00001  Fill=0000
+    CODE              Offs=000550  Size=00000D  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(errno.o):
-    CODE              Offs=000530  Size=00000A  Align=00001  Fill=0000
+    CODE              Offs=00055D  Size=00000A  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(fwrite.o):
-    CODE              Offs=00053A  Size=000077  Align=00001  Fill=0000
+    CODE              Offs=000567  Size=000077  Align=00001  Fill=0000
     BSS               Offs=00002B  Size=000002  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(incsp2.o):
-    CODE              Offs=0005B1  Size=000015  Align=00001  Fill=0000
+    CODE              Offs=0005DE  Size=000015  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(incsp6.o):
-    CODE              Offs=0005C6  Size=000005  Align=00001  Fill=0000
+    CODE              Offs=0005F3  Size=000005  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(ldaxsp.o):
-    CODE              Offs=0005CB  Size=000009  Align=00001  Fill=0000
+    CODE              Offs=0005F8  Size=000009  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(lneg.o):
-    CODE              Offs=0005D4  Size=00001E  Align=00001  Fill=0000
+    CODE              Offs=000601  Size=00001E  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(lpush.o):
-    CODE              Offs=0005F2  Size=00001E  Align=00001  Fill=0000
+    CODE              Offs=00061F  Size=00001E  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(ltoa.o):
-    CODE              Offs=000610  Size=000093  Align=00001  Fill=0000
+    CODE              Offs=00063D  Size=000093  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(mul.o):
-    CODE              Offs=0006A3  Size=000045  Align=00001  Fill=0000
+    CODE              Offs=0006D0  Size=000045  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(mul8.o):
-    CODE              Offs=0006E8  Size=00003A  Align=00001  Fill=0000
+    CODE              Offs=000715  Size=00003A  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(popptr1.o):
-    CODE              Offs=000722  Size=00000E  Align=00001  Fill=0000
+    CODE              Offs=00074F  Size=00000E  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(printf.o):
-    CODE              Offs=000730  Size=000033  Align=00001  Fill=0000
+    CODE              Offs=00075D  Size=000033  Align=00001  Fill=0000
     BSS               Offs=00002D  Size=000001  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(push1.o):
-    CODE              Offs=000763  Size=000005  Align=00001  Fill=0000
+    CODE              Offs=000790  Size=000005  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(pushax.o):
-    CODE              Offs=000768  Size=00001A  Align=00001  Fill=0000
+    CODE              Offs=000795  Size=00001A  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(pushwsp.o):
-    CODE              Offs=000782  Size=00001C  Align=00001  Fill=0000
+    CODE              Offs=0007AF  Size=00001C  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(ria.o):
-    CODE              Offs=00079E  Size=00004E  Align=00001  Fill=0000
+    CODE              Offs=0007CB  Size=00004E  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(strlen.o):
-    CODE              Offs=0007EC  Size=000016  Align=00001  Fill=0000
+    CODE              Offs=000819  Size=000016  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(strlower.o):
-    CODE              Offs=000802  Size=000027  Align=00001  Fill=0000
+    CODE              Offs=00082F  Size=000027  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(subeqsp.o):
-    CODE              Offs=000829  Size=000015  Align=00001  Fill=0000
+    CODE              Offs=000856  Size=000015  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(udiv.o):
-    CODE              Offs=00083E  Size=00004F  Align=00001  Fill=0000
+    CODE              Offs=00086B  Size=00004F  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(vfprintf.o):
-    CODE              Offs=00088D  Size=000060  Align=00001  Fill=0000
+    CODE              Offs=0008BA  Size=000060  Align=00001  Fill=0000
     DATA              Offs=000046  Size=000008  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(zerobss.o):
+    CODE              Offs=00091A  Size=000023  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(zeropage.o):
     ZEROPAGE          Offs=000000  Size=00001A  Align=00001  Fill=0000
 
@@ -95,104 +101,126 @@ Segment list:
 Name                   Start     End    Size  Align
 ----------------------------------------------------
 ZEROPAGE              000000  000019  00001A  00001
-STARTUP               009A00  009A1B  00001C  00001
-ONCE                  009A1C  009A29  00000E  00001
-CODE                  009A2A  00A316  0008ED  00001
-RODATA                00A317  00A42F  000119  00001
-DATA                  00A430  00A47D  00004E  00001
-BSS                   00A47E  00A4AB  00002E  00001
+STARTUP               009000  009046  000047  00001
+ONCE                  009047  009054  00000E  00001
+CODE                  009055  009991  00093D  00001
+RODATA                009992  009AAA  000119  00001
+DATA                  009AAB  009AF8  00004E  00001
+BSS                   009AF9  009B26  00002E  00001
 
 
 Exports list by name:
 ---------------------
-__CONSTRUCTOR_COUNT__     000001 REA    __CONSTRUCTOR_TABLE__     009A28 RLA    
-__DESTRUCTOR_COUNT__      000000 REA    __DESTRUCTOR_TABLE__      00A430 RLA    
-__STACKSIZE__             000400 REA    __STARTADDR__             009A00 REA    
-__STARTUP__               009A00 RLA    ___errno                  00FFED RLA    
-___seterrno               009ED4 RLA    __ctype                   00A3A5 RLA    
-__ctypeidx                00A3B0 RLA    __hextab                  00A389 RLA    
-__longminstr              00A399 RLA    __printf                  009C24 RLA    
-_errno_opt_constructor    009F5A  LAI   _fwrite                   009F64 RLA    
-_ltoa                     00A052 RLA    _main                     009A2A RLA    
-_printf                   00A15A RLA    _ria_call_int             00A1FF RLA    
-_stdout                   00A44A RLA    _strlen                   00A216 RLA    
-_strlower                 00A22C RLA    _ultoa                    00A091 RLA    
-_vfprintf                 00A2EE RLA    _write                    009AE7 RLA    
-addeq0sp                  009EDD RLA    addeqysp                  009EDF RLA    
-addysp                    009EEF RLA    axlong                    009EFC RLA    
-axulong                   009F02 RLA    c_sp                      000000 RLZ    
-ctypemaskdirect           009F19 RLA    decsp2                    009F33 RLA    
-decsp4                    009F40 RLA    decsp6                    009F4D RLA    
-donelib                   009F09 RLA    incsp2                    009FE2 RLA    
-incsp6                    009FF0 RLA    initlib                   009A1C RLA    
-initmainargs              009A1B REA    ldaxysp                   009FF7 RLA    
-mul8x16                   00A114 RLA    mul8x16a                  00A11E RLA    
-negeax                    009FFE RLA    popax                     009FDB RLA    
-popptr1                   00A14C RLA    ptr1                      000008 RLZ    
+__BSS_RUN__               009AF9 RLA    __BSS_SIZE__              00002E REA    
+__CONSTRUCTOR_COUNT__     000001 REA    __CONSTRUCTOR_TABLE__     009053 RLA    
+__DATA_LOAD__             009AAB RLA    __DATA_RUN__              009AAB RLA    
+__DATA_SIZE__             00004E REA    __DESTRUCTOR_COUNT__      000000 REA    
+__DESTRUCTOR_TABLE__      009AAB RLA    __RAM_SIZE__              006B00 REA    
+__RAM_START__             009000 RLA    __STACKSIZE__             000200 REA    
+__STARTADDR__             009000 REA    __STARTUP__               000001 REA    
+___errno                  00FFED RLA    ___seterrno               0094FF RLA    
+__ctype                   009A20 RLA    __ctypeidx                009A2B RLA    
+__hextab                  009A04 RLA    __longminstr              009A14 RLA    
+__printf                  00924F RLA    _errno_opt_constructor    0095B2  LAI   
+_fwrite                   0095BC RLA    _ltoa                     0096AA RLA    
+_main                     009055 RLA    _printf                   0097B2 RLA    
+_ria_call_int             009857 RLA    _stdout                   009AC5 RLA    
+_strlen                   00986E RLA    _strlower                 009884 RLA    
+_ultoa                    0096E9 RLA    _vfprintf                 009946 RLA    
+_write                    009112 RLA    addeq0sp                  009508 RLA    
+addeqysp                  00950A RLA    addysp                    00951A RLA    
+axlong                    009527 RLA    axulong                   00952D RLA    
+c_sp                      000000 RLZ    copydata                  009540 RLA    
+ctypemaskdirect           009571 RLA    decsp2                    00958B RLA    
+decsp4                    009598 RLA    decsp6                    0095A5 RLA    
+donelib                   009534 RLA    incsp2                    00963A RLA    
+incsp6                    009648 RLA    initlib                   009047 RLA    
+initmainargs              00901B REA    ldaxysp                   00964F RLA    
+mul8x16                   00976C RLA    mul8x16a                  009776 RLA    
+negeax                    009656 RLA    popax                     009633 RLA    
+popptr1                   0097A4 RLA    ptr1                      000008 RLZ    
 ptr2                      00000A RLZ    ptr3                      00000C RLZ    
-ptr4                      00000E RLZ    push1                     00A18D RLA    
-pusha0                    00A194 RLA    pushax                    00A196 RLA    
-pusheax                   00A023 RLA    pushwysp                  00A1AE RLA    
+ptr4                      00000E RLZ    push1                     0097E5 RLA    
+pusha0                    0097EC RLA    pushax                    0097EE RLA    
+pusheax                   00967B RLA    pushwysp                  009806 RLA    
 regbank                   000014 RLZ    sreg                      000002 RLZ    
-subeq0sp                  00A253 RLA    tmp1                      000010 RLZ    
-tosudivax                 00A26A RLA    tosumulax                 00A0CD RLA    
-
+subeq0sp                  0098AB RLA    tmp1                      000010 RLZ    
+tosudivax                 0098C2 RLA    tosumulax                 009725 RLA    
+zerobss                   00996F RLA    
 
 
 Exports list by value:
 ----------------------
-c_sp                      000000 RLZ    __DESTRUCTOR_COUNT__      000000 REA    
-__CONSTRUCTOR_COUNT__     000001 REA    sreg                      000002 RLZ    
-ptr1                      000008 RLZ    ptr2                      00000A RLZ    
-ptr3                      00000C RLZ    ptr4                      00000E RLZ    
-tmp1                      000010 RLZ    regbank                   000014 RLZ    
-__STACKSIZE__             000400 REA    __STARTADDR__             009A00 REA    
-__STARTUP__               009A00 RLA    initmainargs              009A1B REA    
-initlib                   009A1C RLA    __CONSTRUCTOR_TABLE__     009A28 RLA    
-_main                     009A2A RLA    _write                    009AE7 RLA    
-__printf                  009C24 RLA    ___seterrno               009ED4 RLA    
-addeq0sp                  009EDD RLA    addeqysp                  009EDF RLA    
-addysp                    009EEF RLA    axlong                    009EFC RLA    
-axulong                   009F02 RLA    donelib                   009F09 RLA    
-ctypemaskdirect           009F19 RLA    decsp2                    009F33 RLA    
-decsp4                    009F40 RLA    decsp6                    009F4D RLA    
-_errno_opt_constructor    009F5A  LAI   _fwrite                   009F64 RLA    
-popax                     009FDB RLA    incsp2                    009FE2 RLA    
-incsp6                    009FF0 RLA    ldaxysp                   009FF7 RLA    
-negeax                    009FFE RLA    pusheax                   00A023 RLA    
-_ltoa                     00A052 RLA    _ultoa                    00A091 RLA    
-tosumulax                 00A0CD RLA    mul8x16                   00A114 RLA    
-mul8x16a                  00A11E RLA    popptr1                   00A14C RLA    
-_printf                   00A15A RLA    push1                     00A18D RLA    
-pusha0                    00A194 RLA    pushax                    00A196 RLA    
-pushwysp                  00A1AE RLA    _ria_call_int             00A1FF RLA    
-_strlen                   00A216 RLA    _strlower                 00A22C RLA    
-subeq0sp                  00A253 RLA    tosudivax                 00A26A RLA    
-_vfprintf                 00A2EE RLA    __hextab                  00A389 RLA    
-__longminstr              00A399 RLA    __ctype                   00A3A5 RLA    
-__ctypeidx                00A3B0 RLA    __DESTRUCTOR_TABLE__      00A430 RLA    
-_stdout                   00A44A RLA    ___errno                  00FFED RLA    
-
+__DESTRUCTOR_COUNT__      000000 REA    c_sp                      000000 RLZ    
+__CONSTRUCTOR_COUNT__     000001 REA    __STARTUP__               000001 REA    
+sreg                      000002 RLZ    ptr1                      000008 RLZ    
+ptr2                      00000A RLZ    ptr3                      00000C RLZ    
+ptr4                      00000E RLZ    tmp1                      000010 RLZ    
+regbank                   000014 RLZ    __BSS_SIZE__              00002E REA    
+__DATA_SIZE__             00004E REA    __STACKSIZE__             000200 REA    
+__RAM_SIZE__              006B00 REA    __RAM_START__             009000 RLA    
+__STARTADDR__             009000 REA    initmainargs              00901B REA    
+initlib                   009047 RLA    __CONSTRUCTOR_TABLE__     009053 RLA    
+_main                     009055 RLA    _write                    009112 RLA    
+__printf                  00924F RLA    ___seterrno               0094FF RLA    
+addeq0sp                  009508 RLA    addeqysp                  00950A RLA    
+addysp                    00951A RLA    axlong                    009527 RLA    
+axulong                   00952D RLA    donelib                   009534 RLA    
+copydata                  009540 RLA    ctypemaskdirect           009571 RLA    
+decsp2                    00958B RLA    decsp4                    009598 RLA    
+decsp6                    0095A5 RLA    _errno_opt_constructor    0095B2  LAI   
+_fwrite                   0095BC RLA    popax                     009633 RLA    
+incsp2                    00963A RLA    incsp6                    009648 RLA    
+ldaxysp                   00964F RLA    negeax                    009656 RLA    
+pusheax                   00967B RLA    _ltoa                     0096AA RLA    
+_ultoa                    0096E9 RLA    tosumulax                 009725 RLA    
+mul8x16                   00976C RLA    mul8x16a                  009776 RLA    
+popptr1                   0097A4 RLA    _printf                   0097B2 RLA    
+push1                     0097E5 RLA    pusha0                    0097EC RLA    
+pushax                    0097EE RLA    pushwysp                  009806 RLA    
+_ria_call_int             009857 RLA    _strlen                   00986E RLA    
+_strlower                 009884 RLA    subeq0sp                  0098AB RLA    
+tosudivax                 0098C2 RLA    _vfprintf                 009946 RLA    
+zerobss                   00996F RLA    __hextab                  009A04 RLA    
+__longminstr              009A14 RLA    __ctype                   009A20 RLA    
+__ctypeidx                009A2B RLA    __DATA_LOAD__             009AAB RLA    
+__DATA_RUN__              009AAB RLA    __DESTRUCTOR_TABLE__      009AAB RLA    
+_stdout                   009AC5 RLA    __BSS_RUN__               009AF9 RLA    
+___errno                  00FFED RLA    
 
 
 Imports list:
 -------------
+__BSS_RUN__ ([linker generated]):
+    zerobss.o                 common/zerobss.s:8
+__BSS_SIZE__ ([linker generated]):
+    zerobss.o                 common/zerobss.s:8
 __CONSTRUCTOR_COUNT__ ([linker generated]):
     condes.o                  runtime/condes.s:18
 __CONSTRUCTOR_TABLE__ ([linker generated]):
     condes.o                  runtime/condes.s:18
+__DATA_LOAD__ ([linker generated]):
+    copydata.o                common/copydata.s:8
+__DATA_RUN__ ([linker generated]):
+    copydata.o                common/copydata.s:8
+__DATA_SIZE__ ([linker generated]):
+    copydata.o                common/copydata.s:8
 __DESTRUCTOR_COUNT__ ([linker generated]):
     condes.o                  runtime/condes.s:19
 __DESTRUCTOR_TABLE__ ([linker generated]):
     condes.o                  runtime/condes.s:19
+__RAM_SIZE__ ([linker generated]):
+    crt0.o                    rp6502/crt0.s:10
+__RAM_START__ ([linker generated]):
+    crt0.o                    rp6502/crt0.s:10
 __STACKSIZE__ ([linker generated]):
-    [linker generated]        ../ext0x9A00.cfg:9
+    [linker generated]        ../ext0x9000.cfg:9
 __STARTADDR__ ([linker generated]):
-    [linker generated]        ../ext0x9A00.cfg:9
-    [linker generated]        ../ext0x9A00.cfg:9
-__STARTUP__ (crt0_cmd.s.14600.1.o):
-    ext-hello.c.14600.0.o     ext-hello.c.14600.0.s:13
-    [linker generated]        ../ext0x9A00.cfg:2
+    [linker generated]        ../ext0x9000.cfg:9
+    [linker generated]        ../ext0x9000.cfg:9
+__STARTUP__ (crt0.o):
+    ext-hello.c.20944.0.o     ext-hello.c.20944.0.s:13
+    [linker generated]        ../ext0x9000.cfg:3
 ___errno (errno.o):
     _seterrno.o               /home/wojciech/git/WojciechGw/cc65/asminc/errno.inc:7
 ___seterrno (_seterrno.o):
@@ -211,10 +239,11 @@ _fwrite (fwrite.o):
     vfprintf.o                common/vfprintf.s:10
 _ltoa (ltoa.o):
     _printf.o                 common/_printf.s:12
-_main (ext-hello.c.14600.0.o):
-    crt0_cmd.s.14600.1.o      crt0_cmd.s:2
+_main (ext-hello.c.20944.0.o):
+    crt0.o                    rp6502/crt0.s:7
+    crt0_cmd.s.20944.1.o      crt0_cmd.s:2
 _printf (printf.o):
-    ext-hello.c.14600.0.o     ext-hello.c.14600.0.s:15
+    ext-hello.c.20944.0.o     ext-hello.c.20944.0.s:15
 _ria_call_int (ria.o):
     errno.o                   rp6502/errno.s:12
 _stdout (_file.o):
@@ -227,17 +256,17 @@ _ultoa (ltoa.o):
     _printf.o                 common/_printf.s:12
 _vfprintf (vfprintf.o):
     printf.o                  common/printf.s:8
-_write (write_stub.c.14600.2.o):
+_write (write_stub.c.20944.2.o):
     fwrite.o                  common/fwrite.s:10
 addeq0sp (addeqsp.o):
-    ext-hello.c.14600.0.o     ext-hello.c.14600.0.s:145
+    ext-hello.c.20944.0.o     ext-hello.c.20944.0.s:145
 addeqysp (addeqsp.o):
-    write_stub.c.14600.2.o    write_stub.c.14600.2.s:64
+    write_stub.c.20944.2.o    write_stub.c.20944.2.s:64
 addysp (addysp.o):
     incsp6.o                  runtime/incsp6.s:8
     fwrite.o                  common/fwrite.s:11
     printf.o                  common/printf.s:8
-    write_stub.c.14600.2.o    write_stub.c.14600.2.s:64
+    write_stub.c.20944.2.o    write_stub.c.20944.2.s:64
 axlong (axlong.o):
     _printf.o                 common/_printf.s:11
 axulong (axlong.o):
@@ -256,29 +285,34 @@ c_sp (zeropage.o):
     pushax.o                  runtime/pushax.s:8
     printf.o                  common/printf.s:9
     decsp2.o                  runtime/decsp2.s:8
+    crt0.o                    /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:11
     addysp.o                  runtime/addysp.s:8
     addeqsp.o                 runtime/addeqsp.s:8
-    write_stub.c.14600.2.o    write_stub.c.14600.2.s:10
-    ext-hello.c.14600.0.o     ext-hello.c.14600.0.s:10
+    write_stub.c.20944.2.o    write_stub.c.20944.2.s:10
+    ext-hello.c.20944.0.o     ext-hello.c.20944.0.s:10
+copydata (copydata.o):
+    crt0.o                    rp6502/crt0.s:12
 ctypemaskdirect (ctypemask.o):
     strlower.o                common/strlower.s:14
 decsp2 (decsp2.o):
-    ext-hello.c.14600.0.o     ext-hello.c.14600.0.s:145
+    ext-hello.c.20944.0.o     ext-hello.c.20944.0.s:145
 decsp4 (decsp4.o):
     lpush.o                   runtime/lpush.s:12
 decsp6 (decsp6.o):
     _printf.o                 common/_printf.s:11
 donelib (condes.o):
-    crt0_cmd.s.14600.1.o      crt0_cmd.s:2
+    crt0.o                    rp6502/crt0.s:12
+    crt0_cmd.s.20944.1.o      crt0_cmd.s:2
 incsp2 (incsp2.o):
     popptr1.o                 runtime/popptr1.s:8
 incsp6 (incsp6.o):
     fwrite.o                  common/fwrite.s:11
     vfprintf.o                common/vfprintf.s:9
 initlib (condes.o):
-    crt0_cmd.s.14600.1.o      crt0_cmd.s:2
-initmainargs (initmainargs.s.14600.3.o):
-    ext-hello.c.14600.0.o     ext-hello.c.14600.0.s:14
+    crt0.o                    rp6502/crt0.s:12
+    crt0_cmd.s.20944.1.o      crt0_cmd.s:2
+initmainargs (initmainargs.s.20944.3.o):
+    ext-hello.c.20944.0.o     ext-hello.c.20944.0.s:14
 ldaxysp (ldaxsp.o):
     fwrite.o                  common/fwrite.s:11
 mul8x16 (mul8.o):
@@ -303,14 +337,17 @@ ptr1 (zeropage.o):
     mul.o                     runtime/mul.s:10
     ltoa.o                    common/ltoa.s:11
     fwrite.o                  common/fwrite.s:14
+    copydata.o                common/copydata.s:9
     _printf.o                 /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:12
+    zerobss.o                 common/zerobss.s:9
     vfprintf.o                common/vfprintf.s:11
     printf.o                  common/printf.s:9
-    write_stub.c.14600.2.o    write_stub.c.14600.2.s:11
-    ext-hello.c.14600.0.o     ext-hello.c.14600.0.s:11
+    write_stub.c.20944.2.o    write_stub.c.20944.2.s:11
+    ext-hello.c.20944.0.o     ext-hello.c.20944.0.s:11
 ptr2 (zeropage.o):
     strlower.o                common/strlower.s:13
     ltoa.o                    common/ltoa.s:11
+    copydata.o                common/copydata.s:9
     _printf.o                 /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:12
 ptr3 (zeropage.o):
     ltoa.o                    common/ltoa.s:11
@@ -329,15 +366,15 @@ pushax (pushax.o):
     fwrite.o                  common/fwrite.s:11
     _printf.o                 common/_printf.s:11
     printf.o                  common/printf.s:8
-    write_stub.c.14600.2.o    write_stub.c.14600.2.s:64
-    ext-hello.c.14600.0.o     ext-hello.c.14600.0.s:145
+    write_stub.c.20944.2.o    write_stub.c.20944.2.s:64
+    ext-hello.c.20944.0.o     ext-hello.c.20944.0.s:145
 pusheax (lpush.o):
     _printf.o                 common/_printf.s:11
 pushwysp (pushwsp.o):
     fwrite.o                  common/fwrite.s:11
     vfprintf.o                common/vfprintf.s:9
-    write_stub.c.14600.2.o    write_stub.c.14600.2.s:64
-    ext-hello.c.14600.0.o     ext-hello.c.14600.0.s:145
+    write_stub.c.20944.2.o    write_stub.c.20944.2.s:64
+    ext-hello.c.20944.0.o     ext-hello.c.20944.0.s:145
 regbank (zeropage.o):
     _printf.o                 /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:14
 sreg (zeropage.o):
@@ -349,14 +386,17 @@ sreg (zeropage.o):
     axlong.o                  runtime/axlong.s:9
     _printf.o                 /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:11
 subeq0sp (subeqsp.o):
-    write_stub.c.14600.2.o    write_stub.c.14600.2.s:64
+    write_stub.c.20944.2.o    write_stub.c.20944.2.s:64
 tmp1 (zeropage.o):
     mul.o                     runtime/mul.s:10
     ltoa.o                    common/ltoa.s:11
+    copydata.o                common/copydata.s:9
     _printf.o                 /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:13
-    ext-hello.c.14600.0.o     ext-hello.c.14600.0.s:11
+    ext-hello.c.20944.0.o     ext-hello.c.20944.0.s:11
 tosudivax (udiv.o):
     fwrite.o                  common/fwrite.s:12
 tosumulax (mul.o):
     fwrite.o                  common/fwrite.s:12
+zerobss (zerobss.o):
+    crt0.o                    rp6502/crt0.s:12
 

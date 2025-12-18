@@ -32,5 +32,6 @@
 #define ANSI_WHITE      "\x1b[37m"
 #define ANSI_MAGENTA    "\x1b[35m"
 #define ANSI_RED        "\x1b[31m"
+#define ANSI_DARK_GRAY  "\x1b[90m"
 
 #endif // COLORS_H

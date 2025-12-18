@@ -19,11 +19,22 @@ int main(void) {
     char ext_rx = 0;
     static cmdline_t cmdline = {0};
     
+    // start screen
     PAUSE(200);
     tx_string(CSI_RESET);
     printf(CSI_CURSOR_HIDE); // hide cursor
     printf(APP_MSG_START);
-    PAUSE(200);
+    PAUSE(100);
+    putchar('.');
+    PAUSE(100);
+    putchar('.');
+    PAUSE(100);
+    putchar('.');
+    PAUSE(100);
+    putchar('.');
+    PAUSE(100);
+    putchar('.');
+    PAUSE(100);
     printf(CSI_CURSOR_SHOW); // show cursor
     tx_string(CSI_RESET);
 
@@ -552,12 +563,14 @@ void hexdump(uint16_t addr, uint16_t bytes, char_stream_func_t streamer, read_da
 }
 
 void cls(){
-    tx_string(CSI_RESET);
-    tx_string(APP_MSG_TITLE);
+    printf(CSI_RESET);
+    printf(APP_MSG_TITLE NEWLINE NEWLINE);
+    // printf(APP_MSG_HELP_COMADDRESS);
     return;
 }
 
 void prompt(bool first_time) {
+    tx_string(first_time ? "\x1b[3;1H" : "");
     if(f_getcwd(dir_cwd, sizeof(dir_cwd)) >= 0) {
         if(dir_cwd[1] == ':') current_drive = dir_cwd[0];
         tx_string(dir_cwd);
