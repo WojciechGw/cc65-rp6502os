@@ -37,7 +37,7 @@ extern struct _timezone _tz;
     #define __STACKSIZE__ 0x0800
 #endif
 #define MEMTOP (0xFD00-__STACKSIZE__)
-#define COM_LOAD_ADDR 0x9A00      /* where to upload the code (binary shell extensions - .com files) */
+#define COM_LOAD_ADDR 0x9000      /* where to upload the code (binary shell extensions - .com files) */
 
 /*
 #define GFX_CANVAS_CONSOLE 0
