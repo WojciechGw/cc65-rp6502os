@@ -1,7 +1,7 @@
 /* asm65c02.c — cc65-safe mini assembler 65C02 (C89)
    Features: labels, .org, .byte, .word, .equ, <, >, .include, listing LST
 */
-#define APPVER "20251218.1725"
+#define APPVER "20251218.1750"
 #define NEWLINE "\r\n"
 
 #include <rp6502.h>
@@ -32,6 +32,7 @@ static uint16_t pc  = 0x9A00;
 static char g_buf[MAXLEN];
 static char g_buf2[MAXLEN];
 static char g_buf3[MAXLEN];
+// static char outfilebuffer[80];
 static char g_tok[80];
 static char g_incpath[256];
 static char g_symtmp[48];
@@ -664,9 +665,15 @@ static void emit_at(uint8_t b, uint16_t at){
 
 static void pass2(void){
     int li,i,opt_mode;
+    // int fd,n;
 
     /* XRAM nie musi być wyzerowany, a .org może zostawiać dziury — czyść bufor wyjścia */
     xram1_fill(XRAM_OUT_BASE, 0x00, (unsigned)MAXOUT);
+
+    /*
+    fd = open("out.lst",O_CREAT);
+    if(fd < 0) printf("Can't open out.lst" NEWLINE);
+    */
 
     pc = org;
     for(li = 0; li < nlines; ++li){
@@ -677,7 +684,15 @@ static void pass2(void){
         strncpy(g_buf, g_buf2, MAXLEN-1); g_buf[MAXLEN-1]=0;
         trim_comment(g_buf);
         g_s = g_buf; ltrim_ptr(&g_s);
-        if(!*g_s) continue;
+        if(!*g_s){
+            /*
+            n = sprintf(outfilebuffer, "          | %s\n", g_buf2);
+            if(n < 0) continue;
+            if(n >= (int)sizeof(outfilebuffer)) n = (int)sizeof(outfilebuffer) - 1;
+            write(fd, outfilebuffer, (unsigned)n);
+            */
+            continue;
+        } 
 
         if(is_ident_start((unsigned char)*g_s)){
             char* p = g_s;
@@ -802,6 +817,7 @@ static void pass2(void){
 list_line:
         if(1) continue;
     }
+    // close(fd);
 }
 
 /* --- zapis BIN --- */

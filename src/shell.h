@@ -22,7 +22,7 @@
 #include "colors.h"
 
 extern struct _timezone _tz;
-#define SHELLVER "20251217.2359"
+#define SHELLVER "20251218.1830"
 #define SHELLDIRDEFAULT "USB0:/SHELL/"
 #define SHELLPROMPT "> "
 #define SHELLPROMPT_1ST "> " ANSI_GREEN "press F1 for help" ANSI_RESET " > "
@@ -39,6 +39,7 @@ extern struct _timezone _tz;
 #define MEMTOP (0xFD00-__STACKSIZE__)
 #define COM_LOAD_ADDR 0x9A00      /* where to upload the code (binary shell extensions - .com files) */
 
+/*
 #define GFX_CANVAS_CONSOLE 0
 #define GFX_CANVAS_320x240 1
 #define GFX_CANVAS_320x180 2
@@ -103,11 +104,13 @@ static uint8_t fg_clr = DARK_GRAY;
 static uint8_t bg_clr = BLACK;
 // static uint8_t curcol = 0; // current column
 // static uint8_t currow = 0; // current row
+static char msg[80] = {0};
 
+*/
 #define CMD_BUF_MAX 127
 #define CMD_TOKEN_MAX 10
 #define EDIT_BUF_MAX 2048
-#define RUN_ARGS_BASE 0x0200      /* where argc/argv block is stored for run (safe area outside shell BSS) */
+#define RUN_ARGS_BASE 0x0200      // where argc/argv block is stored for run (safe area outside shell BSS)
 #define RUN_ARGS_MAX 4
 #define RUN_ARGS_BUF 32
 #define RUN_ARGS_BLOCK_SIZE (1 + RUN_ARGS_MAX*2 + RUN_ARGS_BUF)
@@ -163,7 +166,6 @@ uint32_t ticks = 0; // for PAUSE(millis)
 static const char default_shelldir[] = SHELLDIRDEFAULT;
 char shelldir[64];
 char *filename[20] = {"                    "};
-static char msg[80] = {0};
 
 static const char hexdigits[] = "0123456789ABCDEF";
 
@@ -227,7 +229,6 @@ int cmd_cls(int, char **);
 int cmd_cm(int, char **);
 int cmd_com(int, char **);
 int cmd_cp(int, char **);
-// int cmd_dir(int, char **);
 int cmd_ls(int, char **);
 int cmd_drive(int, char **);
 int cmd_drives(int, char **);
@@ -256,7 +257,6 @@ static const cmd_t commands[] = {
     { "cm",     "", "", cmd_cm},
     { "cp",     "", "", cmd_cp},
     { "com",    "", "", cmd_com},
- //   { "dir",    "", "", cmd_dir},
     { "ls",     "", "", cmd_ls},
     { "drive",  "", "", cmd_drive},
     { "drives", "", "", cmd_drives},
@@ -306,7 +306,6 @@ int execute(cmdline_t *cl);
 static void build_run_args(int user_argc, char **user_argv);
 
 // shell commands
-// int cmd_help(int, char **);
 int cmd_bload(int argc, char **argv);
 int cmd_brun(int argc, char **argv);
 int cmd_bsave(int argc, char **argv);
@@ -316,7 +315,6 @@ int cmd_cls(int, char **);
 int cmd_cm(int argc, char **argv);
 int cmd_com(int argc, char **argv);
 int cmd_cp(int argc, char **argv);
-// int cmd_dir(int argc, char **argv);
 int cmd_ls(int argc, char **argv);
 int cmd_drive(int argc, char **argv);
 int cmd_drives(int argc, char **argv);
@@ -335,6 +333,7 @@ int cmd_run(int argc, char **argv);
 int cmd_stat(int argc, char **argv);
 int cmd_time(int argc, char **argv);
 
+/*
 void DrawChar(uint8_t row, uint8_t col, char ch, uint8_t fg, uint8_t bg);
 void GetChar(uint8_t row, uint8_t col, char *pch, uint8_t *pfg, uint8_t *pbg);
 bool BackupChars(uint8_t row, uint8_t col, uint8_t width, uint8_t height, uint8_t *pstash);
@@ -347,5 +346,6 @@ void InitTerminalFont(void);
 void ClearDisplayMemory(void);
 void ClearDisplay(uint8_t fg, uint8_t bg);
 void InitDisplay(void);
+*/
 
 // EOF shell.h
