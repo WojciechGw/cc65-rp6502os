@@ -1,6 +1,9 @@
 /* asm65c02.c — cc65-safe mini assembler 65C02 (C89)
    Features: labels, .org, .byte, .word, .equ, <, >, .include, listing LST
 */
+#define APPVER "20251218.1725"
+#define NEWLINE "\r\n"
+
 #include <rp6502.h>
 #include <stdio.h>
 #include <string.h>
@@ -10,7 +13,6 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include "ext-mass-opcodes.h"
-// #define OPCODES
 
 /* --- limity --- */
 #define MAXLINES    256
@@ -47,16 +49,40 @@ static char g_symtmp[48];
 #error "MAXOUT exceeds 8KB XRAM output area"
 #endif
 
-/* globalne robocze, by nie zużywać lokali */
+// globalne robocze, by nie zużywać lokali
 static char *g_s,*g_mn,*g_op,*g_dir,*g_rest;
 static char  g_MN[8];
 static int16_t g_opcode;
+static const opdef_t* g_def;
+
+static int is_branch_mnemonic(const char* mn){
+    return strcmp(mn,"BRA")==0 || strcmp(mn,"BCC")==0 || strcmp(mn,"BCS")==0 ||
+           strcmp(mn,"BEQ")==0 || strcmp(mn,"BMI")==0 || strcmp(mn,"BNE")==0 ||
+           strcmp(mn,"BPL")==0 || strcmp(mn,"BVC")==0 || strcmp(mn,"BVS")==0 ||
+           strcmp(mn,"BBR0")==0 || strcmp(mn,"BBR1")==0 || strcmp(mn,"BBR2")==0 || strcmp(mn,"BBR3")==0 ||
+           strcmp(mn,"BBR4")==0 || strcmp(mn,"BBR5")==0 || strcmp(mn,"BBR6")==0 || strcmp(mn,"BBR7")==0 ||
+           strcmp(mn,"BBS0")==0 || strcmp(mn,"BBS1")==0 || strcmp(mn,"BBS2")==0 || strcmp(mn,"BBS3")==0 ||
+           strcmp(mn,"BBS4")==0 || strcmp(mn,"BBS5")==0 || strcmp(mn,"BBS6")==0 || strcmp(mn,"BBS7")==0;
+        }
+
+static int is_stack_mnemonic(const char* mn){
+    return strcmp(mn,"BRK")==0 || strcmp(mn,"PHA")==0 || strcmp(mn,"PHP")==0 ||
+           strcmp(mn,"PHX")==0 || strcmp(mn,"PHY")==0 ||
+           strcmp(mn,"PLA")==0 || strcmp(mn,"PLP")==0 ||
+           strcmp(mn,"PLX")==0 || strcmp(mn,"PLY")==0 ||
+           strcmp(mn,"RTI")==0 || strcmp(mn,"RTS")==0;
+}
+
+static int map_mode_to_op(const asm_mode_t m, const char* mn){
+    if(m==M_IMP && mn && is_stack_mnemonic(mn)) return M_STACK;
+    return (int)m;
+}
 
 /* --- symbole --- */
 typedef struct {
     char     name[48];
     uint16_t value;
-    unsigned defined; /* 0/1 */
+    unsigned defined;
 } symbol_t;
 
 static int      nsym = 0;
@@ -132,16 +158,14 @@ static void xram_sym_set_value_defined(unsigned idx, uint16_t value, unsigned de
 typedef enum { V_NORMAL = 0, V_LOW = 1, V_HIGH = 2 } asm_vop_t;
 
 typedef struct {
-    unsigned  is_label;   /* 0 liczba, 1 etykieta */
+    unsigned  is_label;
     char      label[48];
     uint16_t  num;
     asm_vop_t op;
-    unsigned  force_zp;   /* 1 jeśli operand miał prefiks '*' */
+    unsigned  force_zp;
 } asm_value_t;
 
 /* --- tryby i opkody --- */
-// typedef struct { const char* name; int16_t op[M__COUNT]; } asm_opdef_t;
-// static const asm_opdef_t* g_def;
 static asm_value_t g_val;
 static asm_mode_t g_mode;
 
@@ -163,7 +187,7 @@ static void rstrip(char* s){
 static void ltrim_ptr(char** ps){ while(**ps==' '||**ps=='\t') (*ps)++; }
 static void to_upper_str(char* s){ while(*s){ *s=(char)toupper((unsigned char)*s); ++s; } }
 
-/* split_token jest zdefiniowane niżej; prototyp potrzebny dla C89 */
+// split_token jest zdefiniowane niżej; prototyp potrzebny dla C89
 static int split_token(char* s, char** a, char** b);
 
 static void xram1_read_bytes(unsigned addr, uint8_t* dst, unsigned len){
@@ -195,7 +219,6 @@ static void xram_line_write(unsigned li, const char* text){
         }
         RIA.rw1 = (uint8_t)ch;
     }
-    /* pad with NULs and guarantee terminator */
     while(i<(unsigned)MAXLEN){
         RIA.rw1 = 0;
         ++i;
@@ -207,9 +230,7 @@ static void xram_line_read(unsigned li, char* dst){
     unsigned i;
     if(!dst) return;
     xram1_read_bytes(addr, (uint8_t*)dst, (unsigned)MAXLEN);
-    /* safety: always terminate */
     dst[MAXLEN-1] = 0;
-    /* (optional) stop early for consumers that assume C string anyway */
     for(i=0;i<(unsigned)(MAXLEN-1);++i){
         if(dst[i]==0) break;
     }
@@ -245,7 +266,7 @@ static int parse_ascii_bytes(const char* s, uint8_t* out, int max_out, int* out_
     if(*s != '"') return 0;
     ++s;
     while(*s==' '||*s=='\t') ++s;
-    if(*s) return 0; /* nic poza stringiem */
+    if(*s) return 0;
     if(out_len) *out_len = n;
     return 1;
 }
@@ -274,16 +295,6 @@ static int parse_named_equ_line(const char* line, char** name_out, char** value_
     return 1;
 }
 
-static int is_branch_mnemonic(const char* mn){
-    return strcmp(mn,"BRA")==0 || strcmp(mn,"BCC")==0 || strcmp(mn,"BCS")==0 ||
-           strcmp(mn,"BEQ")==0 || strcmp(mn,"BMI")==0 || strcmp(mn,"BNE")==0 ||
-           strcmp(mn,"BPL")==0 || strcmp(mn,"BVC")==0 || strcmp(mn,"BVS")==0 ||
-           strcmp(mn,"BBR0")==0 || strcmp(mn,"BBR1")==0 || strcmp(mn,"BBR2")==0 || strcmp(mn,"BBR3")==0 ||
-           strcmp(mn,"BBR4")==0 || strcmp(mn,"BBR5")==0 || strcmp(mn,"BBR6")==0 || strcmp(mn,"BBR7")==0 ||
-           strcmp(mn,"BBS0")==0 || strcmp(mn,"BBS1")==0 || strcmp(mn,"BBS2")==0 || strcmp(mn,"BBS3")==0 ||
-           strcmp(mn,"BBS4")==0 || strcmp(mn,"BBS5")==0 || strcmp(mn,"BBS6")==0 || strcmp(mn,"BBS7")==0;
-        }
-
 static int find_sym(const char* name){
     int i;
     for(i=0;i<nsym;i++){
@@ -294,7 +305,7 @@ static int find_sym(const char* name){
 }
 static int add_or_update_sym(const char* name, uint16_t value, unsigned defined){
     int i;
-    if(nsym>=MAXSYM){ printf("Too many symbols\n"); exit(1); }
+    if(nsym>=MAXSYM){ printf("Too many symbols" NEWLINE); exit(1); }
     i = find_sym(name);
     if(i>=0){
         if(defined) xram_sym_set_value_defined((unsigned)i, value, 1);
@@ -307,7 +318,7 @@ static int add_or_update_sym(const char* name, uint16_t value, unsigned defined)
 }
 
 static void add_line(const char* text){
-    if(nlines >= MAXLINES){ printf("Too many rows\n"); exit(1); }
+    if(nlines >= MAXLINES){ printf("Too many rows" NEWLINE); exit(1); }
     xram_line_write((unsigned)nlines, text);
     nlines++;
 }
@@ -373,9 +384,8 @@ static uint16_t resolve_value(const asm_value_t* a){
     return apply_vop(base, a->op);
 }
 
-/* --- szukanie opkodów --- */
-static const asm_opdef_t* find_op(const char* m){
-    const asm_opdef_t* p = ops;
+static const opdef_t* find_op(const char* m){
+    const opdef_t* p = ops;
     while(p->name){
         if(strcmp(p->name,m)==0) return p;
         ++p;
@@ -425,14 +435,17 @@ static asm_mode_t parse_operand_mode(const char* s, asm_value_t* val){
         memcpy(inner,s+1,len); inner[len]=0;
 
         if(q[1]==',' && (q[2]=='Y'||q[2]=='y')){ parse_value_out(inner, val); val->force_zp = 0; return M_ZPINDY; }
+        if(q[1]==',' && (q[2]=='X'||q[2]=='x')){ parse_value_out(inner, val); val->force_zp = 0; return M_ABSINDX; }
         if(len>2 && inner[len-2]==',' && (inner[len-1]=='X'||inner[len-1]=='x')){
-            inner[len-2]=0; parse_value_out(inner, val); val->force_zp = 0; return M_ZPINDX;
+            inner[len-2]=0; parse_value_out(inner, val); val->force_zp = 0;
+            if(!val->is_label && val->op==V_NORMAL && val->num<=0xFF) return M_ZPINDX;
+            return M_ABSINDX;
         }
         parse_value_out(inner, val);
         val->force_zp = (unsigned)force_zp;
         if(force_zp) return M_ZPIND;
         if(!val->is_label && val->op==V_NORMAL && val->num<=0xFF) return M_ZPIND;
-        return M_INDABS;
+        return M_ABSIND;
     }
 
     comma = strchr(s,',');
@@ -469,9 +482,9 @@ static int read_file_into_lines(const char* path, int depth){
     FILE* f;
     char* s; char *dir,*rest; const char* q;
 
-    if(depth>MAXINCDEPTH){ printf("Too deep .include\n"); return 0; }
+    if(depth>MAXINCDEPTH){ printf("Too deep .include" NEWLINE); return 0; }
     f = fopen(path,"rb");
-    if(!f){ printf("Can't open: %s\n", path); return 0; }
+    if(!f){ printf("Can't open: %s" NEWLINE, path); return 0; }
 
     while(fgets(g_buf,sizeof(g_buf),f)){
         rstrip(g_buf);
@@ -529,7 +542,7 @@ static void pass1(void){
                 parse_value_out(eq_val, &g_val);
                 if(g_val.is_label){
                     int idx = find_sym(g_val.label);
-                    if(idx<0 || !xram_sym_is_defined((unsigned)idx)){ printf("PASS1: .equ unknown symbol %s\n", g_val.label); }
+                    if(idx<0 || !xram_sym_is_defined((unsigned)idx)){ printf("PASS1: .equ unknown symbol %s" NEWLINE, g_val.label); }
                     else add_or_update_sym(eq_name, apply_vop(xram_sym_get_value((unsigned)idx), g_val.op), 1);
                 }else{
                     add_or_update_sym(eq_name, apply_vop(g_val.num, g_val.op), 1);
@@ -543,7 +556,7 @@ static void pass1(void){
 
             if(strcmp(g_dir,".ORG")==0){
                 parse_value_out(g_rest, &g_val);
-                if(g_val.is_label){ printf("Label at .org unattended\n"); continue; }
+                if(g_val.is_label){ printf("Label at .org unattended" NEWLINE); continue; }
                 pc = g_val.num; if(org==0xFFFF) org=pc;
 
             }else if(strcmp(g_dir,".BYTE")==0){
@@ -572,7 +585,7 @@ static void pass1(void){
                 int nbytes = 0;
                 if(org==0xFFFF) org=pc;
                 if(!parse_ascii_bytes(g_rest, (uint8_t*)g_tok, (int)sizeof(g_tok), &nbytes)){
-                    printf("Syntax .ascii: .ascii \"text\"\n");
+                    printf("Syntax .ascii: .ascii \"text\"" NEWLINE);
                 }else{
                     pc = (uint16_t)(pc + (uint16_t)nbytes);
                 }
@@ -581,7 +594,7 @@ static void pass1(void){
                 int nbytes = 0;
                 if(org==0xFFFF) org=pc;
                 if(!parse_ascii_bytes(g_rest, (uint8_t*)g_tok, (int)sizeof(g_tok), &nbytes)){
-                    printf("Syntax .asciz: .asciz \"text\"\n");
+                    printf("Syntax .asciz: .asciz \"text\"" NEWLINE);
                 }else{
                     pc = (uint16_t)(pc + (uint16_t)nbytes + 1u);
                 }
@@ -592,13 +605,13 @@ static void pass1(void){
                     parse_value_out(t2, &g_val);
                     if(g_val.is_label){
                         int idx = find_sym(g_val.label);
-                        if(idx<0 || !xram_sym_is_defined((unsigned)idx)){ printf("PASS1: .equ unknown symbol %s\n", g_val.label); }
+                        if(idx<0 || !xram_sym_is_defined((unsigned)idx)){ printf("PASS1: .equ unknown symbol %s" NEWLINE, g_val.label); }
                         else add_or_update_sym(t1, apply_vop(xram_sym_get_value((unsigned)idx), g_val.op), 1);
                     }else{
                         add_or_update_sym(t1, apply_vop(g_val.num, g_val.op), 1);
                     }
                 }else{
-                    printf("Syntax .equ: .equ NAME value\n");
+                    printf("Syntax .equ: .equ NAME value" NEWLINE);
                 }
             }
             continue;
@@ -607,7 +620,7 @@ static void pass1(void){
         if(!split_token(g_s,&g_mn,&g_op)) continue;
         strncpy(g_MN,g_mn,7); g_MN[7]=0; to_upper_str(g_MN);
         g_def = find_op(g_MN);
-        if(!g_def){ printf("PASS1: unknown mnemonic at line %d: %s\n", li+1, g_MN); continue; }
+        if(!g_def){ printf("PASS1: unknown mnemonic at line %d: %s" NEWLINE, li+1, g_MN); continue; }
 
         parse_value_out("", &g_val); /* init */
         g_mode = parse_operand_mode(g_op,&g_val);
@@ -615,7 +628,17 @@ static void pass1(void){
             parse_value_out(g_op, &g_val);
             g_mode = M_PCREL;
         }
-        if(g_def->op[g_mode]<0){ printf("PASS1: unattended mode %s\n", g_MN); continue; }
+        {
+            int opt_mode = map_mode_to_op(g_mode, g_MN);
+            int opc = -1;
+            int cnt = g_def->count;
+            int i;
+            for(i=0;i<cnt;i++){
+                if(g_def->vars[i].mode == opt_mode){ opc = g_def->vars[i].opcode; break; }
+            }
+            if(opc < 0){ printf("PASS1: unattended mode %s at line %i" NEWLINE, g_MN, li); continue; }
+        }
+        /* długości instrukcji liczone jak wcześniej po lokalnym g_mode */
 
         if(org==0xFFFF) org=pc;
         if(g_mode==M_IMP || g_mode==M_ACC) pc+=1;
@@ -628,19 +651,19 @@ static void pass1(void){
 static void emit_at(uint8_t b, uint16_t at){
     uint16_t off;
     if(at < org){
-        printf("PASS2: write before ORG at $%04X\n", at);
+        printf("PASS2: write before ORG at $%04X" NEWLINE, at);
         return;
     }
     off = (uint16_t)(at - org);
     if(off >= MAXOUT){
-        printf("PASS2: output overflow at $%04X\n", at);
+        printf("PASS2: output overflow at $%04X" NEWLINE, at);
         return;
     }
     xram_out_write_byte(off, b);
 }
 
 static void pass2(void){
-    int li;
+    int li,i,opt_mode;
 
     /* XRAM nie musi być wyzerowany, a .org może zostawiać dziury — czyść bufor wyjścia */
     xram1_fill(XRAM_OUT_BASE, 0x00, (unsigned)MAXOUT);
@@ -685,9 +708,9 @@ static void pass2(void){
                             parse_value_out(g_tok, &g_val);
                             v16 = resolve_value(&g_val);
                             if(g_val.force_zp && v16 > 0xFF){
-                                printf("PASS2: warning: forced byte truncates $%04X at line %d\n", v16, li+1);
+                                printf("PASS2: warning: forced byte truncates $%04X at line %d" NEWLINE, v16, li+1);
                             }else if(!g_val.force_zp && g_val.op==V_NORMAL && v16 > 0xFF){
-                                printf("PASS2: warning: .byte truncates $%04X at line %d (use < or >)\n", v16, li+1);
+                                printf("PASS2: warning: .byte truncates $%04X at line %d (use < or >)" NEWLINE, v16, li+1);
                             }
                             emit_at((uint8_t)v16, pc++);
                         }
@@ -712,7 +735,7 @@ static void pass2(void){
                     int nbytes = 0;
                     int i;
                     if(!parse_ascii_bytes(g_rest, bytes, (int)sizeof(bytes), &nbytes)){
-                        printf("Syntax .ascii: .ascii \"text\"\n");
+                        printf("Syntax .ascii: .ascii \"text\"" NEWLINE);
                     }else{
                         for(i=0;i<nbytes;i++) emit_at(bytes[i], pc++);
                     }
@@ -721,7 +744,7 @@ static void pass2(void){
                     int nbytes = 0;
                     int i;
                     if(!parse_ascii_bytes(g_rest, bytes, (int)sizeof(bytes), &nbytes)){
-                        printf("Syntax .asciz: .asciz \"text\"\n");
+                        printf("Syntax .asciz: .asciz \"text\"" NEWLINE);
                     }else{
                         for(i=0;i<nbytes;i++) emit_at(bytes[i], pc++);
                         emit_at(0x00, pc++);
@@ -741,27 +764,27 @@ static void pass2(void){
                 parse_value_out(g_op, &g_val);
                 g_mode = M_PCREL;
             }
-            #ifndef OPCODES
-            g_opcode = g_def->op[g_mode];
-            #else
+
+            opt_mode = map_mode_to_op(g_mode, g_MN);
             g_opcode = -1;
-            for (int i = 0; i < g_def->count; ++i) {
-                if (g_def->vars[i].mode == g_mode) {
+            for(i=0;i< g_def->count; i++){
+                if(g_def->vars[i].mode == opt_mode){
                     g_opcode = g_def->vars[i].opcode;
                     break;
                 }
             }
-            #endif
+            if(g_opcode < 0) goto list_line; /* brak opkodu w tym trybie */
+
             if(g_opcode>=0){
                 emit_at((uint8_t)g_opcode, pc++);
                 if(g_mode==M_IMP || g_mode==M_ACC){
                 }else if(g_mode==M_IMM || g_mode==M_ZP || g_mode==M_ZPX || g_mode==M_ZPY || g_mode==M_ZPINDX || g_mode==M_ZPINDY || g_mode==M_ZPIND){
                     uint16_t v16 = resolve_value(&g_val);
                     if(g_val.force_zp && (g_mode==M_ZP || g_mode==M_ZPX || g_mode==M_ZPY || g_mode==M_ZPIND) && v16 > 0xFF){
-                        printf("PASS2: warning: forced ZP truncates $%04X at line %d\n", v16, li+1);
+                        printf("PASS2: warning: forced ZP truncates $%04X at line %d" NEWLINE, v16, li+1);
                     }
                     emit_at((uint8_t)v16, pc++);
-                }else if(g_mode==M_ABS || g_mode==M_ABSX || g_mode==M_ABSY || g_mode==M_INDABS){
+                }else if(g_mode==M_ABS || g_mode==M_ABSX || g_mode==M_ABSY || g_mode==M_ABSIND){
                     uint16_t v16 = resolve_value(&g_val);
                     emit_at((uint8_t)(v16&0xFF), pc++);
                     emit_at((uint8_t)(v16>>8),   pc++);
@@ -769,7 +792,7 @@ static void pass2(void){
                     uint16_t target = resolve_value(&g_val);
                     int16_t off = (int16_t)target - (int16_t)(pc + 1);
                     if(off < -128 || off > 127){
-                        printf("PASS2: branch out of range at line %d\n", li+1);
+                        printf("PASS2: branch out of range at line %d" NEWLINE, li+1);
                         off = 0;
                     }
                     emit_at((uint8_t)(off & 0xFF), pc++);
@@ -785,22 +808,22 @@ list_line:
 static void save_bin(void){
     unsigned len;
     len = (pc > org) ? (unsigned)(pc - org) : 0;
-    printf("ORG=$%04X, size=%u bytes\r\n", org, len);
+    printf("ORG=$%04X, size=%u bytes" NEWLINE, org, len);
     if(len > 0){
         int fd = open("out.bin", O_WRONLY | O_CREAT | O_TRUNC, 0666);
         if(fd < 0){
-            printf("Writing error (open out.bin)\r\n");
+            printf("Writing error (open out.bin)" NEWLINE);
             return;
         }
         /* dane już są w XRAM -> write_xram nie potrzebuje kopiowania do RAM */
         if(write_xram((unsigned)XRAM_OUT_BASE, len, fd) < 0){
-            printf("Writing error (write_xram)\r\n");
+            printf("Writing error (write_xram)" NEWLINE);
         }else{
-            printf("\r\nSave in out.bin\r\n");
+            printf(NEWLINE "Save in out.bin" NEWLINE);
         }
         close(fd);
     } else {
-        printf("\r\nTher are nothing to save.\r\n");
+        printf(NEWLINE "There are nothing to save." NEWLINE);
     }
 }
 
@@ -817,7 +840,7 @@ int main(int argc, char **argv){
     }
     */
 
-    printf("Mini ASSembler for 62C02S\r\n");
+    printf("Mini ASSembler for 62C02S " APPVER NEWLINE);
 
     nsym = 0;
     nlines = 0;
@@ -829,9 +852,9 @@ int main(int argc, char **argv){
     if(argc > 0 && argv[0] && argv[0][0]){
         FILE* src = fopen(argv[0], "rb");
         if(!src){
-            printf("Can't open source file %s\r\n", argv[0]);
+            printf("Can't open source file %s" NEWLINE, argv[0]);
         }else{
-            printf("Open source file %s\r\n", argv[0]);
+            printf("Open source file %s" NEWLINE, argv[0]);
             while(nlines < MAXLINES && fgets(g_buf,sizeof(g_buf),src)){
                 rstrip(g_buf);
                 strncpy(g_buf2, g_buf, sizeof(g_buf2)-1); g_buf2[sizeof(g_buf2)-1]=0;
@@ -885,7 +908,7 @@ int main(int argc, char **argv){
     pass1();
     pass2();
     save_bin();
-    printf("\r\n");
+    printf(NEWLINE);
     return 0;
 
 }

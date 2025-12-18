@@ -1,33 +1,36 @@
+#install ROM
 param(
-    [string]$shellextcmdname = 'shell'
+    [string]$shellextcmdname = 'shell',
+    [string]$shellreboot = 'N'
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $promptTimeoutMs = 5000
 
-function Wait-ForBracket([System.IO.Ports.SerialPort]$port, [int]$timeoutMs) {
+function Wait-ForPrompt([System.IO.Ports.SerialPort]$port, [int]$timeoutMs, [string]$prompt) {
     $sw = [System.Diagnostics.Stopwatch]::StartNew()
     while ($sw.ElapsedMilliseconds -lt $timeoutMs) {
         try {
             $ch = [char]$port.ReadChar()
-            if ($ch -eq ']') {
+            if ($ch -eq $prompt) {
                 return $true
             }
         }
         catch [System.TimeoutException] {
+            # try till timeout
         }
     }
     return $false
 }
 
-function Send-LineAndWait([System.IO.Ports.SerialPort]$port, [string]$text, [string]$label) {
+function Send-LineAndWait([System.IO.Ports.SerialPort]$port, [string]$text, [string]$label, [string]$prompt) {
     $maxRetries = 2
     for ($i = 0; $i -le $maxRetries; $i++) {
         try {
             $port.WriteLine($text)
-            if (-not (Wait-ForBracket -port $port -timeoutMs $promptTimeoutMs)) {
-                Write-Warning "Timeout for ']' after sent '$label'"
+            if (-not (Wait-ForPrompt -port $port -timeoutMs $promptTimeoutMs $prompt )) {
+                Write-Warning "Timeout for ''$prompt'' after sent '$label'"
             }
             return
         }
@@ -52,11 +55,11 @@ try {
     try {
         $serialPort.Open()
         Start-Sleep -Milliseconds 400
-        Send-LineAndWait -port $serialPort -text "exit" -label "exit"        
+        Send-LineAndWait -port $serialPort -text "exit" -label "exit" -prompt "]"        
         Start-Sleep -Milliseconds 400
-        Send-LineAndWait -port $serialPort -text "0:" -label "0:"
+        Send-LineAndWait -port $serialPort -text "0:" -label "0:" -prompt "]"
         Start-Sleep -Milliseconds 400
-        Send-LineAndWait -port $serialPort -text "cd /" -label "cd /"
+        Send-LineAndWait -port $serialPort -text "cd /" -label "cd /" -prompt "]"
         Start-Sleep -Milliseconds 400
         $serialPort.Close()
     }
@@ -74,16 +77,19 @@ try {
     try {
         $serialPort.Open()
         Start-Sleep -Milliseconds 400
-        Send-LineAndWait -port $serialPort -text "set boot -" -label "set boot -"
+        Send-LineAndWait -port $serialPort -text "set boot -" -label "set boot -" -prompt "]"
         Start-Sleep -Milliseconds 400
-        Send-LineAndWait -port $serialPort -text "remove ${shellextcmdname}" -label "remove ${shellextcmdname}"
+        Send-LineAndWait -port $serialPort -text "remove ${shellextcmdname}" -label "remove ${shellextcmdname}" -prompt "]"
         Start-Sleep -Milliseconds 400
-        Send-LineAndWait -port $serialPort -text "install ${shellextcmdname}.rp6502" -label "install ${shellextcmdname}"
+        Send-LineAndWait -port $serialPort -text "install ${shellextcmdname}.rp6502" -label "install ${shellextcmdname}" -prompt "]"
         Start-Sleep -Milliseconds 400
-        Send-LineAndWait -port $serialPort -text "set boot ${shellextcmdname}" -label "set boot ${shellextcmdname}"
+        Send-LineAndWait -port $serialPort -text "set boot ${shellextcmdname}" -label "set boot ${shellextcmdname}" -prompt "]"
         Start-Sleep -Milliseconds 400
-        Send-LineAndWait -port $serialPort -text "shell" -label "shell"
-        # Send-LineAndWait -port $serialPort -text "reboot" -label "reboot"
+        if($shellreboot -ne 'Y'){
+            Send-LineAndWait -port $serialPort -text "shell" -label "shell" -prompt ">"
+        } else {
+            Send-LineAndWait -port $serialPort -text "reboot" -label "reboot"
+        }
         $serialPort.Close()
     }
     catch {

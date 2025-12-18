@@ -7,12 +7,12 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $promptTimeoutMs = 5000
 
-function Wait-ForBracket([System.IO.Ports.SerialPort]$port, [int]$timeoutMs) {
+function Wait-ForPrompt([System.IO.Ports.SerialPort]$port, [int]$timeoutMs, [string]$prompt) {
     $sw = [System.Diagnostics.Stopwatch]::StartNew()
     while ($sw.ElapsedMilliseconds -lt $timeoutMs) {
         try {
             $ch = [char]$port.ReadChar()
-            if ($ch -eq ']') {
+            if ($ch -eq $prompt) {
                 return $true
             }
         }
@@ -23,13 +23,13 @@ function Wait-ForBracket([System.IO.Ports.SerialPort]$port, [int]$timeoutMs) {
     return $false
 }
 
-function Send-LineAndWait([System.IO.Ports.SerialPort]$port, [string]$text, [string]$label) {
+function Send-LineAndWait([System.IO.Ports.SerialPort]$port, [string]$text, [string]$label, [string]$prompt) {
     $maxRetries = 2
     for ($i = 0; $i -le $maxRetries; $i++) {
         try {
             $port.WriteLine($text)
-            if (-not (Wait-ForBracket -port $port -timeoutMs $promptTimeoutMs)) {
-                Write-Warning "Timeout for ']' after sent '$label'"
+            if (-not (Wait-ForPrompt -port $port -timeoutMs $promptTimeoutMs $prompt )) {
+                Write-Warning "Timeout for ''$prompt'' after sent '$label'"
             }
             return
         }
@@ -62,11 +62,11 @@ try {
     try {
         $serialPort.Open()
         Start-Sleep -Milliseconds 400
-        Send-LineAndWait -port $serialPort -text "exit" -label "exit"
+        Send-LineAndWait -port $serialPort -text "exit" -label "exit" -prompt "]"
         Start-Sleep -Milliseconds 400
-        Send-LineAndWait -port $serialPort -text "0:" -label "0:"
+        Send-LineAndWait -port $serialPort -text "0:" -label "0:" -prompt "]"
         Start-Sleep -Milliseconds 400
-        Send-LineAndWait -port $serialPort -text "cd /SHELL" -label "cd /SHELL"
+        Send-LineAndWait -port $serialPort -text "cd /SHELL" -label "cd /SHELL" -prompt "]"
         Start-Sleep -Milliseconds 400
         $serialPort.Close()
     }
@@ -80,12 +80,13 @@ try {
     }
 
     python3 rp6502.py upload -D COM4 ..\src\extcmd\build\${shellextcmdname}.com
-    #python3 rp6502.py shellext -D COM4 ..\src\extcmd\build\${shellextcmdname}.com
 
-   try {
+    try {
         $serialPort.Open()
         Start-Sleep -Milliseconds 400
-        Send-LineAndWait -port $serialPort -text "shell" -label "shell"
+        Send-LineAndWait -port $serialPort -text "cd /" -label "cd /" -prompt "]"
+        Start-Sleep -Milliseconds 400
+        Send-LineAndWait -port $serialPort -text "shell" -label "shell" -prompt ">"
         $serialPort.Close()
     }
     catch {
