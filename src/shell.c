@@ -26,7 +26,7 @@ int main(void) {
     printf(APP_MSG_START);
     for(i = 0; i < 10; i++){
         putchar('.');
-        PAUSE(40);
+        PAUSE(10);
         if(i == 6) printf("\x1b[1m");
     }
     tx_string(CSI_RESET);
@@ -1486,7 +1486,7 @@ int cmd_time(int argc, char **argv) {
 int cmd_phi2(int argc, char **argv) {
     int hz = phi2();
     (void)argc; (void)argv;
-    tx_string("65C02 clock speed: ");
+    tx_string("65C02 system clock speed: ");
     tx_dec32(hz);
     tx_string(" Hz" NEWLINE NEWLINE);
     return 0;
