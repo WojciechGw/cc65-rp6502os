@@ -1638,12 +1638,13 @@ int cmd_ls(int argc, char **argv){
 int cmd_cart(int argc, char **argv) {
     (void)argc; (void)argv;
 
-    if(argc == 0) {
+    if(argc == 1) {
         tx_string("Usage: cart <filename.rp6502>" NEWLINE);
         return 0;
     }
     {    
         int i;
+        printf("DEBUG: passed arguments");
         for(i = 0; i < argc; i++) {
             printf("%d: [%s]" NEWLINE, i, argv[i]);
         }
