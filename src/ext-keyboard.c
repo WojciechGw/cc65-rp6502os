@@ -13,6 +13,7 @@
 #include <string.h>
 #include <time.h>
 #include "usb_hid_keys.h"
+#include "colors.h"
 
 #define VERSION "20251215.1928"
 
@@ -243,6 +244,7 @@ static void render_keyboard_view(void) {
 
     for (i = 0; i < KEYBOARD_BYTES; i++) last_rendered_states[i] = keystates[i];
     keyboard_view_initialized = true;
+    printf(ANSI_DARK_GRAY "\x1b[12;1HEXIT - press and hold both Shift keys" ANSI_RESET);
 }
 
 int main(int argc, char **argv) {

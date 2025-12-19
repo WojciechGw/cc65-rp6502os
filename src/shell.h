@@ -36,7 +36,7 @@ extern struct _timezone _tz;
 #define SHELLPROMPT "> "
 #define SHELLPROMPT_1ST "> " ANSI_GREEN "[F1] help" ANSI_RESET " > "
 
-#define APP_MSG_START "\x1b[12;24HOS Shell activates, please wait \x1b[13;37H" ANSI_DARK_GRAY ".....\x1b[5D" ANSI_RESET
+#define APP_MSG_START ANSI_DARK_GRAY "\x1b[12;24HOS Shell activates, please wait \x1b[13;34H" "..........\x1b[10D" ANSI_RESET
 #define APP_MSG_TITLE "\x1b[1;1HOS Shell for Picocomputer 6502 (native mode)               version " SHELLVER
 #define APP_MSG_HELP_COMADDRESS "\x1b[30;1H" ANSI_DARK_GRAY "Hint: press F1 for help RUN ADDRESS:" STR(COM_LOAD_ADDR) " version " SHELLVER ANSI_RESET
 #define APP_MSG_EXIT NEWLINE "Exiting to the monitor." NEWLINE "Bye, bye !" NEWLINE NEWLINE

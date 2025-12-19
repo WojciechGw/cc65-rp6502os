@@ -24,19 +24,13 @@ int main(void) {
     tx_string(CSI_RESET);
     printf(CSI_CURSOR_HIDE); // hide cursor
     printf(APP_MSG_START);
-    PAUSE(100);
-    putchar('.');
-    PAUSE(100);
-    putchar('.');
-    PAUSE(100);
-    putchar('.');
-    PAUSE(100);
-    putchar('.');
-    PAUSE(100);
-    putchar('.');
-    PAUSE(100);
-    printf(CSI_CURSOR_SHOW); // show cursor
+    for(i = 0; i < 10; i++){
+        PAUSE(50);
+        putchar('.');
+        if(i == 6) printf("\x1b[1m");
+    }
     tx_string(CSI_RESET);
+    printf(CSI_CURSOR_SHOW "\x1b[0m");
 
     f_chdrive("0:");
     current_drive = '0';
@@ -1280,12 +1274,16 @@ int cmd_run(int argc, char **argv) {
     int user_argc;
     char **user_argv;
 
-    if(argc < 2) {
-        tx_string("Usage: run <addr> [arg1, ...]" NEWLINE);
+    if(argc ==  1 && strcmp(argv[0],"/?") == 0) {
+        tx_string("Usage: run [addr] [arg1, ...]" NEWLINE);
         return 0;
     }
 
-    addr = (uint16_t)strtoul(argv[1], NULL, 16);
+    if(argc == 0){
+        addr = COM_LOAD_ADDR;
+    } else {
+        addr = (uint16_t)strtoul(argv[1], NULL, 16);
+    }
     memcpy(run_args_backup, (void *)RUN_ARGS_BASE, RUN_ARGS_BLOCK_SIZE);
     user_argc = argc - 2;
     if(user_argc < 0) user_argc = 0;
