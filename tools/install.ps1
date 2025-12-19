@@ -36,7 +36,7 @@ function Send-LineAndWait([System.IO.Ports.SerialPort]$port, [string]$text, [str
         }
         catch {
             if ($i -lt $maxRetries) {
-                Start-Sleep -Milliseconds 200
+                Start-Sleep -Milliseconds 400
                 continue
             }
             throw

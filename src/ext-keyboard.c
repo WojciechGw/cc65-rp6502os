@@ -15,7 +15,7 @@
 #include "usb_hid_keys.h"
 #include "colors.h"
 
-#define VERSION "20251215.1928"
+#define APPVER "20251219.0622"
 
 // Keyboard related
 //
@@ -244,7 +244,8 @@ static void render_keyboard_view(void) {
 
     for (i = 0; i < KEYBOARD_BYTES; i++) last_rendered_states[i] = keystates[i];
     keyboard_view_initialized = true;
-    printf(ANSI_DARK_GRAY "\x1b[12;1HEXIT - press and hold both Shift keys" ANSI_RESET);
+    printf(ANSI_DARK_GRAY "\x1b[10;1H________________________________________________________________________________" NEWLINE
+                                    "press and hold both Shift keys to exit                     version " APPVER ANSI_RESET);
 }
 
 int main(int argc, char **argv) {

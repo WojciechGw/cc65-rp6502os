@@ -25,8 +25,8 @@ int main(void) {
     printf(CSI_CURSOR_HIDE); // hide cursor
     printf(APP_MSG_START);
     for(i = 0; i < 10; i++){
-        PAUSE(50);
         putchar('.');
+        PAUSE(40);
         if(i == 6) printf("\x1b[1m");
     }
     tx_string(CSI_RESET);
@@ -37,22 +37,27 @@ int main(void) {
     if(f_getcwd(dir_cwd, sizeof(dir_cwd)) >= 0 && dir_cwd[1] == ':') {
         current_drive = dir_cwd[0];
     }
+    
+    // load params from file 0:/SHELL.INI
+    load_setup();
+
     cls();
+
     /*
     // calling commands from code
+    // phi2 - system speed
     {
         char *args[1];
         args[0] = (char *)"";
         cmd_phi2(1, args);
     }
-    show_time();
+    // drives - available drives
     {
         char *args[1];
         args[0] = (char *)"";
         cmd_drives(1, args);
     }
     */
-    load_shelldir();
 
     // ClearDisplayMemory();
     // InitTerminalFont();
@@ -196,6 +201,7 @@ int main(void) {
                     cmd_com(com_argc, com_argv);
                     cmdline.bytes = 0;
                     cmdline.buffer[0] = 0;
+                    cls();
                     prompt(false);
                     continue;
                 }
@@ -218,7 +224,7 @@ int main(void) {
                     com_argv[1] = path;
                     /* Pass current input line as argument if present */
                     if(cmdline.bytes > 0) {
-                        cmdline.buffer[cmdline.bytes] = 0; /* ensure NUL */
+                        cmdline.buffer[cmdline.bytes] = 0;
                         com_argv[2] = cmdline.buffer;
                         com_argc = 3;
                     }
@@ -270,14 +276,14 @@ int main(void) {
     }
 }
 
-static void load_shelldir(void) {
+static void load_setup(void) {
     FILE *f;
     char *nl;
 
     strncpy(shelldir, default_shelldir, sizeof(shelldir));
     shelldir[sizeof(shelldir) - 1] = '\0';
 
-    f = fopen("USB0:/shell.txt", "r");
+    f = fopen("USB0:/shell.ini", "r");
     if (!f) return;
 
     if (fgets(shelldir, sizeof(shelldir), f)) {
@@ -1275,7 +1281,7 @@ int cmd_run(int argc, char **argv) {
     char **user_argv;
 
     if(argc ==  1 && strcmp(argv[0],"/?") == 0) {
-        tx_string("Usage: run [addr] [arg1, ...]" NEWLINE);
+        tx_string("Usage: run addr [arg1, ...]" NEWLINE);
         return 0;
     }
 
@@ -1629,6 +1635,26 @@ int cmd_ls(int argc, char **argv){
     return rc;
 }
 
+int cmd_cart(int argc, char **argv) {
+    (void)argc; (void)argv;
+
+    if(argc == 0) {
+        tx_string("Usage: cart <filename.rp6502>" NEWLINE);
+        return 0;
+    }
+    {    
+        int i;
+        for(i = 0; i < argc; i++) {
+            printf("%d: [%s]" NEWLINE, i, argv[i]);
+        }
+    }
+    tx_string("Run cartridge ");
+    tx_string(argv[1]);
+    tx_string(NEWLINE);
+    // load rp6502 to memory, set RSTVEC at $FFFC, exit and reset
+    PAUSE(200);
+    return 0;
+}
 /*
 // shell command scaffolding
 int cmd_token(int argc, char **argv) {

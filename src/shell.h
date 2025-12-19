@@ -24,12 +24,15 @@
 extern struct _timezone _tz;
 
 #ifndef __STACKSIZE__
-    #define __STACKSIZE__ 0x0800
+    #define __STACKSIZE__ 0x0400
 #endif
 #define MEMTOP (0xFD00-__STACKSIZE__)
-#define COM_LOAD_ADDR 0x9000      /* where to upload the code (binary shell extensions - .com files) */
+#define COM_LOAD_ADDR 0x9000  // default where to upload the code (binary shell extensions - .com files)
+
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)
+
+#define NEWLINE "\r\n"
 
 #define SHELLVER "20251218.1930"
 #define SHELLDIRDEFAULT "USB0:/SHELL/"
@@ -40,8 +43,6 @@ extern struct _timezone _tz;
 #define APP_MSG_TITLE "\x1b[1;1HOS Shell for Picocomputer 6502 (native mode)               version " SHELLVER
 #define APP_MSG_HELP_COMADDRESS "\x1b[30;1H" ANSI_DARK_GRAY "Hint: press F1 for help RUN ADDRESS:" STR(COM_LOAD_ADDR) " version " SHELLVER ANSI_RESET
 #define APP_MSG_EXIT NEWLINE "Exiting to the monitor." NEWLINE "Bye, bye !" NEWLINE NEWLINE
-
-#define NEWLINE "\r\n"
 
 /*
 #define GFX_CANVAS_CONSOLE 0
@@ -250,11 +251,13 @@ int cmd_rm(int, char **);
 int cmd_run(int, char **);
 int cmd_stat(int, char **);
 int cmd_time(int, char **);
+int cmd_cart(int, char **); // load and run <romname>.rp6502
 
 static const cmd_t commands[] = {
     { "bload",  "", "", cmd_bload},
     { "brun",   "", "", cmd_brun},
     { "bsave",  "", "", cmd_bsave},
+    { "cart",    "", "", cmd_cart},
     { "cd",     "", "", cmd_cd},
     { "chmod",  "", "", cmd_chmod},
     { "cls",    "", "", cmd_cls },
@@ -280,7 +283,7 @@ static const cmd_t commands[] = {
     { "time",   "", "", cmd_time },
 };
 
-static void load_shelldir(void);
+static void load_setup(void);
 inline void tx_char(char c);
 void tx_chars(const char *buf, int ct);
 void tx_string(const char *buf);
@@ -336,6 +339,7 @@ int cmd_rm(int argc, char **argv);
 int cmd_run(int argc, char **argv);
 int cmd_stat(int argc, char **argv);
 int cmd_time(int argc, char **argv);
+int cmd_cart(int argc, char **argv);
 
 /*
 void DrawChar(uint8_t row, uint8_t col, char ch, uint8_t fg, uint8_t bg);

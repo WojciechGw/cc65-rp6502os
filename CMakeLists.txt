@@ -13,33 +13,27 @@ add_executable(qasm)
 rp6502_executable(qasm
     DATA 0x0200
     RESET 0x0200
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/qasm.hlp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/archive/qasm.hlp
 )
 target_sources(qasm PRIVATE
-    src/qasm.c
-    src/qasm_cpustate.s
-    src/test.s
-    src/run.s
+    src/archive/qasm.c
+    src/archive/qasm_cpustate.s
+    src/archive/test.s
+    src/archive/run.s
 )
 
 add_executable(test)
 rp6502_executable(test
     DATA 0x0200
     RESET 0x0200
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/test.hlp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/archive/test.hlp
 )
 target_sources(test PRIVATE
-    src/test.c
-    src/test.s
+    src/archive/test.c
+    src/archive/test.s
 )
 
 add_executable(shell)
-rp6502_executable(shell
-    DATA 0x0200
-    RESET 0x0200
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/shell.hlp
-)
-target_sources(shell PRIVATE
-    src/shell.c
-)
+rp6502_executable(shell DATA 0x0200 RESET 0x0200 ${CMAKE_CURRENT_SOURCE_DIR}/src/shell.hlp)
+target_sources(shell PRIVATE src/shell.c)
 target_link_options(shell PRIVATE -C ${CMAKE_SOURCE_DIR}/src/shell.cfg)
