@@ -88,6 +88,11 @@ static const cmd_t commands_ext[] = {
     { "label",      "show or set active drive's volume label", 
                     "label          - show active drive's label" NEWLINE
                     "label NEWLABEL - set active drive label to NEWLABEL" },
+    { "mass",       "Mini ASSembler application for OS Shell", 
+                    "mass           - instant code writer and compiler" NEWLINE
+                    "mass <source>  - source file compilet, out.bin as a result" },
+    { "courier",    "Courier - file transfer in/out application for OS Shell ", 
+                    "courier        - run application" },
 };
 
 int main(int argc, char **argv) {

@@ -1,6 +1,13 @@
 /* asm65c02.c — cc65-safe mini assembler 65C02 (C89)
    Features: labels, .org, .byte, .word, .equ, <, >, .include, listing LST
+
+TODO parametry
+mass sourcecode.asm -out outfile.bin -base <baseaddress> -run <runaddress>
+
+
+
 */
+
 #define APPVER "20251218.1750"
 #define NEWLINE "\r\n"
 
@@ -856,7 +863,7 @@ int main(int argc, char **argv){
     }
     */
 
-    printf("Mini ASSembler for 62C02S " APPVER NEWLINE);
+    printf("Mini ASSembler for 65C02S " APPVER NEWLINE);
 
     nsym = 0;
     nlines = 0;
@@ -895,7 +902,7 @@ int main(int argc, char **argv){
         }
     }
 
-    /* jeśli nie wczytano z pliku, wczytuj z klawiatury jak dotąd */
+    // jeśli nie wczytano z pliku, wczytuj z klawiatury jak dotąd
     if(!loaded_from_file){
         while(nlines < MAXLINES){
             if(!fgets(g_buf,sizeof(g_buf),stdin)) break;
