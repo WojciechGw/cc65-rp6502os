@@ -1,22 +1,22 @@
 Modules list:
 -------------
-ext-courier.c.10156.0.o:
+ext-courier.c.10008.0.o:
     CODE              Offs=000000  Size=0004ED  Align=00001  Fill=0000
-    RODATA            Offs=000000  Size=0000C7  Align=00001  Fill=0000
+    RODATA            Offs=000000  Size=0000DE  Align=00001  Fill=0000
     BSS               Offs=000000  Size=000050  Align=00001  Fill=0000
     DATA              Offs=000000  Size=000002  Align=00001  Fill=0000
-crt0_cmd.s.10156.1.o:
+crt0_cmd.s.10008.1.o:
     STARTUP           Offs=000000  Size=00001B  Align=00001  Fill=0000
-write_stub.c.10156.2.o:
+write_stub.c.10008.2.o:
     CODE              Offs=0004ED  Size=00004C  Align=00001  Fill=0000
-initmainargs.s.10156.3.o:
+initmainargs.s.10008.3.o:
     STARTUP           Offs=00001B  Size=000001  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(_file.o):
     DATA              Offs=000002  Size=00001E  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(_hextab.o):
-    RODATA            Offs=0000C7  Size=000010  Align=00001  Fill=0000
+    RODATA            Offs=0000DE  Size=000010  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(_longminstr.o):
-    RODATA            Offs=0000D7  Size=00000C  Align=00001  Fill=0000
+    RODATA            Offs=0000EE  Size=00000C  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(_printf.o):
     CODE              Offs=000539  Size=0003A1  Align=00001  Fill=0000
     BSS               Offs=000050  Size=00002B  Align=00001  Fill=0000
@@ -40,7 +40,7 @@ C:\@prg\cc65\lib/rp6502.lib(copydata.o):
 C:\@prg\cc65\lib/rp6502.lib(crt0.o):
     STARTUP           Offs=00001C  Size=00002B  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(ctype.o):
-    RODATA            Offs=0000E3  Size=00008B  Align=00001  Fill=0000
+    RODATA            Offs=0000FA  Size=00008B  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(ctypemask.o):
     CODE              Offs=000959  Size=00001E  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(decax1.o):
@@ -136,30 +136,30 @@ ZEROPAGE              000000  000019  00001A  00001
 STARTUP               009000  009046  000047  00001
 ONCE                  009047  009054  00000E  00001
 CODE                  009055  009FAE  000F5A  00001
-RODATA                009FAF  00A11C  00016E  00001
-DATA                  00A11D  00A16C  000050  00001
-BSS                   00A16D  00A1EA  00007E  00001
+RODATA                009FAF  00A133  000185  00001
+DATA                  00A134  00A183  000050  00001
+BSS                   00A184  00A201  00007E  00001
 
 
 Exports list by name:
 ---------------------
-__BSS_RUN__               00A16D RLA    __BSS_SIZE__              00007E REA    
+__BSS_RUN__               00A184 RLA    __BSS_SIZE__              00007E REA    
 __CONSTRUCTOR_COUNT__     000001 REA    __CONSTRUCTOR_TABLE__     009053 RLA    
-__DATA_LOAD__             00A11D RLA    __DATA_RUN__              00A11D RLA    
+__DATA_LOAD__             00A134 RLA    __DATA_RUN__              00A134 RLA    
 __DATA_SIZE__             000050 REA    __DESTRUCTOR_COUNT__      000000 REA    
-__DESTRUCTOR_TABLE__      00A11D RLA    __RAM_SIZE__              006B00 REA    
+__DESTRUCTOR_TABLE__      00A134 RLA    __RAM_SIZE__              006B00 REA    
 __RAM_START__             009000 RLA    __STACKSIZE__             000200 REA    
 __STARTADDR__             009000 REA    __STARTUP__               000001 REA    
 ___errno                  00FFED RLA    ___seterrno               00992F RLA    
-__ctype                   00A092 RLA    __ctypeidx                00A09D RLA    
-__hextab                  00A076 RLA    __longminstr              00A086 RLA    
+__ctype                   00A0A9 RLA    __ctypeidx                00A0B4 RLA    
+__hextab                  00A08D RLA    __longminstr              00A09D RLA    
 __printf                  00967F RLA    _close                    009964 RLA    
 _errno_opt_constructor    0099FB  LAI   _fwrite                   009A05 RLA    
 _ltoa                     009B3D RLA    _main                     0090D9 RLA    
 _open                     009C37 RLA    _printf                   009CB6 RLA    
 _read                     009D3A RLA    _read_xstack              009DC3 RLA    
 _ria_call_int             009E5C RLA    _ria_push_int             009E2F RLA    
-_ria_set_ax               009E55 RLA    _stdout                   00A139 RLA    
+_ria_set_ax               009E55 RLA    _stdout                   00A150 RLA    
 _strlen                   009E7E RLA    _strlower                 009E94 RLA    
 _ultoa                    009B7C RLA    _vfprintf                 009F63 RLA    
 _write                    009542 RLA    addeq0sp                  009938 RLA    
@@ -235,11 +235,11 @@ _strlen                   009E7E RLA    _strlower                 009E94 RLA
 subeq0sp                  009EBB RLA    subeqysp                  009EBD RLA    
 subysp                    009ED0 RLA    tosudivax                 009EDF RLA    
 _vfprintf                 009F63 RLA    zerobss                   009F8C RLA    
-__hextab                  00A076 RLA    __longminstr              00A086 RLA    
-__ctype                   00A092 RLA    __ctypeidx                00A09D RLA    
-__DATA_LOAD__             00A11D RLA    __DATA_RUN__              00A11D RLA    
-__DESTRUCTOR_TABLE__      00A11D RLA    _stdout                   00A139 RLA    
-__BSS_RUN__               00A16D RLA    ___errno                  00FFED RLA    
+__hextab                  00A08D RLA    __longminstr              00A09D RLA    
+__ctype                   00A0A9 RLA    __ctypeidx                00A0B4 RLA    
+__DATA_LOAD__             00A134 RLA    __DATA_RUN__              00A134 RLA    
+__DESTRUCTOR_TABLE__      00A134 RLA    _stdout                   00A150 RLA    
+__BSS_RUN__               00A184 RLA    ___errno                  00FFED RLA    
 
 
 
@@ -273,7 +273,7 @@ __STARTADDR__ ([linker generated]):
     [linker generated]        ../ext0x9000.cfg:9
     [linker generated]        ../ext0x9000.cfg:9
 __STARTUP__ (crt0.o):
-    ext-courier.c.10156.0.o   ext-courier.c.10156.0.s:13
+    ext-courier.c.10008.0.o   ext-courier.c.10008.0.s:13
     [linker generated]        ../ext0x9000.cfg:3
 ___errno (errno.o):
     _seterrno.o               /home/wojciech/git/WojciechGw/cc65/asminc/errno.inc:7
@@ -291,20 +291,20 @@ __longminstr (_longminstr.o):
 __printf (_printf.o):
     vfprintf.o                common/vfprintf.s:10
 _close (close.o):
-    ext-courier.c.10156.0.o   ext-courier.c.10156.0.s:17
+    ext-courier.c.10008.0.o   ext-courier.c.10008.0.s:17
 _fwrite (fwrite.o):
     vfprintf.o                common/vfprintf.s:10
 _ltoa (ltoa.o):
     _printf.o                 common/_printf.s:12
-_main (ext-courier.c.10156.0.o):
+_main (ext-courier.c.10008.0.o):
     crt0.o                    rp6502/crt0.s:7
-    crt0_cmd.s.10156.1.o      crt0_cmd.s:2
+    crt0_cmd.s.10008.1.o      crt0_cmd.s:2
 _open (open.o):
-    ext-courier.c.10156.0.o   ext-courier.c.10156.0.s:16
+    ext-courier.c.10008.0.o   ext-courier.c.10008.0.s:16
 _printf (printf.o):
-    ext-courier.c.10156.0.o   ext-courier.c.10156.0.s:15
+    ext-courier.c.10008.0.o   ext-courier.c.10008.0.s:15
 _read (read.o):
-    ext-courier.c.10156.0.o   ext-courier.c.10156.0.s:18
+    ext-courier.c.10008.0.o   ext-courier.c.10008.0.s:18
 _read_xstack (read_xstack.o):
     read.o                    ../libwrk/rp6502/read.s:17
 _ria_call_int (ria.o):
@@ -329,16 +329,16 @@ _ultoa (ltoa.o):
     _printf.o                 common/_printf.s:12
 _vfprintf (vfprintf.o):
     printf.o                  common/printf.s:8
-_write (write_stub.c.10156.2.o):
+_write (write_stub.c.10008.2.o):
     fwrite.o                  common/fwrite.s:10
 addeq0sp (addeqsp.o):
-    ext-courier.c.10156.0.o   ext-courier.c.10156.0.s:802
-    ext-courier.c.10156.0.o   ext-courier.c.10156.0.s:802
+    ext-courier.c.10008.0.o   ext-courier.c.10008.0.s:804
+    ext-courier.c.10008.0.o   ext-courier.c.10008.0.s:804
 addeqysp (addeqsp.o):
     read_xstack.o             ../libwrk/rp6502/read_xstack.s:94
     read.o                    ../libwrk/rp6502/read.s:116
-    write_stub.c.10156.2.o    write_stub.c.10156.2.s:64
-    ext-courier.c.10156.0.o   ext-courier.c.10156.0.s:802
+    write_stub.c.10008.2.o    write_stub.c.10008.2.s:64
+    ext-courier.c.10008.0.o   ext-courier.c.10008.0.s:804
 addysp (addysp.o):
     leave.o                   runtime/leave.s:14
     incsp8.o                  runtime/incsp8.s:8
@@ -349,7 +349,7 @@ addysp (addysp.o):
     read.o                    ../libwrk/rp6502/read.s:116
     printf.o                  common/printf.s:8
     incsp3.o                  runtime/incsp3.s:8
-    write_stub.c.10156.2.o    write_stub.c.10156.2.s:64
+    write_stub.c.10008.2.o    write_stub.c.10008.2.s:64
 axlong (axlong.o):
     _printf.o                 common/_printf.s:11
 axulong (axlong.o):
@@ -380,8 +380,8 @@ c_sp (zeropage.o):
     crt0.o                    /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:11
     addysp.o                  runtime/addysp.s:8
     addeqsp.o                 runtime/addeqsp.s:8
-    write_stub.c.10156.2.o    write_stub.c.10156.2.s:10
-    ext-courier.c.10156.0.o   ext-courier.c.10156.0.s:10
+    write_stub.c.10008.2.o    write_stub.c.10008.2.s:10
+    ext-courier.c.10008.0.o   ext-courier.c.10008.0.s:10
 copydata (copydata.o):
     crt0.o                    rp6502/crt0.s:12
 ctypemaskdirect (ctypemask.o):
@@ -391,22 +391,22 @@ decax1 (decax1.o):
 decsp4 (decsp4.o):
     lpush.o                   runtime/lpush.s:12
     read_xstack.o             ../libwrk/rp6502/read_xstack.s:94
-    ext-courier.c.10156.0.o   ext-courier.c.10156.0.s:802
+    ext-courier.c.10008.0.o   ext-courier.c.10008.0.s:804
 decsp6 (decsp6.o):
     _printf.o                 common/_printf.s:11
 donelib (condes.o):
     crt0.o                    rp6502/crt0.s:12
-    crt0_cmd.s.10156.1.o      crt0_cmd.s:2
+    crt0_cmd.s.10008.1.o      crt0_cmd.s:2
 enter (enter.o):
     open.o                    ../libwrk/rp6502/open.s:105
 incsp1 (incsp1.o):
-    ext-courier.c.10156.0.o   ext-courier.c.10156.0.s:802
+    ext-courier.c.10008.0.o   ext-courier.c.10008.0.s:804
 incsp2 (incsp2.o):
     popptr1.o                 runtime/popptr1.s:8
     close.o                   ../libwrk/rp6502/close.s:47
-    ext-courier.c.10156.0.o   ext-courier.c.10156.0.s:802
+    ext-courier.c.10008.0.o   ext-courier.c.10008.0.s:804
 incsp3 (incsp3.o):
-    ext-courier.c.10156.0.o   ext-courier.c.10156.0.s:802
+    ext-courier.c.10008.0.o   ext-courier.c.10008.0.s:804
 incsp4 (incsp4.o):
     read.o                    ../libwrk/rp6502/read.s:116
 incsp6 (incsp6.o):
@@ -416,9 +416,9 @@ incsp8 (incsp8.o):
     read.o                    ../libwrk/rp6502/read.s:116
 initlib (condes.o):
     crt0.o                    rp6502/crt0.s:12
-    crt0_cmd.s.10156.1.o      crt0_cmd.s:2
-initmainargs (initmainargs.s.10156.3.o):
-    ext-courier.c.10156.0.o   ext-courier.c.10156.0.s:14
+    crt0_cmd.s.10008.1.o      crt0_cmd.s:2
+initmainargs (initmainargs.s.10008.3.o):
+    ext-courier.c.10008.0.o   ext-courier.c.10008.0.s:14
 ldax0sp (ldaxsp.o):
     read_xstack.o             ../libwrk/rp6502/read_xstack.s:94
     read.o                    ../libwrk/rp6502/read.s:116
@@ -464,8 +464,8 @@ ptr1 (zeropage.o):
     read_xstack.o             ../libwrk/rp6502/read_xstack.s:11
     printf.o                  common/printf.s:9
     open.o                    ../libwrk/rp6502/open.s:11
-    write_stub.c.10156.2.o    write_stub.c.10156.2.s:11
-    ext-courier.c.10156.0.o   ext-courier.c.10156.0.s:11
+    write_stub.c.10008.2.o    write_stub.c.10008.2.s:11
+    ext-courier.c.10008.0.o   ext-courier.c.10008.0.s:11
 ptr2 (zeropage.o):
     strlower.o                common/strlower.s:13
     ltoa.o                    common/ltoa.s:11
@@ -484,8 +484,8 @@ push1 (push1.o):
     _printf.o                 common/_printf.s:11
     vfprintf.o                common/vfprintf.s:9
 pusha (pusha.o):
-    ext-courier.c.10156.0.o   ext-courier.c.10156.0.s:802
-    ext-courier.c.10156.0.o   ext-courier.c.10156.0.s:802
+    ext-courier.c.10008.0.o   ext-courier.c.10008.0.s:804
+    ext-courier.c.10008.0.o   ext-courier.c.10008.0.s:804
 pusha0 (pushax.o):
     push1.o                   runtime/push1.s:8
     fwrite.o                  common/fwrite.s:11
@@ -497,16 +497,16 @@ pushax (pushax.o):
     printf.o                  common/printf.s:8
     open.o                    ../libwrk/rp6502/open.s:105
     close.o                   ../libwrk/rp6502/close.s:47
-    write_stub.c.10156.2.o    write_stub.c.10156.2.s:64
-    ext-courier.c.10156.0.o   ext-courier.c.10156.0.s:802
-    ext-courier.c.10156.0.o   ext-courier.c.10156.0.s:802
+    write_stub.c.10008.2.o    write_stub.c.10008.2.s:64
+    ext-courier.c.10008.0.o   ext-courier.c.10008.0.s:804
+    ext-courier.c.10008.0.o   ext-courier.c.10008.0.s:804
 pusheax (lpush.o):
     _printf.o                 common/_printf.s:11
 pushwysp (pushwsp.o):
     fwrite.o                  common/fwrite.s:11
     vfprintf.o                common/vfprintf.s:9
     read.o                    ../libwrk/rp6502/read.s:116
-    write_stub.c.10156.2.o    write_stub.c.10156.2.s:64
+    write_stub.c.10008.2.o    write_stub.c.10008.2.s:64
 regbank (zeropage.o):
     _printf.o                 /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:14
 sreg (zeropage.o):
@@ -517,19 +517,19 @@ sreg (zeropage.o):
     axlong.o                  runtime/axlong.s:9
     _printf.o                 /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:11
     ria.o                     rp6502/ria.s:13
-    ext-courier.c.10156.0.o   ext-courier.c.10156.0.s:10
+    ext-courier.c.10008.0.o   ext-courier.c.10008.0.s:10
 stax0sp (staxsp.o):
     read_xstack.o             ../libwrk/rp6502/read_xstack.s:94
 staxysp (staxsp.o):
     read_xstack.o             ../libwrk/rp6502/read_xstack.s:94
-    ext-courier.c.10156.0.o   ext-courier.c.10156.0.s:802
+    ext-courier.c.10008.0.o   ext-courier.c.10008.0.s:804
 subeq0sp (subeqsp.o):
     open.o                    ../libwrk/rp6502/open.s:105
-    write_stub.c.10156.2.o    write_stub.c.10156.2.s:64
+    write_stub.c.10008.2.o    write_stub.c.10008.2.s:64
 subeqysp (subeqsp.o):
     read.o                    ../libwrk/rp6502/read.s:116
 subysp (subysp.o):
-    ext-courier.c.10156.0.o   ext-courier.c.10156.0.s:802
+    ext-courier.c.10008.0.o   ext-courier.c.10008.0.s:804
 tmp1 (zeropage.o):
     mul.o                     runtime/mul.s:10
     ltoa.o                    common/ltoa.s:11
