@@ -159,6 +159,13 @@ static char msg[80] = {0};
 #define AM_ARC 0x20
 #endif
 
+// for files transfers
+#define ESC 0x1B
+#define SOH 0x01
+#define STX 0x02
+#define ETX 0x03
+#define EOT 0x04
+
 #define FNAMELEN 64
 #define CPMBUFFLEN 96
 #define RMBUFFLEN 96

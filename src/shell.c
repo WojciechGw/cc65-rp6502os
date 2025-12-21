@@ -1657,6 +1657,32 @@ int cmd_cart(int argc, char **argv) {
     return 0;
 }
 
+// wbudować w shell w ten sposób, że stale monitorowane jest co trafia do RIA.rx
+// albo rozpocząć monitorowanie uruchamiając komendę shell'a "rx"
+// jeżeli trafi znak SOH (0x01) rozpocznij przyjmowanie danych
+// po odebraniu EOT (0x04) zapisz przesłane dane do pliku
+// format plików intelHex, nazwa pliku do zapisu przesyłana pomiędzy
+// STX (0x02), a ETX (0x03)
+// przebieg transmisji skrypt sendfile.py po stronie komputera nadawcy
+// 1. wyślij SOH
+// 2. wyślij STX
+// 3. wyślij nazwę pliku do zapisu (domyślnie trafi do katalogu 0:/RX/)
+// 4. wyślij ETX
+// 5. wyślij dane pliku w formacie intelHex
+// 6. wyślij EOT
+
+// rozpocząć transmisję uruchamiając komendę shell'a "tx"
+// format plików intelHex, nazwa pliku do zapisu przesyłana pomiędzy
+// STX (0x02), a ETX (0x03)
+// przebieg transmisji skrypt receivefile.py po stronie komputera nadawcy
+// 1. czekaj na SOH
+// 2. czekaj na STX
+// 3. odbierz nazwę pliku do zapisu (domyślnie trafi do katalogu C:\@prg\RX\)
+// 4. czekaj na ETX
+// 5. odbieraj dane pliku w formacie intelHex czekając na EOT
+// 6. zdekoduj dane
+// 7. zapisz do pliku
+
 int cmd_rx(int argc, char **argv) {
     int i;
     for(i = 0; i < argc; i++) {
