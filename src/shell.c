@@ -22,15 +22,15 @@ int main(void) {
     // start screen
     PAUSE(200);
     tx_string(CSI_RESET);
-    printf(CSI_CURSOR_HIDE); // hide cursor
-    printf(APP_MSG_START);
+    tx_string(CSI_CURSOR_HIDE); // hide cursor
+    tx_string(APP_MSG_START);
     for(i = 0; i < 10; i++){
-        putchar('.');
-        PAUSE(10);
-        if(i == 6) printf("\x1b[1m");
+        tx_char('.');
+        PAUSE(20);
+        if(i == 6) tx_string("\x1b[1m");
     }
     tx_string(CSI_RESET);
-    printf(CSI_CURSOR_SHOW "\x1b[0m");
+    tx_string(CSI_CURSOR_SHOW "\x1b[0m");
 
     f_chdrive("0:");
     current_drive = '0';
@@ -1656,6 +1656,23 @@ int cmd_cart(int argc, char **argv) {
     PAUSE(200);
     return 0;
 }
+
+int cmd_rx(int argc, char **argv) {
+    int i;
+    for(i = 0; i < argc; i++) {
+        printf("%d: [%s]" NEWLINE, i, argv[i]);
+    }
+    return 0;
+}
+
+int cmd_tx(int argc, char **argv) {
+    int i;
+    for(i = 0; i < argc; i++) {
+        printf("%d: [%s]" NEWLINE, i, argv[i]);
+    }
+    return 0;
+}
+
 /*
 // shell command scaffolding
 int cmd_token(int argc, char **argv) {

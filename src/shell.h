@@ -34,7 +34,7 @@ extern struct _timezone _tz;
 
 #define NEWLINE "\r\n"
 
-#define SHELLVER "20251218.1930"
+#define SHELLVER "20251221.1324"
 #define SHELLDIRDEFAULT "USB0:/SHELL/"
 #define SHELLPROMPT "> "
 #define SHELLPROMPT_1ST "> " ANSI_GREEN "[F1] help" ANSI_RESET " > "
@@ -251,13 +251,15 @@ int cmd_rm(int, char **);
 int cmd_run(int, char **);
 int cmd_stat(int, char **);
 int cmd_time(int, char **);
+// TO DO
 int cmd_cart(int, char **); // load and run <romname>.rp6502
+int cmd_rx(int, char**); // receive file from RIA UART
+int cmd_tx(int, char**); // send file to RIA UART
 
 static const cmd_t commands[] = {
     { "bload",  "", "", cmd_bload},
     { "brun",   "", "", cmd_brun},
     { "bsave",  "", "", cmd_bsave},
-    { "cart",    "", "", cmd_cart},
     { "cd",     "", "", cmd_cd},
     { "chmod",  "", "", cmd_chmod},
     { "cls",    "", "", cmd_cls },
@@ -281,6 +283,10 @@ static const cmd_t commands[] = {
     { "run",    "", "", cmd_run},
     { "stat",   "", "", cmd_stat},
     { "time",   "", "", cmd_time },
+// TO DO
+    { "cart",    "", "", cmd_cart},
+    { "rx",   "", "", cmd_rx },
+    { "tx",   "", "", cmd_tx },
 };
 
 static void load_setup(void);
@@ -340,6 +346,8 @@ int cmd_run(int argc, char **argv);
 int cmd_stat(int argc, char **argv);
 int cmd_time(int argc, char **argv);
 int cmd_cart(int argc, char **argv);
+int cmd_rx(int argc, char **argv);
+int cmd_tx(int argc, char **argv);
 
 /*
 void DrawChar(uint8_t row, uint8_t col, char ch, uint8_t fg, uint8_t bg);

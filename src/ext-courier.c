@@ -55,7 +55,7 @@ int main(int argc, char **argv)
     }
 
     if(argc == 1 && strcmp(argv[0], "/?") == 0) {
-        printf("OS Shell > Courier - send file\r\n\r\nUsage: courier <outputfile>\r\n\r\n");
+        printf("OS Shell > Courier - send file\r\n\r\nUsage: courier <filename> - send a file <filename> to RIA UART\r\n\r\n");
         return 0;
     }
 
@@ -115,7 +115,7 @@ int main(int argc, char **argv)
     for (i = 0; i < pos; i++) send_char(hex_line[i]);
 
     close(in_fd);
-    printf("\x1b" "c" "\x1b[?25hTransmission done.\r\n");
+    printf("\x1b[?25hTransmission done.\r\n");
     return 0;
 
 }

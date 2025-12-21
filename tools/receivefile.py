@@ -70,7 +70,7 @@ def main() -> None:
     ap.add_argument("outfile", help="Path to output file")
     ap.add_argument("--port", default="COM4", help="Serial port (default COM4)")
     ap.add_argument("--baud", type=int, default=115200, help="Baud rate (default 115200)")
-    ap.add_argument("--timeout", type=float, default=1.0, help="Read timeout seconds")
+    ap.add_argument("--timeout", type=float, default=2.0, help="Read timeout seconds")
     args = ap.parse_args()
     receive_intel_hex(args.port, args.baud, args.outfile, args.timeout)
 

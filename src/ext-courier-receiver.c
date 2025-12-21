@@ -26,18 +26,13 @@ static int     hex_line_len = 0;
 static uint8_t hex_bytes[256];
 static uint32_t last_rx = 0;
 static bool     got_data = false;
-static const uint32_t idle_timeout_ms = 2000; /* stop after 2s bez danych */
+static const uint32_t idle_timeout_ms = 1000; // stop after 10s
 
 void print(char *s)
 {
     while (*s)
         if (TX_READY)
             RIA.tx = *s++;
-}
-
-static void drop_console_rx(void) {
-    int i;
-    while (RX_READY) i = RIA.rx;
 }
 
 static int hex_nibble(char c) {
@@ -101,57 +96,51 @@ static int process_hex_line(const char *buf, int len, int out_fd) {
 
 int main(int argc, char **argv)
 {
-    int out_fd, at_fd;
-    char rx_char;
+    int out_fd;
+    unsigned char rx_char;
     bool done = false;
+    int i;
 
-    if (argc < 1 || argv[0][0] == 0) {
-        printf("Usage: courier <outputfile>\r\n");
-        return -1;
+    printf("\r\n--------------\r\nargc=%d\r\n", argc);
+    for(i = 0; i < argc; i++) {
+        printf("argv[%d]=\"%s\"\r\n", i, argv[i]);
     }
 
-    if(argc == 1 && strcmp(argv[0], "/?") == 0) {
+    if (argc == 0 || (argc == 1 && strcmp(argv[0], "/?") == 0)) {
         printf("Courier - receive file\r\n\r\nUsage: courier <outputfile>\r\n\r\n");
         return 0;
     }
 
-    // printf("\x1b[c]");
-
     out_fd = open(argv[0], O_WRONLY | O_CREAT | O_TRUNC, 0666);
-    if (out_fd < 0)
-    {
+    if (out_fd < 0) {
         printf("Cannot open output file.\r\n");
-        return -1;
-    }
-
-    at_fd = open("AT:", 0);
-    if (at_fd < 0)
-    {
-        printf("Modem not found.\r\n");
-        close(out_fd);
         return -1;
     }
 
     printf("OS Shell > Courier\r\n\r\nReceiving binary data.\r\nAuto-stop after idle timeout.\r\n");
     last_rx = clock();
 
-    while (true)
-    {
-        ria_push_char(1);
-        ria_set_ax(at_fd);
-        if (!ria_call_int(RIA_OP_READ_XSTACK)) {
-            if (got_data && ((clock() - last_rx) > idle_timeout_ms)) {
-                if (hex_line_len > 0) {
-                    hex_line[hex_line_len] = '\0';
-                    done = process_hex_line(hex_line, hex_line_len, out_fd);
-                }
+    while (true) {
+
+        /* czekaj na bajt w RX FIFO */
+        while ((RIA.ready & RIA_READY_RX_BIT) == 0) {
+            if (((clock() - last_rx) > idle_timeout_ms)) {
                 break;
             }
-            continue;
         }
-        rx_char = ria_pop_char();
+
+        if (got_data && ((clock() - last_rx) > idle_timeout_ms)) {
+            if (hex_line_len > 0) {
+                hex_line[hex_line_len] = '\0';
+                done = process_hex_line(hex_line, hex_line_len, out_fd);
+            }
+            break;
+        }
+
         got_data = true;
         last_rx = clock();
+        rx_char = RIA.rx;
+
         if (rx_char == '\r') continue;
         if (rx_char != '\n' && hex_line_len < (HEX_LINE_MAX - 1)) {
             hex_line[hex_line_len++] = rx_char;
@@ -166,10 +155,7 @@ int main(int argc, char **argv)
         }
     }
 
-    // drop_console_rx();
-    close(at_fd);
     close(out_fd);
-    //printf("\x1b" "c" "\x1b[?25h");
+    printf("\x1b" "c" "\x1b[?25h");
     return 0;
-
 }

@@ -1,5 +1,6 @@
 import argparse
 import sys
+import time
 from typing import Iterable
 
 try:
@@ -26,16 +27,19 @@ def intel_hex_records(data: bytes, chunk_size: int = 16) -> Iterable[str]:
 
 
 def send_intel_hex(port: str, baud: int, filepath: str, chunk_size: int = 16, delay: float = 0.0) -> None:
-    data = open(filepath, "rb").read()
+    with open(filepath, "rb") as f:
+        data = f.read()
     with serial.Serial(port, baudrate=baud, bytesize=serial.EIGHTBITS,
                        parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE,
                        timeout=1) as ser:
         print(f"Sending Intel HEX from {filepath} ({len(data)} bytes) to {port} @ {baud} ...")
+        ser.write(b"\x02")  # STX jako marker startu
         for line in intel_hex_records(data, chunk_size):
             ser.write((line + "\r\n").encode("ascii"))
             if delay > 0:
                 ser.flush()
-                serial.time.sleep(delay)  # type: ignore[attr-defined]
+                time.sleep(delay)
+        ser.write(b"\x04")  # EOT na koniec transmisji
         ser.flush()
         print("Done.")
 
@@ -46,7 +50,7 @@ def main() -> None:
     ap.add_argument("--port", default="COM4", help="Serial port (default COM4)")
     ap.add_argument("--baud", type=int, default=115200, help="Baud rate (default 115200)")
     ap.add_argument("--chunk", type=int, default=16, help="Bytes per record (default 16)")
-    ap.add_argument("--delay", type=float, default=0.0, help="Optional delay (s) after each line")
+    ap.add_argument("--delay", type=float, default=0.001, help="Optional delay (s) after each line")
     args = ap.parse_args()
     send_intel_hex(args.port, args.baud, args.filepath, args.chunk, args.delay)
 
