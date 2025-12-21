@@ -55,18 +55,18 @@ int main(int argc, char **argv)
     }
 
     if(argc == 1 && strcmp(argv[0], "/?") == 0) {
-        printf("Courier - send file\r\n\r\nUsage: courier <inputfile>\r\n\r\n");
+        printf("OS Shell > Courier - send file\r\n\r\nUsage: courier <outputfile>\r\n\r\n");
         return 0;
     }
 
     in_fd = open(argv[0], O_RDONLY);
     if (in_fd < 0)
     {
-        printf("Cannot open input file.\r\n");
+        printf("Cannot open output file.\r\n");
         return -1;
     }
 
-    printf("OS Shell > Courier\r\n\r\nSending Intel HEX.\r\n");
+    printf("OS Shell > Courier\r\n\r\nSending file in Intel HEX.\r\n");
 
     while (true)
     {
@@ -115,7 +115,7 @@ int main(int argc, char **argv)
     for (i = 0; i < pos; i++) send_char(hex_line[i]);
 
     close(in_fd);
-    printf("\x1b" "c" "\x1b[?25hTransmission done.");
+    printf("\x1b" "c" "\x1b[?25hTransmission done.\r\n");
     return 0;
 
 }
