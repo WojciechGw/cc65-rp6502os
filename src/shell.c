@@ -69,7 +69,7 @@ int main(void) {
             }
             if (i > 60){
                 if(!(appflags & APPFLAG_RTC)) tx_string(NEWLINE "RTC is not set.");
-                set_time();
+                // set_time();
                 break;
             }
         }
@@ -586,7 +586,7 @@ struct tm *get_time(void) { // Return pointer to current RTC time; tm_year=1970 
     }
     return &tmnow;
 }
-
+/*
 int set_time(void) { // Interactive setter for RTC when it is unset (year 1970).
     char line[32];
     int year, mon, day, hour, min, sec;
@@ -635,7 +635,7 @@ int set_time(void) { // Interactive setter for RTC when it is unset (year 1970).
     tx_string(NEWLINE "[OS Shell INFO] RTC set." NEWLINE);
     return 0;
 }
-
+*/
 void show_time(void) { // print current date & time to console
     struct tm *tmnow = get_time();
     char buf[32];

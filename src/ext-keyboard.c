@@ -6,21 +6,14 @@
 // #define VSYNCWAIT
 // #define DEBUG
 
-#include <rp6502.h>
-#include <stdio.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <string.h>
-#include <time.h>
-#include "usb_hid_keys.h"
-#include "colors.h"
+#include "commons.h"
 
-#define APPVER "20251219.0622"
+#define APPVER "20251223.2220"
 
 // Keyboard related
 //
 // XRAM locations
-#define KEYBOARD_INPUT 0xFF10 // KEYBOARD_BYTES of bitmask data
+#define KEYBOARD_INPUT 0xFF00 // KEYBOARD_BYTES of bitmask data
 // 256 bytes HID code max, stored in 32 uint8
 #define KEYBOARD_BYTES 32
 uint8_t keystates[KEYBOARD_BYTES] = {0};
@@ -32,17 +25,16 @@ uint8_t keystates[KEYBOARD_BYTES] = {0};
 #define KB_VIEW_ROWS 7
 #define KB_VIEW_COLS 80
 
-#define CHAR_RIGHT "\x10"
-#define CHAR_LEFT "\x11"
-#define CHAR_UP "\x1e"
-#define CHAR_DOWN "\x1f"
+#define FONT_CHAR_RIGHT "\x10"
+#define FONT_CHAR_LEFT "\x11"
+#define FONT_CHAR_UP "\x1e"
+#define FONT_CHAR_DOWN "\x1f"
 
-#define POS_APPHEADER "[1;1H" 
+#define POS_APPHEADER "[1;1H"
 #define POS_KEYBOARD  "[3;1H"
 #define POS_KEYPRESS  "[1;66H"
-#define NEWLINE "\r\n"
 
-#define HIGHLIGHT_COLOR "[37;41m" // white (37) on red (41)
+#define HIGHLIGHT_COLOR "[37;41m" // white (37) on red (41) or green (42)
 // #define HIGHLIGHT_COLOR "[30;47m" // black (30) on white (47)
 
 // wait on clock
@@ -145,10 +137,10 @@ static const key_shape_t keyboard_shapes[] = {
     {6, 37, 3,  KEY_COMPOSE,    "\x7f"},
     {6, 40, 3,  KEY_RIGHTMETA,  "\x03"},  
     {6, 43, 6,  KEY_RIGHTCTRL,  "Ctrl"},
-    {5, 55, 5,  KEY_UP,         CHAR_UP},
-    {6, 50, 5,  KEY_LEFT,       CHAR_LEFT},
-    {6, 55, 5,  KEY_DOWN,       CHAR_DOWN},
-    {6, 60, 5,  KEY_RIGHT,      CHAR_RIGHT},
+    {5, 55, 5,  KEY_UP,         FONT_CHAR_UP},
+    {6, 50, 5,  KEY_LEFT,       FONT_CHAR_LEFT},
+    {6, 55, 5,  KEY_DOWN,       FONT_CHAR_DOWN},
+    {6, 60, 5,  KEY_RIGHT,      FONT_CHAR_RIGHT},
     {2, 66, 5,  KEY_NUMLOCK,    "Num"},
     {2, 71, 3,  KEY_KPSLASH,    "/"},  // Keypad /
     {2, 74, 3,  KEY_KPASTERISK, "*"},  // Keypad *
@@ -298,7 +290,7 @@ int main(int argc, char **argv) {
                 uint8_t code = (i << 3) + j;
                 new_key = (new_keys & (1<<j));
                 if ((code>3) && (new_key != (keystates[i] & (1<<j)))) {
-                    printf("\x1b" POS_KEYPRESS " keycode 0x%02X %s", code, (new_key ?  CHAR_DOWN : CHAR_UP));
+                    printf("\x1b" POS_KEYPRESS " keycode 0x%02X %s", code, (new_key ?  FONT_CHAR_DOWN : FONT_CHAR_UP));
                 }
             }
             keystates[i] = new_keys;

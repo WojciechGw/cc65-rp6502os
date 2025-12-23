@@ -1,12 +1,6 @@
-#include <rp6502.h>
-#include <stdio.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <stdlib.h>
-#include <string.h>
+#include "commons.h"
 
 #define VERSION "20251215.1640"
-#define NEWLINE "\r\n"
 #define FNAMELEN 64
 #define DIR_LIST_MAX 40
 

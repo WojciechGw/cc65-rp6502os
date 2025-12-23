@@ -1,6 +1,4 @@
-#include <rp6502.h>
-#include <stdio.h>
-#include <string.h>
+#include "commons.h"
 
 int main(int argc, char **argv) {
     int i;

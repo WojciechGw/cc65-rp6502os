@@ -1,232 +1,232 @@
 Modules list:
 -------------
-ext-mass.c.19968.0.o:
-    CODE              Offs=000000  Size=003AF0  Align=00001  Fill=0000
-    RODATA            Offs=000000  Size=0008D2  Align=00001  Fill=0000
-    BSS               Offs=000000  Size=000246  Align=00001  Fill=0000
-    DATA              Offs=000000  Size=000008  Align=00001  Fill=0000
-crt0_cmd.s.19968.1.o:
+ext-mass.c.23648.0.o:
+    CODE              Offs=000000  Size=003DEA  Align=00001  Fill=0000
+    RODATA            Offs=000000  Size=000AB5  Align=00001  Fill=0000
+    BSS               Offs=000000  Size=000248  Align=00001  Fill=0000
+    DATA              Offs=000000  Size=000108  Align=00001  Fill=0000
+crt0_cmd.s.23648.1.o:
     STARTUP           Offs=000000  Size=00001B  Align=00001  Fill=0000
-write_stub.c.19968.2.o:
-    CODE              Offs=003AF0  Size=00004C  Align=00001  Fill=0000
-initmainargs.s.19968.3.o:
+write_stub.c.23648.2.o:
+    CODE              Offs=003DEA  Size=00004C  Align=00001  Fill=0000
+initmainargs.s.23648.3.o:
     STARTUP           Offs=00001B  Size=000001  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(_directerrno.o):
-    CODE              Offs=003B3C  Size=000009  Align=00001  Fill=0000
+    CODE              Offs=003E36  Size=000009  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(_fdesc.o):
-    CODE              Offs=003B45  Size=00001D  Align=00001  Fill=0000
+    CODE              Offs=003E3F  Size=00001D  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(_file.o):
-    DATA              Offs=000008  Size=00001E  Align=00001  Fill=0000
+    DATA              Offs=000108  Size=00001E  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(_fopen.o):
-    CODE              Offs=003B62  Size=00007B  Align=00001  Fill=0000
-    BSS               Offs=000246  Size=000002  Align=00001  Fill=0000
+    CODE              Offs=003E5C  Size=00007B  Align=00001  Fill=0000
+    BSS               Offs=000248  Size=000002  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(_hextab.o):
-    RODATA            Offs=0008D2  Size=000010  Align=00001  Fill=0000
+    RODATA            Offs=000AB5  Size=000010  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(_longminstr.o):
-    RODATA            Offs=0008E2  Size=00000C  Align=00001  Fill=0000
+    RODATA            Offs=000AC5  Size=00000C  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(_oserror.o):
-    BSS               Offs=000248  Size=000001  Align=00001  Fill=0000
+    BSS               Offs=00024A  Size=000001  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(_printf.o):
-    CODE              Offs=003BDD  Size=0003A1  Align=00001  Fill=0000
-    BSS               Offs=000249  Size=00002B  Align=00001  Fill=0000
-    DATA              Offs=000026  Size=000003  Align=00001  Fill=0000
+    CODE              Offs=003ED7  Size=0003A1  Align=00001  Fill=0000
+    BSS               Offs=00024B  Size=00002B  Align=00001  Fill=0000
+    DATA              Offs=000126  Size=000003  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(_seterrno.o):
-    CODE              Offs=003F7E  Size=000009  Align=00001  Fill=0000
+    CODE              Offs=004278  Size=000009  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(addeqsp.o):
-    CODE              Offs=003F87  Size=000011  Align=00001  Fill=0000
+    CODE              Offs=004281  Size=000011  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(addysp.o):
-    CODE              Offs=003F98  Size=00000E  Align=00001  Fill=0000
+    CODE              Offs=004292  Size=00000E  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(aslax2.o):
-    CODE              Offs=003FA6  Size=00000B  Align=00001  Fill=0000
+    CODE              Offs=0042A0  Size=00000B  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(aslax4.o):
-    CODE              Offs=003FB1  Size=000011  Align=00001  Fill=0000
+    CODE              Offs=0042AB  Size=000011  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(axlong.o):
-    CODE              Offs=003FC2  Size=00000D  Align=00001  Fill=0000
+    CODE              Offs=0042BC  Size=00000D  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(bneg.o):
-    CODE              Offs=003FCF  Size=00000E  Align=00001  Fill=0000
+    CODE              Offs=0042C9  Size=00000E  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(checkferror.o):
-    CODE              Offs=003FDD  Size=00000C  Align=00001  Fill=0000
+    CODE              Offs=0042D7  Size=00000C  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(close.o):
-    CODE              Offs=003FE9  Size=000011  Align=00001  Fill=0000
+    CODE              Offs=0042E3  Size=000011  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(condes.o):
-    CODE              Offs=003FFA  Size=00000C  Align=00001  Fill=0000
-    DATA              Offs=000029  Size=000025  Align=00001  Fill=0000
+    CODE              Offs=0042F4  Size=00000C  Align=00001  Fill=0000
+    DATA              Offs=000129  Size=000025  Align=00001  Fill=0000
     ONCE              Offs=000000  Size=00000C  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(copydata.o):
-    CODE              Offs=004006  Size=00002D  Align=00001  Fill=0000
+    CODE              Offs=004300  Size=00002D  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(crt0.o):
     STARTUP           Offs=00001C  Size=00002B  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(ctype.o):
-    RODATA            Offs=0008EE  Size=00008B  Align=00001  Fill=0000
+    RODATA            Offs=000AD1  Size=00008B  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(ctypemask.o):
-    CODE              Offs=004033  Size=00001E  Align=00001  Fill=0000
+    CODE              Offs=00432D  Size=00001E  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(decax1.o):
-    CODE              Offs=004051  Size=000007  Align=00001  Fill=0000
+    CODE              Offs=00434B  Size=000007  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(decaxy.o):
-    CODE              Offs=004058  Size=000009  Align=00001  Fill=0000
+    CODE              Offs=004352  Size=000009  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(decsp2.o):
-    CODE              Offs=004061  Size=00000D  Align=00001  Fill=0000
+    CODE              Offs=00435B  Size=00000D  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(decsp3.o):
-    CODE              Offs=00406E  Size=00000D  Align=00001  Fill=0000
+    CODE              Offs=004368  Size=00000D  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(decsp4.o):
-    CODE              Offs=00407B  Size=00000D  Align=00001  Fill=0000
+    CODE              Offs=004375  Size=00000D  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(decsp6.o):
-    CODE              Offs=004088  Size=00000D  Align=00001  Fill=0000
+    CODE              Offs=004382  Size=00000D  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(decsp8.o):
-    CODE              Offs=004095  Size=00000D  Align=00001  Fill=0000
+    CODE              Offs=00438F  Size=00000D  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(enter.o):
-    CODE              Offs=0040A2  Size=00000E  Align=00001  Fill=0000
+    CODE              Offs=00439C  Size=00000E  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(errno.o):
-    CODE              Offs=0040B0  Size=00000A  Align=00001  Fill=0000
+    CODE              Offs=0043AA  Size=00000A  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(fclose.o):
-    CODE              Offs=0040BA  Size=00001E  Align=00001  Fill=0000
+    CODE              Offs=0043B4  Size=00001E  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(fgetc.o):
-    CODE              Offs=0040D8  Size=00005D  Align=00001  Fill=0000
-    BSS               Offs=000274  Size=000001  Align=00001  Fill=0000
+    CODE              Offs=0043D2  Size=00005D  Align=00001  Fill=0000
+    BSS               Offs=000276  Size=000001  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(fgets.o):
-    CODE              Offs=004135  Size=00007F  Align=00001  Fill=0000
-    BSS               Offs=000275  Size=000006  Align=00001  Fill=0000
+    CODE              Offs=00442F  Size=00007F  Align=00001  Fill=0000
+    BSS               Offs=000277  Size=000006  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(fopen.o):
-    CODE              Offs=0041B4  Size=000018  Align=00001  Fill=0000
+    CODE              Offs=0044AE  Size=000018  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(fwrite.o):
-    CODE              Offs=0041CC  Size=000077  Align=00001  Fill=0000
-    BSS               Offs=00027B  Size=000002  Align=00001  Fill=0000
+    CODE              Offs=0044C6  Size=000077  Align=00001  Fill=0000
+    BSS               Offs=00027D  Size=000002  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(icmp.o):
-    CODE              Offs=004243  Size=00002E  Align=00001  Fill=0000
+    CODE              Offs=00453D  Size=00002E  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(incsp1.o):
-    CODE              Offs=004271  Size=000007  Align=00001  Fill=0000
+    CODE              Offs=00456B  Size=000007  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(incsp2.o):
-    CODE              Offs=004278  Size=000015  Align=00001  Fill=0000
+    CODE              Offs=004572  Size=000015  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(incsp3.o):
-    CODE              Offs=00428D  Size=000005  Align=00001  Fill=0000
+    CODE              Offs=004587  Size=000005  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(incsp4.o):
-    CODE              Offs=004292  Size=000005  Align=00001  Fill=0000
+    CODE              Offs=00458C  Size=000005  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(incsp5.o):
-    CODE              Offs=004297  Size=000005  Align=00001  Fill=0000
+    CODE              Offs=004591  Size=000005  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(incsp6.o):
-    CODE              Offs=00429C  Size=000005  Align=00001  Fill=0000
+    CODE              Offs=004596  Size=000005  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(incsp7.o):
-    CODE              Offs=0042A1  Size=000005  Align=00001  Fill=0000
+    CODE              Offs=00459B  Size=000005  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(incsp8.o):
-    CODE              Offs=0042A6  Size=000005  Align=00001  Fill=0000
+    CODE              Offs=0045A0  Size=000005  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(isalnum.o):
-    CODE              Offs=0042AB  Size=000008  Align=00001  Fill=0000
+    CODE              Offs=0045A5  Size=000008  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(isalpha.o):
-    CODE              Offs=0042B3  Size=000008  Align=00001  Fill=0000
+    CODE              Offs=0045AD  Size=000008  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(isdigit.o):
-    CODE              Offs=0042BB  Size=000008  Align=00001  Fill=0000
+    CODE              Offs=0045B5  Size=000008  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(islower.o):
-    CODE              Offs=0042C3  Size=000008  Align=00001  Fill=0000
+    CODE              Offs=0045BD  Size=000008  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(isspace.o):
-    CODE              Offs=0042CB  Size=000008  Align=00001  Fill=0000
+    CODE              Offs=0045C5  Size=000008  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(isupper.o):
-    CODE              Offs=0042D3  Size=000008  Align=00001  Fill=0000
+    CODE              Offs=0045CD  Size=000008  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(ladd.o):
-    CODE              Offs=0042DB  Size=000024  Align=00001  Fill=0000
+    CODE              Offs=0045D5  Size=000024  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(lcmp.o):
-    CODE              Offs=0042FF  Size=00003B  Align=00001  Fill=0000
+    CODE              Offs=0045F9  Size=00003B  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(ldaxi.o):
-    CODE              Offs=00433A  Size=00000D  Align=00001  Fill=0000
+    CODE              Offs=004634  Size=00000D  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(ldaxsp.o):
-    CODE              Offs=004347  Size=000009  Align=00001  Fill=0000
+    CODE              Offs=004641  Size=000009  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(ldeaxysp.o):
-    CODE              Offs=004350  Size=000013  Align=00001  Fill=0000
+    CODE              Offs=00464A  Size=000013  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(ldptr1sp.o):
-    CODE              Offs=004363  Size=00000C  Align=00001  Fill=0000
+    CODE              Offs=00465D  Size=00000C  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(leaaxsp.o):
-    CODE              Offs=00436F  Size=00000C  Align=00001  Fill=0000
+    CODE              Offs=004669  Size=00000C  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(leave.o):
-    CODE              Offs=00437B  Size=00001B  Align=00001  Fill=0000
+    CODE              Offs=004675  Size=00001B  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(leq.o):
-    CODE              Offs=004396  Size=000006  Align=00001  Fill=0000
+    CODE              Offs=004690  Size=000006  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(lmul.o):
-    CODE              Offs=00439C  Size=000059  Align=00001  Fill=0000
+    CODE              Offs=004696  Size=000059  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(lneg.o):
-    CODE              Offs=0043F5  Size=00001E  Align=00001  Fill=0000
+    CODE              Offs=0046EF  Size=00001E  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(lpush.o):
-    CODE              Offs=004413  Size=00001E  Align=00001  Fill=0000
+    CODE              Offs=00470D  Size=00001E  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(ltoa.o):
-    CODE              Offs=004431  Size=000093  Align=00001  Fill=0000
+    CODE              Offs=00472B  Size=000093  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(ludiv.o):
-    CODE              Offs=0044C4  Size=000077  Align=00001  Fill=0000
+    CODE              Offs=0047BE  Size=000077  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(lugt.o):
-    CODE              Offs=00453B  Size=000006  Align=00001  Fill=0000
+    CODE              Offs=004835  Size=000006  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(lumod.o):
-    CODE              Offs=004541  Size=000017  Align=00001  Fill=0000
+    CODE              Offs=00483B  Size=000017  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(makebool.o):
-    CODE              Offs=004558  Size=00002C  Align=00001  Fill=0000
+    CODE              Offs=004852  Size=00002C  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(memcpy.o):
-    CODE              Offs=004584  Size=00003C  Align=00001  Fill=0000
+    CODE              Offs=00487E  Size=00003C  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(mul.o):
-    CODE              Offs=0045C0  Size=000045  Align=00001  Fill=0000
+    CODE              Offs=0048BA  Size=000045  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(mul8.o):
-    CODE              Offs=004605  Size=00003A  Align=00001  Fill=0000
+    CODE              Offs=0048FF  Size=00003A  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(open.o):
-    CODE              Offs=00463F  Size=000071  Align=00001  Fill=0000
+    CODE              Offs=004939  Size=000071  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(popptr1.o):
-    CODE              Offs=0046B0  Size=00000E  Align=00001  Fill=0000
+    CODE              Offs=0049AA  Size=00000E  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(printf.o):
-    CODE              Offs=0046BE  Size=000033  Align=00001  Fill=0000
-    BSS               Offs=00027D  Size=000001  Align=00001  Fill=0000
+    CODE              Offs=0049B8  Size=000033  Align=00001  Fill=0000
+    BSS               Offs=00027F  Size=000001  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(push1.o):
-    CODE              Offs=0046F1  Size=000005  Align=00001  Fill=0000
+    CODE              Offs=0049EB  Size=000005  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(pusha.o):
-    CODE              Offs=0046F6  Size=000016  Align=00001  Fill=0000
+    CODE              Offs=0049F0  Size=000016  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(pushax.o):
-    CODE              Offs=00470C  Size=00001A  Align=00001  Fill=0000
+    CODE              Offs=004A06  Size=00001A  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(pushptr1.o):
-    CODE              Offs=004726  Size=000007  Align=00001  Fill=0000
+    CODE              Offs=004A20  Size=000007  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(pushwsp.o):
-    CODE              Offs=00472D  Size=00001C  Align=00001  Fill=0000
+    CODE              Offs=004A27  Size=00001C  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(read.o):
-    CODE              Offs=004749  Size=000089  Align=00001  Fill=0000
+    CODE              Offs=004A43  Size=000089  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(read_xstack.o):
-    CODE              Offs=0047D2  Size=000062  Align=00001  Fill=0000
+    CODE              Offs=004ACC  Size=000062  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(return0.o):
-    CODE              Offs=004834  Size=000004  Align=00001  Fill=0000
+    CODE              Offs=004B2E  Size=000004  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(returnFFFF.o):
-    CODE              Offs=004838  Size=000004  Align=00001  Fill=0000
+    CODE              Offs=004B32  Size=000004  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(ria.o):
-    CODE              Offs=00483C  Size=00004E  Align=00001  Fill=0000
+    CODE              Offs=004B36  Size=00004E  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(staspidx.o):
-    CODE              Offs=00488A  Size=000016  Align=00001  Fill=0000
+    CODE              Offs=004B84  Size=000016  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(staxsp.o):
-    CODE              Offs=0048A0  Size=00000B  Align=00001  Fill=0000
+    CODE              Offs=004B9A  Size=00000B  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(staxspi.o):
-    CODE              Offs=0048AB  Size=00001A  Align=00001  Fill=0000
+    CODE              Offs=004BA5  Size=00001A  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(steaxsp.o):
-    CODE              Offs=0048C5  Size=000015  Align=00001  Fill=0000
+    CODE              Offs=004BBF  Size=000015  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(strchr.o):
-    CODE              Offs=0048DA  Size=000025  Align=00001  Fill=0000
+    CODE              Offs=004BD4  Size=000025  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(strcmp.o):
-    CODE              Offs=0048FF  Size=000021  Align=00001  Fill=0000
+    CODE              Offs=004BF9  Size=000021  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(strlen.o):
-    CODE              Offs=004920  Size=000016  Align=00001  Fill=0000
+    CODE              Offs=004C1A  Size=000016  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(strlower.o):
-    CODE              Offs=004936  Size=000027  Align=00001  Fill=0000
+    CODE              Offs=004C30  Size=000027  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(strncpy.o):
-    CODE              Offs=00495D  Size=000042  Align=00001  Fill=0000
+    CODE              Offs=004C57  Size=000042  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(strrchr.o):
-    CODE              Offs=00499F  Size=000024  Align=00001  Fill=0000
+    CODE              Offs=004C99  Size=000024  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(strtoul.o):
-    CODE              Offs=0049C3  Size=00022E  Align=00001  Fill=0000
+    CODE              Offs=004CBD  Size=00022E  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(sub.o):
-    CODE              Offs=004BF1  Size=000014  Align=00001  Fill=0000
+    CODE              Offs=004EEB  Size=000014  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(subeqsp.o):
-    CODE              Offs=004C05  Size=000015  Align=00001  Fill=0000
+    CODE              Offs=004EFF  Size=000015  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(subysp.o):
-    CODE              Offs=004C1A  Size=00000D  Align=00001  Fill=0000
+    CODE              Offs=004F14  Size=00000D  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(toupper.o):
-    CODE              Offs=004C27  Size=000012  Align=00001  Fill=0000
+    CODE              Offs=004F21  Size=000012  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(udiv.o):
-    CODE              Offs=004C39  Size=00004F  Align=00001  Fill=0000
+    CODE              Offs=004F33  Size=00004F  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(vfprintf.o):
-    CODE              Offs=004C88  Size=000060  Align=00001  Fill=0000
-    DATA              Offs=00004E  Size=000008  Align=00001  Fill=0000
+    CODE              Offs=004F82  Size=000060  Align=00001  Fill=0000
+    DATA              Offs=00014E  Size=000008  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(write_xram.o):
-    CODE              Offs=004CE8  Size=000021  Align=00001  Fill=0000
+    CODE              Offs=004FE2  Size=000021  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(zerobss.o):
-    CODE              Offs=004D09  Size=000023  Align=00001  Fill=0000
+    CODE              Offs=005003  Size=000023  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(zeropage.o):
     ZEROPAGE          Offs=000000  Size=00001A  Align=00001  Fill=0000
 
@@ -236,96 +236,96 @@ Segment list:
 Name                   Start     End    Size  Align
 ----------------------------------------------------
 ZEROPAGE              000000  000019  00001A  00001
-STARTUP               00A000  00A046  000047  00001
-ONCE                  00A047  00A054  00000E  00001
-CODE                  00A055  00ED80  004D2C  00001
-RODATA                00ED81  00F6F9  000979  00001
-DATA                  00F6FA  00F74F  000056  00001
-BSS                   00F750  00F9CD  00027E  00001
+STARTUP               009000  009046  000047  00001
+ONCE                  009047  009054  00000E  00001
+CODE                  009055  00E07A  005026  00001
+RODATA                00E07B  00EBD6  000B5C  00001
+DATA                  00EBD7  00ED2C  000156  00001
+BSS                   00ED2D  00EFAC  000280  00001
 
 
 Exports list by name:
 ---------------------
-__BSS_RUN__               00F750 RLA    __BSS_SIZE__              00027E REA    
-__CONSTRUCTOR_COUNT__     000001 REA    __CONSTRUCTOR_TABLE__     00A053 RLA    
-__DATA_LOAD__             00F6FA RLA    __DATA_RUN__              00F6FA RLA    
-__DATA_SIZE__             000056 REA    __DESTRUCTOR_COUNT__      000000 REA    
-__DESTRUCTOR_TABLE__      00F6FA RLA    __RAM_SIZE__              005D00 REA    
-__RAM_START__             00A000 RLA    __STACKSIZE__             000200 REA    
-__STARTADDR__             00A000 REA    __STARTUP__               000001 REA    
-___directerrno            00DB91 RLA    ___errno                  00FFED RLA    
-___oserror                00F998 RLA    ___seterrno               00DFD3 RLA    
-__ctype                   00F66F RLA    __ctypeidx                00F67A RLA    
-__fdesc                   00DB9A RLA    __filetab                 00F702 RLA    
-__fopen                   00DBB7 RLA    __hextab                  00F653 RLA    
-__longminstr              00F663 RLA    __printf                  00DD23 RLA    
-_close                    00E03E RLA    _errno_opt_constructor    00E105  LAI   
-_exit                     00A034 RLA    _fclose                   00E10F RLA    
-_fgetc                    00E12D RLA    _fgets                    00E190 RLA    
-_fopen                    00E209 RLA    _fwrite                   00E221 RLA    
-_isalnum                  00E300 RLA    _isalpha                  00E308 RLA    
-_isdigit                  00E310 RLA    _islower                  00E318 RLA    
-_isspace                  00E320 RLA    _isupper                  00E328 RLA    
-_ltoa                     00E49E RLA    _main                     00D653 RLA    
-_memcpy                   00E5D9 RLA    _open                     00E694 RLA    
-_printf                   00E713 RLA    _read                     00E79E RLA    
-_read_xstack              00E827 RLA    _ria_call_int             00E8C8 RLA    
-_ria_push_int             00E89B RLA    _ria_set_ax               00E8C1 RLA    
-_stdin                    00F71A RLA    _stdout                   00F71C RLA    
-_strchr                   00E92F RLA    _strcmp                   00E954 RLA    
-_strlen                   00E975 RLA    _strlower                 00E98B RLA    
-_strncpy                  00E9B2 RLA    _strrchr                  00E9F4 RLA    
-_strtoul                  00EA18 RLA    _toupper                  00EC7C RLA    
-_ultoa                    00E4DD RLA    _vfprintf                 00ED14 RLA    
-_write                    00DB45 RLA    _write_xram               00ED3D RLA    
-addeq0sp                  00DFDC RLA    addeqysp                  00DFDE RLA    
-addysp                    00DFEE RLA    addysp1                   00DFED RLA    
-axlong                    00E017 RLA    axulong                   00E01D RLA    
-bnegax                    00E024 RLA    booleq                    00E5B3 RLA    
-boolugt                   00E5D2 RLA    c_sp                      000000 RLZ    
-checkferror               00E032 RLA    copydata                  00E05B RLA    
-ctypemask                 00E088 RLA    ctypemaskdirect           00E08C RLA    
-decax1                    00E0A6 RLA    decaxy                    00E0AD RLA    
-decsp2                    00E0B6 RLA    decsp3                    00E0C3 RLA    
-decsp4                    00E0D0 RLA    decsp6                    00E0DD RLA    
-decsp8                    00E0EA RLA    donelib                   00E04F RLA    
-enter                     00E0F7 RLA    getlop                    00E528 RLA    
-incsp1                    00E2C6 RLA    incsp2                    00E2D4 RLA    
-incsp3                    00E2E2 RLA    incsp4                    00E2E7 RLA    
-incsp5                    00E2EC RLA    incsp6                    00E2F1 RLA    
-incsp7                    00E2F6 RLA    incsp8                    00E2FB RLA    
-initlib                   00A047 RLA    initmainargs              00A01B REA    
-ldax0sp                   00E39C RLA    ldaxi                     00E38F RLA    
-ldaxysp                   00E39E RLA    ldeaxysp                  00E3A7 RLA    
-ldptr1ysp                 00E3BA RLA    leaa0sp                   00E3C4 RLA    
-leavey                    00E3DA RLA    mul8x16                   00E65C RLA    
-mul8x16a                  00E666 RLA    negeax                    00E44A RLA    
-popax                     00E2CD RLA    popptr1                   00E705 RLA    
+__BSS_RUN__               00ED2D RLA    __BSS_SIZE__              000280 REA    
+__CONSTRUCTOR_COUNT__     000001 REA    __CONSTRUCTOR_TABLE__     009053 RLA    
+__DATA_LOAD__             00EBD7 RLA    __DATA_RUN__              00EBD7 RLA    
+__DATA_SIZE__             000156 REA    __DESTRUCTOR_COUNT__      000000 REA    
+__DESTRUCTOR_TABLE__      00EBD7 RLA    __RAM_SIZE__              006B00 REA    
+__RAM_START__             009000 RLA    __STACKSIZE__             000400 REA    
+__STARTADDR__             009000 REA    __STARTUP__               000001 REA    
+___directerrno            00CE8B RLA    ___errno                  00FFED RLA    
+___oserror                00EF77 RLA    ___seterrno               00D2CD RLA    
+__ctype                   00EB4C RLA    __ctypeidx                00EB57 RLA    
+__fdesc                   00CE94 RLA    __filetab                 00ECDF RLA    
+__fopen                   00CEB1 RLA    __hextab                  00EB30 RLA    
+__longminstr              00EB40 RLA    __printf                  00D01D RLA    
+_close                    00D338 RLA    _errno_opt_constructor    00D3FF  LAI   
+_exit                     009034 RLA    _fclose                   00D409 RLA    
+_fgetc                    00D427 RLA    _fgets                    00D48A RLA    
+_fopen                    00D503 RLA    _fwrite                   00D51B RLA    
+_isalnum                  00D5FA RLA    _isalpha                  00D602 RLA    
+_isdigit                  00D60A RLA    _islower                  00D612 RLA    
+_isspace                  00D61A RLA    _isupper                  00D622 RLA    
+_ltoa                     00D798 RLA    _main                     00C7B5 RLA    
+_memcpy                   00D8D3 RLA    _open                     00D98E RLA    
+_printf                   00DA0D RLA    _read                     00DA98 RLA    
+_read_xstack              00DB21 RLA    _ria_call_int             00DBC2 RLA    
+_ria_push_int             00DB95 RLA    _ria_set_ax               00DBBB RLA    
+_stdin                    00ECF7 RLA    _stdout                   00ECF9 RLA    
+_strchr                   00DC29 RLA    _strcmp                   00DC4E RLA    
+_strlen                   00DC6F RLA    _strlower                 00DC85 RLA    
+_strncpy                  00DCAC RLA    _strrchr                  00DCEE RLA    
+_strtoul                  00DD12 RLA    _toupper                  00DF76 RLA    
+_ultoa                    00D7D7 RLA    _vfprintf                 00E00E RLA    
+_write                    00CE3F RLA    _write_xram               00E037 RLA    
+addeq0sp                  00D2D6 RLA    addeqysp                  00D2D8 RLA    
+addysp                    00D2E8 RLA    addysp1                   00D2E7 RLA    
+axlong                    00D311 RLA    axulong                   00D317 RLA    
+bnegax                    00D31E RLA    booleq                    00D8AD RLA    
+boolugt                   00D8CC RLA    c_sp                      000000 RLZ    
+checkferror               00D32C RLA    copydata                  00D355 RLA    
+ctypemask                 00D382 RLA    ctypemaskdirect           00D386 RLA    
+decax1                    00D3A0 RLA    decaxy                    00D3A7 RLA    
+decsp2                    00D3B0 RLA    decsp3                    00D3BD RLA    
+decsp4                    00D3CA RLA    decsp6                    00D3D7 RLA    
+decsp8                    00D3E4 RLA    donelib                   00D349 RLA    
+enter                     00D3F1 RLA    getlop                    00D822 RLA    
+incsp1                    00D5C0 RLA    incsp2                    00D5CE RLA    
+incsp3                    00D5DC RLA    incsp4                    00D5E1 RLA    
+incsp5                    00D5E6 RLA    incsp6                    00D5EB RLA    
+incsp7                    00D5F0 RLA    incsp8                    00D5F5 RLA    
+initlib                   009047 RLA    initmainargs              00901B REA    
+ldax0sp                   00D696 RLA    ldaxi                     00D689 RLA    
+ldaxysp                   00D698 RLA    ldeaxysp                  00D6A1 RLA    
+ldptr1ysp                 00D6B4 RLA    leaa0sp                   00D6BE RLA    
+leavey                    00D6D4 RLA    mul8x16                   00D956 RLA    
+mul8x16a                  00D960 RLA    negeax                    00D744 RLA    
+popax                     00D5C7 RLA    popptr1                   00D9FF RLA    
 ptr1                      000008 RLZ    ptr2                      00000A RLZ    
 ptr3                      00000C RLZ    ptr4                      00000E RLZ    
-push0                     00E761 RLA    push1                     00E746 RLA    
-pusha                     00E74F RLA    pusha0                    00E763 RLA    
-pushax                    00E765 RLA    pusheax                   00E46F RLA    
-pushl0                    00E468 RLA    pushptr1                  00E77B RLA    
-pushw0sp                  00E782 RLA    pushwysp                  00E784 RLA    
+push0                     00DA5B RLA    push1                     00DA40 RLA    
+pusha                     00DA49 RLA    pusha0                    00DA5D RLA    
+pushax                    00DA5F RLA    pusheax                   00D769 RLA    
+pushl0                    00D762 RLA    pushptr1                  00DA75 RLA    
+pushw0sp                  00DA7C RLA    pushwysp                  00DA7E RLA    
 regbank                   000014 RLZ    regsave                   000004 RLZ    
-return0                   00E889 RLA    returnFFFF                00E88D RLA    
-shlax2                    00DFFB RLA    shlax4                    00E006 RLA    
-sreg                      000002 RLZ    staspidx                  00E8DF RLA    
-stax0sp                   00E8F5 RLA    staxspidx                 00E900 RLA    
-staxysp                   00E8F7 RLA    steax0sp                  00E91A RLA    
-steaxysp                  00E91C RLA    subeq0sp                  00EC5A RLA    
-subeqysp                  00EC5C RLA    subysp                    00EC6F RLA    
+return0                   00DB83 RLA    returnFFFF                00DB87 RLA    
+shlax2                    00D2F5 RLA    shlax4                    00D300 RLA    
+sreg                      000002 RLZ    staspidx                  00DBD9 RLA    
+stax0sp                   00DBEF RLA    staxspidx                 00DBFA RLA    
+staxysp                   00DBF1 RLA    steax0sp                  00DC14 RLA    
+steaxysp                  00DC16 RLA    subeq0sp                  00DF54 RLA    
+subeqysp                  00DF56 RLA    subysp                    00DF69 RLA    
 tmp1                      000010 RLZ    tmp2                      000011 RLZ    
 tmp3                      000012 RLZ    tmp4                      000013 RLZ    
-tosaddeax                 00E336 RLA    toseqeax                  00E3EB RLA    
-tosicmp                   00E29A RLA    tosicmp0                  00E298 RLA    
-toslcmp                   00E354 RLA    tossubax                  00EC48 RLA    
-tosudivax                 00EC90 RLA    tosudiveax                00E51D RLA    
-tosugteax                 00E590 RLA    tosumodeax                00E59A RLA    
-tosumula0                 00E65A RLA    tosumulax                 00E615 RLA    
-tosumuleax                00E3F5 RLA    udiv32                    00E54B RLA    
-zerobss                   00ED5E RLA    
+tosaddeax                 00D630 RLA    toseqeax                  00D6E5 RLA    
+tosicmp                   00D594 RLA    tosicmp0                  00D592 RLA    
+toslcmp                   00D64E RLA    tossubax                  00DF42 RLA    
+tosudivax                 00DF8A RLA    tosudiveax                00D817 RLA    
+tosugteax                 00D88A RLA    tosumodeax                00D894 RLA    
+tosumula0                 00D954 RLA    tosumulax                 00D90F RLA    
+tosumuleax                00D6EF RLA    udiv32                    00D845 RLA    
+zerobss                   00E058 RLA    
 
 
 Exports list by value:
@@ -337,78 +337,78 @@ ptr1                      000008 RLZ    ptr2                      00000A RLZ
 ptr3                      00000C RLZ    ptr4                      00000E RLZ    
 tmp1                      000010 RLZ    tmp2                      000011 RLZ    
 tmp3                      000012 RLZ    tmp4                      000013 RLZ    
-regbank                   000014 RLZ    __DATA_SIZE__             000056 REA    
-__STACKSIZE__             000200 REA    __BSS_SIZE__              00027E REA    
-__RAM_SIZE__              005D00 REA    __STARTADDR__             00A000 REA    
-__RAM_START__             00A000 RLA    initmainargs              00A01B REA    
-_exit                     00A034 RLA    initlib                   00A047 RLA    
-__CONSTRUCTOR_TABLE__     00A053 RLA    _main                     00D653 RLA    
-_write                    00DB45 RLA    ___directerrno            00DB91 RLA    
-__fdesc                   00DB9A RLA    __fopen                   00DBB7 RLA    
-__printf                  00DD23 RLA    ___seterrno               00DFD3 RLA    
-addeq0sp                  00DFDC RLA    addeqysp                  00DFDE RLA    
-addysp1                   00DFED RLA    addysp                    00DFEE RLA    
-shlax2                    00DFFB RLA    shlax4                    00E006 RLA    
-axlong                    00E017 RLA    axulong                   00E01D RLA    
-bnegax                    00E024 RLA    checkferror               00E032 RLA    
-_close                    00E03E RLA    donelib                   00E04F RLA    
-copydata                  00E05B RLA    ctypemask                 00E088 RLA    
-ctypemaskdirect           00E08C RLA    decax1                    00E0A6 RLA    
-decaxy                    00E0AD RLA    decsp2                    00E0B6 RLA    
-decsp3                    00E0C3 RLA    decsp4                    00E0D0 RLA    
-decsp6                    00E0DD RLA    decsp8                    00E0EA RLA    
-enter                     00E0F7 RLA    _errno_opt_constructor    00E105  LAI   
-_fclose                   00E10F RLA    _fgetc                    00E12D RLA    
-_fgets                    00E190 RLA    _fopen                    00E209 RLA    
-_fwrite                   00E221 RLA    tosicmp0                  00E298 RLA    
-tosicmp                   00E29A RLA    incsp1                    00E2C6 RLA    
-popax                     00E2CD RLA    incsp2                    00E2D4 RLA    
-incsp3                    00E2E2 RLA    incsp4                    00E2E7 RLA    
-incsp5                    00E2EC RLA    incsp6                    00E2F1 RLA    
-incsp7                    00E2F6 RLA    incsp8                    00E2FB RLA    
-_isalnum                  00E300 RLA    _isalpha                  00E308 RLA    
-_isdigit                  00E310 RLA    _islower                  00E318 RLA    
-_isspace                  00E320 RLA    _isupper                  00E328 RLA    
-tosaddeax                 00E336 RLA    toslcmp                   00E354 RLA    
-ldaxi                     00E38F RLA    ldax0sp                   00E39C RLA    
-ldaxysp                   00E39E RLA    ldeaxysp                  00E3A7 RLA    
-ldptr1ysp                 00E3BA RLA    leaa0sp                   00E3C4 RLA    
-leavey                    00E3DA RLA    toseqeax                  00E3EB RLA    
-tosumuleax                00E3F5 RLA    negeax                    00E44A RLA    
-pushl0                    00E468 RLA    pusheax                   00E46F RLA    
-_ltoa                     00E49E RLA    _ultoa                    00E4DD RLA    
-tosudiveax                00E51D RLA    getlop                    00E528 RLA    
-udiv32                    00E54B RLA    tosugteax                 00E590 RLA    
-tosumodeax                00E59A RLA    booleq                    00E5B3 RLA    
-boolugt                   00E5D2 RLA    _memcpy                   00E5D9 RLA    
-tosumulax                 00E615 RLA    tosumula0                 00E65A RLA    
-mul8x16                   00E65C RLA    mul8x16a                  00E666 RLA    
-_open                     00E694 RLA    popptr1                   00E705 RLA    
-_printf                   00E713 RLA    push1                     00E746 RLA    
-pusha                     00E74F RLA    push0                     00E761 RLA    
-pusha0                    00E763 RLA    pushax                    00E765 RLA    
-pushptr1                  00E77B RLA    pushw0sp                  00E782 RLA    
-pushwysp                  00E784 RLA    _read                     00E79E RLA    
-_read_xstack              00E827 RLA    return0                   00E889 RLA    
-returnFFFF                00E88D RLA    _ria_push_int             00E89B RLA    
-_ria_set_ax               00E8C1 RLA    _ria_call_int             00E8C8 RLA    
-staspidx                  00E8DF RLA    stax0sp                   00E8F5 RLA    
-staxysp                   00E8F7 RLA    staxspidx                 00E900 RLA    
-steax0sp                  00E91A RLA    steaxysp                  00E91C RLA    
-_strchr                   00E92F RLA    _strcmp                   00E954 RLA    
-_strlen                   00E975 RLA    _strlower                 00E98B RLA    
-_strncpy                  00E9B2 RLA    _strrchr                  00E9F4 RLA    
-_strtoul                  00EA18 RLA    tossubax                  00EC48 RLA    
-subeq0sp                  00EC5A RLA    subeqysp                  00EC5C RLA    
-subysp                    00EC6F RLA    _toupper                  00EC7C RLA    
-tosudivax                 00EC90 RLA    _vfprintf                 00ED14 RLA    
-_write_xram               00ED3D RLA    zerobss                   00ED5E RLA    
-__hextab                  00F653 RLA    __longminstr              00F663 RLA    
-__ctype                   00F66F RLA    __ctypeidx                00F67A RLA    
-__DATA_LOAD__             00F6FA RLA    __DATA_RUN__              00F6FA RLA    
-__DESTRUCTOR_TABLE__      00F6FA RLA    __filetab                 00F702 RLA    
-_stdin                    00F71A RLA    _stdout                   00F71C RLA    
-__BSS_RUN__               00F750 RLA    ___oserror                00F998 RLA    
+regbank                   000014 RLZ    __DATA_SIZE__             000156 REA    
+__BSS_SIZE__              000280 REA    __STACKSIZE__             000400 REA    
+__RAM_SIZE__              006B00 REA    __STARTADDR__             009000 REA    
+__RAM_START__             009000 RLA    initmainargs              00901B REA    
+_exit                     009034 RLA    initlib                   009047 RLA    
+__CONSTRUCTOR_TABLE__     009053 RLA    _main                     00C7B5 RLA    
+_write                    00CE3F RLA    ___directerrno            00CE8B RLA    
+__fdesc                   00CE94 RLA    __fopen                   00CEB1 RLA    
+__printf                  00D01D RLA    ___seterrno               00D2CD RLA    
+addeq0sp                  00D2D6 RLA    addeqysp                  00D2D8 RLA    
+addysp1                   00D2E7 RLA    addysp                    00D2E8 RLA    
+shlax2                    00D2F5 RLA    shlax4                    00D300 RLA    
+axlong                    00D311 RLA    axulong                   00D317 RLA    
+bnegax                    00D31E RLA    checkferror               00D32C RLA    
+_close                    00D338 RLA    donelib                   00D349 RLA    
+copydata                  00D355 RLA    ctypemask                 00D382 RLA    
+ctypemaskdirect           00D386 RLA    decax1                    00D3A0 RLA    
+decaxy                    00D3A7 RLA    decsp2                    00D3B0 RLA    
+decsp3                    00D3BD RLA    decsp4                    00D3CA RLA    
+decsp6                    00D3D7 RLA    decsp8                    00D3E4 RLA    
+enter                     00D3F1 RLA    _errno_opt_constructor    00D3FF  LAI   
+_fclose                   00D409 RLA    _fgetc                    00D427 RLA    
+_fgets                    00D48A RLA    _fopen                    00D503 RLA    
+_fwrite                   00D51B RLA    tosicmp0                  00D592 RLA    
+tosicmp                   00D594 RLA    incsp1                    00D5C0 RLA    
+popax                     00D5C7 RLA    incsp2                    00D5CE RLA    
+incsp3                    00D5DC RLA    incsp4                    00D5E1 RLA    
+incsp5                    00D5E6 RLA    incsp6                    00D5EB RLA    
+incsp7                    00D5F0 RLA    incsp8                    00D5F5 RLA    
+_isalnum                  00D5FA RLA    _isalpha                  00D602 RLA    
+_isdigit                  00D60A RLA    _islower                  00D612 RLA    
+_isspace                  00D61A RLA    _isupper                  00D622 RLA    
+tosaddeax                 00D630 RLA    toslcmp                   00D64E RLA    
+ldaxi                     00D689 RLA    ldax0sp                   00D696 RLA    
+ldaxysp                   00D698 RLA    ldeaxysp                  00D6A1 RLA    
+ldptr1ysp                 00D6B4 RLA    leaa0sp                   00D6BE RLA    
+leavey                    00D6D4 RLA    toseqeax                  00D6E5 RLA    
+tosumuleax                00D6EF RLA    negeax                    00D744 RLA    
+pushl0                    00D762 RLA    pusheax                   00D769 RLA    
+_ltoa                     00D798 RLA    _ultoa                    00D7D7 RLA    
+tosudiveax                00D817 RLA    getlop                    00D822 RLA    
+udiv32                    00D845 RLA    tosugteax                 00D88A RLA    
+tosumodeax                00D894 RLA    booleq                    00D8AD RLA    
+boolugt                   00D8CC RLA    _memcpy                   00D8D3 RLA    
+tosumulax                 00D90F RLA    tosumula0                 00D954 RLA    
+mul8x16                   00D956 RLA    mul8x16a                  00D960 RLA    
+_open                     00D98E RLA    popptr1                   00D9FF RLA    
+_printf                   00DA0D RLA    push1                     00DA40 RLA    
+pusha                     00DA49 RLA    push0                     00DA5B RLA    
+pusha0                    00DA5D RLA    pushax                    00DA5F RLA    
+pushptr1                  00DA75 RLA    pushw0sp                  00DA7C RLA    
+pushwysp                  00DA7E RLA    _read                     00DA98 RLA    
+_read_xstack              00DB21 RLA    return0                   00DB83 RLA    
+returnFFFF                00DB87 RLA    _ria_push_int             00DB95 RLA    
+_ria_set_ax               00DBBB RLA    _ria_call_int             00DBC2 RLA    
+staspidx                  00DBD9 RLA    stax0sp                   00DBEF RLA    
+staxysp                   00DBF1 RLA    staxspidx                 00DBFA RLA    
+steax0sp                  00DC14 RLA    steaxysp                  00DC16 RLA    
+_strchr                   00DC29 RLA    _strcmp                   00DC4E RLA    
+_strlen                   00DC6F RLA    _strlower                 00DC85 RLA    
+_strncpy                  00DCAC RLA    _strrchr                  00DCEE RLA    
+_strtoul                  00DD12 RLA    tossubax                  00DF42 RLA    
+subeq0sp                  00DF54 RLA    subeqysp                  00DF56 RLA    
+subysp                    00DF69 RLA    _toupper                  00DF76 RLA    
+tosudivax                 00DF8A RLA    _vfprintf                 00E00E RLA    
+_write_xram               00E037 RLA    zerobss                   00E058 RLA    
+__hextab                  00EB30 RLA    __longminstr              00EB40 RLA    
+__ctype                   00EB4C RLA    __ctypeidx                00EB57 RLA    
+__DATA_LOAD__             00EBD7 RLA    __DATA_RUN__              00EBD7 RLA    
+__DESTRUCTOR_TABLE__      00EBD7 RLA    __filetab                 00ECDF RLA    
+_stdin                    00ECF7 RLA    _stdout                   00ECF9 RLA    
+__BSS_RUN__               00ED2D RLA    ___oserror                00EF77 RLA    
 ___errno                  00FFED RLA    
 
 
@@ -437,13 +437,13 @@ __RAM_SIZE__ ([linker generated]):
 __RAM_START__ ([linker generated]):
     crt0.o                    rp6502/crt0.s:10
 __STACKSIZE__ ([linker generated]):
-    [linker generated]        ../ext0xA000.cfg:9
+    [linker generated]        ../ext0x9000.cfg:9
 __STARTADDR__ ([linker generated]):
-    [linker generated]        ../ext0xA000.cfg:9
-    [linker generated]        ../ext0xA000.cfg:9
+    [linker generated]        ../ext0x9000.cfg:9
+    [linker generated]        ../ext0x9000.cfg:9
 __STARTUP__ (crt0.o):
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:13
-    [linker generated]        ../ext0xA000.cfg:3
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:13
+    [linker generated]        ../ext0x9000.cfg:3
 ___directerrno (_directerrno.o):
     fclose.o                  common/fclose.s:10
 ___errno (errno.o):
@@ -476,45 +476,45 @@ __printf (_printf.o):
     vfprintf.o                common/vfprintf.s:10
 _close (close.o):
     fclose.o                  common/fclose.s:10
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:35
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:35
 _exit (crt0.o):
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:27
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:21
 _fclose (fclose.o):
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:17
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:17
 _fgetc (fgetc.o):
     fgets.o                   common/fgets.s:8
 _fgets (fgets.o):
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:18
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:18
 _fopen (fopen.o):
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:19
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:19
 _fwrite (fwrite.o):
     vfprintf.o                common/vfprintf.s:10
 _isalnum (isalnum.o):
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:29
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:23
 _isalpha (isalpha.o):
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:30
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:24
 _isdigit (isdigit.o):
     strtoul.o                 ../libwrk/rp6502/strtoul.s:18
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:31
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:25
 _islower (islower.o):
     strtoul.o                 ../libwrk/rp6502/strtoul.s:19
 _isspace (isspace.o):
     strtoul.o                 ../libwrk/rp6502/strtoul.s:20
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:32
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:26
 _isupper (isupper.o):
     strtoul.o                 ../libwrk/rp6502/strtoul.s:21
 _ltoa (ltoa.o):
     _printf.o                 common/_printf.s:12
-_main (ext-mass.c.19968.0.o):
+_main (ext-mass.c.23648.0.o):
     crt0.o                    rp6502/crt0.s:7
-    crt0_cmd.s.19968.1.o      crt0_cmd.s:2
+    crt0_cmd.s.23648.1.o      crt0_cmd.s:2
 _memcpy (memcpy.o):
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:26
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:33
 _open (open.o):
     _fopen.o                  common/_fopen.s:10
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:34
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:34
 _printf (printf.o):
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:20
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:20
 _read (read.o):
     fgetc.o                   common/fgetc.s:8
 _read_xstack (read_xstack.o):
@@ -534,59 +534,60 @@ _ria_set_ax (ria.o):
     open.o                    ../libwrk/rp6502/open.s:20
     close.o                   ../libwrk/rp6502/close.s:17
 _stdin (_file.o):
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:16
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:16
 _stdout (_file.o):
     printf.o                  common/printf.s:8
 _strchr (strchr.o):
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:21
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:28
 _strcmp (strcmp.o):
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:22
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:29
 _strlen (strlen.o):
     _printf.o                 common/_printf.s:13
     open.o                    ../libwrk/rp6502/open.s:23
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:23
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:30
 _strlower (strlower.o):
     _printf.o                 common/_printf.s:13
 _strncpy (strncpy.o):
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:24
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:31
 _strrchr (strrchr.o):
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:25
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:32
 _strtoul (strtoul.o):
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:28
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:22
 _toupper (toupper.o):
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:33
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:27
 _ultoa (ltoa.o):
     _printf.o                 common/_printf.s:12
 _vfprintf (vfprintf.o):
     printf.o                  common/printf.s:8
-_write (write_stub.c.19968.2.o):
+_write (write_stub.c.23648.2.o):
     fwrite.o                  common/fwrite.s:10
 _write_xram (write_xram.o):
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:15
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:15
 addeq0sp (addeqsp.o):
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
 addeqysp (addeqsp.o):
     read_xstack.o             ../libwrk/rp6502/read_xstack.s:94
     read.o                    ../libwrk/rp6502/read.s:116
     strtoul.o                 ../libwrk/rp6502/strtoul.s:369
-    write_stub.c.19968.2.o    write_stub.c.19968.2.s:64
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
+    write_stub.c.23648.2.o    write_stub.c.23648.2.s:64
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
 addysp (addysp.o):
     read_xstack.o             ../libwrk/rp6502/read_xstack.s:94
     read.o                    ../libwrk/rp6502/read.s:116
@@ -600,15 +601,15 @@ addysp (addysp.o):
     incsp5.o                  runtime/incsp5.s:8
     incsp4.o                  runtime/incsp4.s:8
     incsp3.o                  runtime/incsp3.s:8
-    write_stub.c.19968.2.o    write_stub.c.19968.2.s:64
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
+    write_stub.c.23648.2.o    write_stub.c.23648.2.s:64
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
 addysp1 (addysp.o):
     ludiv.o                   runtime/ludiv.s:9
     lmul.o                    runtime/lmul.s:9
@@ -621,10 +622,10 @@ axulong (axlong.o):
     _printf.o                 common/_printf.s:11
     strtoul.o                 ../libwrk/rp6502/strtoul.s:369
 bnegax (bneg.o):
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
 booleq (makebool.o):
     leq.o                     runtime/leq.s:8
 boolugt (makebool.o):
@@ -672,8 +673,8 @@ c_sp (zeropage.o):
     crt0.o                    /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:11
     addysp.o                  runtime/addysp.s:8
     addeqsp.o                 runtime/addeqsp.s:8
-    write_stub.c.19968.2.o    write_stub.c.19968.2.s:10
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:10
+    write_stub.c.23648.2.o    write_stub.c.23648.2.s:10
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:10
 checkferror (checkferror.o):
     fgetc.o                   common/fgetc.s:8
 copydata (copydata.o):
@@ -693,124 +694,125 @@ decax1 (decax1.o):
 decaxy (decaxy.o):
     strtoul.o                 ../libwrk/rp6502/strtoul.s:369
 decsp2 (decsp2.o):
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
 decsp3 (decsp3.o):
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
 decsp4 (decsp4.o):
     read_xstack.o             ../libwrk/rp6502/read_xstack.s:94
     lpush.o                   runtime/lpush.s:12
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
 decsp6 (decsp6.o):
     _printf.o                 common/_printf.s:11
     strtoul.o                 ../libwrk/rp6502/strtoul.s:369
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
 decsp8 (decsp8.o):
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
 donelib (condes.o):
     crt0.o                    rp6502/crt0.s:12
-    crt0_cmd.s.19968.1.o      crt0_cmd.s:2
+    crt0_cmd.s.23648.1.o      crt0_cmd.s:2
 enter (enter.o):
     open.o                    ../libwrk/rp6502/open.s:105
 getlop (ludiv.o):
     lumod.o                   runtime/lumod.s:9
 incsp1 (incsp1.o):
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
 incsp2 (incsp2.o):
     fgetc.o                   common/fgetc.s:9
     staxspi.o                 runtime/staxspi.s:9
     staspidx.o                runtime/staspidx.s:8
     popptr1.o                 runtime/popptr1.s:8
     close.o                   ../libwrk/rp6502/close.s:47
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
 incsp3 (incsp3.o):
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
 incsp4 (incsp4.o):
     lcmp.o                    runtime/lcmp.s:9
     read.o                    ../libwrk/rp6502/read.s:116
     _fopen.o                  common/_fopen.s:11
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
 incsp5 (incsp5.o):
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
 incsp6 (incsp6.o):
     fwrite.o                  common/fwrite.s:11
     write_xram.o              ../libwrk/rp6502/write_xram.s:57
     vfprintf.o                common/vfprintf.s:9
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
 incsp7 (incsp7.o):
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
 incsp8 (incsp8.o):
     read.o                    ../libwrk/rp6502/read.s:116
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
 initlib (condes.o):
     crt0.o                    rp6502/crt0.s:12
-    crt0_cmd.s.19968.1.o      crt0_cmd.s:2
-initmainargs (initmainargs.s.19968.3.o):
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:14
+    crt0_cmd.s.23648.1.o      crt0_cmd.s:2
+initmainargs (initmainargs.s.23648.3.o):
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:14
 ldax0sp (ldaxsp.o):
     read_xstack.o             ../libwrk/rp6502/read_xstack.s:94
     read.o                    ../libwrk/rp6502/read.s:116
@@ -892,8 +894,8 @@ ptr1 (zeropage.o):
     memcpy.o                  common/memcpy.s:15
     fgets.o                   common/fgets.s:9
     fclose.o                  common/fclose.s:11
-    write_stub.c.19968.2.o    write_stub.c.19968.2.s:11
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:11
+    write_stub.c.23648.2.o    write_stub.c.23648.2.s:11
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:11
 ptr2 (zeropage.o):
     strlower.o                common/strlower.s:13
     lumod.o                   runtime/lumod.s:10
@@ -920,32 +922,32 @@ ptr4 (zeropage.o):
 push0 (pushax.o):
     read.o                    ../libwrk/rp6502/read.s:116
     strtoul.o                 ../libwrk/rp6502/strtoul.s:369
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
 push1 (push1.o):
     _printf.o                 common/_printf.s:11
     vfprintf.o                common/vfprintf.s:9
 pusha (pusha.o):
     strtoul.o                 ../libwrk/rp6502/strtoul.s:369
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
 pusha0 (pushax.o):
     push1.o                   runtime/push1.s:8
     fwrite.o                  common/fwrite.s:11
     fgetc.o                   common/fgetc.s:9
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
 pushax (pushax.o):
     read_xstack.o             ../libwrk/rp6502/read_xstack.s:94
     read.o                    ../libwrk/rp6502/read.s:116
@@ -959,46 +961,47 @@ pushax (pushax.o):
     open.o                    ../libwrk/rp6502/open.s:105
     fopen.o                   common/fopen.s:11
     close.o                   ../libwrk/rp6502/close.s:47
-    write_stub.c.19968.2.o    write_stub.c.19968.2.s:64
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
+    write_stub.c.23648.2.o    write_stub.c.23648.2.s:64
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
 pusheax (lpush.o):
     _printf.o                 common/_printf.s:11
     strtoul.o                 ../libwrk/rp6502/strtoul.s:369
@@ -1007,35 +1010,37 @@ pushl0 (lpush.o):
 pushptr1 (pushptr1.o):
     fgets.o                   common/fgets.s:8
 pushw0sp (pushwsp.o):
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
 pushwysp (pushwsp.o):
     read.o                    ../libwrk/rp6502/read.s:116
     fwrite.o                  common/fwrite.s:11
     vfprintf.o                common/vfprintf.s:9
-    write_stub.c.19968.2.o    write_stub.c.19968.2.s:64
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
+    write_stub.c.23648.2.o    write_stub.c.23648.2.s:64
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
 regbank (zeropage.o):
     _printf.o                 /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:14
     strtoul.o                 ../libwrk/rp6502/strtoul.s:10
 regsave (zeropage.o):
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:10
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:10
 return0 (return0.o):
     _fopen.o                  common/_fopen.s:11
     _fdesc.o                  common/_fdesc.s:9
@@ -1043,9 +1048,9 @@ return0 (return0.o):
 returnFFFF (returnFFFF.o):
     fgetc.o                   common/fgetc.s:9
 shlax2 (aslax2.o):
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
 shlax4 (aslax4.o):
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
 sreg (zeropage.o):
     lcmp.o                    runtime/lcmp.s:10
     udiv.o                    runtime/udiv.s:10
@@ -1063,50 +1068,53 @@ sreg (zeropage.o):
     steaxsp.o                 runtime/steaxsp.s:8
     ria.o                     rp6502/ria.s:13
     icmp.o                    runtime/icmp.s:9
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:10
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:10
 staspidx (staspidx.o):
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
 stax0sp (staxsp.o):
     read_xstack.o             ../libwrk/rp6502/read_xstack.s:94
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
 staxspidx (staxspi.o):
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
 staxysp (staxsp.o):
     read_xstack.o             ../libwrk/rp6502/read_xstack.s:94
     strtoul.o                 ../libwrk/rp6502/strtoul.s:369
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
 steax0sp (steaxsp.o):
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
 steaxysp (steaxsp.o):
     strtoul.o                 ../libwrk/rp6502/strtoul.s:369
 subeq0sp (subeqsp.o):
     open.o                    ../libwrk/rp6502/open.s:105
-    write_stub.c.19968.2.o    write_stub.c.19968.2.s:64
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
+    write_stub.c.23648.2.o    write_stub.c.23648.2.s:64
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
 subeqysp (subeqsp.o):
     read.o                    ../libwrk/rp6502/read.s:116
 subysp (subysp.o):
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
 tmp1 (zeropage.o):
     mul.o                     runtime/mul.s:10
     ltoa.o                    common/ltoa.s:11
@@ -1122,7 +1130,7 @@ tmp1 (zeropage.o):
     staspidx.o                runtime/staspidx.s:9
     aslax4.o                  runtime/aslax4.s:8
     aslax2.o                  runtime/aslax2.s:8
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:11
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:11
 tmp2 (zeropage.o):
     lmul.o                    runtime/lmul.s:10
     strrchr.o                 common/strrchr.s:10
@@ -1141,17 +1149,17 @@ tosaddeax (ladd.o):
 toseqeax (leq.o):
     strtoul.o                 ../libwrk/rp6502/strtoul.s:369
 tosicmp (icmp.o):
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
 tosicmp0 (icmp.o):
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
 toslcmp (lcmp.o):
     lugt.o                    runtime/lugt.s:8
     leq.o                     runtime/leq.s:8
 tossubax (sub.o):
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
 tosudivax (udiv.o):
     fwrite.o                  common/fwrite.s:12
 tosudiveax (ludiv.o):
@@ -1161,7 +1169,7 @@ tosugteax (lugt.o):
 tosumodeax (lumod.o):
     strtoul.o                 ../libwrk/rp6502/strtoul.s:369
 tosumula0 (mul8.o):
-    ext-mass.c.19968.0.o      ext-mass.c.19968.0.s:9219
+    ext-mass.c.23648.0.o      ext-mass.c.23648.0.s:9632
 tosumulax (mul.o):
     fwrite.o                  common/fwrite.s:12
 tosumuleax (lmul.o):

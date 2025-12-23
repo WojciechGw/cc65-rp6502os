@@ -5,14 +5,7 @@
  * SPDX-License-Identifier: Unlicense
  */
 
-#include <rp6502.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <fcntl.h>
-#include <stdint.h>
-#include <unistd.h>
-#include <string.h>
-#include <time.h>
+#include "commons.h"
 
 #define RX_READY (RIA.ready & RIA_READY_RX_BIT)
 #define TX_READY (RIA.ready & RIA_READY_TX_BIT)

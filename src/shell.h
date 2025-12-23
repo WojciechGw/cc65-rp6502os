@@ -10,31 +10,17 @@
 // Picocomputer 6502 documentation
 // https://picocomputer.github.io/index.html
 
-#include <rp6502.h>
-#include <stdio.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <string.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <time.h>
-#include "colors.h"
+#include "commons.h"
 
 extern struct _timezone _tz;
 
 #ifndef __STACKSIZE__
     #define __STACKSIZE__ 0x0400
 #endif
-#define MEMTOP (0xFD00-__STACKSIZE__)
-#define COM_LOAD_ADDR 0xA000  // default where to upload the code (binary shell extensions - .com files)
+#define MEMTOP (0xFF00-__STACKSIZE__)
+#define COM_LOAD_ADDR 0x9000  // lowest ram address where to load the external command code (binary shell extensions - .com files)
 
-#define STR_HELPER(x) #x
-#define STR(x) STR_HELPER(x)
-
-#define NEWLINE "\r\n"
-
-#define SHELLVER "20251221.1324"
+#define SHELLVER "20251223.2254"
 #define SHELLDIRDEFAULT "USB0:/SHELL/"
 #define SHELLPROMPT "> "
 #define SHELLPROMPT_1ST "> " ANSI_GREEN "[F1] help" ANSI_RESET " > "
@@ -60,28 +46,6 @@ extern struct _timezone _tz;
 #define RX_READY_SPIN while(!RX_READY)
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
-
-#define CHAR_BELL   0x07
-#define CHAR_BS     0x08
-#define CHAR_CR     0x0D
-#define CHAR_LF     0x0A
-#define CHAR_ESC    0x1B
-#define CHAR_NCHR   0x5B
-#define CHAR_UP     0x41
-#define CHAR_DOWN   0x42
-#define CHAR_RIGHT  0x43
-#define CHAR_LEFT   0x44
-#define CHAR_F1     0x50
-#define CHAR_F2     0x51
-#define CHAR_F3     0x52
-#define CHAR_F4     0x53
-
-#define KEY_DEL     0x7F
-#define TAB         "\t"
-#define CSI_RESET   "\x1b" "c"
-#define CSI_CURSOR_SHOW "\x1b[?25h"
-#define CSI_CURSOR_HIDE "\x1b[?25l"
-#define CSI_CURSOR_AT "\x1b" "n20;m15H"
 
 #ifndef AM_DIR
 #define AM_DIR 0x10
@@ -194,9 +158,9 @@ int cmd_run(int, char **);
 int cmd_stat(int, char **);
 int cmd_time(int, char **);
 // TO DO
-int cmd_cart(int, char **); // load and run <romname>.rp6502
-int cmd_crx(int, char**); // receive file from RIA UART
-int cmd_ctx(int, char**); // send file to RIA UART
+// int cmd_cart(int, char **); // load and run <romname>.rp6502
+// int cmd_crx(int, char**); // receive file from RIA UART
+// int cmd_ctx(int, char**); // send file to RIA UART
 
 static const cmd_t commands[] = {
     { "bload",  "", "", cmd_bload},
@@ -226,9 +190,9 @@ static const cmd_t commands[] = {
     { "stat",   "", "", cmd_stat},
     { "time",   "", "", cmd_time },
 // TO DO
-    { "cart",    "", "", cmd_cart},
-    { "crx",   "", "", cmd_crx },
-    { "ctx",   "", "", cmd_ctx },
+//    { "cart",    "", "", cmd_cart},
+//    { "crx",   "", "", cmd_crx },
+//    { "ctx",   "", "", cmd_ctx },
 };
 
 static void load_setup(void);
@@ -250,7 +214,7 @@ uint16_t mem_lo(void);
 uint16_t mem_top(void);
 uint16_t mem_free(void);
 struct tm *get_time(void);
-int set_time(void);
+// int set_time(void);
 void show_time(void);
 int hexstr(char *str, uint8_t val);
 void hexdump(uint16_t addr, uint16_t bytes, char_stream_func_t streamer, read_data_func_t reader);

@@ -1,9 +1,4 @@
-#include <rp6502.h>
-#include <stdio.h>
-#include <time.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdint.h>
+#include "commons.h"
 
 struct Month {
     const char* name;

@@ -5,12 +5,7 @@
  * SPDX-License-Identifier: Unlicense
  */
 
-#include <rp6502.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <fcntl.h>
-#include <stdint.h>
-#include "usb_hid_keys.h"
+#include "commons.h"
 
 // An extremely simple terminal for the Pico RIA W modem.
 // Uses the terminal built in to the Pico VGA.
@@ -18,8 +13,7 @@
 // Keyboard related
 //
 // XRAM locations
-#define KEYBOARD_INPUT 0xFF10 // KEYBOARD_BYTES of bitmask data
-// 256 bytes HID code max, stored in 32 uint8
+#define KEYBOARD_INPUT 0xFF00 // KEYBOARD_BYTES of bitmask data
 #define KEYBOARD_BYTES 32
 uint8_t keystates[KEYBOARD_BYTES] = {0};
 // keystates[code>>3] gets contents from correct byte in array

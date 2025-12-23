@@ -1,15 +1,6 @@
 /* ext-rx-echo.c - C89, cc65 (Picocomputer RP6502-RIA UART) */
 
-#include <rp6502.h>
-#include <stdio.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <string.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <time.h>
-#include "colors.h"
+#include "commons.h"
 
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)

@@ -1,6 +1,4 @@
-#include <rp6502.h>
-#include <stdio.h>
-#include <string.h>
+#include "commons.h"
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
 #define NEWLINE "\r\n"
@@ -88,9 +86,10 @@ static const cmd_t commands_ext[] = {
     { "label",      "show or set active drive's volume label", 
                     "label          - show active drive's label" NEWLINE
                     "label NEWLABEL - set active drive label to NEWLABEL" },
-    { "mass",       "Mini ASSembler application for OS Shell", 
-                    "mass           - instant code writer and compiler" NEWLINE
-                    "mass <source>  - source file compilet, out.bin as a result" },
+    { "mass",       "Mini ASSembler application for OS Shell",
+                    "mass                            - instant write and compile a code" NEWLINE
+                    "mass <source>                   - <source> file, out.bin as a result" NEWLINE
+                    "mass <source> -o <destination>  - <source> file, <destination> as a result"},
     { "courier",    "Courier - file transfer in/out application for OS Shell ", 
                     "courier        - run application" },
 };

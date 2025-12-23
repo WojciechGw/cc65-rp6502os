@@ -12,7 +12,7 @@ mass sourcecode.asm -out outfile.bin -base <baseaddress> -run <runaddress>
 #define APPVER "20251223.2315"
 #define APPDIRDEFAULT "USB0:/SHELL/"
 #define APP_MSG_TITLE CSI_RESET "\x1b[1;1HOS Shell > Mini ASSembler 65C02S                           version " APPVER
-#define APP_MSG_START_ASSEMBLING ANSI_DARK_GRAY "\x1b[3;1HStart compilation ... " ANSI_RESET
+#define APP_MSG_START_COMPILING ANSI_DARK_GRAY "\x1b[3;1HStart compilation ... " ANSI_RESET
 #define APP_MSG_START_ENTERCODE ANSI_DARK_GRAY "\x1b[3;1HEnter code, empty line start compilation ... " ANSI_RESET
 
 /* --- limity --- */
@@ -37,7 +37,6 @@ static char g_buf3[MAXLEN];
 static char g_tok[80];
 static char g_incpath[256];
 static char g_symtmp[48];
-static char g_outpath[256] = "out.bin";
 
 #define STAT_SUCCESS        0b00000000
 #define STAT_PASS1_ERROR    0b00000001
@@ -279,15 +278,6 @@ static int parse_ascii_bytes(const char* s, uint8_t* out, int max_out, int* out_
     if(*s) return 0;
     if(out_len) *out_len = n;
     return 1;
-}
-
-static void set_output_path(const char* path){
-    size_t len;
-    if(!path || !*path) return;
-    len = strlen(path);
-    if(len >= sizeof(g_outpath)) len = sizeof(g_outpath) - 1;
-    memcpy(g_outpath, path, len);
-    g_outpath[len] = 0;
 }
 
 /* rozpoznaje składnię: NAME .equ value (zwraca wskaźniki do bufora roboczego) */
@@ -873,16 +863,16 @@ static void save_bin(void){
     len = (pc > org) ? (unsigned)(pc - org) : 0;
     printf("ORG=$%04X, size=%u bytes" NEWLINE, org, len);
     if(len > 0 && !assembly_status){
-        int fd = open(g_outpath, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+        int fd = open("out.bin", O_WRONLY | O_CREAT | O_TRUNC, 0666);
         if(fd < 0){
-            printf("Writing error (open %s)" NEWLINE, g_outpath);
+            printf("Writing error (open out.bin)" NEWLINE);
             return;
         }
         /* dane już są w XRAM -> write_xram nie potrzebuje kopiowania do RAM */
         if(write_xram((unsigned)XRAM_OUT_BASE, len, fd) < 0){
             printf("Writing error (write_xram)" NEWLINE);
         }else{
-            printf(NEWLINE "Save in %s" NEWLINE, g_outpath);
+            printf(NEWLINE "Save in out.bin" NEWLINE);
         }
         close(fd);
     } else {
@@ -895,28 +885,12 @@ int main(int argc, char **argv){
     char *s,*dir,*rest; const char* q;
     int i;
     int loaded_from_file = 0;
-    const char* input_path = 0;
 
     printf(CSI_RESET APP_MSG_TITLE);
 
-    /*
     printf("List of parameters" NEWLINE "--------------" NEWLINE "argc=%d" NEWLINE, argc);
     for(i = 0; i < argc; i++) {
         printf("argv[%d]=\"%s\"" NEWLINE, i, argv[i]);
-    }
-    */
-   
-    for(i = 0; i < argc; i++){
-        if(strcmp(argv[i], "-o") == 0){
-            if((i + 1) < argc && argv[i + 1] && argv[i + 1][0]){
-                set_output_path(argv[i + 1]);
-                ++i;
-            }else{
-                printf("Missing output filename after -o" NEWLINE);
-            }
-            continue;
-        }
-        if(!input_path && argv[i] && argv[i][0]) input_path = argv[i];
     }
 
     nsym = 0;
@@ -927,13 +901,13 @@ int main(int argc, char **argv){
 
     assembly_status = STAT_SUCCESS;
 
-    if(input_path){
-        FILE* src = fopen(input_path, "rb");
+    if(argc > 0 && argv[0] && argv[0][0]){
+        FILE* src = fopen(argv[0], "rb");
         if(!src){
-            printf("Can't open source file %s" NEWLINE, input_path);
+            printf("Can't open source file %s" NEWLINE, argv[0]);
         }else{
-            printf(APP_MSG_START_ASSEMBLING NEWLINE);
-            printf("Open source file %s" NEWLINE, input_path);
+            printf(APP_MSG_START_COMPILING NEWLINE);
+            printf("Open source file %s" NEWLINE, argv[0]);
             while(nlines < MAXLINES && fgets(g_buf,sizeof(g_buf),src)){
                 rstrip(g_buf);
                 strncpy(g_buf2, g_buf, sizeof(g_buf2)-1); g_buf2[sizeof(g_buf2)-1]=0;
