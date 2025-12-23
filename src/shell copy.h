@@ -27,7 +27,7 @@ extern struct _timezone _tz;
     #define __STACKSIZE__ 0x0400
 #endif
 #define MEMTOP (0xFD00-__STACKSIZE__)
-#define COM_LOAD_ADDR 0xA000  // default where to upload the code (binary shell extensions - .com files)
+#define COM_LOAD_ADDR 0x9000  // default where to upload the code (binary shell extensions - .com files)
 
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)
@@ -175,8 +175,8 @@ static char msg[80] = {0};
 uint32_t ticks = 0; // for PAUSE(millis)
 #define PAUSE(millis) ticks=clock(); while(clock() < (ticks + millis)){}
 
-#define APPFLAG_RTC 0b00000001
-unsigned char appflags = 0b00000000;
+#define FLAG_RTC 0b00000001
+unsigned char flags = 0b00000000;
 
 static const char default_shelldir[] = SHELLDIRDEFAULT;
 char shelldir[64];
@@ -263,8 +263,8 @@ int cmd_stat(int, char **);
 int cmd_time(int, char **);
 // TO DO
 int cmd_cart(int, char **); // load and run <romname>.rp6502
-int cmd_crx(int, char**); // receive file from RIA UART
-int cmd_ctx(int, char**); // send file to RIA UART
+int cmd_rx(int, char**); // receive file from RIA UART
+int cmd_tx(int, char**); // send file to RIA UART
 
 static const cmd_t commands[] = {
     { "bload",  "", "", cmd_bload},
@@ -295,8 +295,8 @@ static const cmd_t commands[] = {
     { "time",   "", "", cmd_time },
 // TO DO
     { "cart",    "", "", cmd_cart},
-    { "crx",   "", "", cmd_crx },
-    { "ctx",   "", "", cmd_ctx },
+    { "rx",   "", "", cmd_rx },
+    { "tx",   "", "", cmd_tx },
 };
 
 static void load_setup(void);
@@ -317,8 +317,6 @@ void xram_writer(const uint8_t *buf, uint16_t addr, uint16_t size);
 uint16_t mem_lo(void);
 uint16_t mem_top(void);
 uint16_t mem_free(void);
-struct tm *get_time(void);
-int set_time(void);
 void show_time(void);
 int hexstr(char *str, uint8_t val);
 void hexdump(uint16_t addr, uint16_t bytes, char_stream_func_t streamer, read_data_func_t reader);
@@ -358,8 +356,8 @@ int cmd_run(int argc, char **argv);
 int cmd_stat(int argc, char **argv);
 int cmd_time(int argc, char **argv);
 int cmd_cart(int argc, char **argv);
-int cmd_crx(int argc, char **argv);
-int cmd_ctx(int argc, char **argv);
+int cmd_rx(int argc, char **argv);
+int cmd_tx(int argc, char **argv);
 
 /*
 void DrawChar(uint8_t row, uint8_t col, char ch, uint8_t fg, uint8_t bg);

@@ -54,8 +54,8 @@ try {
     $serialPort.RtsEnable = $true
     try {
         $serialPort.Open()
-        Start-Sleep -Milliseconds 400
-        Send-LineAndWait -port $serialPort -text "exit" -label "exit" -prompt "]"        
+        Start-Sleep -Milliseconds 500
+        Send-LineAndWait -port $serialPort -text "exit" -label "exit" -prompt "]"
         Start-Sleep -Milliseconds 400
         Send-LineAndWait -port $serialPort -text "0:" -label "0:" -prompt "]"
         Start-Sleep -Milliseconds 400

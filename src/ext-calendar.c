@@ -60,7 +60,10 @@ int main(int argc, char **argv) {
     month = tm->tm_mon + 1;
     day = tm->tm_mday;
 
-    if(year == 1970) printf(NEWLINE "[INFO] Real Time Clock is not set." NEWLINE);
+    if(year == 1970){
+        printf(NEWLINE "[Calendar: INFO] Real Time Clock is not set." NEWLINE);
+        return 0;
+    } 
 
     if(argc > 0){
         if (strcmp(argv[0], "/y") == 0 ) {

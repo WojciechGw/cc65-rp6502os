@@ -18,34 +18,25 @@ int main(void) {
     char last_rx = 0;
     char ext_rx = 0;
     static cmdline_t cmdline = {0};
-    struct tm *tmnow = get_time();
-
+    
     // start screen
     tx_string(CSI_RESET);
     tx_string(CSI_CURSOR_HIDE); // hide cursor
     tx_string(APP_MSG_START);
 
-    if(!(appflags & APPFLAG_RTC)){
-        i = 0;
-        while (1){
-            ++i;
-            tx_char('.');
-            PAUSE(50);
-            if(i % 10){
-                tx_string("\x1b[1m");
-                tmnow = get_time();
-                if(appflags & APPFLAG_RTC) break;
-            } else {
-                tx_string("\x1b[10D" ANSI_DARK_GRAY ".........." "\x1b[10D" ANSI_WHITE);
-            }
-            if (i > 60){
-                if(!(appflags & APPFLAG_RTC)) tx_string(NEWLINE "RTC is not set.");
-                set_time();
-                break;
-            }
+    i = 0;
+    while (1){
+        ++i;
+        tx_char('.');
+        PAUSE(50);
+        if(i % 10){
+            tx_string("\x1b[1m");
+        } else {
+            tx_string("\x1b[10D" ANSI_DARK_GRAY ".........." "\x1b[10D");
         }
-    } else {
-        PAUSE(100);
+        if (i > 30){
+            break;
+        }
     }
     tx_string(CSI_RESET);
     tx_string(CSI_CURSOR_SHOW "\x1b[0m");
@@ -518,95 +509,50 @@ uint16_t mem_free(void) {
     return (uint16_t)(MEMTOP - mem_lo() + 1);
 }
 
-// Return pointer to current RTC time; tm_year=1970 signals "RTC not set".
-struct tm *get_time(void) {
-    static struct tm tmnow = {0};
-    time_t tnow;
+// get time
+time_t get_time(){
 
-    tmnow.tm_year = 70; /* 1970-01-01 is treated as "RTC not set" */
-    tmnow.tm_mday = 1;
+    time_t tnow;
+    struct tm *tmnow;
 
     if(time(&tnow) != (time_t)-1) {
         ria_tzset(tnow);       /* adjust TZ/DST in OS */
-        {
-            struct tm *res = localtime(&tnow);
-            if(res) {
-                tmnow = *res;
-                tmnow.tm_isdst = _tz.daylight; /* cc65 localtime DST fix */
-            }
+        tmnow = localtime(&tnow);
+        if(tmnow) tmnow->tm_isdst = _tz.daylight; /* cc65 localtime DST fix */
+    } else {
+        tmnow = 0;
+    }
+    if(tmnow) {
+        if((tmnow->tm_year + 1900) == 1970){
+            tx_string(NEWLINE "[time: INFO] Real Time Clock is not set." NEWLINE);
+            return;            
         }
     }
-    if(tmnow.tm_year > 70){
-        appflags |= APPFLAG_RTC;
-    } else {
-        appflags &= (unsigned char)~APPFLAG_RTC;
-    }
-    return &tmnow;
-}
-
-// Interactive setter for RTC when it is unset (year 1970).
-int set_time(void) {
-    char line[32];
-    int year, mon, day, hour, min, sec;
-    struct tm tmset;
-    struct timespec ts;
-    time_t epoch;
-    int len;
-
-    tx_string(ANSI_CLS "[OS Shell INFO] RTC is not set." NEWLINE
-              "Enter current date & time [YYYY-MM-DD HH:MM:SS]" NEWLINE
-              "or press ESC to cancel procedure." NEWLINE "> " CSI_CURSOR_SHOW);
-    len = read_line_editor(line, sizeof(line));
-    if(len <= 0) {
-        tx_string(NEWLINE "[OS Shell INFO] Cancel." NEWLINE);
-        return -1;
-    }
-    if(sscanf(line, "%4d-%2d-%2d %2d:%2d:%2d", &year, &mon, &day, &hour, &min, &sec) != 6) {
-        tx_string(NEWLINE "[OS Shell INFO] Wrong date & time format." NEWLINE);
-        return -1;
-    }
-    if(year < 1970 || mon < 1 || mon > 12 || day < 1 || day > 31 ||
-       hour < 0 || hour > 23 || min < 0 || min > 59 || sec < 0 || sec > 59) {
-        tx_string(NEWLINE "[OS Shell INFO] Wrong date & time values." NEWLINE);
-        return -1;
-    }
-
-    tmset.tm_year = year - 1900;
-    tmset.tm_mon  = mon - 1;
-    tmset.tm_mday = day;
-    tmset.tm_hour = hour;
-    tmset.tm_min  = min;
-    tmset.tm_sec  = sec;
-    tmset.tm_isdst = -1;
-
-    epoch = mktime(&tmset);
-    if(epoch == (time_t)-1) {
-        tx_string(NEWLINE "[OS Shell INFO] date & time setting failed." NEWLINE);
-        return -1;
-    }
-    ts.tv_sec = epoch;
-    ts.tv_nsec = 0;
-    if(clock_settime(CLOCK_REALTIME, &ts) != 0) {
-        tx_string(NEWLINE "[OS Shell INFO] RTC setting failed." NEWLINE);
-        return -1;
-    }
-    tx_string(NEWLINE "[OS Shell INFO] RTC set." NEWLINE);
-    return 0;
 }
 
 // time display
 void show_time(void) {
-    struct tm *tmnow = get_time();
+    time_t tnow;
+    struct tm *tmnow;
     char buf[32];
 
-    if((tmnow->tm_year + 1900) == 1970){
-        tx_string(NEWLINE "[time: INFO] Real Time Clock is not set." NEWLINE);
-        return;            
+    if(time(&tnow) != (time_t)-1) {
+        ria_tzset(tnow);       /* adjust TZ/DST in OS */
+        tmnow = localtime(&tnow);
+        if(tmnow) tmnow->tm_isdst = _tz.daylight; /* cc65 localtime DST fix */
+    } else {
+        tmnow = 0;
     }
-    strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S %Z", tmnow);
-    tx_string(NEWLINE "Current time is ");
-    tx_string(buf);
-    tx_string(NEWLINE);
+    if(tmnow) {
+        if((tmnow->tm_year + 1900) == 1970){
+            tx_string(NEWLINE "[time: INFO] Real Time Clock is not set." NEWLINE);
+            return;            
+        }
+        strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S %Z", tmnow);
+        tx_string(NEWLINE "Current time is ");
+        tx_string(buf);
+        tx_string(NEWLINE);
+    }
     return;
 }
 
@@ -648,8 +594,9 @@ void hexdump(uint16_t addr, uint16_t bytes, char_stream_func_t streamer, read_da
 }
 
 void cls(){
-    tx_string(CSI_RESET);
-    tx_string(APP_MSG_TITLE NEWLINE NEWLINE);
+    printf(CSI_RESET);
+    printf(APP_MSG_TITLE NEWLINE NEWLINE);
+    // printf(APP_MSG_HELP_COMADDRESS);
     return;
 }
 
@@ -1727,14 +1674,9 @@ int cmd_cart(int argc, char **argv) {
     }
     {    
         int i;
-        tx_string("DEBUG: passed arguments");
+        printf("DEBUG: passed arguments");
         for(i = 0; i < argc; i++) {
-            tx_string(NEWLINE);
-            tx_dec32(i);
-            tx_string("\t");
-            tx_string(argv[i]);
-            tx_string(NEWLINE);
-            // printf("%d: [%s]" NEWLINE, i, argv[i]);
+            printf("%d: [%s]" NEWLINE, i, argv[i]);
         }
     }
     tx_string("Run cartridge ");
@@ -1771,28 +1713,18 @@ int cmd_cart(int argc, char **argv) {
 // 6. zdekoduj dane
 // 7. zapisz do pliku
 
-int cmd_crx(int argc, char **argv) {
+int cmd_rx(int argc, char **argv) {
     int i;
     for(i = 0; i < argc; i++) {
-        tx_string(NEWLINE);
-        tx_dec32(i);
-        tx_string("\t");
-        tx_string(argv[i]);
-        tx_string(NEWLINE);
-        // printf("%d: [%s]" NEWLINE, i, argv[i]);
+        printf("%d: [%s]" NEWLINE, i, argv[i]);
     }
     return 0;
 }
 
-int cmd_ctx(int argc, char **argv) {
+int cmd_tx(int argc, char **argv) {
     int i;
     for(i = 0; i < argc; i++) {
-        tx_string(NEWLINE);
-        tx_dec32(i);
-        tx_string("\t");
-        tx_string(argv[i]);
-        tx_string(NEWLINE);
-        // printf("%d: [%s]" NEWLINE, i, argv[i]);
+        printf("%d: [%s]" NEWLINE, i, argv[i]);
     }
     return 0;
 }
@@ -1802,7 +1734,7 @@ int cmd_ctx(int argc, char **argv) {
 int cmd_token(int argc, char **argv) {
     int i;
     for(i = 0; i < argc; i++) {
-        tx_string("%d: [%s]" NEWLINE, i, argv[i]);
+        printf("%d: [%s]" NEWLINE, i, argv[i]);
     }
     return 0;
 }
@@ -1841,9 +1773,9 @@ void InitTerminalFont(void){
             }
         }
         close(fd);
-        // tx_string("\r\nSUCCESS: reading [font8x8]font00.bmp file %i\r\n", fd);
+        // printf("\r\nSUCCESS: reading [font8x8]font00.bmp file %i\r\n", fd);
     } else {
-        tx_string("\r\nERROR: reading [font8x8]font00.bmp file %i\r\n", fd);
+        printf("\r\nERROR: reading [font8x8]font00.bmp file %i\r\n", fd);
     }
 
 }
