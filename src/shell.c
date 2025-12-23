@@ -10,6 +10,34 @@
 // Picocomputer 6502 documentation
 // https://picocomputer.github.io/index.html
 
+// TO DO
+// -----------------------------------------------------------------------------
+// wbudować crx w shell w ten sposób, że stale monitorowane jest co trafia do RIA.rx
+// albo rozpocząć monitorowanie uruchamiając komendę shell'a "rx"
+// jeżeli trafi znak SOH (0x01) rozpocznij przyjmowanie danych
+// po odebraniu EOT (0x04) zapisz przesłane dane do pliku
+// format plików intelHex, nazwa pliku do zapisu przesyłana pomiędzy
+// STX (0x02), a ETX (0x03)
+// przebieg transmisji skrypt sendfile.py po stronie komputera nadawcy
+// 1. wyślij SOH
+// 2. wyślij STX
+// 3. wyślij nazwę pliku do zapisu (domyślnie trafi do katalogu 0:/RX/)
+// 4. wyślij ETX
+// 5. wyślij dane pliku w formacie intelHex
+// 6. wyślij EOT
+
+// rozpocząć transmisję uruchamiając komendę shell'a "tx"
+// format plików intelHex, nazwa pliku do zapisu przesyłana pomiędzy
+// STX (0x02), a ETX (0x03)
+// przebieg transmisji skrypt receivefile.py po stronie komputera nadawcy
+// 1. czekaj na SOH
+// 2. czekaj na STX
+// 3. odbierz nazwę pliku do zapisu (domyślnie trafi do katalogu C:\@prg\RX\)
+// 4. czekaj na ETX
+// 5. odbieraj dane pliku w formacie intelHex czekając na EOT
+// 6. zdekoduj dane
+// 7. zapisz do pliku
+
 #include "shell.h"
 
 int main(void) {
@@ -26,6 +54,7 @@ int main(void) {
     tx_string(APP_MSG_START);
 
     if(!(appflags & APPFLAG_RTC)){
+        tx_string(APP_HOURGLASS);
         i = 0;
         while (1){
             ++i;
@@ -77,48 +106,10 @@ int main(void) {
     }
     */
 
-    // ClearDisplayMemory();
-    // InitTerminalFont();
-    // InitDisplay();
-/*
-    // draw alphabet
-    for(i=0;i<26;i++){
-        DrawChar(55, i + 2, 0x41 + i, LIGHT_GRAY, BLACK);
-    }
-    for(i = 0; i < GFX_CHARACTER_COLUMNS; i++){
-        DrawChar(4, i, '_', LIGHT_GRAY, BLACK);
-    }
-
-    printText( "Welcome to OS Shell for the Picocomputer 6502 (native mode)", 1, 3, WHITE, BLACK);
-
-    for(i = 0; i < GFX_CHARACTER_ROWS; i++){
-        if(i % 10){
-            DrawChar(i,  0, '-', DARK_GRAY, BLACK);
-            DrawChar(i, 79, '-', DARK_GRAY, BLACK);
-        } else {
-            DrawChar(i,  0, 0x1A, DARK_GRAY, BLACK);
-            DrawChar(i, 79, 0x1B, DARK_GRAY, BLACK);
-        }
-    }
-    for(i = 0; i < GFX_CHARACTER_COLUMNS; i++){
-        if(i % 10){
-            DrawChar( 0, i, 0xB3, DARK_GRAY, BLACK);
-            DrawChar(59, i, 0xB3, DARK_GRAY, BLACK);
-        } else {
-            DrawChar( 0, i, 0x19, DARK_GRAY, BLACK);
-            DrawChar(59, i, 0x18, DARK_GRAY, BLACK);
-        }
-    }
-    DrawFontTable(50, 10, WHITE, BLACK, DARK_GREEN, DARK_RED);
-    DrawLetters_PL(2, 57, WHITE, DARK_GRAY);
-*/
     prompt(true);
 
-    v = RIA.vsync;
     while (1)
     {
-        // if (RIA.vsync == v) show_clock();
-        // v = RIA.vsync;
 
         if(RX_READY) {
             char rx = (char)RIA.rx;
@@ -181,7 +172,6 @@ int main(void) {
                 }
             } else if(ext_rx == 6) {
                 ext_rx = 0;
-                // putchar(rx);
                 if(rx == CHAR_F1 || rx == 'P') {
                     char path[FNAMELEN];
                     int com_argc = 2;
@@ -315,6 +305,26 @@ static void load_setup(void) {
     fclose(f);
 }
 
+void cls(){
+    tx_string(CSI_RESET);
+    tx_string(APP_MSG_TITLE NEWLINE NEWLINE);
+    return;
+}
+
+void prompt(bool first_time) {
+    tx_string(first_time ? "\x1b[3;1H" : "");
+    if(f_getcwd(dir_cwd, sizeof(dir_cwd)) >= 0) {
+        if(dir_cwd[1] == ':') current_drive = dir_cwd[0];
+        tx_string(dir_cwd);
+    } else {
+        tx_char(current_drive);
+        tx_string(":");
+    }
+    tx_string(first_time ? SHELLPROMPT_1ST : SHELLPROMPT);
+    return;
+}
+
+// things related to : console operations
 
 inline void tx_char(char c) {
     TX_READY_SPIN;
@@ -332,8 +342,7 @@ void tx_string(const char *buf) {
     return;
 }
 
-// Print a 32-bit value as 8 hex digits.
-void tx_hex32(unsigned long val) {
+void tx_hex32(unsigned long val) { // Print a 32-bit value as 8 hex digits.
     char out[8];
     int i;
     for(i = 7; i >= 0; i--) {
@@ -343,8 +352,7 @@ void tx_hex32(unsigned long val) {
     tx_chars(out, sizeof(out));
 }
 
-/* Print 16-bit value as 4 hex digits */
-void tx_hex16(uint16_t val) {
+void tx_hex16(uint16_t val) { // Print 16-bit value as 4 hex digits
     char out[4];
     int i;
     for(i = 3; i >= 0; i--) {
@@ -354,34 +362,7 @@ void tx_hex16(uint16_t val) {
     tx_chars(out, sizeof(out));
 }
 
-// Simple wildcard match supporting '*' (0+ chars) and '?' (1 char).
-bool match_mask(const char *name, const char *mask) {
-    const char *star = 0;
-    const char *match = 0;
-    while(*name) {
-        if(*mask == '?' || *mask == *name) {
-            mask++;
-            name++;
-            continue;
-        }
-        if(*mask == '*') {
-            star = mask++;
-            match = name;
-            continue;
-        }
-        if(star) {
-            mask = star + 1;
-            name = ++match;
-            continue;
-        }
-        return false;
-    }
-    while(*mask == '*') mask++;
-    return *mask == 0;
-}
-
-// Print an unsigned long in decimal.
-void tx_dec32(unsigned long val) {
+void tx_dec32(unsigned long val) { // Print an unsigned long in decimal.
     char out[10];
     int i = 10;
     if(val == 0) {
@@ -395,8 +376,24 @@ void tx_dec32(unsigned long val) {
     tx_chars(&out[i], 10 - i);
 }
 
-// Read a single line from the console; returns length or -1 if cancelled with ESC.
-static int read_line_editor(char *buf, int maxlen) {
+static void tx_print_existing(const char *buf, unsigned len) { // Print existing file content with CR/LF translation.
+    unsigned i;
+    if(len == 0) {
+        tx_string("<empty>" NEWLINE);
+        return;
+    }
+    for(i = 0; i < len; i++) {
+        char c = buf[i];
+        if(c == '\n') {
+            tx_string(NEWLINE);
+        } else {
+            tx_char(c);
+        }
+    }
+    tx_string(NEWLINE);
+}
+
+static int read_line_editor(char *buf, int maxlen) { // Read a single line from the console; returns length or -1 if cancelled with ESC.
     int len = 0;
     char c = 0;
     while(1) {
@@ -431,26 +428,70 @@ static int read_line_editor(char *buf, int maxlen) {
     }
 }
 
-// Print existing file content with CR/LF translation.
-static void tx_print_existing(const char *buf, unsigned len) {
-    unsigned i;
-    if(len == 0) {
-        tx_string("<empty>" NEWLINE);
-        return;
-    }
-    for(i = 0; i < len; i++) {
-        char c = buf[i];
-        if(c == '\n') {
-            tx_string(NEWLINE);
-        } else {
-            tx_char(c);
-        }
-    }
-    tx_string(NEWLINE);
+int hexstr(char *str, uint8_t val) { // Assumes str points to at least two bytes.
+    str[0] = hexdigits[val >> 4];
+    str[1] = hexdigits[val & 0xF];
+    return 2;
 }
 
-// Format FAT date/time into YYYY-MM-DD hh:mm:ss
-const char *format_fat_datetime(unsigned fdate, unsigned ftime) {
+void hexdump(uint16_t addr, uint16_t bytes, char_stream_func_t streamer, read_data_func_t reader) {
+    int i;
+    uint8_t data[HEXDUMP_LINE_SIZE];
+    char string[HEXDUMP_LINE_SIZE * 3 + 32];
+
+    while(bytes) {
+        char *str = string;
+        int rd = bytes > sizeof(data) ? sizeof(data) : bytes;
+        str += hexstr(str, addr >> 8);
+        str += hexstr(str, addr & 0xFF);
+        *str++ = ':';
+        reader(data, addr, rd);
+        for(i = 0; i < rd; i++) {
+            *str++ = ' ';
+            str += hexstr(str, data[i]);
+        }
+        *str++ = ' ';
+        for(i = 0; i < rd; i++) {
+            char b = (data[i] >= 32 && data[i] <= 126) ? data[i] : '.';
+            *str++ = b;
+        }
+        *str++ = CHAR_CR;
+        *str++ = CHAR_LF;
+        streamer(string, str - string);
+        bytes -= rd;
+        addr += rd;
+    }
+    return;
+}
+
+// things related to : disk operations
+
+bool match_mask(const char *name, const char *mask) { // Simple wildcard match supporting '*' (0+ chars) and '?' (1 char).
+    const char *star = 0;
+    const char *match = 0;
+    while(*name) {
+        if(*mask == '?' || *mask == *name) {
+            mask++;
+            name++;
+            continue;
+        }
+        if(*mask == '*') {
+            star = mask++;
+            match = name;
+            continue;
+        }
+        if(star) {
+            mask = star + 1;
+            name = ++match;
+            continue;
+        }
+        return false;
+    }
+    while(*mask == '*') mask++;
+    return *mask == 0;
+}
+
+const char *format_fat_datetime(unsigned fdate, unsigned ftime) { // Format FAT date/time into YYYY-MM-DD hh:mm:ss
     unsigned year = 1980 + (fdate >> 9);
     unsigned month = (fdate >> 5) & 0xF;
     unsigned day = fdate & 0x1F;
@@ -481,6 +522,8 @@ const char *format_fat_datetime(unsigned fdate, unsigned ftime) {
     return dir_dt_buf;
 }
 
+// things related to : memory operations
+
 void ram_reader(uint8_t *buf, uint16_t addr, uint16_t size) {
     uint8_t *data = (uint8_t *)addr;
     for(; size; size--) *buf++ = *data++;
@@ -505,8 +548,7 @@ void xram_writer(const uint8_t *buf, uint16_t addr, uint16_t size) {
     for(; size; size--) RIA.rw0 = *buf++;
 }
 
-/* Lowest usable address for other programs: 0x0200 + shell size */
-uint16_t mem_lo(void) {
+uint16_t mem_lo(void) { // Lowest usable address for other programs as shell base adress + shell size
     return (uint16_t)((unsigned)&shell_end_marker);
 }
 
@@ -518,8 +560,9 @@ uint16_t mem_free(void) {
     return (uint16_t)(MEMTOP - mem_lo() + 1);
 }
 
-// Return pointer to current RTC time; tm_year=1970 signals "RTC not set".
-struct tm *get_time(void) {
+// things related to : RTC
+
+struct tm *get_time(void) { // Return pointer to current RTC time; tm_year=1970 signals "RTC not set".
     static struct tm tmnow = {0};
     time_t tnow;
 
@@ -544,8 +587,7 @@ struct tm *get_time(void) {
     return &tmnow;
 }
 
-// Interactive setter for RTC when it is unset (year 1970).
-int set_time(void) {
+int set_time(void) { // Interactive setter for RTC when it is unset (year 1970).
     char line[32];
     int year, mon, day, hour, min, sec;
     struct tm tmset;
@@ -594,100 +636,39 @@ int set_time(void) {
     return 0;
 }
 
-// time display
-void show_time(void) {
+void show_time(void) { // print current date & time to console
     struct tm *tmnow = get_time();
     char buf[32];
 
-    if((tmnow->tm_year + 1900) == 1970){
+    if(!(appflags | APPFLAG_RTC)){
         tx_string(NEWLINE "[time: INFO] Real Time Clock is not set." NEWLINE);
         return;            
     }
     strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S %Z", tmnow);
     tx_string(NEWLINE "Current time is ");
     tx_string(buf);
-    tx_string(NEWLINE);
+    tx_string(NEWLINE NEWLINE);
     return;
 }
 
-// Assumes str points to at least two bytes.
-int hexstr(char *str, uint8_t val) {
-    str[0] = hexdigits[val >> 4];
-    str[1] = hexdigits[val & 0xF];
-    return 2;
-}
+// things related to : internal commands
 
-void hexdump(uint16_t addr, uint16_t bytes, char_stream_func_t streamer, read_data_func_t reader) {
-    int i;
-    uint8_t data[HEXDUMP_LINE_SIZE];
-    char string[HEXDUMP_LINE_SIZE * 3 + 32];
-
-    while(bytes) {
-        char *str = string;
-        int rd = bytes > sizeof(data) ? sizeof(data) : bytes;
-        str += hexstr(str, addr >> 8);
-        str += hexstr(str, addr & 0xFF);
-        *str++ = ':';
-        reader(data, addr, rd);
-        for(i = 0; i < rd; i++) {
-            *str++ = ' ';
-            str += hexstr(str, data[i]);
-        }
-        *str++ = ' ';
-        for(i = 0; i < rd; i++) {
-            char b = (data[i] >= 32 && data[i] <= 126) ? data[i] : '.';
-            *str++ = b;
-        }
-        *str++ = CHAR_CR;
-        *str++ = CHAR_LF;
-        streamer(string, str - string);
-        bytes -= rd;
-        addr += rd;
-    }
-    return;
-}
-
-void cls(){
-    tx_string(CSI_RESET);
-    tx_string(APP_MSG_TITLE NEWLINE NEWLINE);
-    return;
-}
-
-void prompt(bool first_time) {
-    tx_string(first_time ? "\x1b[3;1H" : "");
-    if(f_getcwd(dir_cwd, sizeof(dir_cwd)) >= 0) {
-        if(dir_cwd[1] == ':') current_drive = dir_cwd[0];
-        tx_string(dir_cwd);
-    } else {
-        tx_char(current_drive);
-        tx_string(":");
-    }
-    tx_string(first_time ? SHELLPROMPT_1ST : SHELLPROMPT);
-    return;
-}
-
-static void refresh_current_drive(void) {
-    if(f_getcwd(dir_cwd, sizeof(dir_cwd)) >= 0 && dir_cwd[1] == ':') {
-        current_drive = dir_cwd[0];
-    }
-}
-
-// Reformats the given buffer into tokens, delimited by spaces.  It places those
-// tokens in the tokenList array (up to maxTokens).  The given buffer may be
-// reformatted as part of this function so you'll want to make a copy of it 
-// if you need the original version after this function.  Here are the rules
-// it follows:
-// - Leading and trailing spaces are ignored, a token may only star with a non
-//   space unless a space is escaped (i.e. "\ token" will be tokenized as " token")
-// - Additional spaces after the first space will be ignored (i.e. won't create empty tokens)
-// - The backslash character causes the following character to be added to the token
-//   regardless
-// - The " or ' character will cause a quote to start and all characters until the
-//   quote of the same type will be placed in a single token.  The backslash escape
-//   is still followed, so you can add a quote character w/o exiting a quote block
-//   by prefacing it with \ (e.g. "this is a \"test\"" will be interpreted as 
-//   'this is a "test"')
-int tokenize(char *buf, int maxBuf, char **tokenList, int maxTokens) {
+static int tokenize(char *buf, int maxBuf, char **tokenList, int maxTokens) {
+    // Reformats the given buffer into tokens, delimited by spaces.  It places those
+    // tokens in the tokenList array (up to maxTokens).  The given buffer may be
+    // reformatted as part of this function so you'll want to make a copy of it 
+    // if you need the original version after this function.  Here are the rules
+    // it follows:
+    // - Leading and trailing spaces are ignored, a token may only star with a non
+    //   space unless a space is escaped (i.e. "\ token" will be tokenized as " token")
+    // - Additional spaces after the first space will be ignored (i.e. won't create empty tokens)
+    // - The backslash character causes the following character to be added to the token
+    //   regardless
+    // - The " or ' character will cause a quote to start and all characters until the
+    //   quote of the same type will be placed in a single token.  The backslash escape
+    //   is still followed, so you can add a quote character w/o exiting a quote block
+    //   by prefacing it with \ (e.g. "this is a \"test\"" will be interpreted as 
+    //   'this is a "test"')
     char *in = buf;
     char *out = buf;
     char *max = buf + maxBuf;
@@ -748,7 +729,7 @@ int tokenize(char *buf, int maxBuf, char **tokenList, int maxTokens) {
     return tokens;
 }
 
-int execute(cmdline_t *cl) {
+static int execute(cmdline_t *cl) {
     int i;
     char *tokenList[CMD_TOKEN_MAX];
     int tokens = 0;
@@ -761,7 +742,7 @@ int execute(cmdline_t *cl) {
         if(tokens < 0) tx_string("Parse error: unterminated quote/escape" NEWLINE);
         return 0;
     }
-    /* Allow selecting drive by typing e.g. "0:" directly */
+    // Allow selecting drive by typing e.g. "0:" directly
     if(tokens == 1 &&
        tokenList[0][0] >= '0' && tokenList[0][0] <= '7' &&
        tokenList[0][1] == ':' && tokenList[0][2] == 0) {
@@ -775,7 +756,7 @@ int execute(cmdline_t *cl) {
             return commands[i].func(tokens, tokenList);
         }
     }
-    /* Try implicit .com execution: SHELLDIR/<name>.com */
+    // Try implicit .com execution: SHELLDIR/<name>.com
     {
         unsigned name_len = (unsigned)strlen(tokenList[0]);
         unsigned prefix_len = (unsigned)strlen(shelldir);
@@ -799,9 +780,37 @@ int execute(cmdline_t *cl) {
     return -1;
 }
 
-/*
-    internal commands
-*/
+static void build_run_args(int user_argc, char **user_argv) {
+    uint8_t *base = (uint8_t *)RUN_ARGS_BASE;
+    uint16_t *ptrs = (uint16_t *)(RUN_ARGS_BASE + 1);
+    uint8_t *strp = (uint8_t *)(RUN_ARGS_BASE + 1 + RUN_ARGS_MAX * 2);
+    uint8_t *end = strp + RUN_ARGS_BUF;
+    int i;
+
+    if(user_argc > RUN_ARGS_MAX) user_argc = RUN_ARGS_MAX;
+    if(user_argc < 0) user_argc = 0;
+    base[0] = (uint8_t)user_argc;
+
+    for(i = 0; i < user_argc; i++) {
+        const char *s = user_argv[i];
+        size_t len = strlen(s);
+        if(strp + len + 1 > end) {
+            base[0] = (uint8_t)i; /* truncate argc to stored args */
+            break;
+        }
+        ptrs[i] = (uint16_t)(uintptr_t)strp;
+        memcpy(strp, s, len + 1);
+        strp += len + 1;
+    }
+}
+
+static void refresh_current_drive(void) { // helper for cmd_com & cmd_run
+    if(f_getcwd(dir_cwd, sizeof(dir_cwd)) >= 0 && dir_cwd[1] == ':') {
+        current_drive = dir_cwd[0];
+    }
+}
+
+// ----------------- internal commands ----------------------
 
 int cmd_cls(int, char **) {
     cls();
@@ -961,7 +970,7 @@ int cmd_list(int argc, char **argv) {
     return 0;
 }
 
-int cmd_edit(int argc, char **argv) {
+int cmd_edit(int argc, char **argv) { // simple line editor for text files
     int fd = -1;
     int rc = 0;
     int n;
@@ -1315,7 +1324,7 @@ int cmd_brun(int argc, char **argv) {
     return 0;
 }
 
-int cmd_com(int argc, char **argv) {
+int cmd_com(int argc, char **argv) { // run external command
     int fd;
     int n;
     uint16_t addr = COM_LOAD_ADDR;
@@ -1358,7 +1367,7 @@ int cmd_com(int argc, char **argv) {
     return 0;
 }
 
-int cmd_run(int argc, char **argv) {
+int cmd_run(int argc, char **argv) { // run at address with optional args
     void (*fn)(void);
     uint16_t addr;
     int user_argc;
@@ -1388,31 +1397,7 @@ int cmd_run(int argc, char **argv) {
     return 0;
 }
 
-static void build_run_args(int user_argc, char **user_argv) {
-    uint8_t *base = (uint8_t *)RUN_ARGS_BASE;
-    uint16_t *ptrs = (uint16_t *)(RUN_ARGS_BASE + 1);
-    uint8_t *strp = (uint8_t *)(RUN_ARGS_BASE + 1 + RUN_ARGS_MAX * 2);
-    uint8_t *end = strp + RUN_ARGS_BUF;
-    int i;
-
-    if(user_argc > RUN_ARGS_MAX) user_argc = RUN_ARGS_MAX;
-    if(user_argc < 0) user_argc = 0;
-    base[0] = (uint8_t)user_argc;
-
-    for(i = 0; i < user_argc; i++) {
-        const char *s = user_argv[i];
-        size_t len = strlen(s);
-        if(strp + len + 1 > end) {
-            base[0] = (uint8_t)i; /* truncate argc to stored args */
-            break;
-        }
-        ptrs[i] = (uint16_t)(uintptr_t)strp;
-        memcpy(strp, s, len + 1);
-        strp += len + 1;
-    }
-}
-
-int cmd_cm(int argc, char **argv) {
+int cmd_cm(int argc, char **argv) { // multicopier
     int dirdes = -1;
     int mv_mode = 0;
     int rc = 0;
@@ -1745,32 +1730,6 @@ int cmd_cart(int argc, char **argv) {
     return 0;
 }
 
-// wbudować w shell w ten sposób, że stale monitorowane jest co trafia do RIA.rx
-// albo rozpocząć monitorowanie uruchamiając komendę shell'a "rx"
-// jeżeli trafi znak SOH (0x01) rozpocznij przyjmowanie danych
-// po odebraniu EOT (0x04) zapisz przesłane dane do pliku
-// format plików intelHex, nazwa pliku do zapisu przesyłana pomiędzy
-// STX (0x02), a ETX (0x03)
-// przebieg transmisji skrypt sendfile.py po stronie komputera nadawcy
-// 1. wyślij SOH
-// 2. wyślij STX
-// 3. wyślij nazwę pliku do zapisu (domyślnie trafi do katalogu 0:/RX/)
-// 4. wyślij ETX
-// 5. wyślij dane pliku w formacie intelHex
-// 6. wyślij EOT
-
-// rozpocząć transmisję uruchamiając komendę shell'a "tx"
-// format plików intelHex, nazwa pliku do zapisu przesyłana pomiędzy
-// STX (0x02), a ETX (0x03)
-// przebieg transmisji skrypt receivefile.py po stronie komputera nadawcy
-// 1. czekaj na SOH
-// 2. czekaj na STX
-// 3. odbierz nazwę pliku do zapisu (domyślnie trafi do katalogu C:\@prg\RX\)
-// 4. czekaj na ETX
-// 5. odbieraj dane pliku w formacie intelHex czekając na EOT
-// 6. zdekoduj dane
-// 7. zapisz do pliku
-
 int cmd_crx(int argc, char **argv) {
     int i;
     for(i = 0; i < argc; i++) {
@@ -1797,7 +1756,9 @@ int cmd_ctx(int argc, char **argv) {
     return 0;
 }
 
+// ------------------- SCRATCHPAD -----------------------
 /*
+
 // shell command scaffolding
 int cmd_token(int argc, char **argv) {
     int i;
@@ -1806,9 +1767,42 @@ int cmd_token(int argc, char **argv) {
     }
     return 0;
 }
-*/
 
-/*
+    // ClearDisplayMemory();
+    // InitTerminalFont();
+    // InitDisplay();
+
+    // draw alphabet
+    for(i=0;i<26;i++){
+        DrawChar(55, i + 2, 0x41 + i, LIGHT_GRAY, BLACK);
+    }
+    for(i = 0; i < GFX_CHARACTER_COLUMNS; i++){
+        DrawChar(4, i, '_', LIGHT_GRAY, BLACK);
+    }
+
+    printText( "Welcome to OS Shell for the Picocomputer 6502 (native mode)", 1, 3, WHITE, BLACK);
+
+    for(i = 0; i < GFX_CHARACTER_ROWS; i++){
+        if(i % 10){
+            DrawChar(i,  0, '-', DARK_GRAY, BLACK);
+            DrawChar(i, 79, '-', DARK_GRAY, BLACK);
+        } else {
+            DrawChar(i,  0, 0x1A, DARK_GRAY, BLACK);
+            DrawChar(i, 79, 0x1B, DARK_GRAY, BLACK);
+        }
+    }
+    for(i = 0; i < GFX_CHARACTER_COLUMNS; i++){
+        if(i % 10){
+            DrawChar( 0, i, 0xB3, DARK_GRAY, BLACK);
+            DrawChar(59, i, 0xB3, DARK_GRAY, BLACK);
+        } else {
+            DrawChar( 0, i, 0x19, DARK_GRAY, BLACK);
+            DrawChar(59, i, 0x18, DARK_GRAY, BLACK);
+        }
+    }
+    DrawFontTable(50, 10, WHITE, BLACK, DARK_GREEN, DARK_RED);
+    DrawLetters_PL(2, 57, WHITE, DARK_GRAY);
+
 void InitTerminalFont(void){
     
     uint16_t i = 0;
@@ -2021,4 +2015,11 @@ void DrawFontTable(uint8_t x, uint8_t y, uint8_t fg, uint8_t bg, uint8_t bgc, ui
     }
 
 }
+
+v = RIA.vsync;
+if (RIA.vsync == v) show_clock();
+v = RIA.vsync;
+
 */
+
+// EOF shell.c

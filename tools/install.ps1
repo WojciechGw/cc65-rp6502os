@@ -24,7 +24,7 @@ function Wait-ForPrompt([System.IO.Ports.SerialPort]$port, [int]$timeoutMs, [str
     return $false
 }
 
-function Send-LineAndWait([System.IO.Ports.SerialPort]$port, [string]$text, [string]$label, [string]$prompt) {
+function Send-LineAndWait([System.IO.Ports.SerialPort]$port, [string]$text, [string]$label, [string]$prompt, [int]$delay) {
     $maxRetries = 2
     for ($i = 0; $i -le $maxRetries; $i++) {
         try {
@@ -32,6 +32,23 @@ function Send-LineAndWait([System.IO.Ports.SerialPort]$port, [string]$text, [str
             if (-not (Wait-ForPrompt -port $port -timeoutMs $promptTimeoutMs $prompt )) {
                 Write-Warning "Timeout for ''$prompt'' after sent '$label'"
             }
+            return
+        }
+        catch {
+            if ($i -lt $maxRetries) {
+                Start-Sleep -Milliseconds $delay
+                continue
+            }
+            throw
+        }
+    }
+}
+
+function Send-Line([System.IO.Ports.SerialPort]$port, [string]$text) {
+    $maxRetries = 2
+    for ($i = 0; $i -le $maxRetries; $i++) {
+        try {
+            $port.WriteLine($text)
             return
         }
         catch {
@@ -44,6 +61,7 @@ function Send-LineAndWait([System.IO.Ports.SerialPort]$port, [string]$text, [str
     }
 }
 
+
 Push-Location "$PSScriptRoot"
 try {
     $serialPort = [System.IO.Ports.SerialPort]::new("COM4", 115200, [System.IO.Ports.Parity]::None, 8, [System.IO.Ports.StopBits]::One)
@@ -55,11 +73,11 @@ try {
     try {
         $serialPort.Open()
         Start-Sleep -Milliseconds 500
-        Send-LineAndWait -port $serialPort -text "exit" -label "exit" -prompt "]"
+        Send-LineAndWait -port $serialPort -text "exit" -label "exit" -prompt "]" -delay 400
         Start-Sleep -Milliseconds 400
-        Send-LineAndWait -port $serialPort -text "0:" -label "0:" -prompt "]"
+        Send-LineAndWait -port $serialPort -text "0:" -label "0:" -prompt "]" -delay 400
         Start-Sleep -Milliseconds 400
-        Send-LineAndWait -port $serialPort -text "cd /" -label "cd /" -prompt "]"
+        Send-LineAndWait -port $serialPort -text "cd /" -label "cd /" -prompt "]" -delay 400
         Start-Sleep -Milliseconds 400
         $serialPort.Close()
     }
@@ -77,18 +95,18 @@ try {
     try {
         $serialPort.Open()
         Start-Sleep -Milliseconds 400
-        Send-LineAndWait -port $serialPort -text "set boot -" -label "set boot -" -prompt "]"
+        Send-LineAndWait -port $serialPort -text "set boot -" -label "set boot -" -prompt "]" -delay 400
         Start-Sleep -Milliseconds 400
-        Send-LineAndWait -port $serialPort -text "remove ${shellextcmdname}" -label "remove ${shellextcmdname}" -prompt "]"
+        Send-LineAndWait -port $serialPort -text "remove ${shellextcmdname}" -label "remove ${shellextcmdname}" -prompt "]" -delay 400
         Start-Sleep -Milliseconds 400
-        Send-LineAndWait -port $serialPort -text "install ${shellextcmdname}.rp6502" -label "install ${shellextcmdname}" -prompt "]"
+        Send-LineAndWait -port $serialPort -text "install ${shellextcmdname}.rp6502" -label "install ${shellextcmdname}" -prompt "]" -delay 400
         Start-Sleep -Milliseconds 400
-        Send-LineAndWait -port $serialPort -text "set boot ${shellextcmdname}" -label "set boot ${shellextcmdname}" -prompt "]"
+        Send-LineAndWait -port $serialPort -text "set boot ${shellextcmdname}" -label "set boot ${shellextcmdname}" -prompt "]" -delay 400
         Start-Sleep -Milliseconds 400
         if($shellreboot -ne 'Y'){
-            Send-LineAndWait -port $serialPort -text "shell" -label "shell" -prompt ">"
+            Send-LineAndWait -port $serialPort -text "shell" -label "shell" -prompt ">" -delay 400
         } else {
-            Send-LineAndWait -port $serialPort -text "reboot" -label "reboot"
+            Send-Line -port $serialPort -text "reboot"
         }
         $serialPort.Close()
     }

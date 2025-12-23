@@ -39,79 +39,12 @@ extern struct _timezone _tz;
 #define SHELLPROMPT "> "
 #define SHELLPROMPT_1ST "> " ANSI_GREEN "[F1] help" ANSI_RESET " > "
 
-#define APP_MSG_START ANSI_DARK_GRAY "\x1b[13;24HOS Shell for Picocomputer 6502\x1b[14;34H" "..........\x1b[10D" ANSI_RESET
+#define APP_MSG_START ANSI_DARK_GRAY "\x1b[13;24HOS Shell for Picocomputer 6502" 
+#define APP_HOURGLASS "\x1b[14;34H" "..........\x1b[10D" ANSI_RESET
 #define APP_MSG_TITLE "\x1b[1;1HOS Shell for Picocomputer 6502                             version " SHELLVER
 #define APP_MSG_HELP_COMADDRESS "\x1b[30;1H" ANSI_DARK_GRAY "Hint: press F1 for help RUN ADDRESS:" STR(COM_LOAD_ADDR) " version " SHELLVER ANSI_RESET
 #define APP_MSG_EXIT NEWLINE "Exiting to the monitor." NEWLINE "Bye, bye !" NEWLINE NEWLINE
 
-/*
-#define GFX_CANVAS_CONSOLE 0
-#define GFX_CANVAS_320x240 1
-#define GFX_CANVAS_320x180 2
-#define GFX_CANVAS_640x480 3
-#define GFX_CANVAS_640x360 4
-
-#define GFX_MODE_CONSOLE   0
-#define GFX_MODE_CHARACTER 1
-#define GFX_MODE_TILE      2
-#define GFX_MODE_BITMAP    3
-#define GFX_MODE_SPRITE    4
-
-#define GFX_PLANE_0 0
-#define GFX_PLANE_1 1
-#define GFX_PLANE_2 2
-
-#define GFX_FONT_CUSTOM 0xF700        // custom fontset
-#define GFX_CHARACTER_FONT_PTR GFX_FONT_CUSTOM // GFX_FONT_CUSTOM // standard fontset
-#define GFX_CHARACTER_PAL_PTR  0xFFFF
-#define GFX_CANVAS_DATA   0x0000
-#define GFX_CANVAS_STRUCT 0xFF00
-
-#define GFX_CHARACTER_bpp1         0b00000000
-#define GFX_CHARACTER_bpp4         0b00000010
-#define GFX_CHARACTER_bpp4_REVERSE 0b00000001
-#define GFX_CHARACTER_bpp8         0b00000011
-#define GFX_CHARACTER_bpp16        0b00000100
-#define GFX_CHARACTER_FONTSIZE8x16 0b00001000
-#define GFX_CHARACTER_FONTSIZE8x8  0b00000000
-
-#define GFX_CANVAS_SIZE GFX_CANVAS_640x480
-
-#define GFX_CANVAS_WIDTH  640
-#define GFX_CANVAS_HEIGHT 480
-
-#define GFX_FONTSIZE8 8
-//#define GFX_FONTSIZE16 16
-
-#define GFX_CHARACTER_COLUMNS (GFX_CANVAS_WIDTH / 8)
-#ifdef GFX_FONTSIZE8
-#define GFX_CHARACTER_ROWS    (GFX_CANVAS_HEIGHT / GFX_FONTSIZE8)
-#else
-#define GFX_CHARACTER_ROWS    (GFX_CANVAS_HEIGHT / GFX_FONTSIZE16)
-#endif
-
-static uint16_t canvas_struct = GFX_CANVAS_STRUCT;
-static uint16_t canvas_data = GFX_CANVAS_DATA;
-// static uint8_t plane = GFX_PLANE_1;
-static uint8_t canvas_type = GFX_CANVAS_SIZE;
-// static uint16_t canvas_w = GFX_CANVAS_WIDTH;
-// static uint16_t canvas_h = GFX_CANVAS_HEIGHT;
-static uint8_t canvas_c = GFX_CHARACTER_COLUMNS;
-static uint8_t canvas_r = GFX_CHARACTER_ROWS;
-// static uint8_t font_w = 8;
-#ifdef GFX_FONTSIZE8
-// static uint8_t font_h = 8;
-#endif
-#ifdef GFX_FONTSIZE16
-static uint8_t font_h = 16;
-#endif
-static uint8_t fg_clr = DARK_GRAY;
-static uint8_t bg_clr = BLACK;
-// static uint8_t curcol = 0; // current column
-// static uint8_t currow = 0; // current row
-static char msg[80] = {0};
-
-*/
 #define CMD_BUF_MAX 127
 #define CMD_TOKEN_MAX 10
 #define EDIT_BUF_MAX 2048
@@ -211,7 +144,6 @@ typedef struct {
 
 static char dir_cwd[FNAMELEN];
 static f_stat_t dir_ent;
-
 static char dir_dt_buf[20];
 static char dev_label[16];
 static char saved_cwd[128];
@@ -305,10 +237,10 @@ void tx_chars(const char *buf, int ct);
 void tx_string(const char *buf);
 void tx_hex32(unsigned long val);
 void tx_hex16(uint16_t val);
-bool match_mask(const char *name, const char *mask);
 void tx_dec32(unsigned long val);
-static int read_line_editor(char *buf, int maxlen);
 static void tx_print_existing(const char *buf, unsigned len);
+static int read_line_editor(char *buf, int maxlen);
+bool match_mask(const char *name, const char *mask);
 const char *format_fat_datetime(unsigned fdate, unsigned ftime);
 void ram_reader(uint8_t *buf, uint16_t addr, uint16_t size);
 void ram_writer(const uint8_t *buf, uint16_t addr, uint16_t size);
@@ -324,9 +256,8 @@ int hexstr(char *str, uint8_t val);
 void hexdump(uint16_t addr, uint16_t bytes, char_stream_func_t streamer, read_data_func_t reader);
 void cls();
 void prompt(bool first_time);
-void help();
-int tokenize(char *buf, int maxBuf, char **tokenList, int maxTokens);
-int execute(cmdline_t *cl);
+static int tokenize(char *buf, int maxBuf, char **tokenList, int maxTokens);
+static int execute(cmdline_t *cl);
 
 static void build_run_args(int user_argc, char **user_argv);
 
@@ -361,7 +292,75 @@ int cmd_cart(int argc, char **argv);
 int cmd_crx(int argc, char **argv);
 int cmd_ctx(int argc, char **argv);
 
+// ------------------- SCRATCHPAD -----------------------
 /*
+
+#define GFX_CANVAS_CONSOLE 0
+#define GFX_CANVAS_320x240 1
+#define GFX_CANVAS_320x180 2
+#define GFX_CANVAS_640x480 3
+#define GFX_CANVAS_640x360 4
+
+#define GFX_MODE_CONSOLE   0
+#define GFX_MODE_CHARACTER 1
+#define GFX_MODE_TILE      2
+#define GFX_MODE_BITMAP    3
+#define GFX_MODE_SPRITE    4
+
+#define GFX_PLANE_0 0
+#define GFX_PLANE_1 1
+#define GFX_PLANE_2 2
+
+#define GFX_FONT_CUSTOM 0xF700        // custom fontset
+#define GFX_CHARACTER_FONT_PTR GFX_FONT_CUSTOM // GFX_FONT_CUSTOM // standard fontset
+#define GFX_CHARACTER_PAL_PTR  0xFFFF
+#define GFX_CANVAS_DATA   0x0000
+#define GFX_CANVAS_STRUCT 0xFF00
+
+#define GFX_CHARACTER_bpp1         0b00000000
+#define GFX_CHARACTER_bpp4         0b00000010
+#define GFX_CHARACTER_bpp4_REVERSE 0b00000001
+#define GFX_CHARACTER_bpp8         0b00000011
+#define GFX_CHARACTER_bpp16        0b00000100
+#define GFX_CHARACTER_FONTSIZE8x16 0b00001000
+#define GFX_CHARACTER_FONTSIZE8x8  0b00000000
+
+#define GFX_CANVAS_SIZE GFX_CANVAS_640x480
+
+#define GFX_CANVAS_WIDTH  640
+#define GFX_CANVAS_HEIGHT 480
+
+#define GFX_FONTSIZE8 8
+//#define GFX_FONTSIZE16 16
+
+#define GFX_CHARACTER_COLUMNS (GFX_CANVAS_WIDTH / 8)
+#ifdef GFX_FONTSIZE8
+#define GFX_CHARACTER_ROWS    (GFX_CANVAS_HEIGHT / GFX_FONTSIZE8)
+#else
+#define GFX_CHARACTER_ROWS    (GFX_CANVAS_HEIGHT / GFX_FONTSIZE16)
+#endif
+
+static uint16_t canvas_struct = GFX_CANVAS_STRUCT;
+static uint16_t canvas_data = GFX_CANVAS_DATA;
+// static uint8_t plane = GFX_PLANE_1;
+static uint8_t canvas_type = GFX_CANVAS_SIZE;
+// static uint16_t canvas_w = GFX_CANVAS_WIDTH;
+// static uint16_t canvas_h = GFX_CANVAS_HEIGHT;
+static uint8_t canvas_c = GFX_CHARACTER_COLUMNS;
+static uint8_t canvas_r = GFX_CHARACTER_ROWS;
+// static uint8_t font_w = 8;
+#ifdef GFX_FONTSIZE8
+// static uint8_t font_h = 8;
+#endif
+#ifdef GFX_FONTSIZE16
+static uint8_t font_h = 16;
+#endif
+static uint8_t fg_clr = DARK_GRAY;
+static uint8_t bg_clr = BLACK;
+// static uint8_t curcol = 0; // current column
+// static uint8_t currow = 0; // current row
+static char msg[80] = {0};
+
 void DrawChar(uint8_t row, uint8_t col, char ch, uint8_t fg, uint8_t bg);
 void GetChar(uint8_t row, uint8_t col, char *pch, uint8_t *pfg, uint8_t *pbg);
 bool BackupChars(uint8_t row, uint8_t col, uint8_t width, uint8_t height, uint8_t *pstash);
@@ -374,6 +373,7 @@ void InitTerminalFont(void);
 void ClearDisplayMemory(void);
 void ClearDisplay(uint8_t fg, uint8_t bg);
 void InitDisplay(void);
+
 */
 
 // EOF shell.h

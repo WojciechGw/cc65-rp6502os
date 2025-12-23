@@ -16,24 +16,24 @@
 
 #define NEWLINE "\r\n"
 
-#define APPVER "20251221.1324"
+#define APPVER "20251223.1803"
 #define APPDIRDEFAULT "USB0:/SHELL/RX"
 #define APP_MSG_TITLE "\x1b[1;1HOS Shell > Courier RX                                      version " APPVER
-#define APP_MSG_START ANSI_DARK_GRAY "\x1b[3;1HWaiting for incoming data " ANSI_RESET
+#define APP_MSG_START ANSI_DARK_GRAY "\x1b[3;1HWaiting for incoming data or [Esc] to exit " ANSI_RESET
     
-typedef unsigned int u16;
-
 typedef struct {
     volatile unsigned char READY; /* $FFE0 */
     volatile unsigned char TX;    /* $FFE1 */
     volatile unsigned char RX;    /* $FFE2 */
 } ria_uart_t;
 
+typedef unsigned int u16;
+
 #define ria_push_char(v) RIA.xstack = v
 
 #define RIA_BASE_ADDR ((u16)0xFFE0u)
 #define RIA_PTR       ((ria_uart_t*)(RIA_BASE_ADDR))
-#define RRIA           (*RIA_PTR)
+#define RRIA          (*RIA_PTR)
 
 #define RRIA_READY_TX_BIT 0x80u /* bit 7 */
 #define RRIA_READY_RX_BIT 0x40u /* bit 6 */
@@ -59,6 +59,7 @@ typedef struct {
 
 unsigned char buffer[256];
 unsigned buf_len = 0;
+unsigned char c;
 
 // wait on clock
 uint32_t ticks = 0; // for PAUSE(millis)
@@ -116,17 +117,15 @@ static void drop_console_rx(void)
 
 static int wait_for_marker(void)
 {
-    unsigned char c;
-
     for (;;) {
 
         if (RX_READY()) {
             c = RRIA.RX;
             if (c == SOH) {
-                ria_tx_puts("\r\n\r\nSOH marker. Begin transmission.\r\n");
+                ria_tx_puts(NEWLINE NEWLINE "SOH marker. Begin transmission." NEWLINE);
                 return 1;
             } else if (c == STX) {
-                ria_tx_puts("\r\n\r\nSTX marker. Start block of data.\r\n");
+                ria_tx_puts(NEWLINE NEWLINE "STX marker. Start block of data." NEWLINE);
                 return 1;
 
             } else if (c == ESC) {
@@ -142,18 +141,18 @@ int main(void)
     clock_t start = clock();
     clock_t timeout_ticks = (clock_t)(RX_TIMEOUT_SECONDS * TICKS_PER_SEC);
     int action = 0;
-
+    
     ria_tx_puts(CSI_RESET);
     ria_tx_puts(CSI_CURSOR_HIDE); // hide cursor
     ria_tx_puts(APP_MSG_TITLE);
     ria_tx_puts(APP_MSG_START);
 
-    action = wait_for_marker(); // wait for STX to start transmission or ESC for end without when user press ESC key
+    action = wait_for_marker(); // wait for STX to start transmission or [Esc]
     if (action != -1)
     {
         for (;;) {
             if (RX_READY()) {
-                unsigned char c = RRIA.RX;
+                c = RRIA.RX;
                 // end of transmission part
 
                 // if (c == '\n') ria_tx_putc_blocking('\r');
@@ -175,16 +174,16 @@ int main(void)
     switch(action)
     {
     case -1:
-        ria_tx_puts("\r\n\r\nBye, bye!\r\n");
+        ria_tx_puts(CSI_RESET "Bye, bye!" NEWLINE NEWLINE);
         break;
     case 0:
-        ria_tx_puts("\r\n\r\nERROR! Timeout or transmission error.\r\n");
+        ria_tx_puts("ERROR! Timeout or transmission error." NEWLINE NEWLINE);
         break;
     case 1:
         drop_console_rx();
-        ria_tx_puts(">\r\n------------------\r\nSUCCES! End of transmission, ");
+        ria_tx_puts(">" NEWLINE NEWLINE "SUCCESS! End of transmission, ");
         ria_tx_put_u16(rx_count);
-        ria_tx_puts(" bytes received\r\n\r\n");
+        ria_tx_puts(" bytes received" NEWLINE NEWLINE);
         if (buf_len < sizeof(buffer)) buffer[buf_len] = '\0';
         printf("%s", (char*)buffer);
         break;
