@@ -6,9 +6,16 @@ RANGE_END .equ $FF
 
 .org $9000
 
+        ; first range
         lda #$40
         sta RANGE_START
         lda #$80
+        sta RANGE_END
+        jsr printascii
+        ; second range
+        lda #$81
+        sta RANGE_START
+        lda #$FF
         sta RANGE_END
         jsr printascii
         rts
