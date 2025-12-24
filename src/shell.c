@@ -548,9 +548,6 @@ void ram_writer(const uint8_t *buf, uint16_t addr, uint16_t size) {
     for(; size; size--) *dst++ = *buf++;
 }
 
-static int filehex_fd = -1;
-static uint32_t filehex_base = 0;
-
 void xram_reader(uint8_t *buf, uint16_t addr, uint16_t size) {
     RIA.step0 = 1;
     RIA.addr0 = addr;
@@ -609,56 +606,7 @@ struct tm *get_time(void) { // Return pointer to current RTC time; tm_year=1970 
     }
     return &tmnow;
 }
-/*
-int set_time(void) { // Interactive setter for RTC when it is unset (year 1970).
-    char line[32];
-    int year, mon, day, hour, min, sec;
-    struct tm tmset;
-    struct timespec ts;
-    time_t epoch;
-    int len;
 
-    tx_string(ANSI_CLS "[OS Shell INFO] RTC is not set." NEWLINE
-              "Enter current date & time [YYYY-MM-DD HH:MM:SS]" NEWLINE
-              "or press ESC to cancel procedure." NEWLINE "> " CSI_CURSOR_SHOW);
-    len = read_line_editor(line, sizeof(line));
-    if(len <= 0) {
-        tx_string(NEWLINE "[OS Shell INFO] Cancel." NEWLINE);
-        return -1;
-    }
-    if(sscanf(line, "%4d-%2d-%2d %2d:%2d:%2d", &year, &mon, &day, &hour, &min, &sec) != 6) {
-        tx_string(NEWLINE "[OS Shell INFO] Wrong date & time format." NEWLINE);
-        return -1;
-    }
-    if(year < 1970 || mon < 1 || mon > 12 || day < 1 || day > 31 ||
-       hour < 0 || hour > 23 || min < 0 || min > 59 || sec < 0 || sec > 59) {
-        tx_string(NEWLINE "[OS Shell INFO] Wrong date & time values." NEWLINE);
-        return -1;
-    }
-
-    tmset.tm_year = year - 1900;
-    tmset.tm_mon  = mon - 1;
-    tmset.tm_mday = day;
-    tmset.tm_hour = hour;
-    tmset.tm_min  = min;
-    tmset.tm_sec  = sec;
-    tmset.tm_isdst = -1;
-
-    epoch = mktime(&tmset);
-    if(epoch == (time_t)-1) {
-        tx_string(NEWLINE "[OS Shell INFO] date & time setting failed." NEWLINE);
-        return -1;
-    }
-    ts.tv_sec = epoch;
-    ts.tv_nsec = 0;
-    if(clock_settime(CLOCK_REALTIME, &ts) != 0) {
-        tx_string(NEWLINE "[OS Shell INFO] RTC setting failed." NEWLINE);
-        return -1;
-    }
-    tx_string(NEWLINE "[OS Shell INFO] RTC set." NEWLINE);
-    return 0;
-}
-*/
 void show_time(void) { // print current date & time to console
     struct tm *tmnow = get_time();
     char buf[32];

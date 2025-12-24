@@ -128,6 +128,8 @@ static unsigned char run_args_backup[RUN_ARGS_BLOCK_SIZE];
 static char shell_end_marker;
 static char drv_args_buf[4] = {0};
 static char *drv_args[2] = { (char *)"drive", drv_args_buf };
+static int filehex_fd = -1;
+static uint32_t filehex_base = 0;
 static void refresh_current_drive(void);
 static void build_run_args(int user_argc, char **user_argv);
 
