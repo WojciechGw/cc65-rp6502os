@@ -914,6 +914,9 @@ int cmd_list(int argc, char **argv) {
     char buf[128];
     int fd;
     int n;
+    int lines = 0;
+    int lineno = 1;
+    int at_line_start = 1;
     if(argc < 2) {
         tx_string("Usage: list <filename>" NEWLINE);
         return 0;
@@ -928,9 +931,30 @@ int cmd_list(int argc, char **argv) {
         int idx;
         for(idx = 0; idx < n; idx++) {
             char ch = buf[idx];
+            if(at_line_start) {
+                tx_string(ANSI_DARK_GRAY);
+                tx_dec32((unsigned long)lineno);
+                tx_string(TAB ANSI_RESET);
+                at_line_start = 0;
+            }
             if(ch == '\n') {
-                tx_char('\r');
-                tx_char('\n');
+                tx_string(NEWLINE);
+                lines++;
+                lineno++;
+                at_line_start = 1;
+                if(lines >= 25) {
+                    char ans;
+                    tx_string(NEWLINE "--More-- (q to quit)");
+                    RX_READY_SPIN;
+                    ans = (char)RIA.rx;
+                    tx_string(NEWLINE "\x1b[K"); /* clear prompt line */
+                    if(ans == 'q' || ans == 'Q' || ans == CHAR_ESC) {
+                        close(fd);
+                        tx_string(NEWLINE "----------------------------------------" NEWLINE);
+                        return 0;
+                    }
+                    lines = 0;
+                }
             } else {
                 tx_char(ch);
             }

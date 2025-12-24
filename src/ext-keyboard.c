@@ -34,7 +34,7 @@ uint8_t keystates[KEYBOARD_BYTES] = {0};
 #define POS_KEYBOARD  "[4;1H"
 #define POS_KEYPRESS  "[2;66H"
 
-#define HIGHLIGHT_COLOR "[37;41m" // white (37) on red (41) or green (42)
+#define HIGHLIGHT_COLOR "[37;42m" // white (37) on red (41) or green (42)
 // #define HIGHLIGHT_COLOR "[30;47m" // black (30) on white (47)
 
 // wait on clock
