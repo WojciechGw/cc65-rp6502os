@@ -56,6 +56,8 @@ static const cmd_t commands[] = {
                 "memx 0x0600 512 (show 512 bytes of RAM start from address 0x0600)" },
     { "memx",   "show XRAM from given address", 
                 "memx 0xA500 256 (show 256 bytes of XRAM start from address 0xA500)" },
+    { "hex",    "dump file contents to screen", 
+                "hex <filename> 0x0600 512 (show 512 bytes of a file start from offset 0x0600)" },
     { "cls",    "clear terminal", 
                 "cls" },
     { "time",   "show local date and time", 

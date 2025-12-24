@@ -2,8 +2,10 @@
 
 Features: labels, .org, .byte, .word, .equ, <, >, .include, listing LST
 
-TODO call parameters
-mass sourcecode.asm -out outfile.bin -base <baseaddress> -run <runaddress>
+mass <source.asm> -out <destination.bin> 
+
+TO DO
+-base <baseaddress> -run <runaddress>
 
 */
 #include "commons.h"

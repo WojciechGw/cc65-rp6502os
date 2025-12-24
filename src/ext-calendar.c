@@ -92,8 +92,6 @@ int main(int argc, char **argv) {
         }
     }
     
-    // printf(NEWLINE "action: %i" NEWLINE, action);
-
     switch(action){
         case SHOW_YEAR:
             if (argc > 1){
@@ -184,8 +182,9 @@ void print_calendar(int year, int month, int today) {
 
     while (day <= days_in_month) {
 
-        if(day == today) { 
-            printf("\033[47m\033[30m%2d \033[0m", day);
+        if(day == today) {
+            printf(ANSI_BOLD ANSI_GREEN "%2d " ANSI_RESET, day);
+            // printf("\033[47m\033[30m%2d \033[0m", day);
         } else {
             printf("%2d ",day);
         } 
@@ -244,7 +243,8 @@ void print_calendar_quarter(int year, int start_month, int today_month, int toda
                     printf("   ");
                 } else if (current_day[idx] <= days_in_month[idx]) {
                     if ((start_month + idx) == today_month && current_day[idx] == today_day) {
-                        printf("\033[47m\033[30m%2d \033[0m", current_day[idx]);
+                        printf(ANSI_BOLD ANSI_GREEN "%2d " ANSI_RESET, current_day[idx]);
+                        // printf("\033[47m\033[30m%2d \033[0m", current_day[idx]);
                     } else {
                         printf("%2d ", current_day[idx]);
                     }
@@ -317,7 +317,8 @@ void print_calendar_neighbours(int year, int month, int today_day) {
                     printf("   ");
                 } else if (current_day[idx] <= days_in_month[idx]) {
                     if (month_val[idx] == month && year_val[idx] == year && current_day[idx] == today_day) {
-                        printf("\033[47m\033[30m%2d \033[0m", current_day[idx]);
+                        printf(ANSI_BOLD ANSI_GREEN "%2d " ANSI_RESET, current_day[idx]);
+                        // printf("\033[47m\033[30m%2d \033[0m", current_day[idx]);
                     } else {
                         printf("%2d ", current_day[idx]);
                     }
@@ -381,7 +382,8 @@ void print_calendar_year(int year, int today_month, int today_day) {
                         printf("   ");
                     } else if (current_day[idx] <= days_in_month[idx]) {
                         if ((m1 + idx) == today_month && current_day[idx] == today_day) {
-                            printf("\033[47m\033[30m%2d \033[0m", current_day[idx]);
+                            printf(ANSI_BOLD ANSI_GREEN "%2d " ANSI_RESET, current_day[idx]);
+                            // printf("\033[47m\033[30m%2d \033[0m", current_day[idx]);
                         } else {
                             printf("%2d ", current_day[idx]);
                         }

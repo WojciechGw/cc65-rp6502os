@@ -450,6 +450,14 @@ void hexdump(uint16_t addr, uint16_t bytes, char_stream_func_t streamer, read_da
             *str++ = ' ';
             str += hexstr(str, data[i]);
         }
+        if(rd < HEXDUMP_LINE_SIZE){
+            int missing = HEXDUMP_LINE_SIZE - rd;
+            for(i = 0; i < missing; i++){
+                *str++ = ' ';
+                *str++ = ' ';
+                *str++ = ' ';
+            }
+        }
         *str++ = ' ';
         for(i = 0; i < rd; i++) {
             char b = (data[i] >= 32 && data[i] <= 126) ? data[i] : '.';
@@ -535,6 +543,9 @@ void ram_writer(const uint8_t *buf, uint16_t addr, uint16_t size) {
     for(; size; size--) *dst++ = *buf++;
 }
 
+static int filehex_fd = -1;
+static uint32_t filehex_base = 0;
+
 void xram_reader(uint8_t *buf, uint16_t addr, uint16_t size) {
     RIA.step0 = 1;
     RIA.addr0 = addr;
@@ -546,6 +557,13 @@ void xram_writer(const uint8_t *buf, uint16_t addr, uint16_t size) {
     RIA.step0 = 1;
     RIA.addr0 = addr;
     for(; size; size--) RIA.rw0 = *buf++;
+}
+
+static void file_reader(uint8_t *buf, uint16_t addr, uint16_t size) {
+    off_t pos = (off_t)filehex_base + (off_t)addr;
+    if(filehex_fd < 0) return;
+    if(lseek(filehex_fd, pos, SEEK_SET) < 0) return;
+    read(filehex_fd, buf, size);
 }
 
 uint16_t mem_lo(void) { // Lowest usable address for other programs as shell base adress + shell size
@@ -1574,6 +1592,47 @@ int cmd_mem(int argc, char **argv) {
     tx_string("size [bytes]: ");
     tx_dec32(free);
     tx_string(NEWLINE NEWLINE);
+    return 0;
+}
+
+int cmd_hex(int argc, char **argv) {
+    uint32_t offset = 0;
+    uint32_t bytes;
+    uint32_t maxbytes;
+    uint16_t dump_bytes;
+
+    if(argc < 2) {
+        tx_string("Usage: hex <file> [offset] [bytes]" NEWLINE);
+        return 0;
+    }
+    if(f_stat(argv[1], &dir_ent) < 0) {
+        tx_string("stat failed" NEWLINE);
+        return -1;
+    }
+    maxbytes = dir_ent.fsize;
+    if(argc > 2) offset = (uint32_t)strtoul(argv[2], NULL, 0);
+    if(offset > maxbytes) {
+        tx_string("Offset past end of file" NEWLINE);
+        return -1;
+    }
+    maxbytes -= offset;
+    bytes = (argc > 3) ? (uint32_t)strtoul(argv[3], NULL, 0) : maxbytes;
+    if(bytes > maxbytes) bytes = maxbytes;
+    if(bytes == 0) {
+        tx_string("Nothing to display" NEWLINE);
+        return 0;
+    }
+    filehex_fd = open(argv[1], O_RDONLY);
+    if(filehex_fd < 0) {
+        tx_string("Cannot open file" NEWLINE);
+        return -1;
+    }
+    filehex_base = offset;
+    dump_bytes = (bytes > 0xFFFFu) ? 0xFFFFu : (uint16_t)bytes;
+    hexdump((uint16_t)offset, dump_bytes, tx_chars, file_reader);
+    close(filehex_fd);
+    filehex_fd = -1;
+    filehex_base = 0;
     return 0;
 }
 

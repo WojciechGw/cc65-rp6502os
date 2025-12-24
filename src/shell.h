@@ -20,7 +20,7 @@ extern struct _timezone _tz;
 #define MEMTOP (0xFF00-__STACKSIZE__)
 #define COM_LOAD_ADDR 0x9000  // lowest ram address where to load the external command code (binary shell extensions - .com files)
 
-#define SHELLVER "20251223.2254"
+#define SHELLVER "20251224.0058"
 #define SHELLDIRDEFAULT "USB0:/SHELL/"
 #define SHELLPROMPT "> "
 #define SHELLPROMPT_1ST "> " ANSI_GREEN "[F1] help" ANSI_RESET " > "
@@ -147,6 +147,7 @@ int cmd_edit(int, char **);
 int cmd_exit(int, char **);
 int cmd_list(int, char **);
 int cmd_mem(int, char **);
+int cmd_hex(int, char **);
 int cmd_memr(int, char **);
 int cmd_memx(int, char **);
 int cmd_mkdir(int, char **);
@@ -179,6 +180,7 @@ static const cmd_t commands[] = {
     { "exit",   "", "", cmd_exit},
     { "list",   "", "", cmd_list},
     { "mem",    "", "", cmd_mem},
+    { "hex",    "", "", cmd_hex },
     { "memr",   "", "", cmd_memr },
     { "memx",   "", "", cmd_memx },
     { "mkdir",  "", "", cmd_mkdir},
