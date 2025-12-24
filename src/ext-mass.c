@@ -13,7 +13,7 @@ mass sourcecode.asm -out outfile.bin -base <baseaddress> -run <runaddress>
 #define APPDIRDEFAULT "USB0:/SHELL/"
 #define APP_MSG_TITLE CSI_RESET "\x1b[1;1HOS Shell > Mini ASSembler 65C02S                           version " APPVER
 #define APP_MSG_START_ASSEMBLING ANSI_DARK_GRAY "\x1b[3;1HStart compilation ... " ANSI_RESET
-#define APP_MSG_START_ENTERCODE ANSI_DARK_GRAY "\x1b[3;1HEnter code, empty line start compilation ... " ANSI_RESET
+#define APP_MSG_START_ENTERCODE ANSI_DARK_GRAY "\x1b[3;1HEnter code or empty line to start compilation ... " ANSI_RESET
 
 /* --- limity --- */
 #define MAXLINES    256

@@ -444,25 +444,31 @@ void hexdump(uint16_t addr, uint16_t bytes, char_stream_func_t streamer, read_da
         int rd = bytes > sizeof(data) ? sizeof(data) : bytes;
         str += hexstr(str, addr >> 8);
         str += hexstr(str, addr & 0xFF);
-        *str++ = ':';
+        *str++ = ' ';
+        *str++ = ' ';
         reader(data, addr, rd);
         for(i = 0; i < rd; i++) {
+            if (i == 8) *str++ = ' ';
             *str++ = ' ';
             str += hexstr(str, data[i]);
         }
         if(rd < HEXDUMP_LINE_SIZE){
             int missing = HEXDUMP_LINE_SIZE - rd;
             for(i = 0; i < missing; i++){
+                if (i == 8) *str++ = ' ';
                 *str++ = ' ';
                 *str++ = ' ';
                 *str++ = ' ';
             }
         }
         *str++ = ' ';
+        *str++ = ' ';
+        *str++ = 0xB3;
         for(i = 0; i < rd; i++) {
             char b = (data[i] >= 32 && data[i] <= 126) ? data[i] : '.';
             *str++ = b;
         }
+        *str++ = 0xB3;
         *str++ = CHAR_CR;
         *str++ = CHAR_LF;
         streamer(string, str - string);
@@ -1545,6 +1551,7 @@ int cmd_memx(int argc, char **argv) {
     if(argc > 2) size = strtoul(argv[2], NULL, 0);
 
     hexdump(addr, size, tx_chars, xram_reader);
+    tx_string(NEWLINE);
     return 0;
 }
 
@@ -1560,6 +1567,7 @@ int cmd_memr(int argc, char **argv) {
     if(argc > 2) size = strtoul(argv[2], NULL, 0);
 
     hexdump(addr, size, tx_chars, ram_reader);
+    tx_string(NEWLINE);
     return 0;
 }
 
@@ -1633,6 +1641,7 @@ int cmd_hex(int argc, char **argv) {
     close(filehex_fd);
     filehex_fd = -1;
     filehex_base = 0;
+    tx_string(NEWLINE);
     return 0;
 }
 
