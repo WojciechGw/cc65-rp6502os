@@ -27,7 +27,7 @@ extern struct _timezone _tz;
 
 #define APP_MSG_START ANSI_DARK_GRAY "\x1b[13;24HOS Shell for Picocomputer 6502" 
 #define APP_HOURGLASS "\x1b[14;34H" "..........\x1b[10D" ANSI_RESET
-#define APP_MSG_TITLE "\x1b[1;1HOS Shell for Picocomputer 6502                             version " SHELLVER
+#define APP_MSG_TITLE "\x1b[2;1HOS Shell for Picocomputer 6502                             version " SHELLVER
 #define APP_MSG_HELP_COMADDRESS "\x1b[30;1H" ANSI_DARK_GRAY "Hint: press F1 for help RUN ADDRESS:" STR(COM_LOAD_ADDR) " version " SHELLVER ANSI_RESET
 #define APP_MSG_EXIT NEWLINE "Exiting to the monitor." NEWLINE "Bye, bye !" NEWLINE NEWLINE
 
@@ -180,9 +180,9 @@ static const cmd_t commands[] = {
     { "exit",   "", "", cmd_exit},
     { "list",   "", "", cmd_list},
     { "mem",    "", "", cmd_mem},
-    { "hex",    "", "", cmd_hex },
     { "memr",   "", "", cmd_memr },
     { "memx",   "", "", cmd_memx },
+    { "hex",    "", "", cmd_hex },
     { "mkdir",  "", "", cmd_mkdir},
     { "mv",     "", "", cmd_mv},
     { "phi2",   "", "", cmd_phi2},
@@ -224,7 +224,6 @@ void cls();
 void prompt(bool first_time);
 static int tokenize(char *buf, int maxBuf, char **tokenList, int maxTokens);
 static int execute(cmdline_t *cl);
-
 static void build_run_args(int user_argc, char **user_argv);
 
 // shell commands
@@ -254,9 +253,12 @@ int cmd_rm(int argc, char **argv);
 int cmd_run(int argc, char **argv);
 int cmd_stat(int argc, char **argv);
 int cmd_time(int argc, char **argv);
-int cmd_cart(int argc, char **argv);
-int cmd_crx(int argc, char **argv);
-int cmd_ctx(int argc, char **argv);
+static char shell_end_marker = 0xFF;
+
+// TO DO
+// int cmd_cart(int argc, char **argv);
+// int cmd_crx(int argc, char **argv);
+// int cmd_ctx(int argc, char **argv);
 
 // ------------------- SCRATCHPAD -----------------------
 /*

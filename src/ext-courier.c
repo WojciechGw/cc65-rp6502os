@@ -43,12 +43,18 @@ int main(int argc, char **argv)
     int pos, i;
 
     if (argc < 1 || argv[0][0] == 0) {
-        printf("Usage: courier <inputfile>\r\n");
+        printf("Usage: courier <filename>" NEWLINE NEWLINE);
         return -1;
     }
 
     if(argc == 1 && strcmp(argv[0], "/?") == 0) {
-        printf("OS Shell > Courier - send file\r\n\r\nUsage: courier <filename> - send a file <filename> to RIA UART\r\n\r\n");
+        printf(NEWLINE
+              "OS Shell > Courier - send file" NEWLINE
+               NEWLINE 
+               "Usage:" NEWLINE
+               "first start receivefile.py script on target machine" NEWLINE
+               "courier <filename> - send a file <filename> via RIA UART" NEWLINE
+               NEWLINE);
         return 0;
     }
 
@@ -59,7 +65,7 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    printf("OS Shell > Courier\r\n\r\nSending file in Intel HEX.\r\n");
+    printf("OS Shell > Courier" NEWLINE NEWLINE "Sending file in Intel HEX." NEWLINE);
 
     while (true)
     {
@@ -108,7 +114,7 @@ int main(int argc, char **argv)
     for (i = 0; i < pos; i++) send_char(hex_line[i]);
 
     close(in_fd);
-    printf("\x1b[?25hTransmission done.\r\n");
+    printf("\x1b[?25hFile sent.\r\n");
     return 0;
 
 }

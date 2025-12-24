@@ -312,7 +312,6 @@ void cls(){
 }
 
 void prompt(bool first_time) {
-    tx_string(first_time ? "\x1b[3;1H" : "");
     if(f_getcwd(dir_cwd, sizeof(dir_cwd)) >= 0) {
         if(dir_cwd[1] == ':') current_drive = dir_cwd[0];
         tx_string(dir_cwd);

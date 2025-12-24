@@ -138,7 +138,7 @@ int main(int argc, char **argv) {
     }
 
     /* No args: print full list */
-    printf("\x1b" "c" "OS Shell > Help information" NEWLINE NEWLINE
+    printf("\x1b" "c" "\x1b[2;1HOS Shell > Help information" NEWLINE NEWLINE
            "Description of a specified command : help <command>" NEWLINE NEWLINE
            "internal commands (case sensitive):" NEWLINE NEWLINE);
     for(i = 0; i < ARRAY_SIZE(commands); i++) {

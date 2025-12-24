@@ -13,7 +13,7 @@
 // Keyboard related
 //
 // XRAM locations
-#define KEYBOARD_INPUT 0xFF00 // KEYBOARD_BYTES of bitmask data
+#define KEYBOARD_INPUT 0xFFE0 // KEYBOARD_BYTES of bitmask data
 // 256 bytes HID code max, stored in 32 uint8
 #define KEYBOARD_BYTES 32
 uint8_t keystates[KEYBOARD_BYTES] = {0};
@@ -30,9 +30,9 @@ uint8_t keystates[KEYBOARD_BYTES] = {0};
 #define FONT_CHAR_UP "\x1e"
 #define FONT_CHAR_DOWN "\x1f"
 
-#define POS_APPHEADER "[1;1H"
-#define POS_KEYBOARD  "[3;1H"
-#define POS_KEYPRESS  "[1;66H"
+#define POS_APPHEADER "[2;1H"
+#define POS_KEYBOARD  "[4;1H"
+#define POS_KEYPRESS  "[2;66H"
 
 #define HIGHLIGHT_COLOR "[37;41m" // white (37) on red (41) or green (42)
 // #define HIGHLIGHT_COLOR "[30;47m" // black (30) on white (47)
@@ -236,7 +236,7 @@ static void render_keyboard_view(void) {
 
     for (i = 0; i < KEYBOARD_BYTES; i++) last_rendered_states[i] = keystates[i];
     keyboard_view_initialized = true;
-    printf(ANSI_DARK_GRAY "\x1b[10;1H________________________________________________________________________________" NEWLINE
+    printf(ANSI_DARK_GRAY "\x1b[11;1H________________________________________________________________________________" NEWLINE
                                     "press and hold both Shift keys to exit                     version " APPVER ANSI_RESET);
 }
 
@@ -251,7 +251,7 @@ int main(int argc, char **argv) {
     if(argc == 1 && strcmp(argv[0], "/?") == 0) {
         // notice lack of filename extension
         printf (NEWLINE 
-                "OS Shell > Keyboard Visualiser " NEWLINE
+                "\x1b[2;1HOS Shell > Keyboard Visualiser " NEWLINE
                 NEWLINE
                 "EXIT - press and hold both Shift keys" NEWLINE
                 NEWLINE
