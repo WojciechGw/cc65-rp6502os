@@ -911,7 +911,7 @@ int cmd_drive(int argc, char **argv) {
 }
 
 int cmd_list(int argc, char **argv) {
-    char buf[128];
+    char buf[80];
     int fd;
     int n;
     int lines = 0;

@@ -9,11 +9,11 @@ mass sourcecode.asm -out outfile.bin -base <baseaddress> -run <runaddress>
 #include "commons.h"
 #include "ext-mass-opcodes.h"
 
-#define APPVER "20251223.2315"
+#define APPVER "20251226.1815"
 #define APPDIRDEFAULT "USB0:/SHELL/"
-#define APP_MSG_TITLE CSI_RESET "\x1b[1;1HOS Shell > Mini ASSembler 65C02S                           version " APPVER
-#define APP_MSG_START_ASSEMBLING ANSI_DARK_GRAY "\x1b[3;1HStart compilation ... " ANSI_RESET
-#define APP_MSG_START_ENTERCODE ANSI_DARK_GRAY "\x1b[3;1HEnter code or empty line to start compilation ... " ANSI_RESET
+#define APP_MSG_TITLE CSI_RESET "\x1b[2;1HOS Shell > Mini ASSembler 65C02S                           version " APPVER
+#define APP_MSG_START_ASSEMBLING ANSI_DARK_GRAY "\x1b[4;1HStart compilation ... " ANSI_RESET
+#define APP_MSG_START_ENTERCODE ANSI_DARK_GRAY "\x1b[4;1HEnter code or empty line to start compilation ... " ANSI_RESET
 
 /* --- limits --- */
 #define MAXLINES    256
@@ -37,10 +37,11 @@ static char outfilebuffer[80];
 static char g_tok[80];
 static char g_incpath[256];
 static char g_symtmp[48];
-static char g_outpath[128] = "out.bin";
-static char g_listpath[128] = "out.lst";
+static char g_outpath[128] = "out.bin\0";
+static char g_listpath[128] = "out.lst\0";
+static uint16_t line_pc_before;
 static uint16_t line_pc_after;
-static int pad;
+static char *eq_name, *eq_val;
 static uint16_t a;
 
 #define STAT_SUCCESS        0b00000000
@@ -811,13 +812,12 @@ static void pass2(void){
         return;
     }
 
-    /* XRAM nie musi być wyzerowany, a .org może zostawiać dziury — czyść bufor wyjścia */
+    // clean out buffer
     xram1_fill(XRAM_OUT_BASE, 0x00, (unsigned)MAXOUT);
 
     pc = org;
     for(li = 0; li < nlines; ++li){
-        uint16_t line_pc_before = pc;
-        char *eq_name, *eq_val;
+        line_pc_before = pc;
 
         xram_line_read((unsigned)li, g_buf2);
         strncpy(g_buf, g_buf2, MAXLEN-1); g_buf[MAXLEN-1]=0;
@@ -825,7 +825,7 @@ static void pass2(void){
         g_s = g_buf; ltrim_ptr(&g_s);
         if(!*g_s){
             // list remarks and empty lines
-            n = sprintf(outfilebuffer, NEWLINE "                                   | %s", g_buf2);
+            n = sprintf(outfilebuffer, li == 0 ? "                                   | %s" : NEWLINE "                                   | %s", g_buf2);
             if(n < 0) continue;
             if(n >= (int)sizeof(outfilebuffer)) n = (int)sizeof(outfilebuffer) - 1;
             xram_write_lst_line(outfilebuffer, (unsigned)n, fd);
@@ -853,14 +853,14 @@ static void pass2(void){
         if(*g_s=='.'){
             if(split_token(g_s,&g_dir,&g_rest)){
                 to_upper_str(g_dir);
-                if(strcmp(g_dir,".ORG")==0){
+                if(strcmp(g_dir,".ORG") == 0){
                     parse_value_out(g_rest, &g_val); pc=resolve_value(&g_val);
-                }else if(strcmp(g_dir,".BYTE")==0){
+                }else if(strcmp(g_dir,".BYTE") == 0){
                     char* pr = g_rest;
                     while(pr && *pr){
                         int i=0;
                         while(*pr==' '||*pr=='\t') ++pr;
-                        while(*pr && *pr!=',' && i<79){ g_tok[i++]=*pr++; }
+                        while(*pr && *pr!=',' && i < 79){ g_tok[i++]=*pr++; }
                         g_tok[i]=0; if(*pr==',') ++pr;
                         if(g_tok[0]){
                             uint16_t v16;
@@ -869,7 +869,7 @@ static void pass2(void){
                             if(g_val.force_zp && v16 > 0xFF){
                                 assembly_status |= STAT_PASS2_ERROR;
                                 printf("PASS2: ERROR forced byte truncates $%04X at line %d" NEWLINE, v16, li+1);
-                            }else if(!g_val.force_zp && g_val.op==V_NORMAL && v16 > 0xFF){
+                            }else if(!g_val.force_zp && g_val.op == V_NORMAL && v16 > 0xFF){
                                 assembly_status |= STAT_PASS2_ERROR;
                                 printf("PASS2: ERROR .byte truncates $%04X at line %d (use < or >)" NEWLINE, v16, li+1);
                             }
@@ -880,18 +880,18 @@ static void pass2(void){
                     char* pr = g_rest;
                     while(pr && *pr){
                         int i=0;
-                        while(*pr==' '||*pr=='\t') ++pr;
-                        while(*pr && *pr!=',' && i<79){ g_tok[i++]=*pr++; }
-                        g_tok[i]=0; if(*pr==',') ++pr;
+                        while(*pr==' ' || *pr=='\t') ++pr;
+                        while(*pr && *pr != ',' && i < 79){ g_tok[i++]=*pr++; }
+                        g_tok[i] = 0; if(*pr==',') ++pr;
                         if(g_tok[0]){
                             uint16_t v16;
                             parse_value_out(g_tok, &g_val);
                             v16 = resolve_value(&g_val);
-                            emit_at((uint8_t)(v16&0xFF), pc++);
-                            emit_at((uint8_t)(v16>>8),   pc++);
+                            emit_at((uint8_t)(v16 & 0xFF), pc++);
+                            emit_at((uint8_t)(v16 >> 8),   pc++);
                         }
                     }
-                }else if(strcmp(g_dir,".ASCII")==0){
+                }else if(strcmp(g_dir, ".ASCII")==0){
                     uint8_t bytes[80];
                     int nbytes = 0;
                     int i;
@@ -937,7 +937,7 @@ static void pass2(void){
                     break;
                 }
             }
-            if(g_opcode < 0) goto list_line; // brak opkodu w tym trybie
+            if(g_opcode < 0) goto list_line; // no opcode in this mode
 
             if(g_opcode>=0){
                 emit_at((uint8_t)g_opcode, pc++);
@@ -946,19 +946,19 @@ static void pass2(void){
                     uint16_t v16 = resolve_value(&g_val);
                     if(g_val.force_zp && (g_mode==M_ZP || g_mode==M_ZPX || g_mode==M_ZPY || g_mode==M_ZPIND) && v16 > 0xFF){
                         assembly_status |= STAT_PASS2_ERROR;
-                        printf("PASS2: ERROR forced ZP truncates $%04X at line %d" NEWLINE, v16, li+1);
+                        printf("PASS2: ERROR forced ZP truncates $%04X at line %d" NEWLINE, v16, li + 1);
                     }
                     emit_at((uint8_t)v16, pc++);
                 }else if(g_mode==M_ABS || g_mode==M_ABSX || g_mode==M_ABSY || g_mode==M_ABSIND){
                     uint16_t v16 = resolve_value(&g_val);
-                    emit_at((uint8_t)(v16&0xFF), pc++);
-                    emit_at((uint8_t)(v16>>8),   pc++);
+                    emit_at((uint8_t)(v16 & 0xFF), pc++);
+                    emit_at((uint8_t)(v16 >> 8),   pc++);
                 }else if(g_mode==M_PCREL){
                     uint16_t target = resolve_value(&g_val);
                     int16_t off = (int16_t)target - (int16_t)(pc + 1);
                     if(off < -128 || off > 127){
                         assembly_status |= STAT_PASS2_ERROR;
-                        printf("PASS2: ERROR branch out of range at line %d" NEWLINE, li+1);
+                        printf("PASS2: ERROR branch out of range at line %d" NEWLINE, li + 1);
                         off = 0;
                     }
                     emit_at((uint8_t)(off & 0xFF), pc++);
@@ -991,9 +991,9 @@ list_line:
         // p = build_outfilebuffer(&len, line_pc_before, line_pc_after);
         // xram_write_lst_line(p, (unsigned)len, fd);
 
+        /*
         pad = 36 - 3 * (line_pc_after - line_pc_before);
         if(pad < 0) pad = 0;
-        /*
         while(pad--) {
             n = sprintf(outfilebuffer, "%s", " ");
             if(n < 0) continue;

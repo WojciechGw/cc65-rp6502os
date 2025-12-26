@@ -1,4 +1,5 @@
 ; Hello World for Mini ASSembler
+; ------------------------------
 .org $C000
 
 RIA_TX .equ $FFE1
@@ -14,10 +15,10 @@ loop:
     RTS
 
 text:
-.ascii "Hello "
-.ascii "World."
-.ascii " I'm b"
-.asciiz "ack!\r\n"
+.ascii  "Hello Worl"
+.ascii  "d. I'm bac"
+.asciiz "k!\r\n"
 
-runaddress:
+dosrun:
 .word  start
+; -- end --
