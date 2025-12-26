@@ -1,10 +1,10 @@
 ; TX port terminala
+.org $9000
+
 RIA_READY .equ $FFE0
 RIA_TX .equ $FFE1
 RANGE_START .equ $FE
 RANGE_END .equ $FF
-
-.org $9000
 
         ; first range
         lda #$40

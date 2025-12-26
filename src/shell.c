@@ -926,7 +926,7 @@ int cmd_list(int argc, char **argv) {
         tx_string("Cannot open file" NEWLINE);
         return -1;
     }
-    tx_string("----------------------------------------" NEWLINE);
+    tx_string(NEWLINE "-- START --"  NEWLINE);
     while((n = read(fd, buf, sizeof(buf))) > 0) {
         int idx;
         for(idx = 0; idx < n; idx++) {
@@ -950,7 +950,7 @@ int cmd_list(int argc, char **argv) {
                     tx_string(NEWLINE "\x1b[K"); /* clear prompt line */
                     if(ans == 'q' || ans == 'Q' || ans == CHAR_ESC) {
                         close(fd);
-                        tx_string(NEWLINE "----------------------------------------" NEWLINE);
+                        tx_string(NEWLINE "--- END ---" NEWLINE);
                         return 0;
                     }
                     lines = 0;
@@ -961,7 +961,7 @@ int cmd_list(int argc, char **argv) {
         }
     }
     close(fd);
-    tx_string(NEWLINE "----------------------------------------" NEWLINE);
+    tx_string(NEWLINE "--- END ---" NEWLINE);
     return 0;
 }
 

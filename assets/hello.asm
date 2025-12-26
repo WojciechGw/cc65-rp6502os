@@ -1,10 +1,10 @@
 ; Hello World for Mini ASSembler
+.org $C000
+
 RIA_TX .equ $FFE1
 
-    .org $C000
-    
+start:
     LDX #$00
-
 loop:
     LDA text,X
     STA RIA_TX
@@ -14,7 +14,10 @@ loop:
     RTS
 
 text:
-.asciz "Hello, World I'm back!\r\n"
+.ascii "Hello "
+.ascii "World."
+.ascii " I'm b"
+.asciiz "ack!\r\n"
 
 runaddress:
-.word  $C000
+.word  start

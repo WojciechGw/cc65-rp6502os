@@ -15,10 +15,10 @@ mass sourcecode.asm -out outfile.bin -base <baseaddress> -run <runaddress>
 #define APP_MSG_START_ASSEMBLING ANSI_DARK_GRAY "\x1b[3;1HStart compilation ... " ANSI_RESET
 #define APP_MSG_START_ENTERCODE ANSI_DARK_GRAY "\x1b[3;1HEnter code or empty line to start compilation ... " ANSI_RESET
 
-/* --- limity --- */
+/* --- limits --- */
 #define MAXLINES    256
 #define MAXLEN      40
-#define MAXOUT      8192
+#define MAXOUT      8192u
 #define MAXSYM      64
 #define MAXINCDEPTH 4
 
@@ -33,11 +33,15 @@ static uint16_t pc  = 0x9000;
 static char g_buf[MAXLEN];
 static char g_buf2[MAXLEN];
 static char g_buf3[MAXLEN];
-// static char outfilebuffer[80];
+static char outfilebuffer[80];
 static char g_tok[80];
 static char g_incpath[256];
 static char g_symtmp[48];
-static char g_outpath[256] = "out.bin";
+static char g_outpath[128] = "out.bin";
+static char g_listpath[128] = "out.lst";
+static uint16_t line_pc_after;
+static int pad;
+static uint16_t a;
 
 #define STAT_SUCCESS        0b00000000
 #define STAT_PASS1_ERROR    0b00000001
@@ -48,9 +52,11 @@ static unsigned int assembly_status;
 
 /* --- magazyny w XRAM (RIA port 1) --- */
 #define XRAM_LINES_BASE 0x0000u
-#define XRAM_LINES_SIZE 16384u
+#define XRAM_LINES_SIZE 0x4000u
 #define XRAM_OUT_BASE   0x4000u
-#define XRAM_OUT_SIZE   8192u
+#define XRAM_OUT_SIZE   0x2000u
+#define XRAM_LST_BASE   0xF000u
+#define XRAM_LST_SIZE   0x50u
 
 #if (MAXLINES * MAXLEN) > XRAM_LINES_SIZE
 #error "MAXLINES*MAXLEN exceeds 16KB XRAM source area"
@@ -164,6 +170,21 @@ static void xram_sym_set_value_defined(unsigned idx, uint16_t value, unsigned de
     RIA.rw1 = (uint8_t)(defined ? 1u : 0u);
 }
 
+static void xram_write_lst_line(const char* line, unsigned len, int fd){
+    unsigned i;
+    // printf("fd:%d line:%s len:%d" NEWLINE,fd,line,len);
+    if(fd < 0 || !line || !len) return;
+    if(len > XRAM_LST_SIZE) len = XRAM_LST_SIZE;
+    /* czyść bufor listingu przed wypełnieniem, aby write_xram nie zaciągał starych śmieci */
+    RIA.addr0 = XRAM_LST_BASE;
+    RIA.step0 = 1;
+    for(i = 0; i < XRAM_LST_SIZE; i++) RIA.rw0 = 0x00;
+    RIA.addr0 = XRAM_LST_BASE;
+    RIA.step0 = 1;
+    for(i = 0; i < len; i++) RIA.rw0 = (uint8_t)line[i];
+    write_xram(XRAM_LST_BASE, len, fd);
+}
+
 /* --- wartości z operatorami < > --- */
 typedef enum { V_NORMAL = 0, V_LOW = 1, V_HIGH = 2 } asm_vop_t;
 
@@ -196,6 +217,12 @@ static void rstrip(char* s){
 }
 static void ltrim_ptr(char** ps){ while(**ps==' '||**ps=='\t') (*ps)++; }
 static void to_upper_str(char* s){ while(*s){ *s=(char)toupper((unsigned char)*s); ++s; } }
+static void strip_utf8_bom(char* s){
+    if(!s) return;
+    if((unsigned char)s[0]==0xEF && (unsigned char)s[1]==0xBB && (unsigned char)s[2]==0xBF){
+        memmove(s, s+3, strlen(s+3)+1);
+    }
+}
 
 // split_token jest zdefiniowane niżej; prototyp potrzebny dla C89
 static int split_token(char* s, char** a, char** b);
@@ -251,6 +278,12 @@ static void xram_out_write_byte(uint16_t off, uint8_t b){
     RIA.rw1 = b;
 }
 
+static uint8_t xram_out_read_byte(uint16_t off){
+    RIA.addr1 = (unsigned)(XRAM_OUT_BASE + off);
+    RIA.step1 = 1;
+    return RIA.rw1;
+}
+
 static int parse_ascii_bytes(const char* s, uint8_t* out, int max_out, int* out_len){
     int n = 0;
     if(out_len) *out_len = 0;
@@ -289,6 +322,17 @@ static void set_output_path(const char* path){
     memcpy(g_outpath, path, len);
     g_outpath[len] = 0;
 }
+
+/*
+static void set_listing_path(const char* path){
+    size_t len;
+    if(!path || !*path) return;
+    len = strlen(path);
+    if(len >= sizeof(g_listpath)) len = sizeof(g_listpath) - 1;
+    memcpy(g_listpath, path, len);
+    g_listpath[len] = 0;
+}
+*/
 
 /* rozpoznaje składnię: NAME .equ value (zwraca wskaźniki do bufora roboczego) */
 static int parse_named_equ_line(const char* line, char** name_out, char** value_out){
@@ -507,6 +551,7 @@ static int read_file_into_lines(const char* path, int depth){
 
     while(fgets(g_buf,sizeof(g_buf),f)){
         rstrip(g_buf);
+        strip_utf8_bom(g_buf);
         strncpy(g_buf2, g_buf, sizeof(g_buf2)-1); g_buf2[sizeof(g_buf2)-1]=0;
         trim_comment(g_buf2);
         s = g_buf2; ltrim_ptr(&s);
@@ -529,6 +574,58 @@ static int read_file_into_lines(const char* path, int depth){
     fclose(f);
     return 1;
 }
+
+/*
+static char hex_digit(unsigned char v)
+{
+    v &= 0x0F;
+    return (v < 10) ? (char)('0' + v) : (char)('A' + (v - 10));
+}
+*/
+
+// Zwraca wskaźnik do przygotowanego bufora (outfilebuffer).
+// Opcjonalnie zwraca długość (bez '\0') przez out_len.
+// Jeśli bufor był za mały, ucina wynik.
+/*
+static char* build_outfilebuffer(unsigned int* out_len, uint16_t line_pc_before, uint16_t line_pc_after)
+{
+    unsigned int a; 
+    unsigned int out_off;
+    unsigned char byte;
+    unsigned int pos;
+    unsigned int max;
+
+    pos = 0;
+    max = (unsigned int)sizeof(outfilebuffer);
+
+    for (a = line_pc_before; a < line_pc_after; ++a)
+    {
+        // 3 znaki na bajt: "HH " + 1 na końcowe '\0'
+        if (pos + 3u + 1u > max) {
+            break;
+        }
+
+        out_off = (unsigned int)(a - org);
+        byte = (unsigned char)xram_out_read_byte(out_off);
+
+        outfilebuffer[pos++] = hex_digit((unsigned char)(byte >> 4));
+        outfilebuffer[pos++] = hex_digit(byte);
+        outfilebuffer[pos++] = ' ';
+    }
+
+    // usuń końcową spację (opcjonalnie)
+    if (pos > 0 && outfilebuffer[pos - 1] == ' ') {
+        --pos;
+    }
+
+    outfilebuffer[pos] = '\0';
+
+    if (out_len != 0) {
+        *out_len = pos;
+    }
+    return outfilebuffer;
+}
+*/
 
 // --- PASS1 ---
 static void pass1(void){
@@ -706,15 +803,16 @@ static void emit_at(uint8_t b, uint16_t at){
 
 static void pass2(void){
     int li,i,opt_mode;
-    // int fd,n;
+    int fd,n;
+
+    fd = open(g_listpath, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    if(fd < 0){
+        printf("Writing error (open %s)" NEWLINE, g_listpath);
+        return;
+    }
 
     /* XRAM nie musi być wyzerowany, a .org może zostawiać dziury — czyść bufor wyjścia */
     xram1_fill(XRAM_OUT_BASE, 0x00, (unsigned)MAXOUT);
-
-    /*
-    fd = open("out.lst",O_CREAT);
-    if(fd < 0) printf("Can't open out.lst" NEWLINE);
-    */
 
     pc = org;
     for(li = 0; li < nlines; ++li){
@@ -726,12 +824,11 @@ static void pass2(void){
         trim_comment(g_buf);
         g_s = g_buf; ltrim_ptr(&g_s);
         if(!*g_s){
-            /*
-            n = sprintf(outfilebuffer, "          | %s\n", g_buf2);
+            // list remarks and empty lines
+            n = sprintf(outfilebuffer, NEWLINE "                                   | %s", g_buf2);
             if(n < 0) continue;
             if(n >= (int)sizeof(outfilebuffer)) n = (int)sizeof(outfilebuffer) - 1;
-            write(fd, outfilebuffer, (unsigned)n);
-            */
+            xram_write_lst_line(outfilebuffer, (unsigned)n, fd);
             continue;
         } 
 
@@ -739,8 +836,14 @@ static void pass2(void){
             char* p = g_s;
             while(is_ident_char((unsigned char)*p)) ++p;
             if(*p==':'){
-                g_s=p+1; ltrim_ptr(&g_s);
-                if(!*g_s) continue;
+                g_s = p + 1; ltrim_ptr(&g_s);
+                if(!*g_s){
+                    n = sprintf(outfilebuffer, NEWLINE "                                   | %s", g_buf2);
+                    if(n < 0) continue;
+                    if(n >= (int)sizeof(outfilebuffer)) n = (int)sizeof(outfilebuffer) - 1;
+                    xram_write_lst_line(outfilebuffer, (unsigned)n, fd);
+                    continue;
+                } 
             }
         }
 
@@ -812,6 +915,7 @@ static void pass2(void){
                 }
             }
         } else {
+            
             if(!split_token(g_s,&g_mn,&g_op)) goto list_line;
 
             strncpy(g_MN,g_mn,7); g_MN[7]=0; to_upper_str(g_MN);
@@ -862,9 +966,49 @@ static void pass2(void){
             }
         }
 list_line:
-        if(1) continue;
+        line_pc_after = pc;
+
+        // list pc
+        n = sprintf(outfilebuffer, NEWLINE "%04X ", line_pc_before);
+        if(n < 0) continue;
+        if(n >= (int)sizeof(outfilebuffer)) n = (int)sizeof(outfilebuffer) - 1;
+        xram_write_lst_line(outfilebuffer, (unsigned)n, fd);
+
+        // list machine codes
+        for(a = line_pc_before; a < (line_pc_before + 10); ++a)
+        {
+            if(a < line_pc_after){
+                uint16_t out_off = (uint16_t)(a - org);
+                uint8_t byte = xram_out_read_byte(out_off);
+                n = sprintf(outfilebuffer, "%02X \0", byte);
+            } else {
+                n = sprintf(outfilebuffer, "%s\0", "   ");
+            }
+            if(n < 0) continue;
+            if(n >= (int)sizeof(outfilebuffer)) n = (int)sizeof(outfilebuffer) - 1;
+            xram_write_lst_line(outfilebuffer, (unsigned)n, fd);
+        }
+        // p = build_outfilebuffer(&len, line_pc_before, line_pc_after);
+        // xram_write_lst_line(p, (unsigned)len, fd);
+
+        pad = 36 - 3 * (line_pc_after - line_pc_before);
+        if(pad < 0) pad = 0;
+        /*
+        while(pad--) {
+            n = sprintf(outfilebuffer, "%s", " ");
+            if(n < 0) continue;
+            if(n >= (int)sizeof(outfilebuffer)) n = (int)sizeof(outfilebuffer) - 1;
+            xram_write_lst_line(outfilebuffer, (unsigned)n, fd);
+        }
+        */
+
+        // list source line for current pc
+        n = sprintf(outfilebuffer, "| %s", g_buf2);
+        if(n < 0) continue;
+        if(n >= (int)sizeof(outfilebuffer)) n = (int)sizeof(outfilebuffer) - 1;
+        xram_write_lst_line(outfilebuffer, (unsigned)n, fd);
     }
-    // close(fd);
+    close(fd);
 }
 
 /* --- zapis BIN --- */
@@ -936,6 +1080,7 @@ int main(int argc, char **argv){
             printf("Open source file %s" NEWLINE, input_path);
             while(nlines < MAXLINES && fgets(g_buf,sizeof(g_buf),src)){
                 rstrip(g_buf);
+                strip_utf8_bom(g_buf);
                 strncpy(g_buf2, g_buf, sizeof(g_buf2)-1); g_buf2[sizeof(g_buf2)-1]=0;
                 trim_comment(g_buf2);
                 s = g_buf2; ltrim_ptr(&s);
@@ -965,6 +1110,7 @@ int main(int argc, char **argv){
             if(!fgets(g_buf,sizeof(g_buf),stdin)) break;
             if(g_buf[0]=='\n'||g_buf[0]==0) break;
             rstrip(g_buf);
+            strip_utf8_bom(g_buf);
 
             strncpy(g_buf2, g_buf, sizeof(g_buf2)-1); g_buf2[sizeof(g_buf2)-1]=0;
             trim_comment(g_buf2);
