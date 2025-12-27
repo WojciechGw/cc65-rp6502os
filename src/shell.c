@@ -1481,7 +1481,7 @@ int cmd_run(int argc, char **argv) { // run at address with optional args
     return 0;
 }
 
-int cmd_cm(int argc, char **argv) { // multicopier
+int cmd_cpm(int argc, char **argv) { // multicopier
     int dirdes = -1;
     int mv_mode = 0;
     int rc = 0;
@@ -1829,7 +1829,7 @@ int cmd_ls(int argc, char **argv){
     tx_string(NEWLINE);
     return rc;
 }
-
+/* TO DO
 int cmd_cart(int argc, char **argv) {
     (void)argc; (void)argv;
 
@@ -1882,6 +1882,7 @@ int cmd_ctx(int argc, char **argv) {
     }
     return 0;
 }
+*/
 
 // ------------------- SCRATCHPAD -----------------------
 /*

@@ -140,10 +140,10 @@ int cmd_bsave(int, char **);
 int cmd_cd(int, char **);
 int cmd_chmod(int, char **);
 int cmd_cls(int, char **);
-int cmd_cm(int, char **);
 int cmd_com(int, char **);
 int cmd_exe(int, char **);
 int cmd_cp(int, char **);
+int cmd_cpm(int, char **);
 int cmd_ls(int, char **);
 int cmd_drive(int, char **);
 int cmd_drives(int, char **);
@@ -174,8 +174,8 @@ static const cmd_t commands[] = {
     { "cd",     "", "", cmd_cd},
     { "chmod",  "", "", cmd_chmod},
     { "cls",    "", "", cmd_cls },
-    { "cm",     "", "", cmd_cm},
     { "cp",     "", "", cmd_cp},
+    { "cpm",     "", "", cmd_cpm},
     { "com",    "", "", cmd_com},
     { "exe",    "", "", cmd_exe},
     { "ls",     "", "", cmd_ls},
@@ -238,10 +238,10 @@ int cmd_bsave(int argc, char **argv);
 int cmd_cd(int argc, char **argv);
 int cmd_chmod(int argc, char **argv);
 int cmd_cls(int, char **);
-int cmd_cm(int argc, char **argv);
 int cmd_com(int argc, char **argv);
 int cmd_exe(int argc, char **argv);
 int cmd_cp(int argc, char **argv);
+int cmd_cpm(int argc, char **argv);
 int cmd_ls(int argc, char **argv);
 int cmd_drive(int argc, char **argv);
 int cmd_drives(int argc, char **argv);
