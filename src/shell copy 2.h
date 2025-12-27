@@ -15,24 +15,24 @@
 extern struct _timezone _tz;
 
 #ifndef __STACKSIZE__
-    #define __STACKSIZE__ 0x0200
+    #define __STACKSIZE__ 0x0400
 #endif
 #define MEMTOP (0xFF00-__STACKSIZE__)
-#define COM_LOAD_ADDR 0x9300  // lowest ram address where to load the external command code (binary shell extensions - .com files)
+#define COM_LOAD_ADDR 0x9000  // lowest ram address where to load the external command code (binary shell extensions - .com files)
 
-#define SHELLVER "20251227.1912"
+#define SHELLVER "20251224.1232"
 #define SHELLDIRDEFAULT "USB0:/SHELL/"
 #define SHELLPROMPT "> "
 #define SHELLPROMPT_1ST "> " ANSI_GREEN "[F1] help" ANSI_RESET " > "
 
 #define APP_MSG_START ANSI_DARK_GRAY "\x1b[13;24HOS Shell for Picocomputer 6502" 
 #define APP_HOURGLASS "\x1b[14;34H" "..........\x1b[10D" ANSI_RESET
-#define APP_MSG_TITLE "\x1b[2;1HOS Shell for Picocomputer 6502\x1b[2;60Hversion " SHELLVER
+#define APP_MSG_TITLE "\x1b[2;1HOS Shell for Picocomputer 6502                             version " SHELLVER
 #define APP_MSG_HELP_COMADDRESS "\x1b[30;1H" ANSI_DARK_GRAY "Hint: press F1 for help RUN ADDRESS:" STR(COM_LOAD_ADDR) " version " SHELLVER ANSI_RESET
 #define APP_MSG_EXIT NEWLINE "Exiting to the monitor." NEWLINE "Bye, bye !" NEWLINE NEWLINE
 
-#define CMD_BUF_MAX 80
-#define CMD_TOKEN_MAX 5
+#define CMD_BUF_MAX 127
+#define CMD_TOKEN_MAX 10
 #define EDIT_BUF_MAX 2048
 #define RUN_ARGS_BASE 0x0200      // where argc/argv block is stored for run (safe area outside shell BSS)
 #define RUN_ARGS_MAX 4
@@ -124,13 +124,12 @@ static char rm_file[RMBUFFLEN];
 static unsigned char bload_buf[128];
 static char com_fname[FNAMELEN];
 static char *com_argv[CMD_TOKEN_MAX+1];
-static char *exe_argv[CMD_TOKEN_MAX+1];
 static unsigned char run_args_backup[RUN_ARGS_BLOCK_SIZE];
+static char shell_end_marker;
 static char drv_args_buf[4] = {0};
 static char *drv_args[2] = { (char *)"drive", drv_args_buf };
 static int filehex_fd = -1;
 static uint32_t filehex_base = 0;
-
 static void refresh_current_drive(void);
 static void build_run_args(int user_argc, char **user_argv);
 
@@ -142,7 +141,6 @@ int cmd_chmod(int, char **);
 int cmd_cls(int, char **);
 int cmd_cm(int, char **);
 int cmd_com(int, char **);
-int cmd_exe(int, char **);
 int cmd_cp(int, char **);
 int cmd_ls(int, char **);
 int cmd_drive(int, char **);
@@ -177,7 +175,6 @@ static const cmd_t commands[] = {
     { "cm",     "", "", cmd_cm},
     { "cp",     "", "", cmd_cp},
     { "com",    "", "", cmd_com},
-    { "exe",    "", "", cmd_exe},
     { "ls",     "", "", cmd_ls},
     { "drive",  "", "", cmd_drive},
     { "drives", "", "", cmd_drives},
@@ -240,7 +237,6 @@ int cmd_chmod(int argc, char **argv);
 int cmd_cls(int, char **);
 int cmd_cm(int argc, char **argv);
 int cmd_com(int argc, char **argv);
-int cmd_exe(int argc, char **argv);
 int cmd_cp(int argc, char **argv);
 int cmd_ls(int argc, char **argv);
 int cmd_drive(int argc, char **argv);
@@ -259,8 +255,7 @@ int cmd_rm(int argc, char **argv);
 int cmd_run(int argc, char **argv);
 int cmd_stat(int argc, char **argv);
 int cmd_time(int argc, char **argv);
-extern char _BSS_RUN__[];
-extern char _BSS_SIZE__[];
+static char shell_end_marker = 0xFF;
 
 // TO DO
 // int cmd_cart(int argc, char **argv);

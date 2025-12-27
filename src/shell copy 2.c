@@ -569,7 +569,7 @@ static void file_reader(uint8_t *buf, uint16_t addr, uint16_t size) {
 }
 
 uint16_t mem_lo(void) { // Lowest usable address for other programs as shell base adress + shell size
-    return (uint16_t)(_BSS_RUN__ + (uint16_t)_BSS_SIZE__);
+    return (uint16_t)((unsigned)&shell_end_marker);
 }
 
 uint16_t mem_top(void) {
@@ -725,21 +725,6 @@ static int execute(cmdline_t *cl) {
     for(i = 0; i < ARRAY_SIZE(commands); i++) {
         if(!strcmp(tokenList[0], commands[i].cmd)) {
             return commands[i].func(tokens, tokenList);
-        }
-    }
-    // Try implicit .exe execution: load address from file trailer
-    {
-        unsigned name_len = (unsigned)strlen(tokenList[0]);
-        if(name_len > 4 && !strcmp(tokenList[0] + name_len - 4, ".exe")) {
-            int exe_argc = tokens + 1;
-            int j;
-            if(exe_argc > CMD_TOKEN_MAX + 1) exe_argc = CMD_TOKEN_MAX + 1;
-            exe_argv[0] = (char *)"exe";
-            exe_argv[1] = tokenList[0];
-            for(j = 1; j < tokens && (j + 1) < (CMD_TOKEN_MAX + 1); j++) {
-                exe_argv[j + 1] = tokenList[j];
-            }
-            return cmd_exe(exe_argc, exe_argv);
         }
     }
     // Try implicit .com execution: SHELLDIR/<name>.com
@@ -1334,80 +1319,6 @@ int cmd_brun(int argc, char **argv) {
     return 0;
 }
 
-int cmd_exe(int argc, char **argv) { // run binary with load address stored in last two bytes (LSB, MSB)
-    int fd;
-    unsigned long bytes_left;
-    uint8_t addr_buf[2];
-    uint16_t load_addr;
-    uint16_t addr;
-    void (*fn)(void);
-    int user_argc;
-    char **user_argv;
-
-    if(argc < 2) {
-        tx_string("Usage: exe <file.exe> [args...]" NEWLINE);
-        return 0;
-    }
-    if(f_stat(argv[1], &dir_ent) < 0) {
-        tx_string("Cannot stat file" NEWLINE);
-        return -1;
-    }
-    if(dir_ent.fsize < 2) {
-        tx_string("Invalid EXE file" NEWLINE);
-        return -1;
-    }
-
-    fd = open(argv[1], O_RDONLY);
-    if(fd < 0) {
-        tx_string("Cannot open file" NEWLINE);
-        return -1;
-    }
-    if(lseek(fd, (off_t)dir_ent.fsize - 2, SEEK_SET) < 0) {
-        tx_string("Seek failed" NEWLINE);
-        close(fd);
-        return -1;
-    }
-    if(read(fd, addr_buf, sizeof(addr_buf)) != (int)sizeof(addr_buf)) {
-        tx_string("Read error" NEWLINE);
-        close(fd);
-        return -1;
-    }
-    load_addr = (uint16_t)(addr_buf[0] | ((uint16_t)addr_buf[1] << 8));
-    if(lseek(fd, 0, SEEK_SET) < 0) {
-        tx_string("Seek failed" NEWLINE);
-        close(fd);
-        return -1;
-    }
-
-    bytes_left = dir_ent.fsize - 2;
-    addr = load_addr;
-    while(bytes_left) {
-        int chunk = (bytes_left > (unsigned long)sizeof(bload_buf)) ? (int)sizeof(bload_buf) : (int)bytes_left;
-        int read_bytes = read(fd, bload_buf, chunk);
-        if(read_bytes <= 0) {
-            tx_string("Read error" NEWLINE);
-            close(fd);
-            return -1;
-        }
-        ram_writer(bload_buf, addr, (uint16_t)read_bytes);
-        addr += (uint16_t)read_bytes;
-        bytes_left -= (unsigned long)read_bytes;
-    }
-    close(fd);
-
-    memcpy(run_args_backup, (void *)RUN_ARGS_BASE, RUN_ARGS_BLOCK_SIZE);
-    user_argc = argc - 2;
-    if(user_argc < 0) user_argc = 0;
-    user_argv = argv + 2;
-    build_run_args(user_argc, user_argv);
-
-    fn = (void (*)(void))load_addr;
-    fn();
-    memcpy((void *)RUN_ARGS_BASE, run_args_backup, RUN_ARGS_BLOCK_SIZE);
-    refresh_current_drive();
-    return 0;
-}
-
 int cmd_com(int argc, char **argv) { // run external command
     int fd;
     int n;
@@ -1649,16 +1560,17 @@ int cmd_phi2(int argc, char **argv) {
 int cmd_mem(int argc, char **argv) {
     uint16_t bottom = mem_lo();
     uint16_t top = mem_top();
-    uint16_t free = mem_free();
+    uint16_t free = (uint16_t)(top - bottom + 1);
     (void)argc; (void)argv;
-    tx_string(NEWLINE "System memory" NEWLINE);
-    tx_string(NEWLINE "low:  0x");
+    tx_string(NEWLINE "Memory available for user programs" NEWLINE NEWLINE);
+    tx_string("range:        0x");
     tx_hex16(bottom);
-    tx_string(NEWLINE "top:  0x");
+    tx_string(" ... 0x");
     tx_hex16(top);
-    tx_string(NEWLINE "free: ");
+    tx_string(NEWLINE);
+    tx_string("size [bytes]: ");
     tx_dec32(free);
-    tx_string(" bytes" NEWLINE NEWLINE);
+    tx_string(NEWLINE NEWLINE);
     return 0;
 }
 

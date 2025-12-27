@@ -9,7 +9,7 @@ mass sourcecode.asm -out outfile.bin -base <baseaddress> -run <runaddress>
 #include "commons.h"
 #include "ext-mass-opcodes.h"
 
-#define APPVER "20251226.1815"
+#define APPVER "20251227.1126"
 #define APPDIRDEFAULT "USB0:/SHELL/"
 #define APP_MSG_TITLE CSI_RESET "\x1b[2;1HOS Shell > Mini ASSembler 65C02S                           version " APPVER
 #define APP_MSG_START_ASSEMBLING ANSI_DARK_GRAY "\x1b[4;1HStart compilation ... " ANSI_RESET
@@ -26,8 +26,8 @@ mass sourcecode.asm -out outfile.bin -base <baseaddress> -run <runaddress>
 static int   nlines = 0;
 
 /* --- wyjście domyślne jeżeli brak .org --- */
-static uint16_t org = 0x9000;
-static uint16_t pc  = 0x9000;
+static uint16_t org = 0x9900;
+static uint16_t pc  = 0x9900;
 
 /* wspólne bufory robocze, by ograniczyć lokalne */
 static char g_buf[MAXLEN];
