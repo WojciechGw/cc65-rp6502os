@@ -374,7 +374,7 @@ void tx_dec32(unsigned long val) { // Print an unsigned long in decimal.
     }
     tx_chars(&out[i], 10 - i);
 }
-
+/* cmd_edit related
 static void tx_print_existing(const char *buf, unsigned len) { // Print existing file content with CR/LF translation.
     unsigned i;
     if(len == 0) {
@@ -426,7 +426,7 @@ static int read_line_editor(char *buf, int maxlen) { // Read a single line from 
         }
     }
 }
-
+*/
 int hexstr(char *str, uint8_t val) { // Assumes str points to at least two bytes.
     str[0] = hexdigits[val >> 4];
     str[1] = hexdigits[val & 0xF];
@@ -979,7 +979,7 @@ int cmd_list(int argc, char **argv) {
     tx_string(NEWLINE "--- END ---" NEWLINE);
     return 0;
 }
-
+/* cmd_edit TO DO move to external command
 int cmd_edit(int argc, char **argv) { // simple line editor for text files
     int fd = -1;
     int rc = 0;
@@ -1069,7 +1069,7 @@ cleanup:
     free(new_content);
     return rc;
 }
-
+*/
 int cmd_mkdir(int argc, char **argv) {
     if(argc < 2) {
         tx_string("Usage: mkdir <path>" NEWLINE);
