@@ -9,7 +9,7 @@ mass sourcecode.asm -out outfile.bin -base <baseaddress> -run <runaddress>
 #include "commons.h"
 #include "ext-mass-opcodes.h"
 
-#define APPVER "20251227.1126"
+#define APPVER "20251228.1000"
 #define APPDIRDEFAULT "USB0:/SHELL/"
 #define APP_MSG_TITLE CSI_RESET "\x1b[2;1HOS Shell > Mini ASSembler 65C02S                           version " APPVER
 #define APP_MSG_START_ASSEMBLING ANSI_DARK_GRAY "\x1b[4;1HStart compilation ... " ANSI_RESET
@@ -26,8 +26,8 @@ mass sourcecode.asm -out outfile.bin -base <baseaddress> -run <runaddress>
 static int   nlines = 0;
 
 /* --- wyjście domyślne jeżeli brak .org --- */
-static uint16_t org = 0x9900;
-static uint16_t pc  = 0x9900;
+static uint16_t org = 0x9000;
+static uint16_t pc  = 0x9000;
 
 /* wspólne bufory robocze, by ograniczyć lokalne */
 static char g_buf[MAXLEN];
@@ -173,10 +173,8 @@ static void xram_sym_set_value_defined(unsigned idx, uint16_t value, unsigned de
 
 static void xram_write_lst_line(const char* line, unsigned len, int fd){
     unsigned i;
-    // printf("fd:%d line:%s len:%d" NEWLINE,fd,line,len);
     if(fd < 0 || !line || !len) return;
     if(len > XRAM_LST_SIZE) len = XRAM_LST_SIZE;
-    /* czyść bufor listingu przed wypełnieniem, aby write_xram nie zaciągał starych śmieci */
     RIA.addr0 = XRAM_LST_BASE;
     RIA.step0 = 1;
     for(i = 0; i < XRAM_LST_SIZE; i++) RIA.rw0 = 0x00;

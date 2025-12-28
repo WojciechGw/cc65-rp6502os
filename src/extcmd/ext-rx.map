@@ -1,15 +1,15 @@
 Modules list:
 -------------
-ext-rx.c.22016.0.o:
+ext-rx.c.14016.0.o:
     CODE              Offs=000000  Size=00025D  Align=00001  Fill=0000
     RODATA            Offs=000000  Size=000165  Align=00001  Fill=0000
     BSS               Offs=000000  Size=000101  Align=00001  Fill=0000
     DATA              Offs=000000  Size=000008  Align=00001  Fill=0000
-crt0_cmd.s.22016.1.o:
+crt0_cmd.s.14016.1.o:
     STARTUP           Offs=000000  Size=00001B  Align=00001  Fill=0000
-write_stub.c.22016.2.o:
+write_stub.c.14016.2.o:
     CODE              Offs=00025D  Size=00004C  Align=00001  Fill=0000
-initmainargs.s.22016.3.o:
+initmainargs.s.14016.3.o:
     STARTUP           Offs=00001B  Size=000001  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(_file.o):
     DATA              Offs=000008  Size=00001E  Align=00001  Fill=0000
@@ -258,13 +258,13 @@ __RAM_SIZE__ ([linker generated]):
 __RAM_START__ ([linker generated]):
     crt0.o                    rp6502/crt0.s:10
 __STACKSIZE__ ([linker generated]):
-    [linker generated]        ../ext0x9000.cfg:9
+    [linker generated]        cfg/ext0x9000.cfg:9
 __STARTADDR__ ([linker generated]):
-    [linker generated]        ../ext0x9000.cfg:9
-    [linker generated]        ../ext0x9000.cfg:9
+    [linker generated]        cfg/ext0x9000.cfg:9
+    [linker generated]        cfg/ext0x9000.cfg:9
 __STARTUP__ (crt0.o):
-    ext-rx.c.22016.0.o        ext-rx.c.22016.0.s:13
-    [linker generated]        ../ext0x9000.cfg:3
+    ext-rx.c.14016.0.o        ext-rx.c.14016.0.s:13
+    [linker generated]        cfg/ext0x9000.cfg:3
 ___errno (errno.o):
     _seterrno.o               /home/wojciech/git/WojciechGw/cc65/asminc/errno.inc:7
 ___seterrno (_seterrno.o):
@@ -280,16 +280,16 @@ __longminstr (_longminstr.o):
 __printf (_printf.o):
     vfprintf.o                common/vfprintf.s:10
 _clock (clock.o):
-    ext-rx.c.22016.0.o        ext-rx.c.22016.0.s:15
+    ext-rx.c.14016.0.o        ext-rx.c.14016.0.s:15
 _fwrite (fwrite.o):
     vfprintf.o                common/vfprintf.s:10
 _ltoa (ltoa.o):
     _printf.o                 common/_printf.s:12
-_main (ext-rx.c.22016.0.o):
+_main (ext-rx.c.14016.0.o):
     crt0.o                    rp6502/crt0.s:7
-    crt0_cmd.s.22016.1.o      crt0_cmd.s:2
+    crt0_cmd.s.14016.1.o      crt0_cmd.s:2
 _printf (printf.o):
-    ext-rx.c.22016.0.o        ext-rx.c.22016.0.s:14
+    ext-rx.c.14016.0.o        ext-rx.c.14016.0.s:14
 _ria_call_int (ria.o):
     errno.o                   rp6502/errno.s:12
 _ria_call_long (ria.o):
@@ -304,19 +304,19 @@ _ultoa (ltoa.o):
     _printf.o                 common/_printf.s:12
 _vfprintf (vfprintf.o):
     printf.o                  common/printf.s:8
-_write (write_stub.c.22016.2.o):
+_write (write_stub.c.14016.2.o):
     fwrite.o                  common/fwrite.s:10
 addeq0sp (addeqsp.o):
-    ext-rx.c.22016.0.o        ext-rx.c.22016.0.s:432
+    ext-rx.c.14016.0.o        ext-rx.c.14016.0.s:432
 addeqysp (addeqsp.o):
-    write_stub.c.22016.2.o    write_stub.c.22016.2.s:64
+    write_stub.c.14016.2.o    write_stub.c.14016.2.s:64
 addysp (addysp.o):
     incsp4.o                  runtime/incsp4.s:8
     incsp6.o                  runtime/incsp6.s:8
     fwrite.o                  common/fwrite.s:11
     printf.o                  common/printf.s:8
-    write_stub.c.22016.2.o    write_stub.c.22016.2.s:64
-    ext-rx.c.22016.0.o        ext-rx.c.22016.0.s:432
+    write_stub.c.14016.2.o    write_stub.c.14016.2.s:64
+    ext-rx.c.14016.0.o        ext-rx.c.14016.0.s:432
 addysp1 (addysp.o):
     lsub.o                    runtime/lsub.s:11
 axlong (axlong.o):
@@ -349,8 +349,8 @@ c_sp (zeropage.o):
     crt0.o                    /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:11
     addysp.o                  runtime/addysp.s:8
     addeqsp.o                 runtime/addeqsp.s:8
-    write_stub.c.22016.2.o    write_stub.c.22016.2.s:10
-    ext-rx.c.22016.0.o        ext-rx.c.22016.0.s:10
+    write_stub.c.14016.2.o    write_stub.c.14016.2.s:10
+    ext-rx.c.14016.0.o        ext-rx.c.14016.0.s:10
 copydata (copydata.o):
     crt0.o                    rp6502/crt0.s:12
 ctypemaskdirect (ctypemask.o):
@@ -359,17 +359,17 @@ decsp4 (decsp4.o):
     lpush.o                   runtime/lpush.s:12
 decsp6 (decsp6.o):
     _printf.o                 common/_printf.s:11
-    ext-rx.c.22016.0.o        ext-rx.c.22016.0.s:432
+    ext-rx.c.14016.0.o        ext-rx.c.14016.0.s:432
 donelib (condes.o):
     crt0.o                    rp6502/crt0.s:12
-    crt0_cmd.s.22016.1.o      crt0_cmd.s:2
+    crt0_cmd.s.14016.1.o      crt0_cmd.s:2
 incsp1 (incsp1.o):
-    ext-rx.c.22016.0.o        ext-rx.c.22016.0.s:432
-    ext-rx.c.22016.0.o        ext-rx.c.22016.0.s:432
+    ext-rx.c.14016.0.o        ext-rx.c.14016.0.s:432
+    ext-rx.c.14016.0.o        ext-rx.c.14016.0.s:432
 incsp2 (incsp2.o):
     popptr1.o                 runtime/popptr1.s:8
     staspidx.o                runtime/staspidx.s:8
-    ext-rx.c.22016.0.o        ext-rx.c.22016.0.s:432
+    ext-rx.c.14016.0.o        ext-rx.c.14016.0.s:432
 incsp4 (incsp4.o):
     lcmp.o                    runtime/lcmp.s:9
 incsp6 (incsp6.o):
@@ -377,11 +377,11 @@ incsp6 (incsp6.o):
     vfprintf.o                common/vfprintf.s:9
 initlib (condes.o):
     crt0.o                    rp6502/crt0.s:12
-    crt0_cmd.s.22016.1.o      crt0_cmd.s:2
+    crt0_cmd.s.14016.1.o      crt0_cmd.s:2
 ldaxysp (ldaxsp.o):
     fwrite.o                  common/fwrite.s:11
 ldeaxysp (ldeaxysp.o):
-    ext-rx.c.22016.0.o        ext-rx.c.22016.0.s:432
+    ext-rx.c.14016.0.o        ext-rx.c.14016.0.s:432
 mul8x16 (mul8.o):
     mul.o                     runtime/mul.s:8
 mul8x16a (mul8.o):
@@ -412,8 +412,8 @@ ptr1 (zeropage.o):
     udiv.o                    runtime/udiv.s:10
     staspidx.o                runtime/staspidx.s:9
     printf.o                  common/printf.s:9
-    write_stub.c.22016.2.o    write_stub.c.22016.2.s:11
-    ext-rx.c.22016.0.o        ext-rx.c.22016.0.s:11
+    write_stub.c.14016.2.o    write_stub.c.14016.2.s:11
+    ext-rx.c.14016.0.o        ext-rx.c.14016.0.s:11
 ptr2 (zeropage.o):
     strlower.o                common/strlower.s:13
     ltoa.o                    common/ltoa.s:11
@@ -428,16 +428,16 @@ ptr4 (zeropage.o):
     umod.o                    runtime/umod.s:9
     udiv.o                    runtime/udiv.s:10
 push0 (pushax.o):
-    ext-rx.c.22016.0.o        ext-rx.c.22016.0.s:432
+    ext-rx.c.14016.0.o        ext-rx.c.14016.0.s:432
 push0ax (lpush.o):
-    ext-rx.c.22016.0.o        ext-rx.c.22016.0.s:432
+    ext-rx.c.14016.0.o        ext-rx.c.14016.0.s:432
 push1 (push1.o):
     _printf.o                 common/_printf.s:11
     vfprintf.o                common/vfprintf.s:9
 pusha (pusha.o):
-    ext-rx.c.22016.0.o        ext-rx.c.22016.0.s:432
-    ext-rx.c.22016.0.o        ext-rx.c.22016.0.s:432
-    ext-rx.c.22016.0.o        ext-rx.c.22016.0.s:432
+    ext-rx.c.14016.0.o        ext-rx.c.14016.0.s:432
+    ext-rx.c.14016.0.o        ext-rx.c.14016.0.s:432
+    ext-rx.c.14016.0.o        ext-rx.c.14016.0.s:432
 pusha0 (pushax.o):
     push1.o                   runtime/push1.s:8
     fwrite.o                  common/fwrite.s:11
@@ -445,18 +445,18 @@ pushax (pushax.o):
     fwrite.o                  common/fwrite.s:11
     _printf.o                 common/_printf.s:11
     printf.o                  common/printf.s:8
-    write_stub.c.22016.2.o    write_stub.c.22016.2.s:64
-    ext-rx.c.22016.0.o        ext-rx.c.22016.0.s:432
-    ext-rx.c.22016.0.o        ext-rx.c.22016.0.s:432
-    ext-rx.c.22016.0.o        ext-rx.c.22016.0.s:432
+    write_stub.c.14016.2.o    write_stub.c.14016.2.s:64
+    ext-rx.c.14016.0.o        ext-rx.c.14016.0.s:432
+    ext-rx.c.14016.0.o        ext-rx.c.14016.0.s:432
+    ext-rx.c.14016.0.o        ext-rx.c.14016.0.s:432
 pusheax (lpush.o):
     _printf.o                 common/_printf.s:11
-    ext-rx.c.22016.0.o        ext-rx.c.22016.0.s:432
+    ext-rx.c.14016.0.o        ext-rx.c.14016.0.s:432
 pushwysp (pushwsp.o):
     fwrite.o                  common/fwrite.s:11
     vfprintf.o                common/vfprintf.s:9
-    write_stub.c.22016.2.o    write_stub.c.22016.2.s:64
-    ext-rx.c.22016.0.o        ext-rx.c.22016.0.s:432
+    write_stub.c.14016.2.o    write_stub.c.14016.2.s:64
+    ext-rx.c.14016.0.o        ext-rx.c.14016.0.s:432
 regbank (zeropage.o):
     _printf.o                 /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:14
 sreg (zeropage.o):
@@ -473,15 +473,15 @@ sreg (zeropage.o):
     lpush.o                   runtime/lpush.s:13
     ldeaxysp.o                runtime/ldeaxysp.s:12
 staspidx (staspidx.o):
-    ext-rx.c.22016.0.o        ext-rx.c.22016.0.s:432
+    ext-rx.c.14016.0.o        ext-rx.c.14016.0.s:432
 stax0sp (staxsp.o):
-    ext-rx.c.22016.0.o        ext-rx.c.22016.0.s:432
+    ext-rx.c.14016.0.o        ext-rx.c.14016.0.s:432
 staxysp (staxsp.o):
-    ext-rx.c.22016.0.o        ext-rx.c.22016.0.s:432
+    ext-rx.c.14016.0.o        ext-rx.c.14016.0.s:432
 steaxysp (steaxsp.o):
-    ext-rx.c.22016.0.o        ext-rx.c.22016.0.s:432
+    ext-rx.c.14016.0.o        ext-rx.c.14016.0.s:432
 subeq0sp (subeqsp.o):
-    write_stub.c.22016.2.o    write_stub.c.22016.2.s:64
+    write_stub.c.14016.2.o    write_stub.c.14016.2.s:64
 tmp1 (zeropage.o):
     mul.o                     runtime/mul.s:10
     ltoa.o                    common/ltoa.s:11
@@ -491,15 +491,15 @@ tmp1 (zeropage.o):
 toslcmp (lcmp.o):
     luge.o                    runtime/luge.s:8
 tossubeax (lsub.o):
-    ext-rx.c.22016.0.o        ext-rx.c.22016.0.s:432
+    ext-rx.c.14016.0.o        ext-rx.c.14016.0.s:432
 tosudiva0 (udiv.o):
-    ext-rx.c.22016.0.o        ext-rx.c.22016.0.s:432
+    ext-rx.c.14016.0.o        ext-rx.c.14016.0.s:432
 tosudivax (udiv.o):
     fwrite.o                  common/fwrite.s:12
 tosugeeax (luge.o):
-    ext-rx.c.22016.0.o        ext-rx.c.22016.0.s:432
+    ext-rx.c.14016.0.o        ext-rx.c.14016.0.s:432
 tosumoda0 (umod.o):
-    ext-rx.c.22016.0.o        ext-rx.c.22016.0.s:432
+    ext-rx.c.14016.0.o        ext-rx.c.14016.0.s:432
 tosumulax (mul.o):
     fwrite.o                  common/fwrite.s:12
 udiv16 (udiv.o):
