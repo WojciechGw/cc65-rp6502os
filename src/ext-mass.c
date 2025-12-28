@@ -17,7 +17,7 @@ mass sourcecode.asm -out outfile.bin -base <baseaddress> -run <runaddress>
 
 /* --- limits --- */
 #define MAXLINES    256
-#define MAXLEN      40
+#define MAXLEN      50
 #define MAXOUT      8192u
 #define MAXSYM      64
 #define MAXINCDEPTH 4
@@ -53,10 +53,10 @@ static unsigned int assembly_status;
 
 /* --- magazyny w XRAM (RIA port 1) --- */
 #define XRAM_LINES_BASE 0x0000u
-#define XRAM_LINES_SIZE 0x4000u
-#define XRAM_OUT_BASE   0x4000u
+#define XRAM_LINES_SIZE 0x3200u
+#define XRAM_OUT_BASE   0x3200u
 #define XRAM_OUT_SIZE   0x2000u
-#define XRAM_LST_BASE   0xF000u
+#define XRAM_LST_BASE   0x5200u
 #define XRAM_LST_SIZE   0x50u
 
 #if (MAXLINES * MAXLEN) > XRAM_LINES_SIZE
@@ -395,20 +395,45 @@ static int parse_number10(const char* s, uint16_t* v){
     *v = (uint16_t)x;
     return 1;
 }
+
 static int parse_number(const char* s, uint16_t* v){
     char* endp;
     unsigned long x;
+    const char* p = s;
+    unsigned value = 0;
+    int bits = 0;
+
+    if(!s) return 0;
+
     if(s[0]=='$'){
         x = strtoul(s+1,&endp,16);
-        if(endp==(s+1)) return 0;
+        if(endp == (s+1)) return 0;
         *v = (uint16_t)x;
+        return 1;
+    }
+
+    while(*p==' ' || *p=='\t') ++p;
+    if(*p=='%'){
+        ++p;
+        // while(*p==' ' || *p=='\t') ++p; /* allow whitespace after % */
+        while(*p=='0' || *p=='1'){
+            if(bits >= 8) return 0;
+            value = (value << 1) | (unsigned)(*p - '0');
+            ++bits;
+            ++p;
+        }
+        while(*p==' ' || *p=='\t') ++p;
+        if(*p || bits==0) return 0;
+        *v = (uint16_t)value;
         return 1;
     }
     return parse_number10(s,v);
 }
+
 static void init_val_num(asm_value_t* r, uint16_t n, asm_vop_t op){
     r->is_label=0; r->label[0]=0; r->num=n; r->op=op; r->force_zp=0;
 }
+
 static void init_val_lab(asm_value_t* r, const char* name, asm_vop_t op){
     size_t L = strlen(name); if(L>47) L=47;
     r->is_label=1; strncpy(r->label,name,L); r->label[L]=0; r->num=0; r->op=op; r->force_zp=0;
@@ -440,7 +465,7 @@ static uint16_t resolve_value(const asm_value_t* a){
     if(!a->is_label) base = a->num;
     else{
         idx = find_sym(a->label);
-        if(idx<0 || !xram_sym_is_defined((unsigned)idx)){ printf("Unidentified label: %s\n", a->label); base=0; }
+        if(idx < 0 || !xram_sym_is_defined((unsigned)idx)){ printf("Unidentified label: %s\n", a->label); base=0; }
         else base = xram_sym_get_value((unsigned)idx);
     }
     return apply_vop(base, a->op);
@@ -544,7 +569,7 @@ static int read_file_into_lines(const char* path, int depth){
     FILE* f;
     char* s; char *dir,*rest; const char* q;
 
-    if(depth>MAXINCDEPTH){ printf("Too deep .include" NEWLINE); return 0; }
+    if(depth > MAXINCDEPTH){ printf("Too deep .include" NEWLINE); return 0; }
     f = fopen(path,"rb");
     if(!f){ printf("Can't open: %s" NEWLINE, path); return 0; }
 
