@@ -938,10 +938,10 @@ int cmd_list(int argc, char **argv) {
     }
     fd = open(argv[1], O_RDONLY);
     if(fd < 0) {
-        tx_string("Cannot open file" NEWLINE);
+        tx_string(ANSI_RED "ERROR: Cannot open file" ANSI_RESET NEWLINE);
         return -1;
     }
-    tx_string(NEWLINE "-- START --"  NEWLINE);
+    tx_string(NEWLINE ANSI_DARK_GRAY "-- START --" ANSI_RESET NEWLINE);
     while((n = read(fd, buf, sizeof(buf))) > 0) {
         int idx;
         for(idx = 0; idx < n; idx++) {
@@ -957,15 +957,15 @@ int cmd_list(int argc, char **argv) {
                 lines++;
                 lineno++;
                 at_line_start = 1;
-                if(lines >= 25) {
+                if(lines >= 28) {
                     char ans;
-                    tx_string(NEWLINE "--More-- (q to quit)");
+                    tx_string(NEWLINE ANSI_DARK_GRAY "--More-- (q to quit)" ANSI_RESET);
                     RX_READY_SPIN;
                     ans = (char)RIA.rx;
                     tx_string(NEWLINE "\x1b[K"); /* clear prompt line */
                     if(ans == 'q' || ans == 'Q' || ans == CHAR_ESC) {
                         close(fd);
-                        tx_string(NEWLINE "--- END ---" NEWLINE);
+                        tx_string(NEWLINE ANSI_DARK_GRAY "--- END ---" ANSI_RESET NEWLINE);
                         return 0;
                     }
                     lines = 0;

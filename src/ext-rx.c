@@ -127,16 +127,39 @@ static int wait_for_marker(void)
     }
 }
 
+#define XRAM_LST_BASE  0xF000u
+#define XRAM_LST_SIZE  0x50u
+static void xram_write_lst_line(const char* line, unsigned len, int fd){
+    unsigned i;
+    if(fd < 0 || !line || !len) return;
+    if(len > XRAM_LST_SIZE) len = XRAM_LST_SIZE;
+    RIA.addr0 = XRAM_LST_BASE;
+    RIA.step0 = 1;
+    for(i = 0; i < XRAM_LST_SIZE; i++) RIA.rw0 = 0x00;
+    RIA.addr0 = XRAM_LST_BASE;
+    RIA.step0 = 1;
+    for(i = 0; i < len; i++) RIA.rw0 = (uint8_t)line[i];
+    write_xram(XRAM_LST_BASE, len, fd);
+}
+
 int main(void)
 {
     clock_t start = clock();
     clock_t timeout_ticks = (clock_t)(RX_TIMEOUT_SECONDS * TICKS_PER_SEC);
     int action = 0;
+    int fd,n;
     
     ria_tx_puts(CSI_RESET);
     ria_tx_puts(CSI_CURSOR_HIDE); // hide cursor
     ria_tx_puts(APP_MSG_TITLE);
     ria_tx_puts(APP_MSG_START);
+
+
+    fd = open("USB0:/RX/", O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    if(fd < 0){
+        printf("Writing error (open %s)" NEWLINE, "USB0:/RX/");
+        return;
+    }
 
     action = wait_for_marker(); // wait for STX to start transmission or [Esc]
     if (action != -1)
@@ -177,6 +200,7 @@ int main(void)
         ria_tx_puts(" bytes received" NEWLINE NEWLINE);
         if (buf_len < sizeof(buffer)) buffer[buf_len] = '\0';
         printf("%s", (char*)buffer);
+        close(fd);
         break;
     }
     ria_tx_puts(CSI_CURSOR_SHOW);
