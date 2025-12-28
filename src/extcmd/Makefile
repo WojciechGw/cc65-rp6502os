@@ -1,10 +1,10 @@
 CC65 ?= cl65
 CMD ?= EXTCMD
-START ?= 9A00
+START ?= 9000
 
 TARGET = $(CMD)
 SRCS = ../ext-$(TARGET).c crt0_cmd.s write_stub.c initmainargs.s
-CFG = ../ext0x$(START).cfg
+CFG = cfg/ext0x$(START).cfg
 MAP = ext-$(TARGET).map
 
 all: $(TARGET)
