@@ -10,22 +10,7 @@
 
 .org $E000
 
-VIA     .equ $FFD0
-TXPORT  .equ $FFD1 ;ORA
-DDRPORT .equ $FFD3 ;DDRA
-T1CL    .equ $FFD4
-T1CH    .equ $FFD5
-ACR     .equ $FFDB
-IFR     .equ $FFDD
-IER     .equ $FFDE
-
-TXBYTE  .equ $CB ; byte to send
-TXSTATE .equ $CC ; transmission bit 
-                 ; counter :
-                 ;   0 = start
-                 ; 1-8 = data
-                 ;   9 = stop
-                 ;  10 = done
+.include rp6502_VIA.asm
 
 ;==================================
 ;Initialize VIA and Timer 
@@ -42,9 +27,9 @@ InitVIA:
                   ; interrupt mode
                   ; %01000000 $40
         STA ACR
-
-        LDA #<256 ; 256 cycles 
-                  ; @8MHz=32us
+       
+       ; 256 cycles @8MHz=32us 
+        LDA #<256
         STA T1CL
         LDA #>256
         STA T1CH
