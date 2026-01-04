@@ -41,14 +41,8 @@ int main(int argc, char **argv) {
     int year, month, day;
     int action = SHOW_CURRENTMONTH;
     int quarter_start;
-    // char buf[100];
     time_t t = time(NULL);
     struct tm *tm = localtime(&t);
-
-    struct tm *tminfo;
-    // UTC requires no effort
-    tminfo = gmtime(&t);
-    tminfo = localtime(&t);
     year = tm->tm_year + 1900;
     month = tm->tm_mon + 1;
     day = tm->tm_mday;
