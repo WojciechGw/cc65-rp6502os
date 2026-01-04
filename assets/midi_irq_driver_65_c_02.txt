@@ -1,0 +1,230 @@
+; ===========================================
+; MIDI IN/OUT DRIVER for 65C02 + W65C22 (8 MHz CPU)
+; -------------------------------------------
+; Transmits and receives MIDI at 31250 baud using Timer 1 and CB1
+; VIA base address: $FFD0
+; Port A bit 0 used as TX line (MIDI OUT)
+; CB1 (pin 19) used as RX input (MIDI IN)
+; Includes circular FIFO buffer for MIDI IN
+; ===========================================
+
+VIA         = $FFD0
+
+; W65C22 REGISTER DEFINITIONS (offsets from VIA base)
+VIA_ORB     = VIA + $00    ; Output Register B / Input Register B
+VIA_ORA     = VIA + $01    ; Output Register A / Input Register A
+VIA_DDRB    = VIA + $02    ; Data Direction Register B
+VIA_DDRA    = VIA + $03    ; Data Direction Register A
+VIA_T1CL    = VIA + $04    ; Timer 1 Counter Low
+VIA_T1CH    = VIA + $05    ; Timer 1 Counter High
+VIA_T1LL    = VIA + $06    ; Timer 1 Latch Low
+VIA_T1LH    = VIA + $07    ; Timer 1 Latch High
+VIA_T2CL    = VIA + $08    ; Timer 2 Counter Low
+VIA_T2CH    = VIA + $09    ; Timer 2 Counter High
+VIA_SR      = VIA + $0A    ; Shift Register
+VIA_ACR     = VIA + $0B    ; Auxiliary Control Register
+VIA_PCR     = VIA + $0C    ; Peripheral Control Register
+VIA_IFR     = VIA + $0D    ; Interrupt Flag Register
+VIA_IER     = VIA + $0E    ; Interrupt Enable Register
+VIA_ORANH   = VIA + $0F    ; ORA no handshake (alias for ORA)
+
+; Aliases used in code
+TXPORT      = VIA_ORA
+DDRPORT     = VIA_DDRA
+T1CL        = VIA_T1CL
+T1CH        = VIA_T1CH
+ACR         = VIA_ACR
+IFR         = VIA_IFR
+IER         = VIA_IER
+PCR         = VIA_PCR
+SR          = VIA_SR
+
+TXBYTE      = $CB   ; byte to send
+TXSTATE     = $CC   ; transmission bit counter (0=start, 1-8=data, 9=stop, 10=done)
+RXBYTE      = $CD   ; currently assembling input byte
+RXSTATE     = $CE   ; receive bit counter (0=start, 1-8=data, 9=stop)
+
+; FIFO buffer for received MIDI bytes
+RXBUF       = $D0   ; start of 16-byte buffer
+RXBUF_SIZE  = 16
+RXBUF_HEAD  = $E0   ; read index
+RXBUF_TAIL  = $E1   ; write index
+
+; ===========================================
+; Initialize VIA and Timer for MIDI speed
+; ===========================================
+InitVIA:
+        LDA #%00000001      ; PA0 as output
+        STA DDRPORT
+
+        LDA #%01000000      ; T1 continuous interrupt mode
+        STA ACR
+
+        LDA #<256           ; 256 cycles @ 8 MHz = 32 us
+        STA T1CL
+        LDA #>256
+        STA T1CH
+
+        LDA #%11000000      ; Enable T1 interrupt
+        STA IER
+
+        LDA #%10001000      ; PCR: CB1 = negative edge, interrupt input
+        STA PCR
+
+        LDA #%10000010      ; Enable CB1 interrupt
+        ORA IER
+        STA IER
+
+        LDA #1              ; set idle state (high)
+        STA TXPORT
+
+        LDA #0
+        STA RXSTATE
+        STA RXBUF_HEAD
+        STA RXBUF_TAIL
+        RTS
+
+; ===========================================
+; Send byte in A (starts transmission via IRQ)
+; ===========================================
+SendByte:
+        STA TXBYTE
+        LDA #0
+        STA TXSTATE
+        RTS
+
+; ===========================================
+; IRQ handler: handles TX and RX MIDI
+; ===========================================
+IRQ:
+        PHA
+        PHX
+        PHY
+
+        LDA IFR
+        AND #%01000000      ; Timer 1 interrupt?
+        BEQ CheckCB1
+
+        LDY TXSTATE
+        CPY #0
+        BEQ StartBit
+        CPY #9
+        BEQ StopBit
+        CPY #10
+        BEQ DoneBit
+
+        ; Send data bit Y (1..8)
+        LDA TXBYTE
+BitLoop:
+        LSR A
+        DEY
+        BNE BitLoop
+        AND #$01
+        STA TXPORT
+        INC TXSTATE
+        JMP DoneIRQ
+
+StartBit:
+        LDA #0
+        STA TXPORT
+        INC TXSTATE
+        JMP DoneIRQ
+
+StopBit:
+        LDA #1
+        STA TXPORT
+        INC TXSTATE
+        JMP DoneIRQ
+
+DoneBit:
+        LDA #1
+        STA TXPORT
+        RTS
+
+CheckCB1:
+        LDA IFR
+        AND #%00000010      ; CB1 interrupt?
+        BEQ DoneIRQ
+
+        LDA RXSTATE
+        BEQ StartReceive
+
+        ; Receiving data bit
+        LDA RXBYTE
+        LSR A
+        LDA VIA_ORB
+        AND #%00000010
+        BEQ BitZero
+        ORA #%10000000
+BitZero:
+        STA RXBYTE
+        INC RXSTATE
+        CMP #9
+        BNE DoneIRQ
+
+        ; Stop bit expected next
+        INC RXSTATE
+        JMP DoneIRQ
+
+StartReceive:
+        LDA #1
+        STA RXSTATE
+        LDA #0
+        STA RXBYTE
+        JMP DoneIRQ
+
+; After stop bit received, push RXBYTE to FIFO
+CheckStop:
+        LDA RXSTATE
+        CMP #10
+        BNE DoneIRQ
+
+        ; Store to RXBUF[TAIL]
+        LDA RXBUF_TAIL
+        TAY
+        LDA RXBYTE
+        STA RXBUF,Y
+        INC RXBUF_TAIL
+        LDA RXBUF_TAIL
+        AND #(RXBUF_SIZE - 1)
+        STA RXBUF_TAIL
+        LDA #0
+        STA RXSTATE
+        JMP DoneIRQ
+
+DoneIRQ:
+        PLY
+        PLX
+        PLA
+        RTI
+
+; ===========================================
+; Read next MIDI byte from buffer (non-blocking)
+; Returns: A = byte, Carry Set if data present
+; ===========================================
+ReadMIDI:
+        LDA RXBUF_HEAD
+        CMP RXBUF_TAIL
+        BEQ NoData
+        TAY
+        LDA RXBUF,Y
+        INC RXBUF_HEAD
+        LDA RXBUF_HEAD
+        AND #(RXBUF_SIZE - 1)
+        STA RXBUF_HEAD
+        SEC
+        RTS
+NoData:
+        CLC
+        RTS
+
+; ===========================================
+; Usage Example:
+; LDA #$90 ; Note On
+; JSR SendByte
+; LDA #$3C ; Note C4
+; JSR SendByte
+; LDA #$7F ; Velocity 127
+; JSR SendByte
+; Check new MIDI IN bytes with JSR ReadMIDI (Carry=1 if valid)
+; ===========================================
