@@ -590,12 +590,10 @@ struct tm *get_time(void) { // Return pointer to current RTC time; tm_year=1970 
     tmnow.tm_mday = 1;
 
     if(time(&tnow) != (time_t)-1) {
-        ria_tzset(tnow);       /* adjust TZ/DST in OS */
         {
             struct tm *res = localtime(&tnow);
             if(res) {
                 tmnow = *res;
-                tmnow.tm_isdst = _tz.daylight; /* cc65 localtime DST fix */
             }
         }
     }

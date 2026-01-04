@@ -48,9 +48,7 @@ int main(int argc, char **argv) {
     struct tm *tminfo;
     // UTC requires no effort
     tminfo = gmtime(&t);
-    ria_tzset(t);
     tminfo = localtime(&t);
-    tminfo->tm_isdst = _tz.daylight;
     year = tm->tm_year + 1900;
     month = tm->tm_mon + 1;
     day = tm->tm_mday;
