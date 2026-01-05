@@ -85,6 +85,10 @@ InitVIA:
         STA T1CL
         LDA #>256
         STA T1CH
+        LDA #<256
+        STA T1LL
+        LDA #>256
+        STA T1LH
 
         LDA #%11000000
                   ; Enable T1

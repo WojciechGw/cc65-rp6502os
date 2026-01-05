@@ -37,3 +37,7 @@ add_executable(shell)
 rp6502_executable(shell DATA 0x0200 RESET 0x0200 ${CMAKE_CURRENT_SOURCE_DIR}/src/shell.hlp)
 target_sources(shell PRIVATE src/shell.c)
 target_link_options(shell PRIVATE -C ${CMAKE_SOURCE_DIR}/src/shell.cfg)
+
+add_executable(midi)
+rp6502_executable(midi DATA 0x0200 RESET 0x0200)
+target_sources(midi PRIVATE src/midi.c)
