@@ -7,11 +7,11 @@ mass sourcecode.asm -out outfile.bin -base <baseaddress> -run <runaddress>
 
 */
 #include "commons.h"
-#include "ext-mass-opcodes.h"
+#include "ext-hass-opcodes.h"
 
-#define APPVER "20251228.1000"
+#define APPVER "20260105.0827"
 #define APPDIRDEFAULT "USB0:/SHELL/"
-#define APP_MSG_TITLE CSI_RESET "\x1b[2;1HOS Shell > Mini ASSembler 65C02S                           version " APPVER
+#define APP_MSG_TITLE CSI_RESET "\x1b[2;1HOS Shell > Handy ASSembler 65C02S                          version " APPVER
 #define APP_MSG_START_ASSEMBLING ANSI_DARK_GRAY "\x1b[4;1HStart compilation ... " ANSI_RESET
 #define APP_MSG_START_ENTERCODE ANSI_DARK_GRAY "\x1b[4;1HEnter code or empty line to start compilation ... " ANSI_RESET
 
@@ -459,6 +459,20 @@ static uint16_t apply_vop(uint16_t v, asm_vop_t op){
     if(op==V_HIGH) return (uint16_t)((v>>8) & 0xFF);
     return v;
 }
+static int value_fits_zp(const asm_value_t* a){
+    uint16_t v;
+    int idx;
+    if(!a) return 0;
+    if(a->is_label){
+        idx = find_sym(a->label);
+        if(idx < 0 || !xram_sym_is_defined((unsigned)idx)) return 0;
+        v = xram_sym_get_value((unsigned)idx);
+    }else{
+        v = a->num;
+    }
+    v = apply_vop(v, a->op);
+    return v <= 0xFFu;
+}
 static uint16_t resolve_value(const asm_value_t* a){
     uint16_t base;
     int idx;
@@ -525,13 +539,13 @@ static asm_mode_t parse_operand_mode(const char* s, asm_value_t* val){
         if(q[1]==',' && (q[2]=='X'||q[2]=='x')){ parse_value_out(inner, val); val->force_zp = 0; return M_ABSINDX; }
         if(len>2 && inner[len-2]==',' && (inner[len-1]=='X'||inner[len-1]=='x')){
             inner[len-2]=0; parse_value_out(inner, val); val->force_zp = 0;
-            if(!val->is_label && val->op==V_NORMAL && val->num<=0xFF) return M_ZPINDX;
+            if(value_fits_zp(val)) return M_ZPINDX;
             return M_ABSINDX;
         }
         parse_value_out(inner, val);
         val->force_zp = (unsigned)force_zp;
         if(force_zp) return M_ZPIND;
-        if(!val->is_label && val->op==V_NORMAL && val->num<=0xFF) return M_ZPIND;
+        if(value_fits_zp(val)) return M_ZPIND;
         return M_ABSIND;
     }
 
@@ -544,13 +558,13 @@ static asm_mode_t parse_operand_mode(const char* s, asm_value_t* val){
         if(comma[1]=='X'||comma[1]=='x'){
             val->force_zp = (unsigned)force_zp;
             if(force_zp) return M_ZPX;
-            if(!val->is_label && val->op==V_NORMAL && val->num<=0xFF) return M_ZPX;
+            if(value_fits_zp(val)) return M_ZPX;
             return M_ABSX;
         }
         if(comma[1]=='Y'||comma[1]=='y'){
             val->force_zp = (unsigned)force_zp;
             if(force_zp) return M_ZPY;
-            if(!val->is_label && val->op==V_NORMAL && val->num<=0xFF) return M_ZPY;
+            if(value_fits_zp(val)) return M_ZPY;
             return M_ABSY;
         }
         val->force_zp = 0;
@@ -559,7 +573,7 @@ static asm_mode_t parse_operand_mode(const char* s, asm_value_t* val){
         parse_value_out(s, val);
         val->force_zp = (unsigned)force_zp;
         if(force_zp) return M_ZP;
-        if(!val->is_label && val->op==V_NORMAL && val->num<=0xFF) return M_ZP;
+        if(value_fits_zp(val)) return M_ZP;
         return M_ABS;
     }
 }

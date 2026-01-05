@@ -27,7 +27,7 @@ unsigned char midi_irq_fn(void)
     if ( counter > 120 ) {
         counter = 0;
     } else {
-        counter++;
+        ++counter;
     }
 
     // ISR stuff

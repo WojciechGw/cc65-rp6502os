@@ -4,10 +4,10 @@ project(MY-RP6502-PROJECT C ASM)
 
 add_subdirectory(tools)
 
-add_executable(ext-mass)
-rp6502_executable(ext-mass DATA 0x9000 RESET 0x9000)
-target_sources(ext-mass PRIVATE src/ext-mass.c)
-target_link_options(ext-mass PRIVATE -C ${CMAKE_CURRENT_LIST_DIR}/src/ext0x9000.cfg)
+add_executable(ext-hass)
+rp6502_executable(ext-hass DATA 0x9000 RESET 0x9000)
+target_sources(ext-hass PRIVATE src/ext-hass.c)
+target_link_options(ext-hass PRIVATE -C ${CMAKE_CURRENT_LIST_DIR}/src/ext0x9000.cfg)
 
 add_executable(qasm)
 rp6502_executable(qasm
@@ -41,3 +41,7 @@ target_link_options(shell PRIVATE -C ${CMAKE_SOURCE_DIR}/src/shell.cfg)
 add_executable(midi)
 rp6502_executable(midi DATA 0x0200 RESET 0x0200)
 target_sources(midi PRIVATE src/midi.c)
+
+add_executable(midia)
+rp6502_executable(midia DATA 0xA000 RESET 0xA000)
+target_sources(midia PRIVATE assets/midia.s)
