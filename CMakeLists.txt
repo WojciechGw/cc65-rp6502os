@@ -43,5 +43,13 @@ rp6502_executable(midi DATA 0x0200 RESET 0x0200)
 target_sources(midi PRIVATE src/midi.c)
 
 add_executable(midia)
-rp6502_executable(midia DATA 0xA000 RESET 0xA000)
+rp6502_executable(midia DATA 0x0200 RESET 0x0200)
 target_sources(midia PRIVATE assets/midia.s)
+
+add_executable(miditest)
+rp6502_executable(miditest DATA 0x0200 RESET 0x0200)
+target_sources(miditest PRIVATE src/miditest.c)
+
+add_executable(miditest2)
+rp6502_executable(miditest2 DATA 0x0200 RESET 0x0200)
+target_sources(miditest2 PRIVATE src/miditest2.c)

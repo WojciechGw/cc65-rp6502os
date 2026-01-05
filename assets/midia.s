@@ -1,3 +1,10 @@
+.export _main
+.export _start
+.export _end
+
+.include "rp6502.inc"
+.setcpu "65C02"
+
 ;==================================
 ;MIDI OUT DRIVER 
 ;for W65C02S+W65C22S (PHI2 8MHz)
@@ -7,9 +14,6 @@
 ;VIA base address: $FFD0
 ;Port A bit 0 used as TX line
 ;==================================
-
-.org $A000
-
 ; W65C22 REGISTER DEFINITIONS
 ; (offsets from VIA base)
 ; $0 Out Register B / In Register B
@@ -29,45 +33,52 @@
 ; $E Interrupt Enable Register
 ; $F ORA no handshake 
 ;    (alias for ORA)
+;VIA       = $FFD0
+;VIA_PRB   = $FFD0
+;VIA_PRA   = $FFD1
+;VIA_DDRB  = $FFD2
+;VIA_DDRA  = $FFD3
+;VIA_T1CL  = $FFD4
+;VIA_T1CH  = $FFD5
+;VIA_T1LL  = $FFD6
+;VIA_T1LH  = $FFD7
+;VIA_T2CL  = $FFD8
+;VIA_T2CH  = $FFD9
+;VIA_SR    = $FFDA
+VIA_ACR    = VIA_CR
+;VIA_PCR   = $FFDC
+;VIA_IFR   = $FFDD
+;VIA_IER   = $FFDE
+;VIA_PRA2 = $FFDF
 
-VIA       .equ $FFD0
-VIA_ORB   .equ $FFD0
-VIA_ORA   .equ $FFD1
-VIA_DDRB  .equ $FFD2
-VIA_DDRA  .equ $FFD3
-VIA_T1CL  .equ $FFD4
-VIA_T1CH  .equ $FFD5
-VIA_T1LL  .equ $FFD6
-VIA_T1LH  .equ $FFD7
-VIA_T2CL  .equ $FFD8
-VIA_T2CH  .equ $FFD9
-VIA_SR    .equ $FFDA
-VIA_ACR   .equ $FFDB
-VIA_PCR   .equ $FFDC
-VIA_IFR   .equ $FFDD
-VIA_IER   .equ $FFDE
-VIA_ORANH .equ $FFDF
-
-TXBYTE  .equ $CB ; byte to send
-TXSTATE .equ $CC ; transmission bit 
+TXBYTE  = $CB ; byte to send
+TXSTATE = $CC ; transmission bit 
                  ; counter :
                  ;   0 = start
                  ; 1-8 = data
                  ;   9 = stop
                  ;  10 = done
 
-VECIRQ_L .equ $FFFE
-VECIRQ_H .equ $FFFF
+VECIRQ_L = $FFFE
+VECIRQ_H = $FFFF
+
+;RIA_ADDR0 = $FFE6
+;RIA_STEP0 = $FFE5
+;RIA_ADDR1 = $FFEA
+;RIA_STEP1 = $FFE9
 
 ; $0100
 ; 256 cycles @ 8MHz 32us/cycle
 ; for MIDI standard 31250 baud
-IRQCYCLES .equ $FFFF
+IRQCYCLES = $0100
 
-PrgStart:
-    LDA #<IRQ
+.segment "CODE"
+
+_main:
+_start:
+    LDA #<IRQhandler
     STA VECIRQ_L
-    LDA #>IRQ
+    LDA #>IRQhandler
     STA VECIRQ_H
     JSR InitVIA
 
@@ -97,18 +108,22 @@ NextNote:
     INY
     CPY #8
     BNE NextNote
-    RTS
+    ; JMP PlayScale
 
-NOTE: .byte 0
-Notes:
-    .byte $3C, $3E, $40, $41
-    .byte $43, $45, $47, $48
+; Halts the 6502 by pulling RESB low go to RP6502 monitor 
+_end:
+    lda #RIA_OP_EXIT
+    sta RIA_OP
 
 ; =======================
 ; delay ~500ms @ 8 MHz
 ; for tests only
 ; =======================
 Delay500ms:
+    PHA
+    PHX
+    PHY
+
     LDY #6
 Outer:
     LDX #0
@@ -128,6 +143,10 @@ Loop2:
     BNE Loop1
     DEY
     BNE Outer
+
+    PLY
+    PLX
+    PLA
     RTS
 
 ;==================================
@@ -163,7 +182,7 @@ InitVIA:
 
         LDA #1    ; set idle state 
                   ; (high)
-        STA VIA_ORA
+        STA VIA_PA1
 
         RTS
 
@@ -181,10 +200,17 @@ SendByte:
 ; IRQ handler
 ; sends one bit per interrupt
 ;==================================
-IRQ:
+IRQhandler:
         PHA
         PHX
         PHY
+
+        LDA <RIA_ADDR0
+        PHA
+        LDA >RIA_ADDR0
+        PHA
+        LDA RIA_STEP0
+        PHA
 
         LDA VIA_IFR
         AND #%01000000
@@ -192,6 +218,7 @@ IRQ:
                     ; interrupt?
                     ; %01000000 $40
         BEQ NotT1
+
 
         LDY TXSTATE
         CPY #0
@@ -208,48 +235,48 @@ BitLoop:
         DEY
         BNE BitLoop
         AND #$01
-        STA VIA_ORA
+        STA VIA_PA1
         INC TXSTATE
         JMP DoneIRQ
 StartBit:
         LDA #0
-        STA VIA_ORA
+        STA VIA_PA1
         INC TXSTATE
         JMP DoneIRQ
 StopBit:
         LDA #1
-        STA VIA_ORA
+        STA VIA_PA1
         INC TXSTATE
         JMP DoneIRQ
 DoneBit:
        ; Transmission done,
        ; hold idle
         LDA #1
-        STA VIA_ORA
-        JMP DoneIRQ
+        STA VIA_PA1
 NotT1:
        ; handle other IRQs
        ; here if needed
 DoneIRQ:
+        LDA VIA_T1CL
+
+        PLA
+        STA RIA_STEP0
+        PLA
+        STA >RIA_ADDR0
+        PLA
+        STA <RIA_ADDR0
+
         PLY
         PLX
         PLA
         RTI
 
+.segment "RODATA"
+
+NOTE: .byte 0
+Notes:
+    .byte $3C, $3E, $40, $41
+    .byte $43, $45, $47, $48
+
 dosrun:
-.word  PrgStart
-
-;==================================
-; Usage example:
-; LDA #$90 ; Note On
-; JSR SendByte
-; LDA #$3C ; Note C4
-; JSR SendByte
-; LDA #$7F ; Velocity 127
-; JSR SendByte
-
-;==================================
-; IRQ vector
-;==================================
-;        .org $FFFE
-;        .word IRQ
+    .word _start
