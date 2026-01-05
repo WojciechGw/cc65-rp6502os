@@ -38,7 +38,9 @@ unsigned char midi_irq_fn(void)
 
 static void midi_init(void)
 {
-    // 31250Hz from the VIA
+    // 31250Hz from the VIA 256 cycles @ 8Mhz
+    // t1l_lo 0x00
+    // t1l_hi 0x01
     counter = 0;
 
     VIA.ddra = 0b00000001;
