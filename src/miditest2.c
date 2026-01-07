@@ -2,6 +2,7 @@
 #include <6502.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
 
 #define NOTE_COUNT 8
 const uint8_t notes[NOTE_COUNT] = {60, 62, 64, 65, 67, 69, 71, 72};
@@ -12,7 +13,7 @@ const uint8_t notes[NOTE_COUNT] = {60, 62, 64, 65, 67, 69, 71, 72};
 #define MIDI_PROG_CHG (0xC0 | MIDI_CH)
 #define MIDI_PROG_NUM 7
 
-#define NULL ((void*)0)
+//#define NULL ((void*)0)
 
 static uint8_t tx_byte = 0;
 static uint8_t tx_state = 10;
@@ -98,7 +99,6 @@ void main(void)
     midi_send(MIDI_PROG_CHG);
     midi_send(MIDI_PROG_NUM);
     delay_ticks(10000); // ~300 ms
-
     while (1)
     {
         uint8_t note = notes[note_index++ % NOTE_COUNT];

@@ -53,3 +53,12 @@ target_sources(miditest PRIVATE src/miditest.c)
 add_executable(miditest2)
 rp6502_executable(miditest2 DATA 0x0200 RESET 0x0200)
 target_sources(miditest2 PRIVATE src/miditest2.c)
+
+add_executable(drv-midiout)
+rp6502_executable(drv-midiout DATA 0x0200 RESET 0x0200 IRQ 0x0524)
+target_sources(drv-midiout PRIVATE
+ src/drv-midiout.c
+ src/drv-midiout.s
+ #src/drv-midiout-vectors.s
+)
+target_link_options(drv-midiout PRIVATE -C ${CMAKE_SOURCE_DIR}/src/drv-midiout.cfg)

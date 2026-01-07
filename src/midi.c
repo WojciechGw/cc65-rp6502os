@@ -106,7 +106,7 @@ static void midi_init(void)
     VIA.t1l_hi = 0x01;     // 256 cykli przy 8MHz = 31250 przerwań/s
     VIA.t1_lo = 0x00;
     VIA.t1_hi = 0x01;
-    VIA.ier = 0xC0;        // Włącz przerwania Timer1
+    // VIA.ier = 0xC0;        // Włącz przerwania Timer1
 
     printf("MIDI init - phase 2\r\n");
     set_irq(midi_irq_fn, &midi_stack[0], sizeof(midi_stack));
