@@ -219,6 +219,8 @@ int main(void) {
                     char *args[1];
                     args[0] = (char *)"time";
 
+                    tx_string(NEWLINE);
+
                     cmd_time(1, args);
                     cmdline.bytes = 0;
                     cmdline.buffer[0] = 0;
@@ -265,14 +267,14 @@ int main(void) {
             } else if(rx == CHAR_CR || rx == CHAR_LF) {
                 ext_rx = 0;
                 if(rx == CHAR_LF && last_rx == CHAR_CR) continue; // Ignore CRLF
-                tx_string(NEWLINE);
                 if(cmdline.bytes){
+                    tx_string(NEWLINE);
                     // cmdline.lastbytes = cmdline.bytes;
                     execute(&cmdline);
                     cmdline.bytes = 0;
                     cmdline.buffer[0] = 0;
+                    prompt(false);
                 }
-                prompt(false);
             } else {
                 ext_rx = 0;
             }
@@ -610,8 +612,8 @@ void show_time(void) { // print current date & time to console
     char buf[32];
 
     if(!(appflags | APPFLAG_RTC)){
-        tx_string(NEWLINE "[time: INFO] Real Time Clock is not set." NEWLINE);
-        return;            
+        tx_string(NEWLINE "[time: INFO] Real Time Clock is not set." NEWLINE NEWLINE);
+        return;
     }
     strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S %Z", tmnow);
     tx_string(NEWLINE "Current time is ");

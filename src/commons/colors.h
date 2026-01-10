@@ -14,3 +14,6 @@
 #define MAGENTA 13
 #define CYAN 14
 #define WHITE 15
+
+#define HIGHLIGHT_COLOR "[37;42m" // white (37) on red (41) or green (42)
+// #define HIGHLIGHT_COLOR "[30;47m" // black (30) on white (47)

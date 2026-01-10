@@ -20,14 +20,14 @@ extern struct _timezone _tz;
 #define MEMTOP (0xFF00-__STACKSIZE__)
 #define COM_LOAD_ADDR 0x9000  // lowest ram address where to load the external command code (binary shell extensions - .com files)
 
-#define SHELLVER "20260105.0050"
+#define SHELLVER "20260110.1051"
 #define SHELLDIRDEFAULT "USB0:/SHELL/"
 #define SHELLPROMPT "> "
 #define SHELLPROMPT_1ST "> " ANSI_GREEN "[F1] help" ANSI_RESET " > "
 
 #define APP_MSG_START ANSI_DARK_GRAY "\x1b[13;24HOS Shell for Picocomputer 6502" 
 #define APP_HOURGLASS "\x1b[14;34H" "..........\x1b[10D" ANSI_RESET
-#define APP_MSG_TITLE "\x1b[2;1HOS Shell for Picocomputer 6502\x1b[2;60Hversion " SHELLVER
+#define APP_MSG_TITLE "\x1b[2;1H\x1b" HIGHLIGHT_COLOR " OS Shell > " ANSI_RESET " for Picocomputer 6502" ANSI_DARK_GRAY "\x1b[2;60Hversion " SHELLVER ANSI_RESET
 #define APP_MSG_HELP_COMADDRESS "\x1b[30;1H" ANSI_DARK_GRAY "Hint: press F1 for help RUN ADDRESS:" STR(COM_LOAD_ADDR) " version " SHELLVER ANSI_RESET
 #define APP_MSG_EXIT NEWLINE "Exiting to the monitor." NEWLINE "Bye, bye !" NEWLINE NEWLINE
 

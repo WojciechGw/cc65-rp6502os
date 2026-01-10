@@ -1,5 +1,10 @@
 #include "commons.h"
 
+#define APPVER "20260110.1050"
+
+#define APP_HEADER CSI_RESET CSI "[2;1H" CSI HIGHLIGHT_COLOR " OS Shell > " ANSI_RESET " Help information                              " ANSI_DARK_GRAY "version " APPVER ANSI_RESET
+#define APP_FOOTER ANSI_DARK_GRAY  "________________________________________________________________________________" NEWLINE NEWLINE ANSI_RESET
+
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
 #define NEWLINE "\r\n"
 
@@ -121,7 +126,7 @@ int main(int argc, char **argv) {
     if(argc == 1 && argv[0][0]) {
         for(i = 0; i < ARRAY_SIZE(commands_ext); i++) {
             if(strcmp(argv[0], commands_ext[i].cmd) == 0) {
-                printf(NEWLINE 
+                printf(NEWLINE NEWLINE
                        "Command: %s" NEWLINE 
                        "---------------------" NEWLINE 
                        NEWLINE 
@@ -138,7 +143,8 @@ int main(int argc, char **argv) {
     }
 
     /* No args: print full list */
-    printf("\x1b" "c" "\x1b[2;1HOS Shell > Help information" NEWLINE NEWLINE
+    printf(APP_HEADER 
+           NEWLINE NEWLINE
            "Description of a specified command : help <command>" NEWLINE NEWLINE
            "internal commands (case sensitive):" NEWLINE NEWLINE);
     for(i = 0; i < ARRAY_SIZE(commands); i++) {
@@ -164,6 +170,7 @@ int main(int argc, char **argv) {
     printf("<RIGHT> change active drive to next if available" NEWLINE);
     printf("<UP>    recall last command" NEWLINE);
     printf("<DOWN>  a directory of active drive/catalog" NEWLINE NEWLINE);
+    printf(APP_FOOTER);
 
     return 0;
 }

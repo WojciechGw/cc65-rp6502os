@@ -8,7 +8,10 @@
 
 #include "commons.h"
 
-#define APPVER "20251223.2220"
+#define APPVER "20260110.0938"
+
+#define APP_HEADER CSI "[2;1H" CSI HIGHLIGHT_COLOR " OS Shell > " ANSI_RESET " Keyboard Visualiser                           " ANSI_DARK_GRAY "version " APPVER ANSI_RESET
+#define APP_FOOTER ANSI_DARK_GRAY CSI "[11;1H________________________________________________________________________________" NEWLINE "press and hold both Shift keys to exit                     last keycode :       " ANSI_RESET
 
 // Keyboard related
 //
@@ -30,12 +33,8 @@ uint8_t keystates[KEYBOARD_BYTES] = {0};
 #define FONT_CHAR_UP "\x1e"
 #define FONT_CHAR_DOWN "\x1f"
 
-#define POS_APPHEADER "[2;1H"
 #define POS_KEYBOARD  "[4;1H"
-#define POS_KEYPRESS  "[2;66H"
-
-#define HIGHLIGHT_COLOR "[37;42m" // white (37) on red (41) or green (42)
-// #define HIGHLIGHT_COLOR "[30;47m" // black (30) on white (47)
+#define POS_KEYPRESS  "[12;75H"
 
 // wait on clock
 uint32_t ticks = 0; // for PAUSE(millis)
@@ -184,11 +183,9 @@ static void draw_key_on_canvas(const key_shape_t *shape, bool pressed) {
     uint8_t start;
 
     if (row >= KB_VIEW_ROWS || (col + w) > KB_VIEW_COLS) return;
-    // if (label_len > (w - 2)) label_len = w - 2;
-
+    
     keyboard_canvas[row][col] = (pressed ? '[' : ' ');
     keyboard_canvas[row][col + w - 1] = (pressed ? ']' : ' ');
-    // memset(&keyboard_canvas[row][col + 1], pressed ? '=' : ' ', w - 2);
 
     start = col + 1 + ((w - 2 - label_len) / 2);
     if (label_len) {
@@ -236,8 +233,7 @@ static void render_keyboard_view(void) {
 
     for (i = 0; i < KEYBOARD_BYTES; i++) last_rendered_states[i] = keystates[i];
     keyboard_view_initialized = true;
-    printf(ANSI_DARK_GRAY "\x1b[11;1H________________________________________________________________________________" NEWLINE
-                                    "press and hold both Shift keys to exit                     version " APPVER ANSI_RESET);
+
 }
 
 int main(int argc, char **argv) {
@@ -265,10 +261,10 @@ int main(int argc, char **argv) {
         return 0;
     }
 
-    printf("\x1b" "c" "\x1b[?25l");
-    printf("\x1b" POS_APPHEADER "OS Shell > Keyboard Visualiser");
-    
-    #ifdef VSYNCWAIT 
+    printf(CSI_RESET CSI_CURSOR_HIDE);
+    printf(APP_HEADER);
+    printf(APP_FOOTER);
+    #ifdef VSYNCWAIT
     v = RIA.vsync;
     #endif
 
@@ -290,7 +286,7 @@ int main(int argc, char **argv) {
                 uint8_t code = (i << 3) + j;
                 new_key = (new_keys & (1<<j));
                 if ((code>3) && (new_key != (keystates[i] & (1<<j)))) {
-                    printf("\x1b" POS_KEYPRESS " keycode 0x%02X %s", code, (new_key ?  FONT_CHAR_DOWN : FONT_CHAR_UP));
+                    printf("\x1b" POS_KEYPRESS "0x%02X %s", code, (new_key ?  FONT_CHAR_DOWN : FONT_CHAR_UP));
                 }
             }
             keystates[i] = new_keys;
