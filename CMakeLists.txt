@@ -62,3 +62,7 @@ target_sources(drv-midiout PRIVATE
  #src/drv-midiout-vectors.s
 )
 target_link_options(drv-midiout PRIVATE -C ${CMAKE_SOURCE_DIR}/src/drv-midiout.cfg)
+
+add_executable(editor)
+rp6502_executable(editor DATA 0x0200 RESET 0x0200)
+target_sources(editor PRIVATE src/ext-editor.c)
