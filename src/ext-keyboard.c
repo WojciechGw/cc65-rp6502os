@@ -268,6 +268,8 @@ int main(int argc, char **argv) {
     v = RIA.vsync;
     #endif
 
+    xreg_ria_keyboard(KEYBOARD_INPUT); // or xregn( 0, 0, 0, 1, KEYBOARD_INPUT);
+
     while (true) {
 
         #ifdef VSYNCWAIT 
@@ -275,7 +277,6 @@ int main(int argc, char **argv) {
         v = RIA.vsync;
         #endif
 
-        xregn( 0, 0, 0, 1, KEYBOARD_INPUT);
         RIA.addr0 = KEYBOARD_INPUT;
         RIA.step0 = 0;
 
