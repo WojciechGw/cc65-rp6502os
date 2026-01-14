@@ -9,7 +9,7 @@ LD = ld65
 CFLAGS = -t none -O --cpu 65C02 --standard c89
 
 # Opcje asemblera
-ASFLAGS = -t none --cpu 65C02
+ASFLAGS = -t none --cpu W65C02
 
 # Opcje linkera
 LDFLAGS = -C picocomputer.cfg

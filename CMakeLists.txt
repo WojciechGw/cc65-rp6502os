@@ -66,3 +66,10 @@ target_link_options(drv-midiout PRIVATE -C ${CMAKE_SOURCE_DIR}/src/drv-midiout.c
 add_executable(editor)
 rp6502_executable(editor DATA 0x0200 RESET 0x0200)
 target_sources(editor PRIVATE src/ext-editor.c)
+
+add_executable(midiout)
+rp6502_executable(midiout DATA 0x0200 RESET 0x0200)
+target_sources(midiout PRIVATE
+ src/midi/wersja.B3/midi_out.c
+ src/midi/wersja.B3/startup.s
+)

@@ -55,8 +55,6 @@ int main(void) {
             keystates[i] = new_keys;
         }
         
-        switch()
-
         if ((key(KEY_LEFTSHIFT) != 0) && (key(KEY_RIGHTSHIFT) != 0)) {
             break;
         }

@@ -1,16 +1,7 @@
 ;
-; startup.s - Kod startowy i handler przerwan dla MIDI-OUT
-; Picocomputer 6502 z W65C02S @ 8MHz
-; VIA W65C22S @ $FFD0, 64KB RAM
+; startup.s - Handler przerwan MIDI dla RP6502
+; VIA W65C22S @ $FFD0
 ;
-; Kompilacja: ca65 --cpu 65C02 -o startup.o startup.s
-;
-
-.import _main
-.import __STACK_START__
-.import __STACK_SIZE__
-.import __BSS_RUN__
-.import __BSS_SIZE__
 
 .export _irq_handler
 .export _midi_init
@@ -18,11 +9,10 @@
 .export _midi_stop_transmission
 .export _midi_is_busy
 .export _midi_flush
-.export __STARTUP__ : absolute = 1
 
-.export _midi_head
-.export _midi_tail
-.export _midi_tx_state
+.exportzp _midi_head
+.exportzp _midi_tail
+.exportzp _midi_tx_state
 .export _midi_buffer
 
 ; ============================================
@@ -60,51 +50,18 @@ MIDI_BUFFER_MASK = MIDI_BUFFER_SIZE - 1
 ; ============================================
 .segment "ZEROPAGE"
 
-sp:              .res 2
-_midi_head:      .res 1
-_midi_tail:      .res 1
-_midi_tx_state:  .res 1
+_midi_head:       .res 1
+_midi_tail:       .res 1
+_midi_tx_state:   .res 1
 midi_current_byte: .res 1
-midi_bit_count:  .res 1
+midi_bit_count:   .res 1
 
 ; ============================================
 ; Segment BSS
 ; ============================================
 .segment "BSS"
 
-_midi_buffer:    .res MIDI_BUFFER_SIZE
-
-; ============================================
-; Segment STARTUP
-; ============================================
-.segment "STARTUP"
-
-reset:
-        sei
-        cld
-        ldx     #$FF
-        txs
-
-        ldx     #<__BSS_SIZE__
-        beq     skip_bss
-
-        lda     #0
-clear_bss:
-        dex
-        sta     __BSS_RUN__,x
-        bne     clear_bss
-
-skip_bss:
-        lda     #<(__STACK_START__ + __STACK_SIZE__)
-        sta     sp
-        lda     #>(__STACK_START__ + __STACK_SIZE__)
-        sta     sp+1
-
-        cli
-        jsr     _main
-
-halt:
-        jmp     halt
+_midi_buffer:     .res MIDI_BUFFER_SIZE
 
 ; ============================================
 ; Segment CODE
@@ -113,10 +70,6 @@ halt:
 
 ; --------------------------------------------
 ; midi_init
-; Inicjalizacja systemu MIDI
-; Wejscie: brak
-; Wyjscie: brak
-; Modyfikuje: A, X
 ; --------------------------------------------
 _midi_init:
         sei
@@ -149,10 +102,6 @@ _midi_init:
 
 ; --------------------------------------------
 ; midi_start_transmission
-; Rozpoczyna transmisje jesli sa dane w buforze
-; Wejscie: brak
-; Wyjscie: brak
-; Modyfikuje: A, X
 ; --------------------------------------------
 _midi_start_transmission:
         lda     _midi_head
@@ -190,10 +139,6 @@ start_nodata:
 
 ; --------------------------------------------
 ; midi_stop_transmission
-; Zatrzymuje transmisje
-; Wejscie: brak
-; Wyjscie: brak
-; Modyfikuje: A
 ; --------------------------------------------
 _midi_stop_transmission:
         lda     #IRQ_T2
@@ -212,62 +157,43 @@ _midi_stop_transmission:
 
 ; --------------------------------------------
 ; midi_is_busy
-; Sprawdza czy transmisja jest w toku
-; Wejscie: brak
-; Wyjscie: A = 1 jesli zajety, A = 0 jesli wolny
-; Modyfikuje: A
 ; --------------------------------------------
 _midi_is_busy:
-        ; Sprawdz stan transmisji
         lda     _midi_tx_state
         bne     is_busy_yes
-
-        ; Sprawdz czy bufor jest pusty
         lda     _midi_head
         cmp     _midi_tail
         bne     is_busy_yes
-
-        ; Nie zajety
         lda     #0
         rts
-
 is_busy_yes:
         lda     #1
         rts
 
 ; --------------------------------------------
 ; midi_flush
-; Czeka az wszystkie dane zostana wyslane
-; Wejscie: brak
-; Wyjscie: brak
-; Modyfikuje: A
 ; --------------------------------------------
 _midi_flush:
 flush_loop:
-        ; Sprawdz stan transmisji
         lda     _midi_tx_state
         bne     flush_loop
-
-        ; Sprawdz czy bufor jest pusty
         lda     _midi_head
         cmp     _midi_tail
         bne     flush_loop
-
         rts
 
 ; --------------------------------------------
-; irq_handler - zoptymalizowany uklad kodu
+; irq_handler
 ; --------------------------------------------
-_other_irqs:
+_irq_others:
         jmp irq_other
-
 _irq_handler:
         pha
         phx
 
         lda     VIA_IFR
         and     #IRQ_T2
-        beq     _other_irqs
+        beq     _irq_others
 
         ldx     VIA_T2CL
 
@@ -282,7 +208,6 @@ _irq_handler:
 
         jmp     irq_error
 
-; --- DATA: najczesciej wykonywany stan ---
 do_data:
         lsr     midi_current_byte
         lda     VIA_PORTB
@@ -301,7 +226,6 @@ do_data_store:
         sta     _midi_tx_state
         bra     irq_timer
 
-; --- START ---
 do_start:
         lda     VIA_PORTB
         and     #MIDI_TX_MASK
@@ -311,7 +235,6 @@ do_start:
         stz     midi_bit_count
         bra     irq_timer
 
-; --- STOP ---
 do_stop:
         lda     VIA_PORTB
         ora     #MIDI_TX_BIT
@@ -340,20 +263,17 @@ do_stop_end:
         sta     VIA_IER
         bra     irq_exit
 
-; --- Restart timera ---
 irq_timer:
         lda     #MIDI_BIT_TIMER_L
         sta     VIA_T2CL
         lda     #MIDI_BIT_TIMER_H
         sta     VIA_T2CH
 
-; --- Wyjscie z przerwania ---
 irq_exit:
         plx
         pla
         rti
 
-; --- Obsluga bledu ---
 irq_error:
         lda     #IRQ_T2
         sta     VIA_IER
@@ -364,23 +284,7 @@ irq_error:
         sta     _midi_tx_state
         bra     irq_exit
 
-; --- Inne przerwanie ---
 irq_other:
         lda     VIA_IFR
         sta     VIA_IFR
         bra     irq_exit
-
-; --------------------------------------------
-; nmi_handler
-; --------------------------------------------
-nmi_handler:
-        rti
-
-; ============================================
-; Wektory
-; ============================================
-;.segment "VECTORS"
-
-;       .word   nmi_handler
-;       .word   reset
-;       .word   _irq_handler

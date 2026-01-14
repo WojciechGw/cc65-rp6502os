@@ -37,7 +37,7 @@ midi_tx_buf:
 
 ; --- Code ---
         .segment "CODE"
-
+reset:
 ; void midi_init(void);
 _midi_init:
         ; pb_shadow = ORB
@@ -270,3 +270,13 @@ _irq_handler:
         plx
         pla
         rti
+
+_nmi_handler:
+        rti
+
+; --- wektory ---
+;        .segment "VECTORS"
+;
+;        .word   _nmi_handler
+;        .word   reset
+;        .word   _irq_handler
