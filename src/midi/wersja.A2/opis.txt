@@ -29,3 +29,326 @@ ca65 --cpu 65C02 midi_irq.s -o midi_irq.o
 cc65 -t none -O --cpu 65C02 midi_out.c -o midi_out.s
 ca65 --cpu 65C02 midi_out.s -o midi_out.o
 ld65 -C picocomputer.cfg -o midi.bin crt0.o midi_irq.o midi_out.o
+
+# Analiza czasowa obsługi przerwania MIDI
+
+## Parametry systemu
+
+| Parametr | Wartość |
+|----------|---------|
+| Zegar CPU | 8 MHz |
+| Czas cyklu | 125 ns |
+| Baud rate MIDI | 31250 bps |
+| Czas bitu | 32 µs |
+| **Budżet cykli na bit** | **256 cykli** |
+| Wartość timera | 254 ($FE) |
+
+---
+
+## Analiza kodu - czasy wykonania
+
+### 1. Narzut wejścia w przerwanie (hardware + wrapper)
+
+```asm
+; === HARDWARE IRQ ENTRY ===
+; Dokończenie bieżącej instrukcji    ~2-4 cykle (średnio 3)
+; Push PCH, PCL, Status               7 cykli
+; Fetch wektora IRQ ($FFFE)           2 cykle
+;                                    ─────────
+; Subtotal hardware:                 ~12 cykli
+
+; === IRQ WRAPPER ===
+_irq_handler:
+        pha                     ; 3 cykle
+        phx                     ; 3 cykle
+        phy                     ; 3 cykle
+        jsr _midi_irq_handler   ; 6 cykli
+        ; ... handler wykonuje się ...
+        ply                     ; 4 cykle
+        plx                     ; 4 cykle
+        pla                     ; 4 cykle
+        rti                     ; 6 cykli
+;                              ─────────
+; Subtotal wrapper:             33 cykle
+
+; === ŁĄCZNY NARZUT IRQ ===
+; Hardware + Wrapper:          ~45 cykli
+```
+
+### 2. Wspólny początek handlera MIDI
+
+```asm
+_midi_irq_handler:
+        lda VIA_IFR             ; 4 cykle (adres absolutny $FFDD)
+        and #VIA_T1_FLAG        ; 2 cykle
+        beq @not_our_irq        ; 2 cykle (nie skaczemy)
+        lda VIA_T1CL            ; 4 cykle (kasowanie flagi)
+        ldx _tx_state           ; 3 cykle (zero page)
+;                              ─────────
+; Subtotal:                     15 cykli
+```
+
+### 3. Rozgałęzienie według stanu
+
+```asm
+; Do STATE_START:
+        cpx #TX_STATE_START     ; 2 cykle
+        beq @state_start        ; 3 cykle (skok)
+;                              ─────────
+; Subtotal:                      5 cykli
+
+; Do STATE_DATA:
+        cpx #TX_STATE_START     ; 2 cykle
+        beq @state_start        ; 2 cykle (nie skaczemy)
+        cpx #TX_STATE_DATA      ; 2 cykle
+        beq @state_data         ; 3 cykle (skok)
+;                              ─────────
+; Subtotal:                      9 cykli
+
+; Do STATE_STOP:
+        cpx #TX_STATE_START     ; 2 cykle
+        beq @state_start        ; 2 cykle
+        cpx #TX_STATE_DATA      ; 2 cykle
+        beq @state_data         ; 2 cykle
+        cpx #TX_STATE_STOP      ; 2 cykle
+        beq @state_stop         ; 3 cykle (skok)
+;                              ─────────
+; Subtotal:                     13 cykli
+```
+
+### 4. Stan START - wysłanie bitu startowego
+
+```asm
+@state_start:
+        lda VIA_ORB             ; 4 cykle
+        and #<~MIDI_PIN         ; 2 cykle
+        sta VIA_ORB             ; 4 cykle
+        lda #TX_STATE_DATA      ; 2 cykle
+        sta _tx_state           ; 3 cykle (zp)
+        stz _tx_bit_count       ; 3 cykle (zp, 65C02)
+        rts                     ; 6 cykli
+;                              ─────────
+; Subtotal:                     24 cykle
+```
+
+**Total START = 15 + 5 + 24 = 44 cykle**
+
+### 5. Stan DATA - wysłanie bitu danych
+
+#### Przypadek A: Wysłanie bitu = 1, nie ostatni bit
+
+```asm
+@state_data:
+        lda _tx_byte            ; 3 cykle (zp)
+        lsr a                   ; 2 cykle
+        sta _tx_byte            ; 3 cykle (zp)
+        bcc @send_zero          ; 2 cykle (nie skaczemy, C=1)
+        
+        lda VIA_ORB             ; 4 cykle
+        ora #MIDI_PIN           ; 2 cykle
+        sta VIA_ORB             ; 4 cykle
+        bra @inc_bit_count      ; 3 cykle
+        
+@inc_bit_count:
+        inc _tx_bit_count       ; 5 cykli (zp)
+        lda _tx_bit_count       ; 3 cykle (zp)
+        cmp #8                  ; 2 cykle
+        bcc @irq_done           ; 3 cykle (skaczemy, count < 8)
+        
+@irq_done:
+        rts                     ; 6 cykli
+;                              ─────────
+; Subtotal:                     42 cykle
+```
+
+**Total DATA (bit=1, kontynuacja) = 15 + 9 + 42 = 66 cykli**
+
+#### Przypadek B: Wysłanie bitu = 0, nie ostatni bit
+
+```asm
+@state_data:
+        lda _tx_byte            ; 3 cykle
+        lsr a                   ; 2 cykle
+        sta _tx_byte            ; 3 cykle
+        bcc @send_zero          ; 3 cykle (skaczemy, C=0)
+        
+@send_zero:
+        lda VIA_ORB             ; 4 cykle
+        and #<~MIDI_PIN         ; 2 cykle
+        sta VIA_ORB             ; 4 cykle
+        ; (bez bra - kod kontynuuje)
+        
+@inc_bit_count:
+        inc _tx_bit_count       ; 5 cykli
+        lda _tx_bit_count       ; 3 cykle
+        cmp #8                  ; 2 cykle
+        bcc @irq_done           ; 3 cykle (skaczemy)
+        
+@irq_done:
+        rts                     ; 6 cykli
+;                              ─────────
+; Subtotal:                     40 cykli
+```
+
+**Total DATA (bit=0, kontynuacja) = 15 + 9 + 40 = 64 cykle**
+
+#### Przypadek C: Ostatni bit (bit 7), przejście do STOP
+
+```asm
+@state_data:
+        ; ... jak wyżej do cmp #8 ...
+        cmp #8                  ; 2 cykle
+        bcc @irq_done           ; 2 cykle (NIE skaczemy, count = 8)
+        
+        lda #TX_STATE_STOP      ; 2 cykle
+        sta _tx_state           ; 3 cykle (zp)
+        rts                     ; 6 cykli
+;                              ─────────
+; Subtotal (dla bit=1):         46 cykli
+; Subtotal (dla bit=0):         44 cykle
+```
+
+**Total DATA (ostatni bit=1) = 15 + 9 + 46 = 70 cykli**
+**Total DATA (ostatni bit=0) = 15 + 9 + 44 = 68 cykli**
+
+### 6. Stan STOP - wysłanie bitu stopu
+
+#### Przypadek A: Jest następny bajt w buforze
+
+```asm
+@state_stop:
+        lda VIA_ORB             ; 4 cykle
+        ora #MIDI_PIN           ; 2 cykle
+        sta VIA_ORB             ; 4 cykle
+        
+        lda _midi_head          ; 4 cykle (BSS = absolutne)
+        cmp _midi_tail          ; 4 cykle (absolutne)
+        beq @go_idle            ; 2 cykle (nie skaczemy)
+        
+        ldx _midi_tail          ; 4 cykle
+        lda _midi_buffer,x      ; 4 cykle (absolutne,X)
+        sta _tx_byte            ; 3 cykle (zp)
+        
+        inx                     ; 2 cykle
+        txa                     ; 2 cykle
+        and #MIDI_BUFFER_MASK   ; 2 cykle
+        sta _midi_tail          ; 4 cykle
+        
+        lda #TX_STATE_START     ; 2 cykle
+        sta _tx_state           ; 3 cykle (zp)
+        stz _tx_bit_count       ; 3 cykle (zp)
+        rts                     ; 6 cykli
+;                              ─────────
+; Subtotal:                     55 cykli
+```
+
+**Total STOP (następny bajt) = 15 + 13 + 55 = 83 cykle**
+
+#### Przypadek B: Bufor pusty, przejście do IDLE
+
+```asm
+@state_stop:
+        lda VIA_ORB             ; 4 cykle
+        ora #MIDI_PIN           ; 2 cykle
+        sta VIA_ORB             ; 4 cykle
+        
+        lda _midi_head          ; 4 cykle
+        cmp _midi_tail          ; 4 cykle
+        beq @go_idle            ; 3 cykle (skaczemy)
+        
+@go_idle:
+        lda #TX_STATE_IDLE      ; 2 cykle
+        sta _tx_state           ; 3 cykle (zp)
+        stz _tx_active          ; 3 cykle (zp)
+        lda #VIA_IER_CLEAR      ; 2 cykle
+        sta VIA_IER             ; 4 cykle
+        rts                     ; 6 cykli
+;                              ─────────
+; Subtotal:                     41 cykli
+```
+
+**Total STOP (do IDLE) = 15 + 13 + 41 = 69 cykli**
+
+---
+
+## Podsumowanie czasów wykonania
+
+| Stan / Przypadek | Handler | + IRQ overhead | **RAZEM** | Zapas |
+|------------------|---------|----------------|-----------|-------|
+| **START** (bit startowy) | 44 | 45 | **89** | 167 (65%) |
+| **DATA** (bit=0, kontynuacja) | 64 | 45 | **109** | 147 (57%) |
+| **DATA** (bit=1, kontynuacja) | 66 | 45 | **111** | 145 (57%) |
+| **DATA** (ostatni bit=0) | 68 | 45 | **113** | 143 (56%) |
+| **DATA** (ostatni bit=1) | 70 | 45 | **115** | 141 (55%) |
+| **STOP** (do IDLE) | 69 | 45 | **114** | 142 (55%) |
+| **STOP** (następny bajt) | 83 | 45 | **128** | 128 (50%) |
+| Nie nasze przerwanie | 12 | 45 | **57** | 199 (78%) |
+
+---
+
+## Diagram czasowy transmisji bajtu
+
+```
+    ┌─────────────────────────────────────────────────────────────────────────┐
+    │                    TRANSMISJA JEDNEGO BAJTU MIDI                        │
+    │                         (320 µs = 10 bitów)                             │
+    └─────────────────────────────────────────────────────────────────────────┘
+    
+    │◄─ 32µs ─►│◄─ 32µs ─►│◄─ 32µs ─►│◄─ 32µs ─►│◄─ 32µs ─►│
+    │  START   │   D0     │   D1     │   D2     │   D3     │ ...
+    ├──────────┼──────────┼──────────┼──────────┼──────────┼─────
+    │  256 cy  │  256 cy  │  256 cy  │  256 cy  │  256 cy  │
+    
+    
+    NAJGORSZY PRZYPADEK (STOP → następny bajt):
+    ┌──────────────────────────────────────────────────────────────┐
+    │                        256 cykli                             │
+    ├────────────────────────────────┬─────────────────────────────┤
+    │      OBSŁUGA IRQ: 128 cy       │     ZAPAS: 128 cy (50%)     │
+    │    ████████████████████        │                             │
+    └────────────────────────────────┴─────────────────────────────┘
+    
+    TYPOWY PRZYPADEK (DATA bit):
+    ┌──────────────────────────────────────────────────────────────┐
+    │                        256 cykli                             │
+    ├─────────────────────────┬────────────────────────────────────┤
+    │   OBSŁUGA IRQ: 110 cy   │        ZAPAS: 146 cy (57%)         │
+    │   █████████████████     │                                    │
+    └─────────────────────────┴────────────────────────────────────┘
+```
+
+---
+
+## Wnioski
+
+### ✅ Margines bezpieczeństwa
+
+| Metryka | Wartość |
+|---------|---------|
+| **Najgorszy przypadek** | 128 cykli / 50% zapasu |
+| **Typowy przypadek** | ~145 cykli / 57% zapasu |
+| **Najlepszy przypadek** | 167 cykli / 65% zapasu |
+
+### ✅ Czas dostępny dla głównego programu
+
+Przy ciągłej transmisji MIDI (np. strumień danych):
+- Przerwanie występuje co **256 cykli** (32 µs)
+- Handler zajmuje średnio **~115 cykli**
+- **Pozostaje ~140 cykli** dla głównego programu między przerwaniami
+- Efektywność CPU: **~55%** dostępne dla głównego programu
+
+### ✅ Maksymalna przepustowość
+
+```
+31250 baud ÷ 10 bitów/bajt = 3125 bajtów/sekundę
+                           = ~3.1 kB/s
+                           = 1 bajt co 320 µs
+```
+
+### ⚠️ Potencjalne optymalizacje (gdyby były potrzebne)
+
+1. **Przeniesienie `midi_head`/`midi_tail` do zeropage** (-4 cykle w STOP)
+2. **Jump table zamiast łańcucha CMP/BEQ** (-4 cykle w DATA/STOP)
+3. **Inline handler bez JSR/RTS** (-12 cykli)
+
+Obecna implementacja ma jednak **wystarczający margines** i nie wymaga dalszej optymalizacji.
