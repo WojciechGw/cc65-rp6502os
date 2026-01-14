@@ -42,6 +42,11 @@
 #define GFX_MODE1_COLOR_CYAN        0b1101
 #define GFX_MODE1_COLOR_WHITE       0b1111
 
+#define MENU_COLOR_BG   GFX_MODE1_COLOR_DARKGREEN
+#define MENU_COLOR_FG   GFX_MODE1_COLOR_WHITE
+#define EDITOR_COLOR_BG GFX_MODE1_COLOR_DARKGRAY
+#define EDITOR_COLOR_FG GFX_MODE1_COLOR_WHITE
+
 #define KEYBOARD_BYTES 32
 uint8_t keystates[KEYBOARD_BYTES] = {0};
 // keystates[code>>3] gets contents from correct byte in array
@@ -141,6 +146,7 @@ struct Cursor {
     uint8_t row;
     uint8_t col;
     uint16_t blink_counter;
+    bool blink_state;
 };
 
 static struct Cursor cur;
@@ -160,12 +166,15 @@ void main()
     uint8_t mouse_wheel_prev = 0;
     int mouse_wheel_change = 0;
     bool handled_key = false;
-	uint8_t k,j,new_key,new_keys;
+	uint8_t k, j, new_key, new_keys, last_key;
     uint8_t v;
+    bool key_capslock;
+    bool key_shifts;
 
     cur.row = 0;
     cur.col = 0;
     cur.blink_counter = 0;
+    cur.blink_state = false;
 
     // menu
     xram0_struct_set(XRAM_STRUCT_GFX_MENU, vga_mode1_config_t, x_wrap, false);
@@ -200,7 +209,7 @@ void main()
     for (i = 0; i < (80 * 60 * 2); i++)
     {
         RIA.rw0 = ' ';
-        RIA.rw0 = (GFX_MODE1_COLOR_DARKGRAY << 4) | GFX_MODE1_COLOR_WHITE;
+        RIA.rw0 = (EDITOR_COLOR_BG << 4) | EDITOR_COLOR_FG;
     }
     
     RIA.addr0 = screenaddr_base_menu;
@@ -208,7 +217,7 @@ void main()
     for (i = 0; i < 4 * 80; i++)
     {
         RIA.rw0 = ' ';
-        RIA.rw0 = (GFX_MODE1_COLOR_DARKGREEN << 4) | GFX_MODE1_COLOR_WHITE;
+        RIA.rw0 = (MENU_COLOR_BG << 4) | MENU_COLOR_FG;
     }
 
     RIA.addr0 = screenaddr_base_menu + 160;
@@ -310,6 +319,7 @@ void main()
             temp = RIA.rw0;
             RIA.rw0 = temp << 4 | temp >> 4;
             cur.blink_counter = 0;
+            cur.blink_state = !cur.blink_state;
             // v = RIA.vsync;
         }
 
@@ -323,16 +333,70 @@ void main()
                 uint8_t code = (k << 3) + j;
                 new_key = (new_keys & (1 << j));
                 if ((code > 3) && (new_key != (keystates[k] & (1 << j)))) {
-                    // printf("\x1b" POS_KEYPRESS "0x%02X %s", code, (new_key ?  FONT_CHAR_DOWN : FONT_CHAR_UP));
+                    last_key = code;  
                 }
             }
             keystates[k] = new_keys;
         }
+
+        key_capslock = keystates[0] & (1u << 2);
+        key_shifts = key(KEY_LEFTSHIFT) || key(KEY_RIGHTSHIFT);
         
-        if ((key(KEY_LEFTSHIFT) != 0) && (key(KEY_RIGHTSHIFT) != 0)) {
-            break;
+        if (!(keystates[0] & 1)) {
+            if (!handled_key) { // handle only once per single keypress
+                // handle the keystrokes
+                if (key(KEY_LEFT)) {
+                    RIA.addr0 = screenaddr_base + cur.row * 160 + cur.col * 2 + 1;
+                    RIA.step0 = 0;
+                    RIA.rw0 = EDITOR_COLOR_BG  << 4 | EDITOR_COLOR_FG;
+                    --cur.col;
+                } else if (key(KEY_RIGHT)) {
+                    RIA.addr0 = screenaddr_base + cur.row * 160 + cur.col * 2 + 1;
+                    RIA.step0 = 0;
+                    RIA.rw0 = EDITOR_COLOR_BG  << 4 | EDITOR_COLOR_FG;
+                    ++cur.col;
+                } else if (key(KEY_UP)) {
+                    RIA.addr0 = screenaddr_base + cur.row * 160 + cur.col * 2 + 1;
+                    RIA.step0 = 0;
+                    RIA.rw0 = EDITOR_COLOR_BG  << 4 | EDITOR_COLOR_FG;
+                    --cur.row;
+                } else if (key(KEY_DOWN)) {
+                    RIA.addr0 = screenaddr_base + cur.row * 160 + cur.col * 2 + 1;
+                    RIA.step0 = 0;
+                    RIA.rw0 = EDITOR_COLOR_BG  << 4 | EDITOR_COLOR_FG;
+                    ++cur.row;
+                } else if (key(KEY_BACKSPACE)){
+                    RIA.addr0 = screenaddr_base + cur.row * 160 + cur.col * 2 + 1;
+                    RIA.step0 = 0;
+                    RIA.rw0 = EDITOR_COLOR_BG  << 4 | EDITOR_COLOR_FG;
+                    --cur.col;
+                    RIA.addr0 = screenaddr_base + cur.row * 160 + cur.col * 2;
+                    RIA.step0 = 1;
+                    RIA.rw0 = ' ';
+                    RIA.rw0 = EDITOR_COLOR_BG  << 4 | EDITOR_COLOR_FG;
+                } else if ((last_key >= KEY_A) && (last_key <= KEY_Z)) {
+                    RIA.addr0 = screenaddr_base + cur.row * 160 + cur.col * 2;
+                    RIA.step0 = 1;
+                    if(key_shifts){
+                        RIA.rw0 = (last_key + ((keystates[0] & (1u << 2)) ? 61 : 93));
+                    } else {
+                        RIA.rw0 = (last_key + ((keystates[0] & (1u << 2)) ? 93 : 61));
+                    }
+                    printf("caps:%i\r\n",(keystates[0] & (1u << 2)));
+                    RIA.rw0 = EDITOR_COLOR_BG  << 4 | EDITOR_COLOR_FG;
+                    ++cur.col;
+                    RIA.addr0 = screenaddr_base + cur.row * 160 + cur.col * 2 + 1;
+                    RIA.step0 = 0;
+                    RIA.rw0 = EDITOR_COLOR_BG  << 4 | EDITOR_COLOR_FG;
+                } else if (key(KEY_ESC)) {
+                    printf("Bye, bye!\n\n");
+                    break;
+                }
+                handled_key = true;
+            }
+        } else { // no keys down
+            handled_key = false;
         }
-        
         // break on any key : if (!(RIA.rw0 & 1)) break;
     }
 

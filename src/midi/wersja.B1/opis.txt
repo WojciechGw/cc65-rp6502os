@@ -1,0 +1,48 @@
+Program MIDI-OUT dla Picocomputer 6502
+Oto kompletny program wysyłający buforowane dane MIDI przez port B bit 0 układu W65C22S z wykorzystaniem przerwań w sposób nieblokujący.
+
+Struktura projektu
+
+src/midi/wersja.B
+├── midi_out.c
+├── midi_out.h
+├── startup.s
+└── picocomputer.cfg
+
+Opis działania
+Zasada transmisji MIDI
+Format ramki UART: 8N1 (8 bitów danych, brak parzystości, 1 bit stopu)
+Prędkość: 31250 baud (standardowa dla MIDI)
+Czas bitu: 32 µs przy zegarze 1 MHz
+
+Maszyna stanów transmisji
+┌─────────┐     Dane w buforze     ┌─────────────┐
+│  IDLE   │ ─────────────────────► │   START     │
+└─────────┘                        └─────────────┘
+     ▲                                    │
+     │                                    ▼
+     │   Bufor pusty              ┌─────────────┐
+     └────────────────────────────│    DATA     │◄──┐
+                                  └─────────────┘   │
+                                         │          │
+                                         │ 8 bitów  │
+                                         ▼          │
+                                  ┌─────────────┐   │
+                                  │    STOP     │───┘
+                                  └─────────────┘ Następny bajt
+
+Nieblokująca obsługa
+- Bufor kołowy: 64 bajty (konfigurowalny)
+- Przerwania Timer 2: Generują każdy bit niezależnie od głównego programu
+- Program główny: Może wykonywać inne zadania podczas transmisji
+
+Bash
+
+# Kompilacja
+make
+
+# Czyszczenie
+make clean
+
+Ten program pozwala na wysyłanie danych MIDI w tle, 
+podczas gdy główny program może wykonywać inne zadania (np. odczytywać przyciski, obsługiwać wyświetlacz itp.).

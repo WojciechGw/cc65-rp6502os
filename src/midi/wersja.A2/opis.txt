@@ -1,0 +1,31 @@
+Program MIDI-OUT dla Picocomputer 6502 (8MHz, RAM-only)
+z handlerem przerwań w asemblerze
+
+Zalety handlera w asemblerze:
+Cecha	Wartość
+Czas wejścia w IRQ	~12 cykli (vs ~40+ w C)
+Rozmiar kodu IRQ	~100 bajtów
+Instrukcje 65C02	PHX, PHY, PLX, PLY, STZ, BRA
+Czas obsługi bitu	~30-40 cykli
+Margines czasowy	>80 cykli przy 4MHz/31250 baud
+
+Podsumowanie konfiguracji
+Parametr	Wartość
+Zegar CPU	8 MHz
+Baud rate MIDI	31250
+Cykle na bit	256 (8000000/31250)
+Wartość timera	254 ($FE)
+VIA base address	$FFD0
+Pamięć	64kB RAM ($0000-$FFFF)
+Kod startowy	$0200
+Wektory	$FFFA-$FFFF (w RAM)
+
+# Kompiluj wszystko
+make
+
+# Lub ręcznie:
+ca65 --cpu 65C02 crt0.s -o crt0.o
+ca65 --cpu 65C02 midi_irq.s -o midi_irq.o
+cc65 -t none -O --cpu 65C02 midi_out.c -o midi_out.s
+ca65 --cpu 65C02 midi_out.s -o midi_out.o
+ld65 -C picocomputer.cfg -o midi.bin crt0.o midi_irq.o midi_out.o

@@ -1,0 +1,25 @@
+Picocomputer 6502
+W65C22S VIA                    Zewnętrzny syntezator MIDI
+┌─────────────┐                ┌───────────────────────┐
+│             │                │                       │
+│  Port B     │                │   MIDI IN             │
+│  Bit 0  ────┼──────┬─────────┼── Pin 5 (data)        │
+│             │      │    220Ω │                       │
+│             │      └─────────┼── Pin 4 (+5V przez R) │
+│             │                │                       │
+│  GND    ────┼────────────────┼── Pin 2 (shield/gnd)  │
+│             │                │                       │
+│  +5V    ────┼───[220Ω]──┬────┘                       │
+│             │           │    └───────────────────────┘
+└─────────────┘           │
+                          └── Pin 4 MIDI connector
+                          
+Opcjonalny bufor/driver (zalecany):
+Port B bit 0 ──► 74HC04 (inwerter) ──► Obwód MIDI-OUT
+
+Kluczowe cechy programu:
+Nieblokująca transmisja - dane są buforowane i wysyłane w przerwaniach
+Bufor cykliczny - 64 bajty z obsługą przepełnienia
+Maszyna stanów - START → DATA (8 bitów) → STOP → kolejny bajt lub IDLE
+Bit-banging MIDI - 31250 baud przez Timer 1 VIA
+Gotowe funkcje - Note On/Off, Program Change, Control Change, Pitch Bend

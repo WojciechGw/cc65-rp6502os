@@ -979,97 +979,7 @@ int cmd_list(int argc, char **argv) {
     tx_string(NEWLINE "--- END ---" NEWLINE);
     return 0;
 }
-/* cmd_edit TO DO move to external command
-int cmd_edit(int argc, char **argv) { // simple line editor for text files
-    int fd = -1;
-    int rc = 0;
-    int n;
-    unsigned existing_len = 0;
-    unsigned new_len = 0;
-    char line_buf[128];
-    char *existing = malloc(EDIT_BUF_MAX);
-    char *new_content = malloc(EDIT_BUF_MAX);
 
-    if(argc < 2) {
-        tx_string("Usage: edit <file>" NEWLINE);
-        free(existing); free(new_content);
-        return 0;
-    }
-    if(!existing || !new_content) {
-        tx_string("edit: OOM" NEWLINE);
-        free(existing); free(new_content);
-        return -1;
-    }
-
-    fd = open(argv[1], O_RDONLY);
-    if(fd >= 0) {
-        while((n = read(fd, existing + existing_len, EDIT_BUF_MAX - 1 - existing_len)) > 0) {
-            existing_len += n;
-            if(existing_len >= EDIT_BUF_MAX - 1) break;
-        }
-        if(n < 0) {
-            tx_string("Cannot read file" NEWLINE);
-            rc = -1;
-            goto cleanup;
-        }
-        close(fd);
-        fd = -1;
-    }
-    existing[existing_len] = 0;
-
-    tx_string("---- existing content ----" NEWLINE);
-    tx_print_existing(existing, existing_len);
-    if(existing_len >= EDIT_BUF_MAX - 1) {
-        tx_string("[display truncated]" NEWLINE);
-    }
-    tx_string("--------------------------" NEWLINE);
-    tx_string("Type new content. '.' on its own line saves, '!' aborts, ESC cancels." NEWLINE);
-
-    while(1) {
-        int line_len;
-        tx_string("> ");
-        line_len = read_line_editor(line_buf, sizeof(line_buf));
-        if(line_len < 0) {
-            tx_string("Edit cancelled" NEWLINE);
-            rc = -1;
-            goto cleanup;
-        }
-        if(line_len == 1 && line_buf[0] == '!') {
-            tx_string("Edit aborted, file left unchanged" NEWLINE);
-            goto cleanup;
-        }
-        if(line_len == 1 && line_buf[0] == '.') {
-            break;
-        }
-        if(new_len + (unsigned)line_len + 1 >= EDIT_BUF_MAX) {
-            tx_string("Buffer full, stopping input" NEWLINE);
-            break;
-        }
-        memcpy(new_content + new_len, line_buf, line_len);
-        new_content[new_len + line_len] = '\n';
-        new_len += line_len + 1;
-    }
-
-    fd = open(argv[1], O_WRONLY | O_CREAT | O_TRUNC);
-    if(fd < 0) {
-        tx_string("Cannot open file for writing" NEWLINE);
-        rc = -1;
-        goto cleanup;
-    }
-    if(write(fd, new_content, new_len) != (int)new_len) {
-        tx_string("Write failed" NEWLINE);
-        rc = -1;
-        goto cleanup;
-    }
-    tx_string("Saved" NEWLINE);
-
-cleanup:
-    if(fd >= 0) close(fd);
-    free(existing);
-    free(new_content);
-    return rc;
-}
-*/
 int cmd_mkdir(int argc, char **argv) {
     if(argc < 2) {
         tx_string("Usage: mkdir <path>" NEWLINE);
@@ -2148,6 +2058,98 @@ v = RIA.vsync;
 if (RIA.vsync == v) show_clock();
 v = RIA.vsync;
 
+*/
+
+/* cmd_edit TO DO move to external command
+int cmd_edit(int argc, char **argv) { // simple line editor for text files
+    int fd = -1;
+    int rc = 0;
+    int n;
+    unsigned existing_len = 0;
+    unsigned new_len = 0;
+    char line_buf[128];
+    char *existing = malloc(EDIT_BUF_MAX);
+    char *new_content = malloc(EDIT_BUF_MAX);
+
+    if(argc < 2) {
+        tx_string("Usage: edit <file>" NEWLINE);
+        free(existing); free(new_content);
+        return 0;
+    }
+    if(!existing || !new_content) {
+        tx_string("edit: OOM" NEWLINE);
+        free(existing); free(new_content);
+        return -1;
+    }
+
+    fd = open(argv[1], O_RDONLY);
+    if(fd >= 0) {
+        while((n = read(fd, existing + existing_len, EDIT_BUF_MAX - 1 - existing_len)) > 0) {
+            existing_len += n;
+            if(existing_len >= EDIT_BUF_MAX - 1) break;
+        }
+        if(n < 0) {
+            tx_string("Cannot read file" NEWLINE);
+            rc = -1;
+            goto cleanup;
+        }
+        close(fd);
+        fd = -1;
+    }
+    existing[existing_len] = 0;
+
+    tx_string("---- existing content ----" NEWLINE);
+    tx_print_existing(existing, existing_len);
+    if(existing_len >= EDIT_BUF_MAX - 1) {
+        tx_string("[display truncated]" NEWLINE);
+    }
+    tx_string("--------------------------" NEWLINE);
+    tx_string("Type new content. '.' on its own line saves, '!' aborts, ESC cancels." NEWLINE);
+
+    while(1) {
+        int line_len;
+        tx_string("> ");
+        line_len = read_line_editor(line_buf, sizeof(line_buf));
+        if(line_len < 0) {
+            tx_string("Edit cancelled" NEWLINE);
+            rc = -1;
+            goto cleanup;
+        }
+        if(line_len == 1 && line_buf[0] == '!') {
+            tx_string("Edit aborted, file left unchanged" NEWLINE);
+            goto cleanup;
+        }
+        if(line_len == 1 && line_buf[0] == '.') {
+            break;
+        }
+        if(new_len + (unsigned)line_len + 1 >= EDIT_BUF_MAX) {
+            tx_string("Buffer full, stopping input" NEWLINE);
+            break;
+        }
+        memcpy(new_content + new_len, line_buf, line_len);
+        new_content[new_len + line_len] = '\n';
+        new_len += line_len + 1;
+    }
+
+    fd = open(argv[1], O_WRONLY | O_CREAT | O_TRUNC);
+    if(fd < 0) {
+        tx_string("Cannot open file for writing" NEWLINE);
+        rc = -1;
+        goto cleanup;
+    }
+    if(write(fd, new_content, new_len) != (int)new_len) {
+        tx_string("Write failed" NEWLINE);
+        rc = -1;
+        goto cleanup;
+    }
+    tx_string("Saved" NEWLINE);
+
+cleanup:
+    if(fd >= 0) close(fd);
+    free(existing);
+    free(new_content);
+    return rc;
+}
 */
 
 // EOF shell.c

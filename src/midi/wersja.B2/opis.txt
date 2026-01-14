@@ -1,0 +1,250 @@
+Zoptymalizowana procedura obsługi przerwania w asemblerze
+Przeniesienie handlera przerwania do czystego asemblera znacząco przyspieszy obsługę i zapewni precyzyjny timing dla transmisji MIDI.
+
+Porównanie wydajności
+Aspekt	Handler w C	Handler w ASM
+Rozmiar kodu	~200 bajtów	~150 bajtów
+Cykle na przerwanie	~150-200	~60-80
+Czas obsługi @ 4MHz	~40-50 µs	~15-20 µs
+Jitter	Większy	Minimalny
+
+Zalety implementacji asemblerowej
+Precyzyjny timing - krytyczne dla MIDI 31250 baud
+Mniejszy narzut - brak kosztownej ramki stosu C
+Przewidywalność - stała liczba cykli na każdą ścieżkę
+Zmienne w Zero Page - szybszy dostęp (3 cykle vs 4)
+Wykorzystanie 65C02 - instrukcje PHX, PHY, PLX, PLY
+
+Zaktualizowany program MIDI-OUT dla Picocomputer 6502
+Dostosowuję kod do specyfikacji:
+
+Zegar 8 MHz
+VIA W65C22S pod adresem $FFD0
+64 KB RAM (brak ROM)
+
+Podsumowanie zmian
+Parametr	Poprzednia wartość	Nowa wartość
+Zegar	4 MHz	8 MHz
+Adres VIA	$D000	$FFD0
+Pamięć	ROM+RAM	64KB RAM
+Timer MIDI	126	254
+Cykle na bit	128	256
+
+Timer 2 dla 31250 baud @ 8 MHz
+
+Częstotliwość zegara:  8,000,000 Hz
+Prędkość MIDI:         31,250 baud
+Cykle na bit:          8,000,000 / 31,250 = 256 cykli
+Wartość timera:        256 - 2 = 254 (kompensacja)
+
+Mapa pamięci
+
+$0000 - $007F : Zero Page (zmienne szybkiego dostępu)
+$0100 - $01FF : Stos sprzętowy 6502
+$0200 - $FCFF : Program i dane
+$FD00 - $FEFF : Stos C
+$FF00 - $FFCF : Wolne / zarezerwowane
+$FFD0 - $FFDF : VIA W65C22S (16 rejestrów)
+$FFE0 - $FFF9 : Zarezerwowane
+$FFFA - $FFFF : Wektory przerwań (NMI, RESET, IRQ)
+
+Analiza czasu wykonania przerwania MIDI
+Parametry systemu
+Parametr	Wartość
+Zegar CPU	8 MHz
+Czas cyklu	125 ns
+Prędkość MIDI	31250 baud
+Czas bitu MIDI	32 µs (256 cykli)
+
+Analiza kodu handlera przerwania
+
+Ścieżka wejścia do przerwania
+-------
+
+; Cykle wykonania dla każdej instrukcji
+
+_irq_handler:
+    pha                     ; 3 cykle
+    phx                     ; 3 cykle
+    
+    lda VIA_IFR             ; 4 cykle (absolute)
+    and #IRQ_T2             ; 2 cykle
+    beq @not_timer2         ; 2/3 cykle (not taken = 2)
+    
+    ldx VIA_T2CL            ; 4 cykle (kasuje flagę)
+    
+    lda _midi_tx_state      ; 3 cykle (zero page)
+    
+    cmp #TX_STATE_START     ; 2 cykle
+    beq @state_start        ; 2/3 cykle
+    cmp #TX_STATE_DATA      ; 2 cykle
+    beq @state_data         ; 2/3 cykle
+    cmp #TX_STATE_STOP      ; 2 cykle
+    beq @state_stop         ; 2/3 cykle
+    
+; Suma wejścia: 3+3+4+2+2+4+3 = 21 cykli (do rozgałęzienia stanu)
+
+Ścieżka STATE_START (bit startu)
+-------
+
+@state_start:
+    lda VIA_PORTB           ; 4 cykle
+    and #<~MIDI_TX_BIT      ; 2 cykle
+    sta VIA_PORTB           ; 4 cykle
+    
+    lda #TX_STATE_DATA      ; 2 cykle
+    sta _midi_tx_state      ; 3 cykle (zero page)
+    
+    stz midi_bit_count      ; 3 cykle (zero page, 65C02)
+    
+    bra @restart_timer      ; 3 cykle
+    
+; Suma STATE_START: 4+2+4+2+3+3+3 = 21 cykli
+
+Ścieżka STATE_DATA (bit danych)
+--------
+
+@state_data:
+    lsr midi_current_byte   ; 5 cykli (zero page)
+    
+    lda VIA_PORTB           ; 4 cykle
+    bcs @bit_high           ; 2/3 cykle
+    
+    ; Ścieżka bit = 0
+    and #<~MIDI_TX_BIT      ; 2 cykle
+    bra @store_bit          ; 3 cykle
+    
+@bit_high:
+    ; Ścieżka bit = 1
+    ora #MIDI_TX_BIT        ; 2 cykle
+    
+@store_bit:
+    sta VIA_PORTB           ; 4 cykle
+    
+    inc midi_bit_count      ; 5 cykli (zero page)
+    lda midi_bit_count      ; 3 cykle (zero page)
+    cmp #8                  ; 2 cykle
+    bne @restart_timer      ; 2/3 cykle (zazwyczaj taken = 3)
+    
+    ; Jeśli 8 bitów:
+    lda #TX_STATE_STOP      ; 2 cykle
+    sta _midi_tx_state      ; 3 cykle
+    bra @restart_timer      ; 3 cykle
+
+; Suma STATE_DATA (typowa, bit<8): 5+4+3+2+3+4+5+3+2+3 = 34 cykle
+; Suma STATE_DATA (bit=8):         5+4+3+2+3+4+5+3+2+2+2+3+3 = 41 cykli
+
+Ścieżka STATE_STOP (bit stopu)
+-------
+
+@state_stop:
+    lda VIA_PORTB           ; 4 cykle
+    ora #MIDI_TX_BIT        ; 2 cykle
+    sta VIA_PORTB           ; 4 cykle
+    
+    lda _midi_head          ; 3 cykle (zero page)
+    cmp _midi_tail          ; 3 cykle (zero page)
+    beq @transmission_done  ; 2/3 cykle
+
+    ; Ścieżka - są kolejne dane:
+    ldx _midi_tail          ; 3 cykle (zero page)
+    lda _midi_buffer, x     ; 4 cykle (absolute,x)
+    sta midi_current_byte   ; 3 cykle (zero page)
+    
+    inx                     ; 2 cykle
+    txa                     ; 2 cykle
+    and #MIDI_BUFFER_MASK   ; 2 cykle
+    sta _midi_tail          ; 3 cykle (zero page)
+    
+    lda #TX_STATE_START     ; 2 cykle
+    sta _midi_tx_state      ; 3 cykle (zero page)
+    
+    stz midi_bit_count      ; 3 cykle
+    
+    bra @restart_timer      ; 3 cykle
+
+; Suma STATE_STOP (kolejny bajt): 4+2+4+3+3+2+3+4+3+2+2+2+3+2+3+3+3 = 48 cykli
+
+    ; Ścieżka - koniec transmisji:
+@transmission_done:
+    lda #TX_STATE_IDLE      ; 2 cykle
+    sta _midi_tx_state      ; 3 cykle
+    
+    lda #IRQ_T2             ; 2 cykle
+    sta VIA_IER             ; 4 cykle
+    
+    bra @irq_done           ; 3 cykle
+
+; Suma STATE_STOP (koniec): 4+2+4+3+3+3+2+3+2+4+3 = 33 cykle
+
+Ścieżka restartu timera
+-------
+
+@restart_timer:
+    lda #MIDI_BIT_TIMER_L   ; 2 cykle
+    sta VIA_T2CL            ; 4 cykle
+    lda #MIDI_BIT_TIMER_H   ; 2 cykle
+    sta VIA_T2CH            ; 4 cykle (startuje timer)
+    ; przechodzi do @irq_done
+
+; Suma restart_timer: 2+4+2+4 = 12 cykli
+
+Ścieżka wyjścia z przerwania
+-------
+
+@irq_done:
+    plx                     ; 4 cykle
+    pla                     ; 4 cykle
+    rti                     ; 6 cykli
+
+; Suma wyjścia: 4+4+6 = 14 cykli
+
+Narzut sprzętowy przerwania
+-------
+Odpowiedź CPU na IRQ:     7 cykli (push PC, push P, load vector)
+
+Podsumowanie czasów wykonania
+-------
+Tabela czasów dla każdej ścieżki
+Ścieżka	Cykle	Czas @ 8MHz
+Narzut sprzętowy IRQ	7	0.875 µs
+Wejście (do stanu)	21	2.625 µs
+STATE_START	21	2.625 µs
+STATE_DATA (bit 0-6)	34	4.250 µs
+STATE_DATA (bit 7)	41	5.125 µs
+STATE_STOP (następny bajt)	48	6.000 µs
+STATE_STOP (koniec TX)	33	4.125 µs
+Restart timera	12	1.500 µs
+Wyjście	14	1.750 µs
+
+Całkowity czas dla każdego typu przerwania
+-------
+Typ przerwania	Obliczenie	Cykle	Czas	% budżetu
+START	7+21+21+12+14	75	9.375 µs	29.3%
+DATA (bit 0-6)	7+21+34+12+14	88	11.000 µs	34.4%
+DATA (bit 7)	7+21+41+12+14	95	11.875 µs	37.1%
+STOP (next)	7+21+48+12+14	102	12.750 µs	39.8%
+STOP (end)	7+21+33+14	75	9.375 µs	29.3%
+
+Analiza zapasu czasowego
+-------
+Budżet czasowy
+--
+Dostępny czas na bit MIDI:        256 cykli = 32.000 µs
+
+Najgorszy przypadek (STOP+next):  102 cykle = 12.750 µs
+Zapas czasowy:                    154 cykle = 19.250 µs
+
+Najlepszy przypadek (START):       75 cykli =  9.375 µs
+Zapas czasowy:                    181 cykli = 22.625 µs
+
+Graficzna reprezentacja wykorzystania czasu
+--
+Budżet czasowy bitu MIDI: 32 µs (256 cykli)
+═══════════════════════════════════════════════════════════════
+
+STATE_START (9.375 µs):
+████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+|---- 29.3% ----|---------------- 70.7% zapas ----------------|
+
+STATE_DATA typowy (11.0 µs):
