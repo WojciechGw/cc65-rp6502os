@@ -1,6 +1,6 @@
 #include "commons.h"
 
-#define APPVER "20260110.1050"
+#define APPVER "20260119.2048"
 
 #define APP_HEADER CSI_RESET CSI "[2;1H" CSI HIGHLIGHT_COLOR " OS Shell > " ANSI_RESET " Help information                              " ANSI_DARK_GRAY "version " APPVER ANSI_RESET
 #define APP_FOOTER ANSI_DARK_GRAY  "________________________________________________________________________________" NEWLINE NEWLINE ANSI_RESET
@@ -15,35 +15,6 @@ typedef struct {
 } cmd_t;
 
 static const cmd_t commands[] = {
-    { "drive",  "set active drive", 
-                "drive 0:"},
-    { "drives", "show available drives", 
-                "drives"},
-    { "cd",     "change active directory", 
-                "cd <directory>"},
-    { "mkdir",  "create directory", 
-                "mkdir <directory>"},
-    { "chmod",  "set file attributes",
-                "chmod file.bin A+"},
-    { "cp",     "copy file", 
-                "cp <source> <destination>"},
-    { "cpm",    "copy/move multiple files, wildcards allowed",
-                "cpm <source> <destination> (copy file)" NEWLINE
-                "cpm <source> <destination> /m (move file)"},
-    { "mv",     "move/rename a file or directory",
-                "mv <source> <destination>"},
-    { "rename", "rename a file or directory",
-                "rename <oldname> <newname>"},
-    { "rm",     "remove a file/files, wildcards allowed",
-                "rm <filename>"},
-    { "list",   "show a file content",
-                "list <filename>"},
-    { "ls",     "list active directory",
-                "ls"},
-//    { "edit",   "simple text editor",
-//                "edit <filename>"},
-    { "stat",   "show file/directory info", 
-                "stat <filename>"},
     { "bload",  "load binary file to RAM/XRAM", 
                 "bload code.bin 0600 (load file code.bin to RAM memory at address 0x0600)"},
     { "bsave",  "save RAM/XRAM to binary file", 
@@ -51,26 +22,53 @@ static const cmd_t commands[] = {
                 "bsave picture.bin 0000 8192 /x (save 8192 bytes start from XRAM address 0x0000)"},
     { "brun",   "load binary file to RAM and run",
                 "brun hello.bin A300 (load and run binary file hello.bin at address 0xA300)"},
+    { "cd",     "change active directory", 
+                "cd <directory>"},
+    { "chmod",  "set file attributes",
+                "chmod file.bin A+"},
+    { "cls",    "clear terminal", 
+                "cls" },
     { "com",    "load .com binary and run", 
                 "com hello.com A000 (load and run file hello.com at address 0xA000)"},
-    { "run",    "run code at address", 
-                "run A000 (run code at 0xA000)"},
+    { "cp",     "copy file", 
+                "cp <source> <destination>"},
+    { "cpm",    "copy/move multiple files, wildcards allowed",
+                "cpm <source> <destination> (copy file)" NEWLINE
+                "cpm <source> <destination> /m (move file)"},
+    { "drive",  "set active drive", 
+                "drive 0:"},
+    { "drives", "show available drives", 
+                "drives"},
+    { "exit",   "exit to the system monitor", 
+                "exit"},
+    { "hex",    "dump file contents to screen", 
+                "hex <filename> 0x0600 512 (show 512 bytes of a file start from offset 0x0600)" },
+    { "list",   "show a file content",
+                "list <filename>"},
+    { "ls",     "list active directory",
+                "ls"},
     { "mem",    "show memory informations : lowest and highest RAM address and size available for user program",
                 "mem"},
     { "memr",   "show RAM from given address", 
                 "memx 0x0600 512 (show 512 bytes of RAM start from address 0x0600)" },
     { "memx",   "show XRAM from given address", 
                 "memx 0xA500 256 (show 256 bytes of XRAM start from address 0xA500)" },
-    { "hex",    "dump file contents to screen", 
-                "hex <filename> 0x0600 512 (show 512 bytes of a file start from offset 0x0600)" },
-    { "cls",    "clear terminal", 
-                "cls" },
-    { "time",   "show local date and time", 
-                "time" },
+    { "mkdir",  "create directory", 
+                "mkdir <directory>"},
+    { "mv",     "move/rename a file or directory",
+                "mv <source> <destination>"},
     { "phi2",   "show CPU clock frequency", 
                 "phi2"},
-    { "exit",   "exit to the system monitor", 
-                "exit"},
+    { "rename", "rename a file or directory",
+                "rename <oldname> <newname>"},
+    { "rm",     "remove a file/files, wildcards allowed",
+                "rm <filename>"},
+    { "run",    "run code at address", 
+                "run A000 (run code at 0xA000)"},
+    { "stat",   "show file/directory info", 
+                "stat <filename>"},
+    { "time",   "show local date and time", 
+                "time" },
 };
 
 static const cmd_t commands_ext[] = {
@@ -80,10 +78,16 @@ static const cmd_t commands_ext[] = {
                     "calendar /n [yyyy]      - current or particular and neighbouring months" NEWLINE
                     "calendar /q [1-4]       - current or particular quarter" NEWLINE
                     "calendar /y [yyyy]      - current or particular year" },
+    { "courier",    "Courier - file transfer in/out application for OS Shell ", 
+                    "courier        - run application" },
     { "dir",        "show active drive directory, wildcards allowed",
                     "dir *.rp6502 (only .rp6502 files)" NEWLINE
                     "dir /da (sorted by date ascending)"},
-    { "help",       "show these informations", 
+    { "hass",       "Handy ASSembler 65C02S",
+                    "hass                            - instant write and compile a code" NEWLINE
+                    "hass <source>                   - <source> file, out.bin as a result" NEWLINE
+                    "hass <source> -o <destination>  - <source> file, <destination> as a result"},
+    { "help",       "show help informations", 
                     "help" NEWLINE
                     "help mkdir" NEWLINE
                     "user can also write a command and press <F1> key to get help information" },
@@ -93,12 +97,6 @@ static const cmd_t commands_ext[] = {
     { "label",      "show or set active drive's volume label", 
                     "label          - show active drive's label" NEWLINE
                     "label NEWLABEL - set active drive label to NEWLABEL" },
-    { "mass",       "Mini ASSembler application for OS Shell",
-                    "mass                            - instant write and compile a code" NEWLINE
-                    "mass <source>                   - <source> file, out.bin as a result" NEWLINE
-                    "mass <source> -o <destination>  - <source> file, <destination> as a result"},
-    { "courier",    "Courier - file transfer in/out application for OS Shell ", 
-                    "courier        - run application" },
 };
 
 int main(int argc, char **argv) {
@@ -163,7 +161,7 @@ int main(int argc, char **argv) {
     }
 
     printf(NEWLINE NEWLINE "Keyboard:" NEWLINE NEWLINE);
-    printf("<F1>    show these informations" NEWLINE);
+    printf("<F1>    show help informations" NEWLINE);
     printf("<F2>    show keyboard status visualiser" NEWLINE);
     printf("<F3>    current date/time and calendar" NEWLINE);
     printf("<LEFT>  change active drive to previous if available" NEWLINE);
