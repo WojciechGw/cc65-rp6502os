@@ -156,6 +156,7 @@ int cmd_memr(int, char **);
 int cmd_memx(int, char **);
 int cmd_mkdir(int, char **);
 int cmd_mv(int, char **);
+int cmd_peek(int, char **);
 int cmd_phi2(int, char **);
 int cmd_rename(int, char **);
 int cmd_rm(int, char **);
@@ -181,7 +182,6 @@ static const cmd_t commands[] = {
     { "ls",     "", "", cmd_ls},
     { "drive",  "", "", cmd_drive},
     { "drives", "", "", cmd_drives},
- //   { "edit",   "", "", cmd_edit},
     { "exit",   "", "", cmd_exit},
     { "list",   "", "", cmd_list},
     { "mem",    "", "", cmd_mem},
@@ -190,6 +190,7 @@ static const cmd_t commands[] = {
     { "hex",    "", "", cmd_hex },
     { "mkdir",  "", "", cmd_mkdir},
     { "mv",     "", "", cmd_mv},
+    { "peek",   "", "", cmd_peek},
     { "phi2",   "", "", cmd_phi2},
     { "rename", "", "", cmd_rename},
     { "rm",     "", "", cmd_rm},
@@ -253,6 +254,7 @@ int cmd_memr(int argc, char **argv);
 int cmd_memx(int argc, char **argv);
 int cmd_mkdir(int argc, char **argv);
 int cmd_mv(int argc, char **argv);
+int cmd_peek(int argc, char **argv);
 int cmd_phi2(int argc, char **argv);
 int cmd_rename(int argc, char **argv);
 int cmd_rm(int argc, char **argv);

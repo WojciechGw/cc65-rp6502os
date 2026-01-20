@@ -525,6 +525,7 @@ static asm_mode_t parse_operand_mode(const char* s, asm_value_t* val){
         while(*s==' '||*s=='\t') s++;
     }
 
+    // INC A or INC a - ACCumulator address mode
     if((s[0]=='A'||s[0]=='a') && !isalnum((unsigned char)s[1])) return M_ACC;
 
     if(*s=='#'){ parse_value_out(s+1, val); val->force_zp = 0; return M_IMM; }

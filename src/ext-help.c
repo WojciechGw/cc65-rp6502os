@@ -57,6 +57,9 @@ static const cmd_t commands[] = {
                 "mkdir <directory>"},
     { "mv",     "move/rename a file or directory",
                 "mv <source> <destination>"},
+    { "peek",   "memory viewer",
+                "peek 0xA000 128 (show 128 bytes of base RAM start from address 0xA000)" NEWLINE
+                "peek 0xF000 256 X (show 256 bytes of XRAM start from address 0xF000)" },
     { "phi2",   "show CPU clock frequency", 
                 "phi2"},
     { "rename", "rename a file or directory",

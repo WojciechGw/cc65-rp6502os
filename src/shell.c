@@ -1509,6 +1509,25 @@ int cmd_cpm(int argc, char **argv) { // multicopier
     return (rc < 0) ? -1 : 0;
 }
 
+int cmd_peek(int argc, char **argv) {
+    uint16_t addr = 0;
+    uint16_t size = 16;
+
+    if(argc < 2) {
+        tx_string("Usage: peek addr [bytes] [X]" NEWLINE);
+        return 0;
+    }
+    addr = strtoul(argv[1], NULL, 16);
+    if(argc > 2) size = strtoul(argv[2], NULL, 0);
+    if(argc > 3 && *argv[3] == 'X') {
+        hexdump(addr, size, tx_chars, xram_reader);
+    } else {
+        hexdump(addr, size, tx_chars, ram_reader);
+    }
+    tx_string(NEWLINE);
+    return 0;
+}
+
 int cmd_memx(int argc, char **argv) {
     uint16_t addr = 0;
     uint16_t size = 16;
