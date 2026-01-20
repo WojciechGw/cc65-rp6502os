@@ -5,6 +5,8 @@
  * SPDX-License-Identifier: Unlicense
  */
 
+// #define DEBUG
+
 #include "commons.h"
 
 // An extremely simple terminal for the Pico RIA W modem.
@@ -47,6 +49,7 @@ int main(int argc, char **argv)
 	bool handled_key = false;
 	uint8_t i,j,new_key,new_keys;
 
+    #ifdef DEBUG
     {
         int i;
         printf("\r\n--------------\r\nargc=%d\r\n", argc);
@@ -54,6 +57,7 @@ int main(int argc, char **argv)
             printf("argv[%d]=\"%s\"\r\n", i, argv[i]);
         }
     }
+    #endif
 
     cp = code_page(437);
     if (cp != 437)
@@ -67,8 +71,7 @@ int main(int argc, char **argv)
         print("Modem not found.\r\n");
         return -1;
     }
-    print("Modem online.\r\n");
-
+    print("Extremely Simple Terminal for the Picocomputer 6502 RIA W modem\r\npress and hold both Shift keys to exit\r\n---------------------------------------------------------------\r\nModem online.\r\n");
     
     xregn( 0, 0, 0, 1, KEYBOARD_INPUT);
     RIA.addr0 = KEYBOARD_INPUT;
