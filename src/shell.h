@@ -18,9 +18,9 @@ extern struct _timezone _tz;
     #define __STACKSIZE__ 0x0200
 #endif
 #define MEMTOP (0xFF00-__STACKSIZE__)
-#define COM_LOAD_ADDR 0x9000  // lowest ram address where to load the external command code (binary shell extensions - .com files)
+#define COM_LOAD_ADDR 0x8000  // lowest ram address where to load the external command code (binary shell extensions - .com files)
 
-#define SHELLVER "20260110.1051"
+#define SHELLVER "20260120.1700"
 #define SHELLDIRDEFAULT "USB0:/SHELL/"
 #define SHELLPROMPT "> "
 #define SHELLPROMPT_1ST "> " ANSI_GREEN "[F1] help" ANSI_RESET " > "
@@ -147,13 +147,12 @@ int cmd_cpm(int, char **);
 int cmd_ls(int, char **);
 int cmd_drive(int, char **);
 int cmd_drives(int, char **);
-// int cmd_edit(int, char **);
 int cmd_exit(int, char **);
 int cmd_list(int, char **);
 int cmd_mem(int, char **);
 int cmd_hex(int, char **);
-int cmd_memr(int, char **);
-int cmd_memx(int, char **);
+// int cmd_memr(int, char **);
+// int cmd_memx(int, char **);
 int cmd_mkdir(int, char **);
 int cmd_mv(int, char **);
 int cmd_peek(int, char **);
@@ -185,8 +184,8 @@ static const cmd_t commands[] = {
     { "exit",   "", "", cmd_exit},
     { "list",   "", "", cmd_list},
     { "mem",    "", "", cmd_mem},
-    { "memr",   "", "", cmd_memr },
-    { "memx",   "", "", cmd_memx },
+//    { "memr",   "", "", cmd_memr },
+//    { "memx",   "", "", cmd_memx },
     { "hex",    "", "", cmd_hex },
     { "mkdir",  "", "", cmd_mkdir},
     { "mv",     "", "", cmd_mv},
@@ -250,8 +249,10 @@ int cmd_drives(int argc, char **argv);
 int cmd_exit(int status, char **);
 int cmd_list(int argc, char **argv);
 int cmd_mem(int argc, char **argv);
+/*
 int cmd_memr(int argc, char **argv);
 int cmd_memx(int argc, char **argv);
+*/
 int cmd_mkdir(int argc, char **argv);
 int cmd_mv(int argc, char **argv);
 int cmd_peek(int argc, char **argv);

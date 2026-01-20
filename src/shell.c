@@ -1512,22 +1512,35 @@ int cmd_cpm(int argc, char **argv) { // multicopier
 int cmd_peek(int argc, char **argv) {
     uint16_t addr = 0;
     uint16_t size = 16;
+    bool use_xram = false;
 
     if(argc < 2) {
-        tx_string("Usage: peek addr [bytes] [X]" NEWLINE);
+        tx_string("Usage: peek addr [bytes] [/x]" NEWLINE);
         return 0;
     }
     addr = strtoul(argv[1], NULL, 16);
-    if(argc > 2) size = strtoul(argv[2], NULL, 0);
-    if(argc > 3 && *argv[3] == 'X') {
+    if(argc > 2) {
+        if(!strcmp(argv[2], "/x")) {
+            use_xram = true;
+        } else {
+            size = strtoul(argv[2], NULL, 0);
+        }
+    }
+    if(argc > 3 && (!strcmp(argv[3], "/x") || !strcmp(argv[3], "/X"))) {
+        use_xram = true;
+    }
+    tx_string(NEWLINE "Peek at the ");
+    if(use_xram) {
+        tx_string("XRAM" NEWLINE "---" NEWLINE);
         hexdump(addr, size, tx_chars, xram_reader);
     } else {
+        tx_string("RAM" NEWLINE "---" NEWLINE);
         hexdump(addr, size, tx_chars, ram_reader);
     }
     tx_string(NEWLINE);
     return 0;
 }
-
+/*
 int cmd_memx(int argc, char **argv) {
     uint16_t addr = 0;
     uint16_t size = 16;
@@ -1559,7 +1572,7 @@ int cmd_memr(int argc, char **argv) {
     tx_string(NEWLINE);
     return 0;
 }
-
+*/
 int cmd_time(int argc, char **argv) {
     (void)argc; (void)argv;
     show_time();
@@ -1758,6 +1771,7 @@ int cmd_ls(int argc, char **argv){
     tx_string(NEWLINE);
     return rc;
 }
+
 /* TO DO
 int cmd_cart(int argc, char **argv) {
     (void)argc; (void)argv;

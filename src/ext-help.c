@@ -1,6 +1,6 @@
 #include "commons.h"
 
-#define APPVER "20260119.2048"
+#define APPVER "20260120.1700"
 
 #define APP_HEADER CSI_RESET CSI "[2;1H" CSI HIGHLIGHT_COLOR " OS Shell > " ANSI_RESET " Help information                              " ANSI_DARK_GRAY "version " APPVER ANSI_RESET
 #define APP_FOOTER ANSI_DARK_GRAY  "________________________________________________________________________________" NEWLINE NEWLINE ANSI_RESET
@@ -49,17 +49,17 @@ static const cmd_t commands[] = {
                 "ls"},
     { "mem",    "show memory informations : lowest and highest RAM address and size available for user program",
                 "mem"},
-    { "memr",   "show RAM from given address", 
-                "memx 0x0600 512 (show 512 bytes of RAM start from address 0x0600)" },
-    { "memx",   "show XRAM from given address", 
-                "memx 0xA500 256 (show 256 bytes of XRAM start from address 0xA500)" },
+//    { "memr",   "show RAM from given address", 
+//                "memx 0x0600 512 (show 512 bytes of RAM start from address 0x0600)" },
+//    { "memx",   "show XRAM from given address", 
+//                "memx 0xA500 256 (show 256 bytes of XRAM start from address 0xA500)" },
     { "mkdir",  "create directory", 
                 "mkdir <directory>"},
     { "mv",     "move/rename a file or directory",
                 "mv <source> <destination>"},
     { "peek",   "memory viewer",
                 "peek 0xA000 128 (show 128 bytes of base RAM start from address 0xA000)" NEWLINE
-                "peek 0xF000 256 X (show 256 bytes of XRAM start from address 0xF000)" },
+                "peek 0xF000 256 /X (show 256 bytes of XRAM start from address 0xF000)" },
     { "phi2",   "show CPU clock frequency", 
                 "phi2"},
     { "rename", "rename a file or directory",
