@@ -1,6 +1,6 @@
 #include "commons.h"
 
-#define APPVER "20260120.1700"
+#define APPVER "20260121.0641"
 
 #define APP_HEADER CSI_RESET CSI "[2;1H" CSI HIGHLIGHT_COLOR " OS Shell > " ANSI_RESET " Help information                              " ANSI_DARK_GRAY "version " APPVER ANSI_RESET
 #define APP_FOOTER ANSI_DARK_GRAY  "________________________________________________________________________________" NEWLINE NEWLINE ANSI_RESET
@@ -26,7 +26,7 @@ static const cmd_t commands[] = {
                 "cd <directory>"},
     { "chmod",  "set file attributes",
                 "chmod file.bin A+"},
-    { "cls",    "clear terminal", 
+    { "cls",    "reset terminal", 
                 "cls" },
     { "com",    "load .com binary and run", 
                 "com hello.com A000 (load and run file hello.com at address 0xA000)"},
@@ -47,7 +47,7 @@ static const cmd_t commands[] = {
                 "list <filename>"},
     { "ls",     "list active directory",
                 "ls"},
-    { "mem",    "show memory informations : lowest and highest RAM address and size available for user program",
+    { "mem",    "show memory informations : lowest and highest RAM address and size available for user program under OS Shell",
                 "mem"},
 //    { "memr",   "show RAM from given address", 
 //                "memx 0x0600 512 (show 512 bytes of RAM start from address 0x0600)" },
@@ -75,14 +75,14 @@ static const cmd_t commands[] = {
 };
 
 static const cmd_t commands_ext[] = {
-    { "calendar",   "run calendar application", 
+    { "calendar",   "calendar application", 
                     "calendar                - current month" NEWLINE
                     "calendar /p yyyy [1-12] - particular month" NEWLINE
                     "calendar /n [yyyy]      - current or particular and neighbouring months" NEWLINE
                     "calendar /q [1-4]       - current or particular quarter" NEWLINE
                     "calendar /y [yyyy]      - current or particular year" },
-    { "courier",    "Courier - file transfer in/out application for OS Shell ", 
-                    "courier        - run application" },
+    { "courier",    "in/out file transfer application", 
+                    "courier" },
     { "dir",        "show active drive directory, wildcards allowed",
                     "dir *.rp6502 (only .rp6502 files)" NEWLINE
                     "dir /da (sorted by date ascending)"},
@@ -94,7 +94,7 @@ static const cmd_t commands_ext[] = {
                     "help" NEWLINE
                     "help mkdir" NEWLINE
                     "user can also write a command and press <F1> key to get help information" },
-    { "keyboard",   "run keyboard visualiser", 
+    { "keyboard",   "keyboard visualiser", 
                     "keyboard" NEWLINE
                     "for exit press both Shift keys" },
     { "label",      "show or set active drive's volume label", 
@@ -164,8 +164,8 @@ int main(int argc, char **argv) {
     }
 
     printf(NEWLINE NEWLINE "Keyboard:" NEWLINE NEWLINE);
-    printf("<F1>    show help informations" NEWLINE);
-    printf("<F2>    show keyboard status visualiser" NEWLINE);
+    printf("<F1>    help informations" NEWLINE);
+    printf("<F2>    keyboard visualiser" NEWLINE);
     printf("<F3>    current date/time and calendar" NEWLINE);
     printf("<LEFT>  change active drive to previous if available" NEWLINE);
     printf("<RIGHT> change active drive to next if available" NEWLINE);

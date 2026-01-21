@@ -1512,7 +1512,7 @@ int cmd_cpm(int argc, char **argv) { // multicopier
 int cmd_peek(int argc, char **argv) {
     uint16_t addr = 0;
     uint16_t size = 16;
-    bool use_xram = false;
+    uint8_t use_xram = 0;
 
     if(argc < 2) {
         tx_string("Usage: peek addr [bytes] [/x]" NEWLINE);
@@ -1521,13 +1521,13 @@ int cmd_peek(int argc, char **argv) {
     addr = strtoul(argv[1], NULL, 16);
     if(argc > 2) {
         if(!strcmp(argv[2], "/x")) {
-            use_xram = true;
+            use_xram = 1;
         } else {
             size = strtoul(argv[2], NULL, 0);
         }
     }
     if(argc > 3 && (!strcmp(argv[3], "/x") || !strcmp(argv[3], "/X"))) {
-        use_xram = true;
+        use_xram = 1;
     }
     tx_string(NEWLINE "Peek at the ");
     if(use_xram) {
