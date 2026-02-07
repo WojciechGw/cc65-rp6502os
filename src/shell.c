@@ -38,6 +38,11 @@
 // 6. zdekoduj dane
 // 7. zapisz do pliku
 
+// rodzielić dos i shell command processor
+// dos.rp6502 ładuje do pamięci procedury systemowe DOS i uruchamia shell.com dla użytkownika
+// maksymalnie zmniejszyć dos.rp6502 być może całość w asemblerze tak aby zmaksymalizować pamięć na programy użytkownika
+// uczynić jak najbardziej terminal friendly
+
 #include "shell.h"
 
 int main(void) {
@@ -325,7 +330,7 @@ void prompt(bool first_time) {
     return;
 }
 
-// things related to : console operations
+// things related to : console command processor operations
 
 inline void tx_char(char c) {
     TX_READY_SPIN;

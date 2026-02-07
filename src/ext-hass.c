@@ -9,9 +9,9 @@ mass sourcecode.asm -out outfile.bin -base <baseaddress> -run <runaddress>
 #include "commons.h"
 #include "ext-hass-opcodes.h"
 
-#define APPVER "20260105.0827"
+#define APPVER "20260207.0827"
 #define APPDIRDEFAULT "USB0:/SHELL/"
-#define APP_MSG_TITLE CSI_RESET "\x1b[2;1HOS Shell > Handy ASSembler 65C02S                          version " APPVER
+#define APP_MSG_TITLE CSI_RESET "\x1b[2;1H\x1b" HIGHLIGHT_COLOR " OS Shell > " ANSI_RESET " Handy ASSembler WDC65C02S" ANSI_DARK_GRAY "\x1b[2;60Hversion " APPVER ANSI_RESET
 #define APP_MSG_START_ASSEMBLING ANSI_DARK_GRAY "\x1b[4;1HStart compilation ... " ANSI_RESET
 #define APP_MSG_START_ENTERCODE ANSI_DARK_GRAY "\x1b[4;1HEnter code or empty line to start compilation ... " ANSI_RESET
 
