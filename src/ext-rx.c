@@ -7,8 +7,8 @@
 
 #define NEWLINE "\r\n"
 
-#define APPVER "20251223.1803"
-#define APPDIRDEFAULT "USB0:/SHELL/RX"
+#define APPVER "20260214.1806"
+#define APPDIRDEFAULT "MSC0:/SHELL/RX"
 #define APP_MSG_TITLE "\x1b[1;1HOS Shell > Courier RX                                      version " APPVER
 #define APP_MSG_START ANSI_DARK_GRAY "\x1b[3;1HWaiting for incoming data or [Esc] to exit " ANSI_RESET
     
@@ -43,10 +43,6 @@ typedef unsigned int u16;
 #define EOT 0x04
 
 #define TAB         "\t"
-#define CSI_RESET   "\x1b" "c"
-#define CSI_CURSOR_SHOW "\x1b[?25h"
-#define CSI_CURSOR_HIDE "\x1b[?25l"
-#define CSI_CURSOR_AT "\x1b" "n20;m15H"
 
 unsigned char buffer[256];
 unsigned buf_len = 0;
@@ -154,11 +150,10 @@ int main(void)
     ria_tx_puts(APP_MSG_TITLE);
     ria_tx_puts(APP_MSG_START);
 
-
-    fd = open("USB0:/RX/", O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    fd = open("MSC0:/RX/rx.txt", O_WRONLY | O_CREAT | O_TRUNC, 0666);
     if(fd < 0){
-        printf("Writing error (open %s)" NEWLINE, "USB0:/RX/");
-        return;
+        printf("Writing error (open %s)" NEWLINE, "MSC0:/RX/");
+        return -1;
     }
 
     action = wait_for_marker(); // wait for STX to start transmission or [Esc]

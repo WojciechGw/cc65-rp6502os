@@ -295,7 +295,7 @@ static void load_setup(void) {
     strncpy(shelldir, default_shelldir, sizeof(shelldir));
     shelldir[sizeof(shelldir) - 1] = '\0';
 
-    f = fopen("USB0:/shell.ini", "r");
+    f = fopen("MSC0:/shell.ini", "r");
     if (!f) return;
 
     if (fgets(shelldir, sizeof(shelldir), f)) {
@@ -865,7 +865,7 @@ int cmd_drives(int argc, char **argv) {
             if(f_getfree(drv, &free_blks, &total_blks) != 0 || !total_blks) {
                 continue; /* Skip drives without size info */
             }
-            tx_string("USB");
+            tx_string("MSC");
             tx_string(drv);
             tx_string(TAB);
             if(f_getlabel(drv, dev_label) >= 0) {
