@@ -312,7 +312,7 @@ static void load_setup(void) {
     fclose(f);
 }
 
-void cls(){
+void cls(){ // clear screen
     tx_string(CSI_RESET);
     tx_string(APP_MSG_TITLE NEWLINE NEWLINE);
     return;
@@ -381,7 +381,9 @@ void tx_dec32(unsigned long val) { // Print an unsigned long in decimal.
     }
     tx_chars(&out[i], 10 - i);
 }
-/* cmd_edit related
+
+/* things related to : cmd_edit
+
 static void tx_print_existing(const char *buf, unsigned len) { // Print existing file content with CR/LF translation.
     unsigned i;
     if(len == 0) {
@@ -434,6 +436,7 @@ static int read_line_editor(char *buf, int maxlen) { // Read a single line from 
     }
 }
 */
+
 int hexstr(char *str, uint8_t val) { // Assumes str points to at least two bytes.
     str[0] = hexdigits[val >> 4];
     str[1] = hexdigits[val & 0xF];
@@ -803,12 +806,12 @@ static void refresh_current_drive(void) { // helper for cmd_com & cmd_run
 
 // ----------------- internal commands ----------------------
 
-int cmd_cls(int, char **) {
+int cmd_cls(int, char **) { // clear screen
     cls();
     return 0;
 }
 
-int cmd_exit(int status, char **) {
+int cmd_exit(int status, char **) { // exit to rp6502 monitor
     tx_string(APP_MSG_EXIT);
     exit(status);
     return 0;
