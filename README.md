@@ -1,15 +1,26 @@
 # RP6502 OS Shell [65C02S native]
 
-This is native 65C02S Shell 
-for RP6502 Picocomputer OS</br>
+This is a native 65C02S Shell 
+for Rumbledethumps' RP6502 Picocomputer OS</br>
 https://picocomputer.github.io/os.html#
 
 based on Jason Howard's ideas & code</br>
 https://github.com/jthwho/rp6502-shell
 
 ## Memory
-Memory area available for user programs running under OS Shell environment is $8000 - $FD00 (33515 bytes)
+Memory area available for user programs running under OS Shell environment is $8000-$FD00 (33515 bytes).</br>
 User can build programs 'in place' with external OS shell command 'hass' (Handy ASSembler).
+
+## OS Files
+* shell.rp6502 - in main catalog in drive '0:'
+* shell.ini - init file in main catalog in drive '0:'
+```
+0:/SHELL/
+drives
+```
+first line must contain drive and name of folder for external commands files (*.com)</br>
+second line contains name of internal or external command to autoexecute right after shell starts.</br>
+* SHELL - folder with external commands (*.com files)
 
 ## Keyboard shortcuts
 * F1 - help informations
