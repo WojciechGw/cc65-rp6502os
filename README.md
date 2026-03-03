@@ -1,6 +1,8 @@
 # RP6502 OS Shell [65C02S native]
 
-This is native 65C02S Shell for Picocomputer.
+This is native 65C02S Shell 
+for RP6502 Picocomputer OS
+https://picocomputer.github.io/os.html#
 
 ## Memory
 Memory area available for user programs running under OS Shell environment is $8000 - $FD00 (33515 bytes)
