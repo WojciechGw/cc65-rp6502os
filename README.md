@@ -1,57 +1,56 @@
-# RP6502 VS Code Scaffolding for CC65
+# RP6502 OS Shell [65C02S native]
 
-This provides scaffolding for a new Picocomputer 6502 software project. Both
-C and assembly examples of "Hello, world!" are included. Make sure
-`CMakeLists.txt` points to your choice of `main.c` or `main.s`, then delete
-the one you aren't using.
+This is native 65C02S Shell for Picocomputer.
+For now lowest safe free memory address 
+available for user program under OS Shell environment
+is 0x8000.
 
-### Linux Tools Install:
- * [VS Code](https://code.visualstudio.com/) - This has its own installer.
- * A source build of [CC65](https://cc65.github.io/getting-started.html).
- * The following tools installed from your package managers:
-    * `sudo apt install cmake python3 pip git build-essential`
-    * `pip install pyserial`
+## Keyboard shortcuts
+<F1>    help informations
+<F2>    keyboard visualiser
+<F3>    current date/time and calendar
+<LEFT>  change active drive to previous if available
+<RIGHT> change active drive to next if available
+<UP>    recall last command
+<DOWN>  a directory of active drive/catalog
 
-### Windows Tools Install:
- * `winget install -e --id Microsoft.VisualStudioCode`
- * `winget install -e --id Git.Git`
- * `winget install -e --id Kitware.CMake`
- * `winget install -e --id GnuWin32.Make`
-    Add `C:\Program Files (x86)\GnuWin32\bin` to your PATH.
- * The current snapshot of [CC65](https://cc65.github.io/getting-started.html) -
-   Do not skip the step about adding the `bin` directory to your PATH.
- * Install Python by typing `python3` in a command prompt, which will launch
-   the Microsoft Store where you can start the installation. If Python runs,
-   this has already been done — exit Python with Ctrl-Z plus Enter.
- * `pip install pyserial`
+## Commands
 
-### Getting Started:
-Go to the [GitHub template](https://github.com/picocomputer/vscode-cc65) and
-select "Use this template" then "Create a new repository". GitHub will create
-a clean project for you to start with. Then you can clone the repository and
-open the files.
+### Internal
+internal commands are case sensitive
+* bload  - load binary file to RAM/XRAM
+* bsave  - save RAM/XRAM to binary file
+* brun   - load binary file to RAM and run
+* cd     - change active directory
+* chmod  - set file attributes
+* cls    - reset terminal
+* com    - load .com binary and run
+* cp     - copy file
+* cpm    - copy/move multiple files, wildcards allowed
+* drive  - set active drive
+* drives - show available drives
+* exit   - exit to the system monitor
+* hex    - dump file contents to screen
+* list   - show a file content
+* ls     - list active directory
+* mem    - show memory informations : lowest and highest RAM address and size
+* mkdir  - create directory
+* mv     - move/rename a file or directory
+* peek   - memory viewer
+* phi2   - show CPU clock frequency
+* rename - rename a file or directory
+* rm     - remove a file/files, wildcards allowed
+* run    - run code at address
+* stat   - show file/directory info
+* time   - show local date and time
 
-```bash
-$ git clone [path_to_github]
-$ cd [to_where_it_cloned]
-$ code .
-```
+### External
+external commands are *.com files in <MSC0:-MSC7:>/SHELL) (case insensitive)
 
-Install the recommended extensions when VS Code prompts you, choosing the
-default or obvious choice for any other prompts. The tools we use in VS Code
-are constantly improving and changing making it too difficult to maintain
-documentation.
-
-"Start Debugging" (F5) will build your project and run it on a Picocomputer.
-Connect with a USB cable plugged into the RP6502-VGA USB port.
-
-If you get a Python error about the communications device not being found,
-edit `.rp6502` in the project root. This file will be created the first time
-you "Start Debugging" and will be ignored by git.
-
-Once the program is running, a debug console becomes available on the terminal
-tab. It will say "Python Debug Console" because the rp6502.py tool is Python.
-Ctrl-A then X will exit. Ctrl-A then B will send a break.
-
-Edit `CMakeLists.txt` to add new source and asset files. From here on, it's
-standard C/assembly development for the 6502 platform.
+* calendar - calendar application
+* courier  - in/out file transfer application 
+* dir      - show active drive directory, wildcards allowed
+* hass     - Handy ASSembler 65C02S
+* help     - show help informations (same as <F1> key)
+* keyboard - keyboard state visualiser
+* label    - show or set active drive's volume label
