@@ -1,10 +1,10 @@
 # RP6502 OS Shell [65C02S native]
 
 This is native 65C02S Shell 
-for RP6502 Picocomputer OS
+for RP6502 Picocomputer OS</br>
 https://picocomputer.github.io/os.html#
 
-based on Jason Howard's ideas & code <jth@howardlogic.com>
+based on Jason Howard's ideas & code</br>
 https://github.com/jthwho/rp6502-shell
 
 ## Memory
