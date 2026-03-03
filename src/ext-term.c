@@ -3,6 +3,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  * SPDX-License-Identifier: Unlicense
+ *
+ * for Picocomputer OS Shell version
  */
 
 // #define DEBUG

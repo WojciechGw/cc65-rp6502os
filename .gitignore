@@ -3,3 +3,4 @@ __pycache__
 /build
 /src/extcmd/build
 /src/extcmd/*.map
+/tools/archiwalne
