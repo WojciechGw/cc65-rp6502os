@@ -1,5 +1,6 @@
 # RP6502 OS Shell [65C02S native]
-project status: <B>IN PROGRESS</B>
+* project status: <B>IN PROGRESS</B>
+* next stage: relocation to 'BIG ROM'</br>
 
 This is a native 65C02S Shell 
 for Rumbledethumps' RP6502 Picocomputer OS</br>
