@@ -6,15 +6,16 @@ https://picocomputer.github.io/os.html#
 
 ## Memory
 Memory area available for user programs running under OS Shell environment is $8000 - $FD00 (33515 bytes)
+User can build programs 'in place' with external OS shell command 'hass' (Handy ASSembler).
 
 ## Keyboard shortcuts
-F1  help informations
-F2  keyboard visualiser
-F3  current date/time and calendar
-LEFT  change active drive to previous if available
-RIGHT change active drive to next if available
-UP  recall last command
-DOWN  a directory of active drive/catalog
+* F1 - help informations
+* F2 - keyboard visualiser
+* F3 - current date/time and calendar
+* LEFT - change active drive to previous if available
+* RIGHT - change active drive to next if available
+* UP - recall last command
+* DOWN - a directory of active drive/catalog
 
 ## Commands
 
