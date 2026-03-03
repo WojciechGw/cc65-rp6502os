@@ -7,6 +7,8 @@ https://picocomputer.github.io/os.html#
 based on Jason Howard's ideas & code</br>
 https://github.com/jthwho/rp6502-shell
 
+All you need to test is in 'release/latest' folder
+
 ## Memory
 Memory area available for user programs running under OS Shell environment is $8000-$FD00 (33515 bytes).</br>
 User can build programs 'in place' with external OS shell command 'hass' (Handy ASSembler).
@@ -19,7 +21,7 @@ second line contains name of internal or external command to autoexecute right a
 0:/SHELL/
 drives
 ```
-* SHELL - folder with external commands (*.com files)
+* SHELL - catalog with external commands (*.com files)
 
 ## Keyboard shortcuts
 * F1 - help informations
