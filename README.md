@@ -13,13 +13,12 @@ User can build programs 'in place' with external OS shell command 'hass' (Handy 
 
 ## OS Files
 * shell.rp6502 - in main catalog in drive '0:'
-* shell.ini - init file in main catalog in drive '0:'
+* shell.ini - init file in main catalog in drive '0:'</br>first line must contain drive and name of folder for external commands files (*.com)</br>
+second line contains name of internal or external command to autoexecute right after shell starts.</br>
 ```
 0:/SHELL/
 drives
 ```
-first line must contain drive and name of folder for external commands files (*.com)</br>
-second line contains name of internal or external command to autoexecute right after shell starts.</br>
 * SHELL - folder with external commands (*.com files)
 
 ## Keyboard shortcuts
