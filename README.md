@@ -4,6 +4,9 @@ This is native 65C02S Shell
 for RP6502 Picocomputer OS
 https://picocomputer.github.io/os.html#
 
+based on Jason Howard's ideas & code <jth@howardlogic.com>
+https://github.com/jthwho/rp6502-shell
+
 ## Memory
 Memory area available for user programs running under OS Shell environment is $8000 - $FD00 (33515 bytes)
 User can build programs 'in place' with external OS shell command 'hass' (Handy ASSembler).
