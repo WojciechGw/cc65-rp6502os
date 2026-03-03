@@ -1,4 +1,5 @@
 # RP6502 OS Shell [65C02S native]
+project status: <B>IN PROGRESS</B>
 
 This is a native 65C02S Shell 
 for Rumbledethumps' RP6502 Picocomputer OS</br>
@@ -7,7 +8,7 @@ https://picocomputer.github.io/os.html#
 based on Jason Howard's ideas & code</br>
 https://github.com/jthwho/rp6502-shell
 
-All you need to test is in 'release/latest' folder
+All you need to test this project is in 'release/latest' folder.
 
 ## Memory
 Memory area available for user programs running under OS Shell environment is $8000-$FD00 (33515 bytes).</br>
