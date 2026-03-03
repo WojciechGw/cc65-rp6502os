@@ -1,18 +1,18 @@
 # RP6502 OS Shell [65C02S native]
 
 This is native 65C02S Shell for Picocomputer.
-For now lowest safe free memory address 
-available for user program under OS Shell environment
-is 0x8000.
+
+## Memory
+Memory area available for user programs running under OS Shell environment is $8000 - $FD00 (33515 bytes)
 
 ## Keyboard shortcuts
-<F1>    help informations
-<F2>    keyboard visualiser
-<F3>    current date/time and calendar
-<LEFT>  change active drive to previous if available
-<RIGHT> change active drive to next if available
-<UP>    recall last command
-<DOWN>  a directory of active drive/catalog
+F1  help informations
+F2  keyboard visualiser
+F3  current date/time and calendar
+LEFT  change active drive to previous if available
+RIGHT change active drive to next if available
+UP  recall last command
+DOWN  a directory of active drive/catalog
 
 ## Commands
 
