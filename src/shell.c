@@ -3,7 +3,8 @@
  * @author    Wojciech Gwioździk <wojciech@post.pl>
  * @copyright Wojciech Gwioździk. All rights reserved.
  *
- * based on Jason Howard's code <jth@howardlogic.com>
+ * based on Jason Howard's ideas & code <jth@howardlogic.com>
+ * https://github.com/jthwho/rp6502-shell
  * See LICENSE file in the project root folder for license information
  */
 
