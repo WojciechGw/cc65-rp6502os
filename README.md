@@ -65,12 +65,14 @@ internal commands are case sensitive
 * time   - show local date and time
 
 ### External
-external commands are *.com files in <MSC0:-MSC7:>/SHELL) (case insensitive)
+external commands are *.com files in MSC0:/SHELL (case insensitive)
 
 * calendar - calendar application
 * courier  - in/out file transfer application 
 * dir      - show active drive directory, wildcards allowed
-* hass     - Handy ASSembler 65C02S
-* help     - show help informations (same as <F1> key)
+* hass     - Handy ASSembler for 65C02S
+* help     - show help informations (same as F1 key)
 * keyboard - keyboard state visualiser
 * label    - show or set active drive's volume label
+
+Enjoy !
