@@ -13,7 +13,7 @@ mass sourcecode.asm -out outfile.bin -base <baseaddress> -run <runaddress>
 #define APPDIRDEFAULT "MSC0:/SHELL/"
 #define APP_MSG_TITLE CSI_RESET "\x1b[2;1H\x1b" HIGHLIGHT_COLOR " OS Shell > " ANSI_RESET " Handy ASSembler WDC65C02S" ANSI_DARK_GRAY "\x1b[2;60Hversion " APPVER ANSI_RESET
 #define APP_MSG_START_ASSEMBLING ANSI_DARK_GRAY "\x1b[4;1HStart compilation ... " ANSI_RESET
-#define APP_MSG_START_ENTERCODE ANSI_DARK_GRAY "\x1b[4;1HEnter code or empty line to start compilation ... " ANSI_RESET
+#define APP_MSG_START_ENTERCODE ANSI_DARK_GRAY "\x1b[4;1HEnter code. Empty line start code compilation ... " ANSI_RESET
 
 /* --- limits --- */
 #define MAXLINES    256
@@ -1169,20 +1169,28 @@ int main(int argc, char **argv){
         }
     }
 
-    pass1();
-    if(assembly_status != STAT_SUCCESS){
-        printf(ANSI_RED "PASS1: ERRORS !" ANSI_RESET NEWLINE);
+    if(nlines == 0)
+    {
+        printf(ANSI_RED "nothing to do ... bye, bye!" ANSI_RESET NEWLINE NEWLINE);
+        return -1;
     } else {
-        printf(ANSI_GREEN "PASS1: SUCCESS" ANSI_RESET NEWLINE);
+        printf(ANSI_WHITE "number of entered source code lines: ");
+        printf("%d", nlines);
+        printf(ANSI_RESET NEWLINE NEWLINE);
+        pass1();
+        if(assembly_status != STAT_SUCCESS){
+            printf(ANSI_RED "PASS1: ERRORS !" ANSI_RESET NEWLINE);
+        } else {
+            printf(ANSI_GREEN "PASS1: SUCCESS" ANSI_RESET NEWLINE);
+        }
+        pass2();
+        if(assembly_status != STAT_SUCCESS){
+            printf(ANSI_RED "PASS2: ERRORS !" ANSI_RESET NEWLINE);
+        } else {
+            printf(ANSI_GREEN "PASS2: SUCCESS" ANSI_RESET NEWLINE);
+        }
+        if(assembly_status == STAT_SUCCESS) save_bin();
+        printf(NEWLINE);
+        return 0;
     }
-    pass2();
-    if(assembly_status != STAT_SUCCESS){
-        printf(ANSI_RED "PASS2: ERRORS !" ANSI_RESET NEWLINE);
-    } else {
-        printf(ANSI_GREEN "PASS2: SUCCESS" ANSI_RESET NEWLINE);
-    }
-    if(assembly_status == STAT_SUCCESS) save_bin();
-    printf(NEWLINE);
-    return 0;
-
 }

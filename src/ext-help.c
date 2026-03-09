@@ -1,6 +1,6 @@
 #include "commons.h"
 
-#define APPVER "20260121.0641"
+#define APPVER "20260309.1605"
 
 #define APP_HEADER CSI_RESET CSI "[2;1H" CSI HIGHLIGHT_COLOR " OS Shell > " ANSI_RESET " Help information                              " ANSI_DARK_GRAY "version " APPVER ANSI_RESET
 #define APP_FOOTER ANSI_DARK_GRAY  "________________________________________________________________________________" NEWLINE NEWLINE ANSI_RESET
@@ -47,7 +47,7 @@ static const cmd_t commands[] = {
                 "list <filename>"},
     { "ls",     "list active directory",
                 "ls"},
-    { "mem",    "show memory informations : lowest and highest RAM address and size available for user program under OS Shell",
+    { "mem",    "show OS Shell RAM informations" NEWLINE "lowest and highest RAM address and size available for user program",
                 "mem"},
 //    { "memr",   "show RAM from given address", 
 //                "memx 0x0600 512 (show 512 bytes of RAM start from address 0x0600)" },
@@ -86,7 +86,7 @@ static const cmd_t commands_ext[] = {
     { "dir",        "show active drive directory, wildcards allowed",
                     "dir *.rp6502 (only .rp6502 files)" NEWLINE
                     "dir /da (sorted by date ascending)"},
-    { "hass",       "Handy ASSembler 65C02S",
+    { "hass",       "Handy ASSembler for 65C02S",
                     "hass                            - instant write and compile a code" NEWLINE
                     "hass <source>                   - <source> file, out.bin as a result" NEWLINE
                     "hass <source> -o <destination>  - <source> file, <destination> as a result"},
@@ -109,7 +109,7 @@ int main(int argc, char **argv) {
     if(argc >= 1 && argv[0][0]) {
         for(i = 0; i < ARRAY_SIZE(commands); i++) {
             if(strcmp(argv[0], commands[i].cmd) == 0) {
-                printf(NEWLINE 
+                printf(NEWLINE NEWLINE
                        "Command: %s" NEWLINE 
                        "---------------------" NEWLINE 
                        NEWLINE 

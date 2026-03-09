@@ -1602,12 +1602,12 @@ int cmd_mem(int argc, char **argv) {
     uint16_t top = mem_top();
     uint16_t free = mem_free();
     (void)argc; (void)argv;
-    tx_string(NEWLINE "System memory" NEWLINE);
-    tx_string(NEWLINE "low:  0x");
+    tx_string(NEWLINE "OS Shell system RAM free for user" NEWLINE);
+    tx_string(NEWLINE "lowest  : 0x");
     tx_hex16(bottom);
-    tx_string(NEWLINE "top:  0x");
+    tx_string(NEWLINE "highest : 0x");
     tx_hex16(top);
-    tx_string(NEWLINE "free: ");
+    tx_string(NEWLINE "free    : ");
     tx_dec32(free);
     tx_string(" bytes" NEWLINE NEWLINE);
     return 0;
