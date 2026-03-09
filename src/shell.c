@@ -41,7 +41,7 @@
 
 // rodzielić dos i shell command processor
 // dos.rp6502 ładuje do pamięci procedury systemowe DOS i uruchamia shell.com dla użytkownika
-// maksymalnie zmniejszyć dos.rp6502 być może całość w asemblerze tak aby zmaksymalizować pamięć na programy użytkownika
+// maksymalnie zmniejszyć dos.rp6502 być może całość w asemblerze tak aby zmaksymalizować pamięć dla programu użytkownika
 // uczynić jak najbardziej terminal friendly
 
 #include "shell.h"
@@ -1549,39 +1549,7 @@ int cmd_peek(int argc, char **argv) {
     tx_string(NEWLINE);
     return 0;
 }
-/*
-int cmd_memx(int argc, char **argv) {
-    uint16_t addr = 0;
-    uint16_t size = 16;
 
-    if(argc < 2) {
-        tx_string("Usage: memx addr [bytes]" NEWLINE);
-        return 0;
-    }
-    addr = strtoul(argv[1], NULL, 16);
-    if(argc > 2) size = strtoul(argv[2], NULL, 0);
-
-    hexdump(addr, size, tx_chars, xram_reader);
-    tx_string(NEWLINE);
-    return 0;
-}
-
-int cmd_memr(int argc, char **argv) {
-    uint16_t addr = 0;
-    uint16_t size = 16;
-
-    if(argc < 2) {
-        tx_string("Usage: memr addr [bytes]" NEWLINE);
-        return 0;
-    }
-    addr = strtoul(argv[1], NULL, 16);
-    if(argc > 2) size = strtoul(argv[2], NULL, 0);
-
-    hexdump(addr, size, tx_chars, ram_reader);
-    tx_string(NEWLINE);
-    return 0;
-}
-*/
 int cmd_time(int argc, char **argv) {
     (void)argc; (void)argv;
     show_time();
@@ -1781,7 +1749,8 @@ int cmd_ls(int argc, char **argv){
     return rc;
 }
 
-/* TO DO
+// --------------------- TO DO --------------------------
+/*
 int cmd_cart(int argc, char **argv) {
     (void)argc; (void)argv;
 
@@ -1838,6 +1807,39 @@ int cmd_ctx(int argc, char **argv) {
 
 // ------------------- SCRATCHPAD -----------------------
 /*
+
+// cmd_peek instead of cmd_memx, cmd_memr
+
+int cmd_memx(int argc, char **argv) {
+    uint16_t addr = 0;
+    uint16_t size = 16;
+
+    if(argc < 2) {
+        tx_string("Usage: memx addr [bytes]" NEWLINE);
+        return 0;
+    }
+    addr = strtoul(argv[1], NULL, 16);
+    if(argc > 2) size = strtoul(argv[2], NULL, 0);
+
+    hexdump(addr, size, tx_chars, xram_reader);
+    tx_string(NEWLINE);
+    return 0;
+}
+int cmd_memr(int argc, char **argv) {
+    uint16_t addr = 0;
+    uint16_t size = 16;
+
+    if(argc < 2) {
+        tx_string("Usage: memr addr [bytes]" NEWLINE);
+        return 0;
+    }
+    addr = strtoul(argv[1], NULL, 16);
+    if(argc > 2) size = strtoul(argv[2], NULL, 0);
+
+    hexdump(addr, size, tx_chars, ram_reader);
+    tx_string(NEWLINE);
+    return 0;
+}
 
 // shell command scaffolding
 int cmd_token(int argc, char **argv) {
@@ -2100,9 +2102,8 @@ v = RIA.vsync;
 if (RIA.vsync == v) show_clock();
 v = RIA.vsync;
 
-*/
+cmd_edit TO DO move to external command
 
-/* cmd_edit TO DO move to external command
 int cmd_edit(int argc, char **argv) { // simple line editor for text files
     int fd = -1;
     int rc = 0;
