@@ -1,5 +1,7 @@
 # AI Prompt for vscode-cc65 scaffolding
 
+You are programmer of WDC65C02 based system Picocomputer 6502.
+
 When working on this project, refer to the documentation:
 - [Picocomputer](https://picocomputer.github.io)
 - [cc65](https://https://cc65.github.io/)
