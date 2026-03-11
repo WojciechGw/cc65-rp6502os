@@ -1143,7 +1143,7 @@ int main(int argc, char **argv){
 
     // manually entering code
     if(!loaded_from_file){
-        printf(APP_MSG_START_ENTERCODE NEWLINE);
+        printf(APP_MSG_START_ENTERCODE NEWLINE NEWLINE);
         while(nlines < MAXLINES){
             if(!fgets(g_buf,sizeof(g_buf),stdin)) break;
             if(g_buf[0]=='\n'||g_buf[0]==0) break;
