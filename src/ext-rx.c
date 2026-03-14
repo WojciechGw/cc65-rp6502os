@@ -1,4 +1,4 @@
-/* ext-rx-echo.c - C89, cc65 (Picocomputer RP6502-RIA UART) */
+/* ext-rx.c - C89, cc65 (Picocomputer RP6502-RIA UART) */
 
 #include "commons.h"
 
@@ -7,11 +7,11 @@
 
 #define NEWLINE "\r\n"
 
-#define APPVER "20260314.1020"
+#define APPVER "20260314.2"
 #define APPDIRDEFAULT "MSC0:/SHELL/RX"
 #define APP_MSG_TITLE "\x1b[1;1HOS Shell > Courier RX                                      version " APPVER
 #define APP_MSG_START ANSI_DARK_GRAY "\x1b[3;1HWaiting for incoming data or [Esc] to exit " ANSI_RESET
-    
+
 typedef struct {
     volatile unsigned char READY; /* $FFE0 */
     volatile unsigned char TX;    /* $FFE1 */
@@ -42,23 +42,20 @@ typedef unsigned int u16;
 #define ETX 0x03
 #define EOT 0x04
 
-#define TAB         "\t"
+/* XRAM receive buffer — calkowity odbiur bez OS calls podczas transmisji */
+#define XRAM_RX_BASE  0x0000u
+#define XRAM_RX_MAX   0xEC00u  /* 60 KB — bezpieczny margines pod 0xF000 */
 
-unsigned char buffer[256];
-unsigned buf_len = 0;
 unsigned char c;
 
-// wait on clock
-uint32_t ticks = 0; // for PAUSE(millis)
-#define PAUSE(millis) ticks=clock(); while(clock() < (ticks + millis)){}
-
+/* licznik odebranych bajtow */
 static u16 rx_count = 0;
 
-/* Czeka aż TX FIFO nie będzie pełne i wysyła bajt. */
-static void ria_tx_putc_blocking(unsigned char c)
+/* Czeka az TX FIFO nie bedzie pelne i wysyla bajt. */
+static void ria_tx_putc_blocking(unsigned char b)
 {
     while (TX_READY() == 0) { }
-    RRIA.TX = c;
+    RRIA.TX = b;
 }
 
 static void ria_tx_puts(const char* s)
@@ -68,7 +65,7 @@ static void ria_tx_puts(const char* s)
     }
 }
 
-/* wypisuje u16 w ASCII (dziesiętnie) */
+/* wypisuje u16 w ASCII (dziesietnie) */
 static void ria_tx_put_u16(u16 v)
 {
     char buf[6];
@@ -88,149 +85,136 @@ static void ria_tx_put_u16(u16 v)
     }
 }
 
-/* Opróżnia RX FIFO (echo na terminal). */
+/* Opróznia RX FIFO (echo na terminal) — uzywac tylko gdy UART juz milczy. */
 static void drop_console_rx(void)
 {
     while (RX_READY()) {
-        unsigned char c = RRIA.RX;
-
-        /* echo */
-        if (c == '\n') ria_tx_putc_blocking('\r');
-        ria_tx_putc_blocking(c);
-
+        unsigned char ch = RRIA.RX;
+        if (ch == '\n') ria_tx_putc_blocking('\r');
+        ria_tx_putc_blocking(ch);
         rx_count++;
     }
 }
 
+/*
+ * Czeka na marker startu/stopu.
+ * Zwraca marker (SOH/STX/EOT) lub -1 jesli ESC.
+ * UWAGA: nie drukuje nic po wykryciu markera — zerowy czas do pętli odbiorczej.
+ */
 static int wait_for_marker(void)
 {
     for (;;) {
-
         if (RX_READY()) {
             c = RRIA.RX;
-            if (c == SOH) {
-                ria_tx_puts(NEWLINE NEWLINE "SOH marker. Begin transmission." NEWLINE);
-                return 1;
-            } else if (c == STX) {
-                ria_tx_puts(NEWLINE NEWLINE "STX marker. Start block of data." NEWLINE);
-                return 1;
-            } else if (c == EOT) {
-                ria_tx_puts(NEWLINE NEWLINE "EOT marker. End of transmission." NEWLINE);
-                return 1;
-            } else if (c == ESC) {
-                return -1;
-            }
+            if (c == SOH || c == STX || c == EOT) return (int)c;
+            if (c == ESC) return -1;
         }
-
     }
-}
-
-#define XRAM_LST_BASE  0xF000u
-#define XRAM_LST_SIZE  0x50u
-static int xram_write_lst_line(const char* line, unsigned len, int fd){
-    // unsigned i;
-    uint8_t i;
-    if(fd < 0 || !line || !len) return -1;
-    if(len > XRAM_LST_SIZE) len = XRAM_LST_SIZE;
-    RIA.addr0 = XRAM_LST_BASE;
-    RIA.step0 = 1;
-    /*
-    for(i = 0; i < XRAM_LST_SIZE; i++) RIA.rw0 = 0x00;
-    RIA.addr0 = XRAM_LST_BASE;
-    RIA.step0 = 1;
-    for(i = 0; i < len; i++) RIA.rw0 = (uint8_t)line[i];
-    */
-    for(i = 0; i < (uint8_t)len; i++) RIA.rw0 = (uint8_t)line[i];
-    return write_xram(XRAM_LST_BASE, len, fd);
-}
-
-static int flush_rx_buffer(int fd)
-{
-    if (buf_len == 0) {
-        return 0;
-    }
-    if (xram_write_lst_line((const char*)buffer, buf_len, fd) < 0) {
-        return -1;
-    }
-    buf_len = 0;
-    return 0;
 }
 
 int main(void)
 {
-    clock_t start = clock();
+    clock_t start;
     clock_t timeout_ticks = (clock_t)(RX_TIMEOUT_SECONDS * TICKS_PER_SEC);
     int action = 0;
     int fd;
-    
+    u16 xram_rx_len = 0;
+    int marker;
+
     ria_tx_puts(CSI_RESET);
-    ria_tx_puts(CSI_CURSOR_HIDE); // hide cursor
+    ria_tx_puts(CSI_CURSOR_HIDE);
     ria_tx_puts(APP_MSG_TITLE);
     ria_tx_puts(APP_MSG_START);
 
     fd = open("MSC0:/RX/rx.ihx", O_WRONLY | O_CREAT | O_TRUNC, 0666);
-    if(fd < 0){
-        printf("Writing error (open %s)" NEWLINE, "MSC0:/RX/");
+    if (fd < 0) {
+        ria_tx_puts("ERROR: cannot open MSC0:/RX/rx.ihx" NEWLINE);
         return -1;
     }
 
-    action = wait_for_marker(); // wait for STX to start transmission or [Esc]
-    if (action != -1)
-    {
-        for (;;) {
-            if (RX_READY()) {
-                c = RRIA.RX;
-                if (c == EOT) {
-                    if (flush_rx_buffer(fd) < 0) {
-                        action = 0;
-                    } else {
-                        action = 1;
-                    }
-                    break;
-                }
+    marker = wait_for_marker();
+    if (marker == -1) {
+        action = -1;
+        goto done;
+    }
 
-                buffer[buf_len++] = c;
-                if (buf_len >= XRAM_LST_SIZE) {
-                    if (flush_rx_buffer(fd) < 0) {
-                        action = 0;
-                        break;
-                    }
-                }
+    /* Jesli marker to EOT od razu — plik pusty */
+    if (marker == EOT) {
+        action = 1;
+        goto save;
+    }
 
-                // if (c == '\n') ria_tx_putc_blocking('\r');
-                ria_tx_putc_blocking(c);
-                rx_count++;
-                start = clock();
-            } else {
-                if ((clock() - start) >= timeout_ticks) {
-                    if (flush_rx_buffer(fd) < 0) {
-                        action = 0;
-                    }
-                    break;
-                }
+    /* ------------------------------------------------------------------ *
+     * Petla odbiorcza — zadnych OS calls, zadnego echa.                  *
+     * Kazdy bajt trafia bezposrednio do XRAM przez portal (auto-inc).    *
+     * ------------------------------------------------------------------ */
+    RIA.addr1 = XRAM_RX_BASE;
+    RIA.step1 = 1;
+    start = clock();
+
+    for (;;) {
+        if (RX_READY()) {
+            c = RRIA.RX;
+
+            if (c == EOT) {
+                action = 1;
+                break;
+            }
+
+            if (xram_rx_len < XRAM_RX_MAX) {
+                RIA.rw1 = c;   /* zapis do XRAM, addr1 auto-increment */
+                xram_rx_len++;
+            }
+            /* jesli overflow: dalej czytamy UART zeby nie blokować FIFO,
+               ale nie zapisujemy do XRAM */
+
+            rx_count++;
+            start = clock();
+        } else {
+            if ((clock() - start) >= timeout_ticks) {
+                action = 1; /* timeout = koniec transmisji */
+                break;
             }
         }
     }
-    
-    switch(action)
-    {
+
+save:
+    /* ------------------------------------------------------------------ *
+     * Zapis XRAM -> plik — dopiero tu, gdy UART juz milczy.              *
+     * write_xram obsluguje max 32 KB naraz.                              *
+     * ------------------------------------------------------------------ */
+    if (action == 1 && xram_rx_len > 0) {
+        u16 remaining = xram_rx_len;
+        u16 addr = XRAM_RX_BASE;
+        while (remaining > 0) {
+            u16 chunk = (remaining > 0x7E00u) ? 0x7E00u : remaining;
+            if (write_xram(addr, chunk, fd) < 0) {
+                action = 0;
+                break;
+            }
+            addr += chunk;
+            remaining -= chunk;
+        }
+    }
+
+done:
+    close(fd);
+
+    switch (action) {
     case -1:
         ria_tx_puts(CSI_RESET "Bye, bye!" NEWLINE NEWLINE);
         break;
     case 0:
-        ria_tx_puts("ERROR! Timeout or transmission error." NEWLINE NEWLINE);
+        ria_tx_puts(NEWLINE "ERROR: transmission or write error." NEWLINE NEWLINE);
         break;
     case 1:
         drop_console_rx();
-        ria_tx_puts(">" NEWLINE NEWLINE "SUCCESS! End of transmission, ");
+        ria_tx_puts(NEWLINE "SUCCESS: " );
         ria_tx_put_u16(rx_count);
-        ria_tx_puts(" bytes received" NEWLINE NEWLINE);
-        if (buf_len < sizeof(buffer)) buffer[buf_len] = '\0';
-        // printf("%s", (char*)buffer);
+        ria_tx_puts(" bytes received, saved to MSC0:/RX/rx.ihx" NEWLINE NEWLINE);
         break;
     }
-    close(fd);
+
     ria_tx_puts(CSI_CURSOR_SHOW);
     return 0;
-
 }
