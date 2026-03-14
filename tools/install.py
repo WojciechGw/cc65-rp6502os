@@ -82,6 +82,7 @@ def main():
 
     project_root = pathlib.Path(__file__).resolve().parent
     build_path = project_root.parent / "build" / f"{args.shellextcmdname}.rp6502"
+    config_path = project_root.parent / ".rp6502"
 
     # Initial cleanup on device
     try:
@@ -98,7 +99,7 @@ def main():
 
     # Upload binary
     upload_script = project_root / "rp6502.py"
-    upload_cmd = ["python3", str(upload_script), "upload", "-D", args.port, str(build_path)]
+    upload_cmd = ["python3", str(upload_script), "-c", config_path, "upload", str(build_path)]
     try:
         subprocess.run(upload_cmd, check=True)
     except FileNotFoundError:

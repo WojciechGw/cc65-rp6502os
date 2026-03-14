@@ -90,7 +90,7 @@ try {
         }
     }
 
-    python3 .\rp6502.py upload -D COM4 ..\build\${shellextcmdname}.rp6502
+    python3 .\rp6502.py -c ..\.rp6502 upload ..\build\${shellextcmdname}.rp6502
 
     try {
         $serialPort.Open()

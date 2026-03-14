@@ -79,7 +79,7 @@ try {
         }
     }
 
-    python3 rp6502.py upload -D COM4 ..\src\extcmd\build\${shellextcmdname}.com
+    python3 rp6502.py -c ..\.rp6502 upload ..\src\extcmd\build\${shellextcmdname}.com
 
     try {
         $serialPort.Open()

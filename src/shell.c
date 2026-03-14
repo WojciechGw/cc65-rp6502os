@@ -288,6 +288,25 @@ int main(void) {
         }
     }
 }
+/*
+static void load_asset2xram(const char *path, unsigned xram_addr) // load asset from ROM
+{
+    // Example where assets are files in the ROM:
+    //   rp6502_asset(altair altair.pal src/altair.pal.bin)
+    //   rp6502_asset(altair altair.dat src/altair.dat.bin)
+    // These can be loaded from the "ROM:" drive.
+    //    load_asset("ROM:altair.pal", 0x0000);
+    //    load_asset("ROM:altair.dat", 0x0200);
+
+    int fd;
+    int bytes_read;
+    // printf("Loading %s at $%04X\n", path, xram_addr);
+    fd = open(path, O_RDONLY);
+    while ((bytes_read = read_xram(xram_addr, 0x7FFF, fd)) > 0)
+        xram_addr += bytes_read;
+    close(fd);
+}
+*/
 
 static void load_setup(void) {
     FILE *f;

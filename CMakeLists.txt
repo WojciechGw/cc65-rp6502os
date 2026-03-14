@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.20)
 
 project(MY-RP6502-PROJECT C ASM)
 
@@ -34,7 +34,8 @@ target_sources(test PRIVATE
 )
 
 add_executable(shell)
-rp6502_executable(shell DATA 0x0200 RESET 0x0200 ${CMAKE_CURRENT_SOURCE_DIR}/src/shell.hlp)
+rp6502_asset(shell help src/shell.hlp)
+rp6502_executable(shell DATA 0x0200 RESET 0x0200)
 target_sources(shell PRIVATE src/shell.c)
 target_link_options(shell PRIVATE -C ${CMAKE_SOURCE_DIR}/src/shell.cfg)
 
