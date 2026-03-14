@@ -1,4 +1,8 @@
-/* ext-rx.c - C89, cc65 (Picocomputer RP6502-RIA UART) */
+/* 
+Courier RX
+OS Shell File Receiver
+ext-crx.c - C89, cc65 (Picocomputer RP6502-RIA UART) 
+*/
 
 #include "commons.h"
 
@@ -7,10 +11,10 @@
 
 #define NEWLINE "\r\n"
 
-#define APPVER "20260314.132146"
+#define APPVER "20260314.1418"
 #define APPDIRDEFAULT "MSC0:/SHELL/RX"
-#define APP_MSG_TITLE "\x1b[1;1HOS Shell > Courier RX                                      version " APPVER
-#define APP_MSG_START ANSI_DARK_GRAY "\x1b[3;1HWaiting for incoming data or [Esc] to exit " ANSI_RESET
+#define APP_MSG_TITLE "\x1b[2;1H\x1b" HIGHLIGHT_COLOR " OS Shell > " ANSI_RESET " Courier RX" ANSI_DARK_GRAY "\x1b[2;60Hversion " APPVER ANSI_RESET
+#define APP_MSG_START ANSI_DARK_GRAY "\x1b[4;1HWaiting for incoming data or [Esc] to exit " ANSI_RESET
 
 typedef struct {
     volatile unsigned char READY; /* $FFE0 */
@@ -37,25 +41,37 @@ typedef unsigned int u16;
 #define TICKS_PER_SEC 100
 
 #define ESC 0x1B
-#define SOH 0x01
-#define STX 0x02
-#define ETX 0x03
-#define EOT 0x04
 
-/* XRAM receive buffer — calkowity odbiur bez OS calls podczas transmisji */
+#define NUL 0x00
+#define SOT 0x01 /* Start Of Transmission */
+#define EOT 0x02 /* End Of Transmission   */
+#define SOH 0x03 /* Start Of Header       */
+#define EOH 0x04 /* End Of Header         */
+#define STX 0x05 /* Start of TeXt (IHX)  */
+#define ETX 0x06 /* End of TeXt           */
+
+/* XRAM receive buffer */
 #define XRAM_RX_BASE  0x0000u
-#define XRAM_RX_MAX   0xEC00u  /* 60 KB — bezpieczny margines pod 0xF000 */
+#define XRAM_RX_MAX   0xEC00u  /* 60 KB */
 
-/* XRAM staging area dla zapisu zdekodowanych bajtow (64 B, za XRAM_RX_MAX) */
+/* XRAM staging area dla zdekodowanych bajtow */
 #define XRAM_DECODE_STAGE      0xF000u
 #define XRAM_DECODE_STAGE_SIZE 64u
 
+/* max 31 znakow + null */
+#define RX_FILENAME_MAX 32u
+#define RX_OUTPATH_MAX  48u
+
 unsigned char c;
 
-/* licznik odebranych bajtow */
-static u16 rx_count = 0;
+static u16  rx_count = 0;
+static char rx_filename[RX_FILENAME_MAX];
+static char rx_outpath[RX_OUTPATH_MAX];
 
-/* Czeka az TX FIFO nie bedzie pelne i wysyla bajt. */
+/* ======================================================================
+ * Narzedzia UART TX
+ * ====================================================================== */
+
 static void ria_tx_putc_blocking(unsigned char b)
 {
     while (TX_READY() == 0) { }
@@ -69,7 +85,6 @@ static void ria_tx_puts(const char* s)
     }
 }
 
-/* wypisuje u16 w ASCII (dziesietnie) */
 static void ria_tx_put_u16(u16 v)
 {
     char buf[6];
@@ -89,7 +104,7 @@ static void ria_tx_put_u16(u16 v)
     }
 }
 
-/* Opróznia RX FIFO (echo na terminal) — uzywac tylko gdy UART juz milczy. */
+/* Opróznia RX FIFO z echem — uzywac tylko gdy UART juz milczy. */
 static void drop_console_rx(void)
 {
     while (RX_READY()) {
@@ -100,18 +115,63 @@ static void drop_console_rx(void)
     }
 }
 
+/* ======================================================================
+ * Protokol: budowanie sciezki wyjsciowej
+ * ====================================================================== */
+
 /*
- * Czeka na marker startu/stopu.
- * Zwraca marker (SOH/STX/EOT) lub -1 jesli ESC.
- * UWAGA: nie drukuje nic po wykryciu markera — zerowy czas do pętli odbiorczej.
+ * Sklada rx_outpath = "MSC0:/RX/" + rx_filename.
+ * Jesli rx_filename pusty -> fallback "rx.bin".
  */
-static int wait_for_marker(void)
+static void build_rx_outpath(void)
 {
+    const char* prefix = "MSC0:/RX/";
+    const char* fn;
+    char* dst;
+    uint8_t i;
+
+    fn = (rx_filename[0] != '\0') ? rx_filename : "rx.bin";
+
+    dst = rx_outpath;
+    for (i = 0; prefix[i] != '\0'; i++) *dst++ = prefix[i];
+    for (i = 0; fn[i] != '\0' && (u16)(dst - rx_outpath) < (RX_OUTPATH_MAX - 1u); i++)
+        *dst++ = fn[i];
+    *dst = '\0';
+}
+
+/* ======================================================================
+ * Protokol: odbior naglowka SOH..EOH..STX
+ * Zwraca 1 przy sukcesie, -1 jesli ESC.
+ * Brak OS calls, brak druku — minimalne opoznienie przed petla odbiorczza.
+ * ====================================================================== */
+static int receive_header(void)
+{
+    uint8_t fn_len = 0;
+    uint8_t state  = 0; /* 0=czekaj SOH, 1=czytaj filename, 2=czekaj STX */
+
+    rx_filename[0] = '\0';
+
     for (;;) {
-        if (RX_READY()) {
-            c = RRIA.RX;
-            if (c == SOH || c == STX || c == EOT) return (int)c;
-            if (c == ESC) return -1;
+        if (!RX_READY()) continue;
+        c = RRIA.RX;
+
+        if (c == ESC) return -1;
+
+        switch (state) {
+        case 0: /* czekaj na SOH */
+            if (c == SOH) state = 1;
+            break;
+        case 1: /* czytaj nazwe pliku az EOH */
+            if (c == EOH) {
+                rx_filename[fn_len] = '\0';
+                state = 2;
+            } else if (fn_len < (uint8_t)(RX_FILENAME_MAX - 1u)) {
+                rx_filename[fn_len++] = (char)c;
+            }
+            break;
+        case 2: /* czekaj na STX */
+            if (c == STX) return 1;
+            break;
         }
     }
 }
@@ -120,7 +180,6 @@ static int wait_for_marker(void)
  * Dekoder IntelHEX
  * ====================================================================== */
 
-/* Konwertuje znak ASCII hex ('0'-'9','A'-'F','a'-'f') na wartosc 0-15. */
 static uint8_t hex_nibble(uint8_t ch)
 {
     if (ch >= '0' && ch <= '9') return (uint8_t)(ch - '0');
@@ -131,14 +190,13 @@ static uint8_t hex_nibble(uint8_t ch)
 
 /*
  * Dekoduje IntelHEX z XRAM[XRAM_RX_BASE .. +ihx_len] i zapisuje surowe bajty
- * do pliku fd_out. Dane czytane przez portal 1 (addr1/step1), zapis przez
- * portal 0 (addr0/step0) do obszaru staging. Adresy AAAA sa ignorowane
- * (dane sekwencyjne). Zwraca 1 przy sukcesie, 0 przy bledzie zapisu.
+ * do pliku fd_out przez staging w XRAM.
+ * Zwraca 1 przy sukcesie, 0 przy bledzie zapisu.
  */
 static int decode_ihex_to_file(u16 ihx_len, int fd_out)
 {
-    uint8_t line[80];   /* bufor linii IntelHEX (RAM) */
-    uint8_t out[64];    /* bufor zdekodowanych bajtow (RAM) */
+    uint8_t line[80];
+    uint8_t out[64];
     uint8_t out_len;
     u16     pos;
     int     result;
@@ -150,7 +208,7 @@ static int decode_ihex_to_file(u16 ihx_len, int fd_out)
     uint8_t j;
     uint8_t hi;
     uint8_t lo;
-    uint8_t dp; /* data pointer: indeks w line[] do pary hex */
+    uint8_t dp;
 
     out_len = 0;
     pos     = 0;
@@ -161,7 +219,6 @@ static int decode_ihex_to_file(u16 ihx_len, int fd_out)
 
     while (pos < ihx_len) {
 
-        /* --- wczytaj jedna linie z XRAM do RAM --- */
         llen = 0;
         while (pos < ihx_len && llen < (uint8_t)(sizeof(line) - 1u)) {
             b = RIA.rw1;
@@ -171,28 +228,24 @@ static int decode_ihex_to_file(u16 ihx_len, int fd_out)
         }
         line[llen] = 0;
 
-        /* minimum: ':' + LL(2) + AAAA(4) + TT(2) = 9 znakow */
         if (llen < 9u || line[0] != ':') continue;
 
         byte_count = (uint8_t)((hex_nibble(line[1]) << 4) | hex_nibble(line[2]));
-        /* line[3..6] = AAAA (adres) — pomijamy */
         rec_type   = (uint8_t)((hex_nibble(line[7]) << 4) | hex_nibble(line[8]));
 
-        if (rec_type == 0x01u) break; /* rekord EOF — koniec */
+        if (rec_type == 0x01u) break;
 
         if (rec_type == 0x00u) {
-            /* rekord danych: linia musi zawierac 9 + byte_count*2 znakow */
-            if (byte_count > 35u) continue;             /* za duzy dla bufora */
+            if (byte_count > 35u) continue;
             if (llen < (uint8_t)(9u + byte_count + byte_count)) continue;
 
             for (i = 0; i < byte_count; i++) {
-                dp = (uint8_t)(9u + i + i);             /* i*2, bez mnozenia */
+                dp = (uint8_t)(9u + i + i);
                 hi = line[dp];
                 lo = line[(uint8_t)(dp + 1u)];
                 out[out_len++] = (uint8_t)((hex_nibble(hi) << 4) | hex_nibble(lo));
 
                 if (out_len >= XRAM_DECODE_STAGE_SIZE) {
-                    /* flush: out[] -> XRAM staging -> plik */
                     RIA.addr0 = XRAM_DECODE_STAGE;
                     RIA.step0 = 1;
                     for (j = 0; j < out_len; j++) RIA.rw0 = out[j];
@@ -201,16 +254,13 @@ static int decode_ihex_to_file(u16 ihx_len, int fd_out)
                         goto decode_done;
                     }
                     out_len = 0;
-                    /* write_xram (OS call) moze nadpisac portale — przywroc */
                     RIA.addr1 = (u16)(XRAM_RX_BASE + pos);
                     RIA.step1 = 1;
                 }
             }
         }
-        /* inne typy rekordow (02, 04...) sa ignorowane */
     }
 
-    /* flush koncowy */
     if (out_len > 0) {
         RIA.addr0 = XRAM_DECODE_STAGE;
         RIA.step0 = 1;
@@ -222,6 +272,10 @@ decode_done:
     return result;
 }
 
+/* ======================================================================
+ * main
+ * ====================================================================== */
+
 int main(void)
 {
     clock_t start;
@@ -229,34 +283,30 @@ int main(void)
     int action = 0;
     int fd;
     u16 xram_rx_len = 0;
-    int marker;
 
     ria_tx_puts(CSI_RESET);
     ria_tx_puts(CSI_CURSOR_HIDE);
     ria_tx_puts(APP_MSG_TITLE);
     ria_tx_puts(APP_MSG_START);
 
-    fd = open("MSC0:/RX/rx.ihx", O_WRONLY | O_CREAT | O_TRUNC, 0666);
-    if (fd < 0) {
-        ria_tx_puts("ERROR: cannot open MSC0:/RX/rx.ihx" NEWLINE);
-        return -1;
+    /* --- czekaj na SOT --- */
+    for (;;) {
+        if (RX_READY()) {
+            c = RRIA.RX;
+            if (c == SOT) break;
+            if (c == ESC) { action = -1; goto done; }
+        }
     }
 
-    marker = wait_for_marker();
-    if (marker == -1) {
+    /* --- odbierz naglowek SOH + nazwa + EOH + STX --- */
+    if (receive_header() < 0) {
         action = -1;
         goto done;
     }
 
-    /* Jesli marker to EOT od razu — plik pusty */
-    if (marker == EOT) {
-        action = 1;
-        goto save;
-    }
-
     /* ------------------------------------------------------------------ *
      * Petla odbiorcza — zadnych OS calls, zadnego echa.                  *
-     * Kazdy bajt trafia bezposrednio do XRAM przez portal (auto-inc).    *
+     * Kazdy bajt trafia bezposrednio do XRAM. Koniec: ETX.               *
      * ------------------------------------------------------------------ */
     RIA.addr1 = XRAM_RX_BASE;
     RIA.step1 = 1;
@@ -266,17 +316,15 @@ int main(void)
         if (RX_READY()) {
             c = RRIA.RX;
 
-            if (c == EOT) {
+            if (c == ETX) {
                 action = 1;
                 break;
             }
 
             if (xram_rx_len < XRAM_RX_MAX) {
-                RIA.rw1 = c;   /* zapis do XRAM, addr1 auto-increment */
+                RIA.rw1 = c;
                 xram_rx_len++;
             }
-            /* jesli overflow: dalej czytamy UART zeby nie blokować FIFO,
-               ale nie zapisujemy do XRAM */
 
             rx_count++;
             start = clock();
@@ -288,11 +336,22 @@ int main(void)
         }
     }
 
-save:
+    /* --- drenaż EOT (max ~100 ms) --- */
+    {
+        clock_t drain_start = clock();
+        while ((clock() - drain_start) < 10) {
+            if (RX_READY()) { c = RRIA.RX; if (c == EOT) break; }
+        }
+    }
+
     /* ------------------------------------------------------------------ *
-     * Zapis XRAM -> plik — dopiero tu, gdy UART juz milczy.              *
-     * write_xram obsluguje max 32 KB naraz.                              *
+     * Zapis XRAM -> rx.ihx                                               *
      * ------------------------------------------------------------------ */
+    fd = open("MSC0:/RX/rx.ihx", O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    if (fd < 0) {
+        ria_tx_puts("ERROR: cannot open MSC0:/RX/rx.ihx" NEWLINE);
+        return -1;
+    }
     if (action == 1 && xram_rx_len > 0) {
         u16 remaining = xram_rx_len;
         u16 addr = XRAM_RX_BASE;
@@ -306,7 +365,6 @@ save:
             remaining -= chunk;
         }
     }
-
 done:
     close(fd);
 
@@ -321,19 +379,24 @@ done:
         drop_console_rx();
         ria_tx_puts(NEWLINE "SUCCESS: ");
         ria_tx_put_u16(rx_count);
-        ria_tx_puts(" bytes received, saved to MSC0:/RX/rx.ihx" NEWLINE);
-        /* Dekodowanie IntelHEX -> rx.txt (dane wciaz sa w XRAM) */
+        ria_tx_puts(" bytes received" NEWLINE);
+        ria_tx_puts("Saved:   MSC0:/RX/rx.ihx" NEWLINE);
+
+        /* Dekodowanie IntelHEX -> rx_outpath */
+        build_rx_outpath();
         {
-            int fd_txt = open("MSC0:/RX/rx.txt", O_WRONLY | O_CREAT | O_TRUNC, 0666);
-            if (fd_txt < 0) {
-                ria_tx_puts("WARNING: cannot create rx.txt" NEWLINE NEWLINE);
+            int fd_out = open(rx_outpath, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+            if (fd_out < 0) {
+                ria_tx_puts("WARNING: cannot create " NEWLINE NEWLINE);
             } else {
-                if (decode_ihex_to_file(xram_rx_len, fd_txt)) {
-                    ria_tx_puts("Decoded:  MSC0:/RX/rx.txt" NEWLINE NEWLINE);
+                if (decode_ihex_to_file(xram_rx_len, fd_out)) {
+                    ria_tx_puts("Decoded: ");
+                    ria_tx_puts(rx_outpath);
+                    ria_tx_puts(NEWLINE NEWLINE);
                 } else {
-                    ria_tx_puts("WARNING: decode error, rx.txt incomplete" NEWLINE NEWLINE);
+                    ria_tx_puts("WARNING: decode error, output incomplete" NEWLINE NEWLINE);
                 }
-                close(fd_txt);
+                close(fd_out);
             }
         }
         break;

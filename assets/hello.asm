@@ -1,6 +1,6 @@
 ; Hello World
 ; for Handy ASSembler 65C02S
-; ------------------------------
+; --------------------------
 .org $8000
 
 RIA_TX .equ $FFE1

@@ -36,17 +36,17 @@ int main(int argc, char **argv)
     int pos, i;
 
     if (argc < 1 || argv[0][0] == 0) {
-        printf("Usage: courier <filename>" NEWLINE NEWLINE);
+        printf("Usage: courier-tx <filename>" NEWLINE NEWLINE);
         return -1;
     }
 
     if(argc == 1 && strcmp(argv[0], "/?") == 0) {
         printf(NEWLINE
-              "OS Shell > Courier - send file" NEWLINE
+              "OS Shell > Courier TX" NEWLINE
                NEWLINE 
                "Usage:" NEWLINE
                "first start receivefile.py script on target machine" NEWLINE
-               "courier <filename> - send a file <filename> via RIA UART" NEWLINE
+               "courier-tx <filename> - send a file <filename> via RIA UART" NEWLINE
                NEWLINE);
         return 0;
     }
@@ -58,7 +58,7 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    printf("OS Shell > Courier" NEWLINE NEWLINE "Sending file in Intel HEX." NEWLINE);
+    printf("OS Shell > Courier TX" NEWLINE NEWLINE "Sending file in Intel HEX." NEWLINE);
 
     while (true)
     {

@@ -81,8 +81,10 @@ static const cmd_t commands_ext[] = {
                     "calendar /n [yyyy]      - current or particular and neighbouring months" NEWLINE
                     "calendar /q [1-4]       - current or particular quarter" NEWLINE
                     "calendar /y [yyyy]      - current or particular year" },
-    { "courier",    "in/out file transfer application", 
-                    "courier" },
+    { "crx",        "file transfer application - receiver (UART)", 
+                    "crx" },
+    { "ctx",        "file transfer application - sender (UART)", 
+                    "ctx" },
     { "dir",        "show active drive directory, wildcards allowed",
                     "dir *.rp6502 (only .rp6502 files)" NEWLINE
                     "dir /da (sorted by date ascending)"},
