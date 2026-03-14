@@ -22,14 +22,14 @@ mass sourcecode.asm -out outfile.bin -base <baseaddress> -run <runaddress>
 #define MAXSYM      64
 #define MAXINCDEPTH 4
 
-/* --- bufor wejścia --- */
+/* --- input buffer --- */
 static int   nlines = 0;
 
-/* --- wyjście domyślne jeżeli brak .org --- */
-static uint16_t org = 0x9000;
-static uint16_t pc  = 0x9000;
+/* --- default .org address (if .org not defined in source) --- */
+static uint16_t org = 0x8000;
+static uint16_t pc  = 0x8000;
 
-/* wspólne bufory robocze, by ograniczyć lokalne */
+/* common work buffers */
 static char g_buf[MAXLEN];
 static char g_buf2[MAXLEN];
 static char g_buf3[MAXLEN];
@@ -51,7 +51,7 @@ static uint16_t a;
 
 static unsigned int assembly_status;
 
-/* --- magazyny w XRAM (RIA port 1) --- */
+/* --- storage in XRAM (RIA port 1) --- */
 #define XRAM_LINES_BASE 0x0000u
 #define XRAM_LINES_SIZE 0x3200u
 #define XRAM_OUT_BASE   0x3200u
@@ -66,7 +66,7 @@ static unsigned int assembly_status;
 #error "MAXOUT exceeds 8KB XRAM output area"
 #endif
 
-// globalne robocze, by nie zużywać lokali
+// global variables
 static char *g_s,*g_mn,*g_op,*g_dir,*g_rest;
 static char  g_MN[8];
 static int16_t g_opcode;
@@ -95,7 +95,7 @@ static int map_mode_to_op(const asm_mode_t m, const char* mn){
     return (int)m;
 }
 
-/* --- symbole --- */
+/* --- symbols --- */
 typedef struct {
     char     name[48];
     uint16_t value;
@@ -104,7 +104,7 @@ typedef struct {
 
 static int      nsym = 0;
 
-/* symbol table stored in XRAM to save RAM when linking at $A000 */
+/* symbol table stored in XRAM */
 #define XRAM_SYM_BASE   0x6000u
 #define XRAM_SYM_STRIDE 64u
 #define XRAM_SYM_SIZE   ((unsigned)MAXSYM * (unsigned)XRAM_SYM_STRIDE)
@@ -184,7 +184,7 @@ static void xram_write_lst_line(const char* line, unsigned len, int fd){
     write_xram(XRAM_LST_BASE, len, fd);
 }
 
-/* --- wartości z operatorami < > --- */
+/* --- values with < > --- */
 typedef enum { V_NORMAL = 0, V_LOW = 1, V_HIGH = 2 } asm_vop_t;
 
 typedef struct {
@@ -195,11 +195,11 @@ typedef struct {
     unsigned  force_zp;
 } asm_value_t;
 
-/* --- tryby i opkody --- */
+/* --- modes i opcodes --- */
 static asm_value_t g_val;
 static asm_mode_t g_mode;
 
-/* --- narzędzia --- */
+/* --- tools --- */
 static int is_ident_start(int c){ return isalpha(c) || c=='_' || c=='.'; }
 static int is_ident_char (int c){ return isalnum(c) || c=='_' || c=='.'; }
 
@@ -223,7 +223,7 @@ static void strip_utf8_bom(char* s){
     }
 }
 
-// split_token jest zdefiniowane niżej; prototyp potrzebny dla C89
+// split_token defined below; prototype for C89
 static int split_token(char* s, char** a, char** b);
 
 static void xram1_read_bytes(unsigned addr, uint8_t* dst, unsigned len){
@@ -333,7 +333,7 @@ static void set_listing_path(const char* path){
 }
 */
 
-/* rozpoznaje składnię: NAME .equ value (zwraca wskaźniki do bufora roboczego) */
+/* recognize syntax: NAME .equ value (return pointers to work buffer) */
 static int parse_named_equ_line(const char* line, char** name_out, char** value_out){
     char* s;
     char* name;
@@ -385,7 +385,7 @@ static void add_line(const char* text){
     nlines++;
 }
 
-/* --- parser wartości --- */
+/* --- values' parser --- */
 static int parse_number10(const char* s, uint16_t* v){
     char* endp;
     unsigned long x;
@@ -507,7 +507,7 @@ static int split_token(char* s, char** a, char** b){
     return 1;
 }
 
-/* --- operand -> tryb --- */
+/* --- operand -> mode --- */
 static asm_mode_t parse_operand_mode(const char* s, asm_value_t* val){
     const char* q;
     int len;
@@ -518,15 +518,15 @@ static asm_mode_t parse_operand_mode(const char* s, asm_value_t* val){
     if(!s || !*s) return M_IMP;
     while(*s==' '||*s=='\t') s++;
 
-    /* prefiks '*' wymusza wybór trybów ZP (ZP/ZPX/ZPY/INDZP) także dla etykiet */
+    /* prefix '*' force modes ZP (ZP/ZPX/ZPY/INDZP) including labels */
     if(*s=='*'){
         force_zp = 1;
         ++s;
         while(*s==' '||*s=='\t') s++;
     }
 
-    // INC A or INC a - ACCumulator address mode
-    if((s[0]=='A'||s[0]=='a') && !isalnum((unsigned char)s[1])) return M_ACC;
+    // INC A - ACCumulator mode
+    if((s[0]=='A') && !isalnum((unsigned char)s[1])) return M_ACC;
 
     if(*s=='#'){ parse_value_out(s+1, val); val->force_zp = 0; return M_IMM; }
 
@@ -579,7 +579,7 @@ static asm_mode_t parse_operand_mode(const char* s, asm_value_t* val){
     }
 }
 
-/* --- I/O plików i .include --- */
+/* --- I/O for files --- */
 static int read_file_into_lines(const char* path, int depth){
     FILE* f;
     char* s; char *dir,*rest; const char* q;
@@ -622,10 +622,10 @@ static char hex_digit(unsigned char v)
 }
 */
 
-// Zwraca wskaźnik do przygotowanego bufora (outfilebuffer).
-// Opcjonalnie zwraca długość (bez '\0') przez out_len.
-// Jeśli bufor był za mały, ucina wynik.
 /*
+// Returns a pointer to the prepared buffer (outfilebuffer).
+// Optionally returns the length (excluding the ‘\0’ terminator) via out_len.
+// If the buffer was too small, truncates the result.
 static char* build_outfilebuffer(unsigned int* out_len, uint16_t line_pc_before, uint16_t line_pc_after)
 {
     unsigned int a; 
@@ -666,7 +666,7 @@ static char* build_outfilebuffer(unsigned int* out_len, uint16_t line_pc_before,
 }
 */
 
-// --- PASS1 ---
+// --- assembly PASS1 ---
 static void pass1(void){
     int li;
     org = 0xFFFF; pc = 0x0000;
@@ -679,7 +679,7 @@ static void pass1(void){
         trim_comment(g_buf);
         g_s = g_buf; ltrim_ptr(&g_s); if(!*g_s) continue;
 
-        /* etykieta */
+        /* label: "mylabel:" */
         if(is_ident_start((unsigned char)*g_s)){
             p = g_s; L=0;
             while(is_ident_char((unsigned char)*p) && L<47){ label[L++]=*p++; }
@@ -692,22 +692,22 @@ static void pass1(void){
             }
         }
 
-        /* stała w stylu: NAME .equ value */
-            if(parse_named_equ_line(g_s, &eq_name, &eq_val)){
-                parse_value_out(eq_val, &g_val);
-                if(g_val.is_label){
-                    int idx = find_sym(g_val.label);
-                    if(idx<0 || !xram_sym_is_defined((unsigned)idx)){
-                        assembly_status |= STAT_PASS1_ERROR;
-                        printf("PASS1: ERROR .equ unknown symbol %s" NEWLINE, g_val.label);
-                    } else { 
-                        add_or_update_sym(eq_name, apply_vop(xram_sym_get_value((unsigned)idx), g_val.op), 1);
-                    }
-                } else {
-                    add_or_update_sym(eq_name, apply_vop(g_val.num, g_val.op), 1);
+        /* constant: "NAME .equ value" */
+        if(parse_named_equ_line(g_s, &eq_name, &eq_val)){
+            parse_value_out(eq_val, &g_val);
+            if(g_val.is_label){
+                int idx = find_sym(g_val.label);
+                if(idx<0 || !xram_sym_is_defined((unsigned)idx)){
+                    assembly_status |= STAT_PASS1_ERROR;
+                    printf("PASS1: ERROR .equ unknown symbol %s" NEWLINE, g_val.label);
+                } else { 
+                    add_or_update_sym(eq_name, apply_vop(xram_sym_get_value((unsigned)idx), g_val.op), 1);
                 }
-                continue;
+            } else {
+                add_or_update_sym(eq_name, apply_vop(g_val.num, g_val.op), 1);
             }
+            continue;
+        }
 
         if(*g_s=='.'){
             if(!split_token(g_s,&g_dir,&g_rest)) continue;
@@ -814,7 +814,6 @@ static void pass1(void){
                 continue; 
             }
         }
-        /* długości instrukcji liczone jak wcześniej po lokalnym g_mode */
 
         if(org==0xFFFF) org=pc;
         if(g_mode==M_IMP || g_mode==M_ACC) pc+=1;
@@ -823,7 +822,7 @@ static void pass1(void){
     }
 }
 
-// --- PASS2 ---
+// --- assembly PASS2 ---
 static void emit_at(uint8_t b, uint16_t at){
     uint16_t off;
     if(at < org){
@@ -840,7 +839,7 @@ static void emit_at(uint8_t b, uint16_t at){
     xram_out_write_byte(off, b);
 }
 
-static void pass2(void){
+static void pass2(void){ // also write listing to .lst file
     int li,i,opt_mode;
     int fd,n;
 
@@ -885,7 +884,7 @@ static void pass2(void){
             }
         }
 
-        // pomiń definicje stałych: NAME .equ value
+        // omit constants definitions: "NAME .equ value"
         if(parse_named_equ_line(g_s, &eq_name, &eq_val)) goto list_line;
 
         if(*g_s=='.'){
@@ -1049,7 +1048,7 @@ list_line:
     close(fd);
 }
 
-/* --- zapis BIN --- */
+/* --- out machine code to .BIN --- */
 static void save_bin(void){
     unsigned len;
     len = (pc > org) ? (unsigned)(pc - org) : 0;
@@ -1060,7 +1059,6 @@ static void save_bin(void){
             printf("Writing error (open %s)" NEWLINE, g_outpath);
             return;
         }
-        /* dane już są w XRAM -> write_xram nie potrzebuje kopiowania do RAM */
         if(write_xram((unsigned)XRAM_OUT_BASE, len, fd) < 0){
             printf("Writing error (write_xram)" NEWLINE);
         }else{
@@ -1141,7 +1139,7 @@ int main(int argc, char **argv){
         }
     }
 
-    // manually entering code
+    // manual entry of the code
     if(!loaded_from_file){
         printf(APP_MSG_START_ENTERCODE NEWLINE NEWLINE);
         while(nlines < MAXLINES){
