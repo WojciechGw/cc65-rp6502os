@@ -7,7 +7,7 @@
 
 #define NEWLINE "\r\n"
 
-#define APPVER "20260214.1806"
+#define APPVER "20260314.1020"
 #define APPDIRDEFAULT "MSC0:/SHELL/RX"
 #define APP_MSG_TITLE "\x1b[1;1HOS Shell > Courier RX                                      version " APPVER
 #define APP_MSG_START ANSI_DARK_GRAY "\x1b[3;1HWaiting for incoming data or [Esc] to exit " ANSI_RESET
@@ -114,7 +114,9 @@ static int wait_for_marker(void)
             } else if (c == STX) {
                 ria_tx_puts(NEWLINE NEWLINE "STX marker. Start block of data." NEWLINE);
                 return 1;
-
+            } else if (c == EOT) {
+                ria_tx_puts(NEWLINE NEWLINE "EOT marker. End of transmission." NEWLINE);
+                return 1;
             } else if (c == ESC) {
                 return -1;
             }
@@ -125,17 +127,33 @@ static int wait_for_marker(void)
 
 #define XRAM_LST_BASE  0xF000u
 #define XRAM_LST_SIZE  0x50u
-static void xram_write_lst_line(const char* line, unsigned len, int fd){
-    unsigned i;
-    if(fd < 0 || !line || !len) return;
+static int xram_write_lst_line(const char* line, unsigned len, int fd){
+    // unsigned i;
+    uint8_t i;
+    if(fd < 0 || !line || !len) return -1;
     if(len > XRAM_LST_SIZE) len = XRAM_LST_SIZE;
     RIA.addr0 = XRAM_LST_BASE;
     RIA.step0 = 1;
+    /*
     for(i = 0; i < XRAM_LST_SIZE; i++) RIA.rw0 = 0x00;
     RIA.addr0 = XRAM_LST_BASE;
     RIA.step0 = 1;
     for(i = 0; i < len; i++) RIA.rw0 = (uint8_t)line[i];
-    write_xram(XRAM_LST_BASE, len, fd);
+    */
+    for(i = 0; i < (uint8_t)len; i++) RIA.rw0 = (uint8_t)line[i];
+    return write_xram(XRAM_LST_BASE, len, fd);
+}
+
+static int flush_rx_buffer(int fd)
+{
+    if (buf_len == 0) {
+        return 0;
+    }
+    if (xram_write_lst_line((const char*)buffer, buf_len, fd) < 0) {
+        return -1;
+    }
+    buf_len = 0;
+    return 0;
 }
 
 int main(void)
@@ -143,14 +161,14 @@ int main(void)
     clock_t start = clock();
     clock_t timeout_ticks = (clock_t)(RX_TIMEOUT_SECONDS * TICKS_PER_SEC);
     int action = 0;
-    int fd,n;
+    int fd;
     
     ria_tx_puts(CSI_RESET);
     ria_tx_puts(CSI_CURSOR_HIDE); // hide cursor
     ria_tx_puts(APP_MSG_TITLE);
     ria_tx_puts(APP_MSG_START);
 
-    fd = open("MSC0:/RX/rx.txt", O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    fd = open("MSC0:/RX/rx.ihx", O_WRONLY | O_CREAT | O_TRUNC, 0666);
     if(fd < 0){
         printf("Writing error (open %s)" NEWLINE, "MSC0:/RX/");
         return -1;
@@ -162,18 +180,32 @@ int main(void)
         for (;;) {
             if (RX_READY()) {
                 c = RRIA.RX;
-                // end of transmission part
+                if (c == EOT) {
+                    if (flush_rx_buffer(fd) < 0) {
+                        action = 0;
+                    } else {
+                        action = 1;
+                    }
+                    break;
+                }
+
+                buffer[buf_len++] = c;
+                if (buf_len >= XRAM_LST_SIZE) {
+                    if (flush_rx_buffer(fd) < 0) {
+                        action = 0;
+                        break;
+                    }
+                }
 
                 // if (c == '\n') ria_tx_putc_blocking('\r');
                 ria_tx_putc_blocking(c);
-                buffer[buf_len++] = c;
                 rx_count++;
-                if (buf_len == sizeof(buffer)) {
-                    buf_len = 0;
-                }
                 start = clock();
             } else {
                 if ((clock() - start) >= timeout_ticks) {
+                    if (flush_rx_buffer(fd) < 0) {
+                        action = 0;
+                    }
                     break;
                 }
             }
@@ -194,10 +226,10 @@ int main(void)
         ria_tx_put_u16(rx_count);
         ria_tx_puts(" bytes received" NEWLINE NEWLINE);
         if (buf_len < sizeof(buffer)) buffer[buf_len] = '\0';
-        printf("%s", (char*)buffer);
-        close(fd);
+        // printf("%s", (char*)buffer);
         break;
     }
+    close(fd);
     ria_tx_puts(CSI_CURSOR_SHOW);
     return 0;
 

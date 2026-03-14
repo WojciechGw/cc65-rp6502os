@@ -9,7 +9,7 @@ mass sourcecode.asm -out outfile.bin -base <baseaddress> -run <runaddress>
 #include "commons.h"
 #include "ext-hass-opcodes.h"
 
-#define APPVER "20260214.1806"
+#define APPVER "20260314.0825"
 #define APPDIRDEFAULT "MSC0:/SHELL/"
 #define APP_MSG_TITLE CSI_RESET "\x1b[2;1H\x1b" HIGHLIGHT_COLOR " OS Shell > " ANSI_RESET " Handy ASSembler WDC65C02S" ANSI_DARK_GRAY "\x1b[2;60Hversion " APPVER ANSI_RESET
 #define APP_MSG_START_ASSEMBLING ANSI_DARK_GRAY "\x1b[4;1HStart compilation ... " ANSI_RESET
@@ -72,26 +72,13 @@ static char  g_MN[8];
 static int16_t g_opcode;
 static const opdef_t* g_def;
 
-static int is_branch_mnemonic(const char* mn){
-    return strcmp(mn,"BRA")==0 || strcmp(mn,"BCC")==0 || strcmp(mn,"BCS")==0 ||
-           strcmp(mn,"BEQ")==0 || strcmp(mn,"BMI")==0 || strcmp(mn,"BNE")==0 ||
-           strcmp(mn,"BPL")==0 || strcmp(mn,"BVC")==0 || strcmp(mn,"BVS")==0 ||
-           strcmp(mn,"BBR0")==0 || strcmp(mn,"BBR1")==0 || strcmp(mn,"BBR2")==0 || strcmp(mn,"BBR3")==0 ||
-           strcmp(mn,"BBR4")==0 || strcmp(mn,"BBR5")==0 || strcmp(mn,"BBR6")==0 || strcmp(mn,"BBR7")==0 ||
-           strcmp(mn,"BBS0")==0 || strcmp(mn,"BBS1")==0 || strcmp(mn,"BBS2")==0 || strcmp(mn,"BBS3")==0 ||
-           strcmp(mn,"BBS4")==0 || strcmp(mn,"BBS5")==0 || strcmp(mn,"BBS6")==0 || strcmp(mn,"BBS7")==0;
-        }
+/* Branch mnemonics have M_PCREL as sole mode; stack mnemonics have M_STACK.
+   Use the opdef to detect them — no strcmp needed. */
+#define opdef_is_branch(def) ((def)->vars[0].mode == M_PCREL)
+#define opdef_is_stack(def)  ((def)->vars[0].mode == M_STACK)
 
-static int is_stack_mnemonic(const char* mn){
-    return strcmp(mn,"BRK")==0 || strcmp(mn,"PHA")==0 || strcmp(mn,"PHP")==0 ||
-           strcmp(mn,"PHX")==0 || strcmp(mn,"PHY")==0 ||
-           strcmp(mn,"PLA")==0 || strcmp(mn,"PLP")==0 ||
-           strcmp(mn,"PLX")==0 || strcmp(mn,"PLY")==0 ||
-           strcmp(mn,"RTI")==0 || strcmp(mn,"RTS")==0;
-}
-
-static int map_mode_to_op(const asm_mode_t m, const char* mn){
-    if(m==M_IMP && mn && is_stack_mnemonic(mn)) return M_STACK;
+static int map_mode_to_op(const asm_mode_t m, const opdef_t* def){
+    if(m==M_IMP && def && opdef_is_stack(def)) return M_STACK;
     return (int)m;
 }
 
@@ -103,6 +90,7 @@ typedef struct {
 } symbol_t;
 
 static int      nsym = 0;
+static char     sym_first[MAXSYM]; /* first-char cache for fast find_sym */
 
 /* symbol table stored in XRAM */
 #define XRAM_SYM_BASE   0x6000u
@@ -113,16 +101,16 @@ static unsigned xram_sym_addr(unsigned idx){
     return (unsigned)(XRAM_SYM_BASE + idx * (unsigned)XRAM_SYM_STRIDE);
 }
 
+static void xram1_fill(unsigned addr, uint8_t value, unsigned len); /* forward */
+
 static void xram_sym_clear_all(void){
-    unsigned i;
-    RIA.addr1 = XRAM_SYM_BASE;
-    RIA.step1 = 1;
-    for(i=0;i<XRAM_SYM_SIZE;i++) RIA.rw1 = 0x00;
+    xram1_fill(XRAM_SYM_BASE, 0x00, XRAM_SYM_SIZE);
+    memset(sym_first, 0, sizeof(sym_first));
 }
 
 static void xram_sym_read_name(unsigned idx, char* dst){
     unsigned addr = xram_sym_addr(idx);
-    unsigned i;
+    uint8_t i;
     if(!dst) return;
     RIA.addr1 = addr;
     RIA.step1 = 1;
@@ -132,10 +120,11 @@ static void xram_sym_read_name(unsigned idx, char* dst){
 
 static void xram_sym_write_name(unsigned idx, const char* name){
     unsigned addr = xram_sym_addr(idx);
-    unsigned i = 0;
+    uint8_t i = 0;
     RIA.addr1 = addr;
     RIA.step1 = 1;
     if(!name) name = "";
+    sym_first[idx] = name[0]; /* update first-char cache */
     for(i=0;i<48u;i++){
         unsigned char ch = (unsigned char)name[i];
         if(ch == 0) break;
@@ -172,15 +161,12 @@ static void xram_sym_set_value_defined(unsigned idx, uint16_t value, unsigned de
 }
 
 static void xram_write_lst_line(const char* line, unsigned len, int fd){
-    unsigned i;
+    uint8_t i;
     if(fd < 0 || !line || !len) return;
     if(len > XRAM_LST_SIZE) len = XRAM_LST_SIZE;
     RIA.addr0 = XRAM_LST_BASE;
     RIA.step0 = 1;
-    for(i = 0; i < XRAM_LST_SIZE; i++) RIA.rw0 = 0x00;
-    RIA.addr0 = XRAM_LST_BASE;
-    RIA.step0 = 1;
-    for(i = 0; i < len; i++) RIA.rw0 = (uint8_t)line[i];
+    for(i = 0; i < (uint8_t)len; i++) RIA.rw0 = (uint8_t)line[i];
     write_xram(XRAM_LST_BASE, len, fd);
 }
 
@@ -244,18 +230,16 @@ static unsigned xram_line_addr(unsigned li){
 
 static void xram_line_write(unsigned li, const char* text){
     unsigned addr = xram_line_addr(li);
-    unsigned i = 0;
+    uint8_t i = 0;
     RIA.addr1 = addr;
     RIA.step1 = 1;
     if(!text) text = "";
-    for(i=0;i<(unsigned)MAXLEN;i++){
+    for(i=0;i<(uint8_t)MAXLEN;i++){
         unsigned char ch = (unsigned char)text[i];
-        if(ch == 0){
-            break;
-        }
+        if(ch == 0) break;
         RIA.rw1 = (uint8_t)ch;
     }
-    while(i<(unsigned)MAXLEN){
+    while(i<(uint8_t)MAXLEN){
         RIA.rw1 = 0;
         ++i;
     }
@@ -359,7 +343,9 @@ static int parse_named_equ_line(const char* line, char** name_out, char** value_
 
 static int find_sym(const char* name){
     int i;
+    char c0 = name[0];
     for(i=0;i<nsym;i++){
+        if(sym_first[i] != c0) continue; /* fast reject via first-char cache */
         xram_sym_read_name((unsigned)i, g_symtmp);
         if(strcmp(g_symtmp,name)==0) return i;
     }
@@ -486,10 +472,13 @@ static uint16_t resolve_value(const asm_value_t* a){
 }
 
 static const opdef_t* find_op(const char* m){
-    const opdef_t* p = ops;
-    while(p->name){
-        if(strcmp(p->name,m)==0) return p;
-        ++p;
+    int lo = 0;
+    int hi = (int)(sizeof(ops)/sizeof(ops[0])) - 2; /* -2: skip null sentinel */
+    while(lo <= hi){
+        int mid = (lo + hi) >> 1;
+        int c = strcmp(ops[mid].name, m);
+        if(c == 0) return &ops[mid];
+        if(c < 0) lo = mid + 1; else hi = mid - 1;
     }
     return 0;
 }
@@ -794,14 +783,14 @@ static void pass1(void){
             printf("PASS1: ERROR unknown mnemonic at line %d: %s" NEWLINE, li+1, g_MN); continue; 
         }
 
-        parse_value_out("", &g_val); /* init */
-        g_mode = parse_operand_mode(g_op,&g_val);
-        if(is_branch_mnemonic(g_MN)){
+        if(opdef_is_branch(g_def)){
             parse_value_out(g_op, &g_val);
             g_mode = M_PCREL;
+        } else {
+            g_mode = parse_operand_mode(g_op,&g_val);
         }
         {
-            int opt_mode = map_mode_to_op(g_mode, g_MN);
+            int opt_mode = map_mode_to_op(g_mode, g_def);
             int opc = -1;
             int cnt = g_def->count;
             int i;
@@ -959,14 +948,14 @@ static void pass2(void){ // also write listing to .lst file
             g_def = find_op(g_MN);
             if(!g_def) goto list_line;
 
-            parse_value_out("", &g_val); // init
-            g_mode   = parse_operand_mode(g_op,&g_val);
-            if(is_branch_mnemonic(g_MN)){
+            if(opdef_is_branch(g_def)){
                 parse_value_out(g_op, &g_val);
                 g_mode = M_PCREL;
+            } else {
+                g_mode = parse_operand_mode(g_op,&g_val);
             }
 
-            opt_mode = map_mode_to_op(g_mode, g_MN);
+            opt_mode = map_mode_to_op(g_mode, g_def);
             g_opcode = -1;
             for(i=0;i< g_def->count; i++){
                 if(g_def->vars[i].mode == opt_mode){
@@ -1011,15 +1000,18 @@ list_line:
         if(n >= (int)sizeof(outfilebuffer)) n = (int)sizeof(outfilebuffer) - 1;
         xram_write_lst_line(outfilebuffer, (unsigned)n, fd);
 
-        // list machine codes
+        // list machine codes — set up portal once for sequential reads
+        if(line_pc_after > line_pc_before){
+            RIA.addr1 = (unsigned)(XRAM_OUT_BASE + (unsigned)(line_pc_before - org));
+            RIA.step1 = 1;
+        }
         for(a = line_pc_before; a < (line_pc_before + 10); ++a)
         {
             if(a < line_pc_after){
-                uint16_t out_off = (uint16_t)(a - org);
-                uint8_t byte = xram_out_read_byte(out_off);
-                n = sprintf(outfilebuffer, "%02X \0", byte);
+                uint8_t byte = RIA.rw1; /* sequential read; portal already set up */
+                n = sprintf(outfilebuffer, "%02X ", byte);
             } else {
-                n = sprintf(outfilebuffer, "%s\0", "   ");
+                n = sprintf(outfilebuffer, "%s", "   ");
             }
             if(n < 0) continue;
             if(n >= (int)sizeof(outfilebuffer)) n = (int)sizeof(outfilebuffer) - 1;
