@@ -1,6 +1,7 @@
-; Hello World for Mini ASSembler
+; Hello World
+; for Handy ASSembler 65C02S
 ; ------------------------------
-.org $C000
+.org $8000
 
 RIA_TX .equ $FFE1
 
@@ -15,10 +16,11 @@ loop:
     RTS
 
 text:
-.ascii  "Hello Worl"
-.ascii  "d. I'm bac"
-.asciiz "k!\r\n"
+.ascii  "Hello World. "
+.ascii  "I'm back!"
+.asciiz "\r\n"
 
+;for OS Shell .exe
 dosrun:
 .word  start
-; -- end --
+; -- end of file --

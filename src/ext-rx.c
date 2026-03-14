@@ -7,7 +7,7 @@
 
 #define NEWLINE "\r\n"
 
-#define APPVER "20260314.2"
+#define APPVER "20260314.132146"
 #define APPDIRDEFAULT "MSC0:/SHELL/RX"
 #define APP_MSG_TITLE "\x1b[1;1HOS Shell > Courier RX                                      version " APPVER
 #define APP_MSG_START ANSI_DARK_GRAY "\x1b[3;1HWaiting for incoming data or [Esc] to exit " ANSI_RESET
@@ -45,6 +45,10 @@ typedef unsigned int u16;
 /* XRAM receive buffer — calkowity odbiur bez OS calls podczas transmisji */
 #define XRAM_RX_BASE  0x0000u
 #define XRAM_RX_MAX   0xEC00u  /* 60 KB — bezpieczny margines pod 0xF000 */
+
+/* XRAM staging area dla zapisu zdekodowanych bajtow (64 B, za XRAM_RX_MAX) */
+#define XRAM_DECODE_STAGE      0xF000u
+#define XRAM_DECODE_STAGE_SIZE 64u
 
 unsigned char c;
 
@@ -110,6 +114,112 @@ static int wait_for_marker(void)
             if (c == ESC) return -1;
         }
     }
+}
+
+/* ======================================================================
+ * Dekoder IntelHEX
+ * ====================================================================== */
+
+/* Konwertuje znak ASCII hex ('0'-'9','A'-'F','a'-'f') na wartosc 0-15. */
+static uint8_t hex_nibble(uint8_t ch)
+{
+    if (ch >= '0' && ch <= '9') return (uint8_t)(ch - '0');
+    if (ch >= 'A' && ch <= 'F') return (uint8_t)(ch - 'A' + 10u);
+    if (ch >= 'a' && ch <= 'f') return (uint8_t)(ch - 'a' + 10u);
+    return 0u;
+}
+
+/*
+ * Dekoduje IntelHEX z XRAM[XRAM_RX_BASE .. +ihx_len] i zapisuje surowe bajty
+ * do pliku fd_out. Dane czytane przez portal 1 (addr1/step1), zapis przez
+ * portal 0 (addr0/step0) do obszaru staging. Adresy AAAA sa ignorowane
+ * (dane sekwencyjne). Zwraca 1 przy sukcesie, 0 przy bledzie zapisu.
+ */
+static int decode_ihex_to_file(u16 ihx_len, int fd_out)
+{
+    uint8_t line[80];   /* bufor linii IntelHEX (RAM) */
+    uint8_t out[64];    /* bufor zdekodowanych bajtow (RAM) */
+    uint8_t out_len;
+    u16     pos;
+    int     result;
+    uint8_t llen;
+    uint8_t b;
+    uint8_t byte_count;
+    uint8_t rec_type;
+    uint8_t i;
+    uint8_t j;
+    uint8_t hi;
+    uint8_t lo;
+    uint8_t dp; /* data pointer: indeks w line[] do pary hex */
+
+    out_len = 0;
+    pos     = 0;
+    result  = 1;
+
+    RIA.addr1 = XRAM_RX_BASE;
+    RIA.step1 = 1;
+
+    while (pos < ihx_len) {
+
+        /* --- wczytaj jedna linie z XRAM do RAM --- */
+        llen = 0;
+        while (pos < ihx_len && llen < (uint8_t)(sizeof(line) - 1u)) {
+            b = RIA.rw1;
+            pos++;
+            if (b == '\n') break;
+            if (b != '\r') line[llen++] = b;
+        }
+        line[llen] = 0;
+
+        /* minimum: ':' + LL(2) + AAAA(4) + TT(2) = 9 znakow */
+        if (llen < 9u || line[0] != ':') continue;
+
+        byte_count = (uint8_t)((hex_nibble(line[1]) << 4) | hex_nibble(line[2]));
+        /* line[3..6] = AAAA (adres) — pomijamy */
+        rec_type   = (uint8_t)((hex_nibble(line[7]) << 4) | hex_nibble(line[8]));
+
+        if (rec_type == 0x01u) break; /* rekord EOF — koniec */
+
+        if (rec_type == 0x00u) {
+            /* rekord danych: linia musi zawierac 9 + byte_count*2 znakow */
+            if (byte_count > 35u) continue;             /* za duzy dla bufora */
+            if (llen < (uint8_t)(9u + byte_count + byte_count)) continue;
+
+            for (i = 0; i < byte_count; i++) {
+                dp = (uint8_t)(9u + i + i);             /* i*2, bez mnozenia */
+                hi = line[dp];
+                lo = line[(uint8_t)(dp + 1u)];
+                out[out_len++] = (uint8_t)((hex_nibble(hi) << 4) | hex_nibble(lo));
+
+                if (out_len >= XRAM_DECODE_STAGE_SIZE) {
+                    /* flush: out[] -> XRAM staging -> plik */
+                    RIA.addr0 = XRAM_DECODE_STAGE;
+                    RIA.step0 = 1;
+                    for (j = 0; j < out_len; j++) RIA.rw0 = out[j];
+                    if (write_xram(XRAM_DECODE_STAGE, (unsigned)out_len, fd_out) < 0) {
+                        result = 0;
+                        goto decode_done;
+                    }
+                    out_len = 0;
+                    /* write_xram (OS call) moze nadpisac portale — przywroc */
+                    RIA.addr1 = (u16)(XRAM_RX_BASE + pos);
+                    RIA.step1 = 1;
+                }
+            }
+        }
+        /* inne typy rekordow (02, 04...) sa ignorowane */
+    }
+
+    /* flush koncowy */
+    if (out_len > 0) {
+        RIA.addr0 = XRAM_DECODE_STAGE;
+        RIA.step0 = 1;
+        for (j = 0; j < out_len; j++) RIA.rw0 = out[j];
+        if (write_xram(XRAM_DECODE_STAGE, (unsigned)out_len, fd_out) < 0) result = 0;
+    }
+
+decode_done:
+    return result;
 }
 
 int main(void)
@@ -209,9 +319,23 @@ done:
         break;
     case 1:
         drop_console_rx();
-        ria_tx_puts(NEWLINE "SUCCESS: " );
+        ria_tx_puts(NEWLINE "SUCCESS: ");
         ria_tx_put_u16(rx_count);
-        ria_tx_puts(" bytes received, saved to MSC0:/RX/rx.ihx" NEWLINE NEWLINE);
+        ria_tx_puts(" bytes received, saved to MSC0:/RX/rx.ihx" NEWLINE);
+        /* Dekodowanie IntelHEX -> rx.txt (dane wciaz sa w XRAM) */
+        {
+            int fd_txt = open("MSC0:/RX/rx.txt", O_WRONLY | O_CREAT | O_TRUNC, 0666);
+            if (fd_txt < 0) {
+                ria_tx_puts("WARNING: cannot create rx.txt" NEWLINE NEWLINE);
+            } else {
+                if (decode_ihex_to_file(xram_rx_len, fd_txt)) {
+                    ria_tx_puts("Decoded:  MSC0:/RX/rx.txt" NEWLINE NEWLINE);
+                } else {
+                    ria_tx_puts("WARNING: decode error, rx.txt incomplete" NEWLINE NEWLINE);
+                }
+                close(fd_txt);
+            }
+        }
         break;
     }
 
