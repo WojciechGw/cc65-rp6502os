@@ -1,11 +1,10 @@
 /**
  * @file      shell.c
- * @author    Wojciech Gwioździk <wojciech@post.pl>
- * @copyright Wojciech Gwioździk. All rights reserved.
+ * @author    Wojciech Gwioździk
+ * @copyright 2026 (c) Wojciech Gwioździk
  *
  * based on Jason Howard's ideas & code <jth@howardlogic.com>
  * https://github.com/jthwho/rp6502-shell
- * See LICENSE file in the project root folder for license information
  */
 
 // Picocomputer 6502 documentation
