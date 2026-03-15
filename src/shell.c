@@ -91,8 +91,8 @@ int main(void) {
         current_drive = dir_cwd[0];
     }
     
-    // load params from file 0:/SHELL.INI
-    load_setup();
+    strncpy(shelldir, default_shelldir, sizeof(shelldir));
+    shelldir[sizeof(shelldir) - 1] = '\0';
 
     cls();
 

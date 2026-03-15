@@ -157,7 +157,7 @@ int main(int argc, char **argv) {
         }
     }
     printf(NEWLINE NEWLINE
-           "external commands (*.com files in <0:-7:>/SHELL) (case insensitive):" NEWLINE NEWLINE);
+           "external commands in OS Shell ROM: (case insensitive):" NEWLINE NEWLINE);
     for(i = 0; i < ARRAY_SIZE(commands_ext); i++) {
         printf("%-10s", commands_ext[i].cmd);
         if((i & 7) == 7) {
