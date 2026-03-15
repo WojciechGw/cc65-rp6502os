@@ -1,7 +1,7 @@
 #install ROM
 param(
     [string]$shellextcmdname = 'shell',
-    [string]$shellreboot = 'N'
+    [string]$shellreboot = 'N',
 	[string]$comPort = 'COM4'
 )
 
