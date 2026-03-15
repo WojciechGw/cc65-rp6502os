@@ -63,7 +63,7 @@ internal commands are case sensitive
 
 ### External
 external commands are *.com files in ROM: (case insensitive)</br>
-no need to call external commmands with .com - just type 'dir' instead od 'dir.com'
+There's no need to include the .com extension - just type 'dir' instead of 'dir.com'</br>
 
 * calendar - calendar application
 * crx      - download file transfer (PC => RP6502)
