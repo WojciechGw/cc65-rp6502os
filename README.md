@@ -31,7 +31,7 @@ User can build .exe programs 'in place' with external OS shell command 'hass' (H
 * UP - recall last command
 * DOWN - a directory of active drive/catalog
 
-## Commands
+## OS commands
 
 ### Internal
 internal commands are case sensitive
