@@ -2,6 +2,7 @@
 param(
     [string]$shellextcmdname = 'shell',
     [string]$shellreboot = 'N'
+	[string]$comPort = 'COM4'
 )
 
 Set-StrictMode -Version Latest
@@ -64,7 +65,7 @@ function Send-Line([System.IO.Ports.SerialPort]$port, [string]$text) {
 
 Push-Location "$PSScriptRoot"
 try {
-    $serialPort = [System.IO.Ports.SerialPort]::new("COM4", 115200, [System.IO.Ports.Parity]::None, 8, [System.IO.Ports.StopBits]::One)
+    $serialPort = [System.IO.Ports.SerialPort]::new($comPort, 115200, [System.IO.Ports.Parity]::None, 8, [System.IO.Ports.StopBits]::One)
     $serialPort.NewLine = "`r"
     $serialPort.ReadTimeout = 200
     $serialPort.WriteTimeout = 3000
@@ -82,7 +83,7 @@ try {
         $serialPort.Close()
     }
     catch {
-        Write-Warning "COM4: is not available $_"
+        Write-Warning "COM port is not available $_"
     }
     finally {
         if ($serialPort) {
@@ -111,7 +112,7 @@ try {
         $serialPort.Close()
     }
     catch {
-        Write-Warning "COM4: is not available $_"
+        Write-Warning "COM port is not available $_"
     }
     finally {
         if ($serialPort) {

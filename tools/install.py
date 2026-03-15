@@ -75,7 +75,7 @@ def send_line(port: serial.Serial, text: str, delay_ms: int = 400):
 
 def main():
     parser = argparse.ArgumentParser(description="Install rp6502 shell extension over COM port")
-    parser.add_argument("--port", default="COM4", help="Serial port name (default: COM4)")
+    parser.add_argument("--port", default="COM1", help="Serial port name (default: COM1)")
     parser.add_argument("--shellextcmdname", default="shell", help="Extension command name")
     parser.add_argument("--shellreboot", choices=["Y", "N"], default="Y", help="Reboot after install?")
     args = parser.parse_args()
