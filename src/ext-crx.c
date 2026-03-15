@@ -11,8 +11,8 @@ ext-crx.c - C89, cc65 (Picocomputer RP6502-RIA UART)
 
 #define NEWLINE "\r\n"
 
-#define APPVER "20260314.1418"
-#define APPDIRDEFAULT "MSC0:/SHELL/RX"
+#define APPVER "20260315.1858"
+#define APPDIRDEFAULT "MSC0:/"
 #define APP_MSG_TITLE "\x1b[2;1H\x1b" HIGHLIGHT_COLOR " OS Shell > " ANSI_RESET " Courier RX" ANSI_DARK_GRAY "\x1b[2;60Hversion " APPVER ANSI_RESET
 #define APP_MSG_START ANSI_DARK_GRAY "\x1b[4;1HWaiting for incoming data or [Esc] to exit " ANSI_RESET
 
@@ -120,12 +120,12 @@ static void drop_console_rx(void)
  * ====================================================================== */
 
 /*
- * Sklada rx_outpath = "MSC0:/RX/" + rx_filename.
+ * Sklada rx_outpath = prefix + rx_filename.
  * Jesli rx_filename pusty -> fallback "rx.bin".
  */
 static void build_rx_outpath(void)
 {
-    const char* prefix = "MSC0:/RX/";
+    const char* prefix = "\0";
     const char* fn;
     char* dst;
     uint8_t i;
@@ -347,9 +347,9 @@ int main(void)
     /* ------------------------------------------------------------------ *
      * Zapis XRAM -> rx.ihx                                               *
      * ------------------------------------------------------------------ */
-    fd = open("MSC0:/RX/rx.ihx", O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    fd = open("rx.ihx", O_WRONLY | O_CREAT | O_TRUNC, 0666);
     if (fd < 0) {
-        ria_tx_puts("ERROR: cannot open MSC0:/RX/rx.ihx" NEWLINE);
+        ria_tx_puts("ERROR: cannot open rx.ihx" NEWLINE);
         return -1;
     }
     if (action == 1 && xram_rx_len > 0) {
@@ -380,7 +380,7 @@ done:
         ria_tx_puts(NEWLINE "SUCCESS: ");
         ria_tx_put_u16(rx_count);
         ria_tx_puts(" bytes received" NEWLINE);
-        ria_tx_puts("Saved:   MSC0:/RX/rx.ihx" NEWLINE);
+        ria_tx_puts("Saved:   rx.ihx" NEWLINE);
 
         /* Dekodowanie IntelHEX -> rx_outpath */
         build_rx_outpath();

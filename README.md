@@ -1,6 +1,6 @@
 # RP6502 OS Shell [65C02S native]
 * project status: <B>IN PROGRESS</B>
-* next stage: relocation to 'BIG ROM'</br>
+* next stage: more utilities</br>
 
 This is a native 65C02S Shell 
 for Rumbledethumps' RP6502 Picocomputer OS</br>
@@ -16,14 +16,10 @@ Memory area available for user programs running under OS Shell environment is $8
 User can build .exe programs 'in place' with external OS shell command 'hass' (Handy ASSembler).
 
 ## OS Files
-* shell.rp6502 - in main catalog in drive '0:'
-* shell.ini - init file in main catalog in drive '0:'</br>first line must contain drive and name of folder for external commands files (*.com)</br>
-second line contains name of internal or external command to autoexecute right after shell starts 'IN PROGRESS'.</br>
-```
-0:/SHELL/
-drives
-```
-* SHELL - catalog with external commands (*.com files)
+* shell.rp6502
+* hello.asm - test source for hass
+* font.asm - test source for hass
+</br>
 
 ## Keyboard shortcuts
 * F1 - help informations
@@ -65,10 +61,11 @@ internal commands are case sensitive
 * time   - show local date and time
 
 ### External
-external commands are *.com files in MSC0:/SHELL (case insensitive)
+external commands are *.com files in ROM: (case insensitive)
 
 * calendar - calendar application
-* courier  - in/out file transfer application 
+* crx      - download file transfer (PC => RP6502)
+* ctx      - upload file transfer (RP6502 => PC)
 * dir      - show active drive directory, wildcards allowed
 * hass     - Handy ASSembler for 65C02S
 * help     - show help informations (same as F1 key)
