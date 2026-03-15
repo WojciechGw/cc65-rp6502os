@@ -13,7 +13,7 @@ All you need to test this project is in 'release/latest' folder.
 
 ## Memory
 Memory area available for user programs running under OS Shell environment is $8000-$FD00 (33515 bytes).</br>
-User can build programs 'in place' with external OS shell command 'hass' (Handy ASSembler).
+User can build .exe programs 'in place' with external OS shell command 'hass' (Handy ASSembler).
 
 ## OS Files
 * shell.rp6502 - in main catalog in drive '0:'
