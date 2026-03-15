@@ -1,6 +1,6 @@
 #include "commons.h"
 
-#define APPVER "20260309.1605"
+#define APPVER "20260315.1905"
 
 #define APP_HEADER CSI_RESET CSI "[2;1H" CSI HIGHLIGHT_COLOR " OS Shell > " ANSI_RESET " Help information                              " ANSI_DARK_GRAY "version " APPVER ANSI_RESET
 #define APP_FOOTER ANSI_DARK_GRAY  "________________________________________________________________________________" NEWLINE NEWLINE ANSI_RESET
@@ -89,7 +89,7 @@ static const cmd_t commands_ext[] = {
                     "dir *.rp6502 (only .rp6502 files)" NEWLINE
                     "dir /da (sorted by date ascending)"},
     { "hass",       "Handy ASSembler for 65C02S",
-                    "hass                            - instant write and compile a code" NEWLINE
+                    "hass                            - instant write source and compile" NEWLINE
                     "hass <source>                   - <source> file, out.bin as a result" NEWLINE
                     "hass <source> -o <destination>  - <source> file, <destination> as a result"},
     { "help",       "show help informations", 

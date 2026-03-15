@@ -9,8 +9,8 @@ mass sourcecode.asm -out outfile.bin -base <baseaddress> -run <runaddress>
 #include "commons.h"
 #include "ext-hass-opcodes.h"
 
-#define APPVER "20260314.0825"
-#define APPDIRDEFAULT "MSC0:/SHELL/"
+#define APPVER "20260315.1907"
+#define APPDIRDEFAULT "MSC0:/"
 #define APP_MSG_TITLE CSI_RESET "\x1b[2;1H\x1b" HIGHLIGHT_COLOR " OS Shell > " ANSI_RESET " Handy ASSembler WDC65C02S" ANSI_DARK_GRAY "\x1b[2;60Hversion " APPVER ANSI_RESET
 #define APP_MSG_START_ASSEMBLING ANSI_DARK_GRAY "\x1b[4;1HStart compilation ... " ANSI_RESET
 #define APP_MSG_START_ENTERCODE ANSI_DARK_GRAY "\x1b[4;1HEnter code. Empty line start code compilation ... " ANSI_RESET
@@ -261,11 +261,13 @@ static void xram_out_write_byte(uint16_t off, uint8_t b){
     RIA.rw1 = b;
 }
 
+/*
 static uint8_t xram_out_read_byte(uint16_t off){
     RIA.addr1 = (unsigned)(XRAM_OUT_BASE + off);
     RIA.step1 = 1;
     return RIA.rw1;
 }
+*/
 
 static int parse_ascii_bytes(const char* s, uint8_t* out, int max_out, int* out_len){
     int n = 0;
