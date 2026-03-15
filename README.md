@@ -11,6 +11,11 @@ https://github.com/jthwho/rp6502-shell
 
 All you need to test this project is in 'release/latest' folder.
 
+## Preparing
+
+* The shell.rp6502 file can be installed as boot ROM
+* The startup screen appears while waiting for a Wi-Fi connection and has a timeout set; without an active Wi-Fi connection or a manually set time, the 'time' and 'calendar' commands display data according to the current RP6502 system time
+
 ## Memory
 Memory area available for user programs running under OS Shell environment is $8000-$FD00 (33515 bytes).</br>
 User can build .exe programs 'in place' with external OS shell command 'hass' (Handy ASSembler for WDC65C02S).

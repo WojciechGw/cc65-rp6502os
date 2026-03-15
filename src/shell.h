@@ -21,7 +21,7 @@ extern struct _timezone _tz;
 #define MEMTOP (0xFF00-__STACKSIZE__)
 #define COM_LOAD_ADDR 0x8000  // lowest ram address where to load the external command code (binary shell extensions - .com files)
 
-#define SHELLVER "20260315.1747"
+#define SHELLVER "20260315.1921"
 #define SHELLDIRDEFAULT "ROM:"
 #define SHELLPROMPT "> "
 #define SHELLPROMPT_1ST "> " ANSI_GREEN "[F1] help" ANSI_RESET " > "
