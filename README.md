@@ -20,7 +20,6 @@ User can build .exe programs 'in place' with external OS shell command 'hass' (H
 * hello.asm - test source for hass
 * font.asm - test source for hass
 * sendfile.py - send file from PC to RP6502 as Intel HEX over serial, run crx.com on OS Shell to receive
-</br>
 
 ## Keyboard shortcuts
 * F1 - help informations
