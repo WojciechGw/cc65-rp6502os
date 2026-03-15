@@ -21,6 +21,6 @@ text:
 .asciiz "\r\n"
 
 ;for OS Shell .exe
-dosrun:
+shellrun:
 .word  start
 ; -- end of file --
