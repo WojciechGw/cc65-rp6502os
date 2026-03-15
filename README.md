@@ -1,6 +1,6 @@
 # RP6502 OS Shell [65C02S native]
 * project status: <B>IN PROGRESS</B>
-* next stage: more utilities</br>
+* next stage: text editor & more utilities</br>
 
 This is a native 65C02S Shell 
 for Rumbledethumps' RP6502 Picocomputer OS</br>
@@ -19,6 +19,7 @@ User can build .exe programs 'in place' with external OS shell command 'hass' (H
 * shell.rp6502
 * hello.asm - test source for hass
 * font.asm - test source for hass
+* sendfile.py - send file from PC to RP6502 as Intel HEX over serial, run crx.com on OS Shell to receive
 </br>
 
 ## Keyboard shortcuts

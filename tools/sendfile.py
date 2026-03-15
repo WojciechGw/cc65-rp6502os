@@ -1,6 +1,8 @@
 # Sendfile to Picocomputer 6502
 # run courier-rx on Picocomputer' OS Shell to receive file
 #
+# Copyright (c) 2026 WojciechGw
+#
 
 import argparse
 import os
