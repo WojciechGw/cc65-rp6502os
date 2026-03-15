@@ -307,7 +307,8 @@ static void load_asset2xram(const char *path, unsigned xram_addr) // load asset 
     close(fd);
 }
 */
-
+/*
+// load setup from "MSC0:/shell.ini"
 static void load_setup(void) {
     FILE *f;
     char *nl;
@@ -331,6 +332,7 @@ static void load_setup(void) {
     }
     fclose(f);
 }
+*/
 
 void cls(){ // clear screen
     tx_string(CSI_RESET);

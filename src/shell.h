@@ -204,7 +204,7 @@ static const cmd_t commands[] = {
 };
 
 // static void load_asset2xram(const char *path, unsigned xram_addr);
-static void load_setup(void);
+// static void load_setup(void);
 inline void tx_char(char c);
 void tx_chars(const char *buf, int ct);
 void tx_string(const char *buf);
