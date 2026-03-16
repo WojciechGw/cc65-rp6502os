@@ -16,10 +16,10 @@ mass sourcecode.asm -out outfile.bin -base <baseaddress> -run <runaddress>
 #define APP_MSG_START_ENTERCODE ANSI_DARK_GRAY "\x1b[4;1HEnter code. Empty line start code compilation ... " ANSI_RESET
 
 /* --- limits --- */
-#define MAXLINES    256
+#define MAXLINES    512
 #define MAXLEN      50
-#define MAXOUT      8192u
-#define MAXSYM      64
+#define MAXOUT      16384u
+#define MAXSYM      128
 #define MAXINCDEPTH 4
 
 /* --- input buffer --- */
@@ -53,17 +53,17 @@ static unsigned int assembly_status;
 
 /* --- storage in XRAM (RIA port 1) --- */
 #define XRAM_LINES_BASE 0x0000u
-#define XRAM_LINES_SIZE 0x3200u
-#define XRAM_OUT_BASE   0x3200u
-#define XRAM_OUT_SIZE   0x2000u
-#define XRAM_LST_BASE   0x5200u
+#define XRAM_LINES_SIZE 0x6400u  /* 512*50 = 25600 bytes */
+#define XRAM_OUT_BASE   0x6400u
+#define XRAM_OUT_SIZE   0x4000u  /* 16384 bytes */
+#define XRAM_LST_BASE   0xA400u
 #define XRAM_LST_SIZE   0x50u
 
 #if (MAXLINES * MAXLEN) > XRAM_LINES_SIZE
-#error "MAXLINES*MAXLEN exceeds 16KB XRAM source area"
+#error "MAXLINES*MAXLEN exceeds XRAM source area"
 #endif
 #if MAXOUT > XRAM_OUT_SIZE
-#error "MAXOUT exceeds 8KB XRAM output area"
+#error "MAXOUT exceeds XRAM output area"
 #endif
 
 // global variables
@@ -93,7 +93,7 @@ static int      nsym = 0;
 static char     sym_first[MAXSYM]; /* first-char cache for fast find_sym */
 
 /* symbol table stored in XRAM */
-#define XRAM_SYM_BASE   0x6000u
+#define XRAM_SYM_BASE   0xA450u  /* after LST: 0xA400+0x50; 128*64=8192 bytes -> 0xC450 */
 #define XRAM_SYM_STRIDE 64u
 #define XRAM_SYM_SIZE   ((unsigned)MAXSYM * (unsigned)XRAM_SYM_STRIDE)
 
