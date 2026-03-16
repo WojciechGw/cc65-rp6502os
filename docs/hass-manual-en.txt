@@ -262,14 +262,14 @@ extensions (SMBx, RMBx, BBRx, BBSx, WAI, STP).
 
   Parameter                     Value
   ------------------------------------------
-  Maximum source lines          256
-  Maximum line length           50 characters
-  Maximum code size             8192 bytes (8 KB)
-  Maximum number of symbols     64
-  Maximum symbol name length    47 characters
-  Maximum .INCLUDE nesting      4 levels
-  Conditional branch range      -128..+127 bytes
-  Address space                 16-bit (0000-FFFF)
+  Maximum source lines            512
+  Maximum line length              50 characters
+  Maximum code size             16384 bytes (16 kB)
+  Maximum number of symbols       128
+  Maximum symbol name length       47 characters
+  Maximum .INCLUDE nesting          4 levels
+  Conditional branch range -128..+127 bytes
+  Address space 16-bit (0000-FFFF)
 
 
 --------------------------------------------------------------------------------

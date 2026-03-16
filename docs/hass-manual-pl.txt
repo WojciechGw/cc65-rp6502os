@@ -262,14 +262,14 @@ z rozszerzeniami WDC (SMBx, RMBx, BBRx, BBSx, WAI, STP).
 
   Parametr                Wartosc
   -----------------------------------------
-  Maksymalna liczba linii   256
-  Maksymalna dlugosc linii   50 znakow
-  Maksymalny rozmiar kodu   8192 bajtow (8 KB)
-  Maksymalna liczba symboli   64
-  Maksymalna dlugosc nazwy   47 znakow
-  Maksymalne zagniezdz. INCLUDE  4 poziomy
-  Zasieg skokow warunkowych  -128..+127 bajtow
-  Przestrzen adresowa        16-bitowa (0000-FFFF)
+  Maksymalna liczba linii       512
+  Maksymalna dlugosc linii       50 znakow
+  Maksymalny rozmiar kodu     16384 bajtow (16384 kB)
+  Maksymalna liczba symboli     128
+  Maksymalna dlugosc nazwy       47 znakow
+  Maksymalne zagniezdz. INCLUDE   4 poziomy
+  Zasieg skokow warunkowych    -128..+127 bajtow
+  Przestrzen adresowa 16-bitowa (0000-FFFF)
 
 
 --------------------------------------------------------------------------------

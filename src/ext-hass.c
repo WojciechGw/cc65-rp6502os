@@ -9,7 +9,7 @@ mass sourcecode.asm -out outfile.bin -base <baseaddress> -run <runaddress>
 #include "commons.h"
 #include "ext-hass-opcodes.h"
 
-#define APPVER "20260315.1907"
+#define APPVER "20260316.1141"
 #define APPDIRDEFAULT "MSC0:/"
 #define APP_MSG_TITLE CSI_RESET "\x1b[2;1H\x1b" HIGHLIGHT_COLOR " OS Shell > " ANSI_RESET " Handy ASSembler WDC65C02S" ANSI_DARK_GRAY "\x1b[2;60Hversion " APPVER ANSI_RESET
 #define APP_MSG_START_ASSEMBLING ANSI_DARK_GRAY "\x1b[4;1HStart compilation ... " ANSI_RESET
@@ -485,7 +485,7 @@ static const opdef_t* find_op(const char* m){
     return 0;
 }
 
-/* --- tokenizacja --- */
+/* --- tokenization --- */
 static int split_token(char* s, char** a, char** b){
     char* p = s;
     ltrim_ptr(&p);
