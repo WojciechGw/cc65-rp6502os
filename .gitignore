@@ -1,4 +1,6 @@
 __pycache__
+/.claude
+/.github
 /.rp6502
 /build
 /src/extcmd/*.map
