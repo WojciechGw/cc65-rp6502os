@@ -1,0 +1,331 @@
+================================================================================
+  HASS - Handy ASSembler dla WDC 65C02S
+  Picocomputer 6502 (RP6502)
+================================================================================
+
+HASS jest dwuprzebiegowym asemblerem dla procesora WDC 65C02S dzialajacym
+na Picocomputer 6502. Obsluguje pelny zestaw instrukcji 65C02 wlacznie
+z rozszerzeniami WDC (SMBx, RMBx, BBRx, BBSx, WAI, STP).
+
+
+--------------------------------------------------------------------------------
+1. WYWOLANIE
+--------------------------------------------------------------------------------
+
+  hass [plik.asm] [-o plik.bin]
+
+  Parametry:
+    plik.asm       - plik zrodlowy asemblera (jesli pominiety: tryb interaktywny)
+    -o plik.bin    - nazwa pliku wyjsciowego binarnego (domyslnie: out.bin)
+
+  Pliki wyjsciowe:
+    out.bin        - binarny plik maszyny (raw)
+    out.lst        - plik listingu (adres + bajty + zrodlo)
+
+  Tryb interaktywny:
+    Jesli nie podano pliku wejsciowego, asembler czyta instrukcje ze standardowego
+    wejscia. Pusta linia konczy wprowadzanie i uruchamia asemblacje.
+
+  Przyklady:
+    hass program.asm
+    hass program.asm -o program.bin
+    hass program.asm -o program.exe (uruchamialny w OS Shell przez wpisanie program.exe)
+    hass (dla pisania kodu "na żywo", pusta linia rozpoczyna kompilację)
+
+
+--------------------------------------------------------------------------------
+2. FORMAT PLIKU ZRODLOWEGO
+--------------------------------------------------------------------------------
+
+  Kazda linia ma postac:
+
+    [etykieta:] [mnemonik [operand]] [;komentarz]
+
+  - Etykieta zaczyna sie od kolumny 1, konczy sie dwukropkiem (:)
+  - Mnemonik i operand sa oddzielone bialymi znakami
+  - Komentarz zaczyna sie od srednika (;) i trwa do konca linii
+  - Maksymalna dlugosc linii: 50 znakow
+  - Maksymalna liczba linii: 256
+
+  Przyklady:
+    ; to jest komentarz
+    start:  
+            LDA #$00        ; zaladuj zero do A
+            STA $80         ; zapisz do strony zerowej
+    loop:   
+            INX             ; X++
+            BNE loop        ; skocz do loop jesli nie zero
+
+
+--------------------------------------------------------------------------------
+3. ETYKIETY I SYMBOLE
+--------------------------------------------------------------------------------
+
+  Etykiety:
+  - Pierwszy znak: litera (a-z, A-Z), podkreslnik (_) lub kropka (.)
+  - Kolejne znaki: litery, cyfry, podkreslnik, kropka
+  - Maksymalna dlugosc: 47 znakow
+  - Wielkosc liter nie ma znaczenia (konwertowane wewnetrznie do duzych)
+  - Definiowane przez dodanie dwukropka: MYLABEL:
+  - Maksymalna liczba symboli: 64
+
+  Stale (.EQU):
+    NAZWA .EQU wartosc      ; definicja stalej
+    NAZWA: .equ wartosc     ; alternatywna forma
+
+  Przyklady:
+    STACK_TOP .EQU $01FF
+    IO_PORT   .EQU $C000
+    MAX_CNT   .EQU 100
+
+
+--------------------------------------------------------------------------------
+4. LITERALY I WYRAZENIA
+--------------------------------------------------------------------------------
+
+  Formaty liczb:
+    123          - dziesietny
+    $FF          - szesnastkowy (hex)
+    $1234        - szesnastkowy 16-bitowy
+    %10101010    - dwojkowy (binarny, max 8 bitow)
+
+  Operatory jednoargumentowe na wartosciach:
+    <wartosc     - mlodszy bajt (bity 0-7) wartosci 16-bitowej
+    >wartosc     - starszy bajt (bity 8-15) wartosci 16-bitowej
+    *wartosc     - wymuszenie trybu strony zerowej (ZP)
+
+  Przyklady:
+    LDA #$FF          ; imm: hex
+    LDA #%11110000    ; imm: bin
+    LDA #100          ; imm: dec
+    LDA #<LABEL       ; imm: mlodszy bajt etykiety
+    LDA #>LABEL       ; imm: starszy bajt etykiety
+    LDA *$200         ; wymuszone ZP (choc adres > $FF)
+
+
+--------------------------------------------------------------------------------
+5. DYREKTYWY
+--------------------------------------------------------------------------------
+
+  .ORG adres
+    Ustawia licznik programu (PC). Jesli nie uzyty, domyslny poczatek: $8000.
+    Przyklad:  .ORG $8000
+
+  .EQU wartosc
+    Definiuje stala. Uzycie: NAZWA .EQU wartosc
+    Przyklad:  DELAY .EQU 255
+
+  .BYTE wartosci
+    Emituje jeden lub wiecej bajtow oddzielonych przecinkami.
+    Przyklad:  .BYTE $00, $FF, 128, %10101010
+
+  .WORD wartosci
+    Emituje 16-bitowe slowa (little-endian) oddzielone przecinkami.
+    Przyklad:  .WORD $0200, label
+
+  .ASCII "tekst"
+    Emituje ciag znakow ASCII bez terminatora null.
+    Przyklad:  .ASCII "Hello"
+
+  .ASCIZ "tekst"
+  .ASCIIZ "tekst"
+    Emituje ciag znakow ASCII z terminatorem null ($00) na koncu.
+    Przyklad:  .ASCIZ "Hello"
+
+  .INCLUDE "plik"
+    Wlacza plik zrodlowy. Maksymalne zagniezdienie: 4 poziomy.
+    Przyklad:  .INCLUDE "macros.asm"
+
+
+--------------------------------------------------------------------------------
+6. TRYBY ADRESOWANIA
+--------------------------------------------------------------------------------
+
+  Tryb              Skladnia              Przyklad          Bajtow
+  ----------------------------------------------------------------
+  Implikowany       mnemonic              NOP               1
+  Akumulator        mnemonic A            INC A             1
+  Natychmiastowy    #wartosc              LDA #$FF          2
+  Strona zerowa     wartosc ($00-$FF)     LDA $80           2
+  Strona zerowa,X   wartosc,X            LDA $80,X         2
+  Strona zerowa,Y   wartosc,Y            LDX $80,Y         2
+  Absolutny         wartosc ($0000-FFFF) LDA $8000         3
+  Absolutny,X       wartosc,X            LDA $8000,X       3
+  Absolutny,Y       wartosc,Y            LDA $8000,Y       3
+  Posredni ZP       (wartosc)            JMP ($80)         2
+  Posredni ZP,X     (wartosc,X)          LDA ($80,X)       2
+  Posredni ZP,Y     (wartosc),Y          LDA ($80),Y       2
+  Posredni ABS      (wartosc)            JMP ($8000)       3
+  Posredni ABS,X    (wartosc,X)          JMP ($8000,X)     3
+  Wzgledny (PCREL)  etykieta             BEQ etykieta      2
+  Stos              (implikowany)        PHA, BRK, RTS     1
+
+  Uwaga: asembler automatycznie wybiera tryb ZP jezeli wartosc miesci sie
+  w zakresie $00-$FF. Uzyj prefiksu * aby wymusic tryb ZP dla wyzszych adresow.
+
+
+--------------------------------------------------------------------------------
+7. MNEMONIKI
+--------------------------------------------------------------------------------
+
+  Ladowanie / Zapis:
+    LDA  LDX  LDY              - laduj do A/X/Y
+    STA  STX  STY  STZ         - zapisz A/X/Y lub zero
+
+  Arytmetyka:
+    ADC  SBC                   - dodawanie / odejmowanie z przeniesieniem
+
+  Logika:
+    AND  EOR  ORA              - AND / XOR / OR z akumulatorem
+
+  Przesuniecia i rotacje:
+    ASL  LSR                   - przesuniecie arytmetyczne/logiczne
+    ROL  ROR                   - rotacja z bitem przeniesienia (C)
+
+  Bity:
+    BIT                        - test bitow
+    RMB0..RMB7                 - zeruj bit 0..7 w stronie zerowej (WDC)
+    SMB0..SMB7                 - ustaw bit 0..7 w stronie zerowej (WDC)
+    TRB                        - testuj i zeruj bity
+    TSB                        - testuj i ustaw bity
+
+  Inkrementacja / Dekrementacja:
+    INC  INX  INY              - inkrementacja
+    DEC  DEX  DEY              - dekrementacja
+
+  Transfery rejestrowe:
+    TAX  TAY  TXA  TYA        - A <-> X/Y
+    TSX  TXS                  - stos <-> X
+
+  Stos:
+    PHA  PHP  PHX  PHY        - odloz na stos
+    PLA  PLP  PLX  PLY        - pobierz ze stosu
+
+  Skoki bezwarunkowe:
+    JMP                        - skok bezposredni lub posredni
+    JSR                        - wywolanie podprogramu
+    RTS                        - powrot z podprogramu
+    RTI                        - powrot z przerwania
+
+  Skoki warunkowe (zasieg: -128..+127 bajtow):
+    BCC  BCS                   - skok jesli C=0 / C=1
+    BEQ  BNE                   - skok jesli Z=1 / Z=0
+    BMI  BPL                   - skok jesli N=1 / N=0
+    BVC  BVS                   - skok jesli V=0 / V=1
+    BRA                        - skok wzgledny bezwarunkowy
+
+  Skoki warunkowe od bitow (WDC):
+    BBR0..BBR7 zp,etykieta    - skocz jesli bit N w ZP = 0
+    BBS0..BBS7 zp,etykieta    - skocz jesli bit N w ZP = 1
+
+  Flagi:
+    CLC  SEC                   - wyczysc / ustaw przeniesienie (C)
+    CLD  SED                   - wyczysc / ustaw tryb BCD (D)
+    CLI  SEI                   - wyczysc / ustaw maska przerwan (I)
+    CLV                        - wyczysc przepelnienie (V)
+
+  Porownania:
+    CMP  CPX  CPY              - porownaj A/X/Y z wartoscia
+
+  Pozostale:
+    NOP                        - brak operacji
+    BRK                        - przerwanie programowe
+    WAI                        - czekaj na przerwanie (WDC)
+    STP                        - zatrzymaj procesor (WDC)
+
+
+--------------------------------------------------------------------------------
+8. PLIK LISTINGU (out.lst)
+--------------------------------------------------------------------------------
+
+  Kazda linia listingu ma format:
+
+    AAAA BB BB BB ... | linia zrodlowa
+
+  Gdzie:
+    AAAA     - 4-cyfrowy adres szesnastkowy (PC przed instrukcja)
+    BB BB    - wygenerowane bajty kodu maszynowego
+    |        - separator
+    linia    - oryginalna linia zrodlowa
+
+  Przyklad:
+    8000 A9 00       | start:  LDA #$00
+    8002 85 80       |         STA $80
+    8004 E8          | loop:   INX
+    8005 D0 FD       |         BNE loop
+                     | ; koniec
+
+
+--------------------------------------------------------------------------------
+9. OGRANICZENIA
+--------------------------------------------------------------------------------
+
+  Parametr                Wartosc
+  -----------------------------------------
+  Maksymalna liczba linii   256
+  Maksymalna dlugosc linii   50 znakow
+  Maksymalny rozmiar kodu   8192 bajtow (8 KB)
+  Maksymalna liczba symboli   64
+  Maksymalna dlugosc nazwy   47 znakow
+  Maksymalne zagniezdz. INCLUDE  4 poziomy
+  Zasieg skokow warunkowych  -128..+127 bajtow
+  Przestrzen adresowa        16-bitowa (0000-FFFF)
+
+
+--------------------------------------------------------------------------------
+10. KOMUNIKATY BLEDOW
+--------------------------------------------------------------------------------
+
+  PASS 1 (analiza):
+    PASS1: ERROR unknown mnemonic at line N: XYZ
+      - nieznana nazwa mnemonika
+
+    PASS1: ERROR unattended mode XYZ at line N
+      - instrukcja nie obsluguje wymaganego trybu adresowania
+
+    PASS1: ERROR .equ unknown symbol NAME
+      - .EQU odwoluje sie do nieznanego symbolu
+
+    PASS1: ERROR syntax .ascii: .ascii "text"
+      - niepoprawna skladnia dyrektywy .ASCII
+
+    Too many symbols
+      - przekroczono limit 64 symboli
+
+    Too many rows
+      - przekroczono limit 256 linii
+
+    Too deep .include
+      - zbyt gleboke zagniezdzenie .INCLUDE (max 4)
+
+  PASS 2 (generowanie kodu):
+    PASS2: ERROR write before .ORG at $XXXX
+      - instrukcja przed ustawieniem poczatku (.ORG)
+
+    PASS2: ERROR output overflow at $XXXX
+      - kod przekroczyl 8 KB
+
+    Unidentified label: NAME
+      - uzycie niezdefiniowanej etykiety
+
+    PASS2: ERROR .byte truncates $XXXX at line N
+      - wartosc > $FF w .BYTE bez operatora < lub >
+
+    PASS2: ERROR branch out of range at line N
+      - skok warunkowy poza zasiegiem -128..+127
+
+  Bledy plikow:
+    Can't open: PLIK
+      - nie mozna otworzyc pliku zrodlowego
+
+    Writing error (open PLIK)
+      - nie mozna utworzyc pliku wyjsciowego
+
+  Po pomyslnej asemblacji:
+    ORG=$XXXX, size=NNNN bytes
+    Save in out.bin
+
+
+================================================================================
+  Koniec dokumentu
+================================================================================

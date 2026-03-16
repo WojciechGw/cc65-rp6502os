@@ -1,0 +1,331 @@
+================================================================================
+  HASS - Handy ASSembler for WDC 65C02S
+  Picocomputer 6502 (RP6502)
+================================================================================
+
+HASS is a two-pass assembler for the WDC 65C02S processor running on the
+Picocomputer 6502. It supports the full 65C02 instruction set including WDC
+extensions (SMBx, RMBx, BBRx, BBSx, WAI, STP).
+
+
+--------------------------------------------------------------------------------
+1. INVOCATION
+--------------------------------------------------------------------------------
+
+  hass [source.asm] [-o output.bin]
+
+  Parameters:
+    source.asm     - assembly source file (if omitted: interactive mode)
+    -o output.bin  - output binary filename (default: out.bin)
+
+  Output files:
+    out.bin        - raw binary machine code
+    out.lst        - listing file (address + bytes + source)
+
+  Interactive mode:
+    If no source file is given, the assembler reads instructions from standard
+    input. An empty line terminates input and starts assembly.
+
+  Examples:
+    hass program.asm
+    hass program.asm -o program.bin
+    hass program.asm -o program.exe (run program in OS Shell by typing program.exe)
+    hass (for instant code writing, empty line start compiling)
+
+
+--------------------------------------------------------------------------------
+2. SOURCE FILE FORMAT
+--------------------------------------------------------------------------------
+
+  Each line has the form:
+
+    [label:] [mnemonic [operand]] [;comment]
+
+  - A label starts in column 1 and ends with a colon (:)
+  - Mnemonic and operand are separated by whitespace
+  - A comment starts with a semicolon (;) and extends to end of line
+  - Maximum line length: 50 characters
+  - Maximum number of lines: 256
+
+  Examples:
+    ; this is a comment
+    start:  
+            LDA #$00        ; load zero into A
+            STA $80         ; store to zero page
+    loop:   
+            INX             ; X++
+            BNE loop        ; branch to loop if not zero
+
+
+--------------------------------------------------------------------------------
+3. LABELS AND SYMBOLS
+--------------------------------------------------------------------------------
+
+  Labels:
+  - First character: letter (a-z, A-Z), underscore (_) or period (.)
+  - Subsequent characters: letters, digits, underscore, period
+  - Maximum length: 47 characters
+  - Case-insensitive (converted to uppercase internally)
+  - Defined by appending a colon: MYLABEL:
+  - Maximum number of symbols: 64
+
+  Constants (.EQU):
+    NAME .EQU value          ; constant definition
+    NAME: .equ value         ; alternative form
+
+  Examples:
+    STACK_TOP .EQU $01FF
+    IO_PORT   .EQU $C000
+    MAX_CNT   .EQU 100
+
+
+--------------------------------------------------------------------------------
+4. LITERALS AND EXPRESSIONS
+--------------------------------------------------------------------------------
+
+  Number formats:
+    123          - decimal
+    $FF          - hexadecimal
+    $1234        - 16-bit hexadecimal
+    %10101010    - binary (max 8 bits)
+
+  Unary operators:
+    <value       - low byte (bits 0-7) of a 16-bit value
+    >value       - high byte (bits 8-15) of a 16-bit value
+    *value       - force zero-page addressing mode
+
+  Examples:
+    LDA #$FF          ; immediate: hex
+    LDA #%11110000    ; immediate: binary
+    LDA #100          ; immediate: decimal
+    LDA #<LABEL       ; immediate: low byte of label
+    LDA #>LABEL       ; immediate: high byte of label
+    LDA *$200         ; forced ZP (even though address > $FF)
+
+
+--------------------------------------------------------------------------------
+5. DIRECTIVES
+--------------------------------------------------------------------------------
+
+  .ORG address
+    Sets the program counter (PC). If omitted, default origin is $8000.
+    Example:  .ORG $8000
+
+  .EQU value
+    Defines a constant. Usage: NAME .EQU value
+    Example:  DELAY .EQU 255
+
+  .BYTE values
+    Emits one or more bytes separated by commas.
+    Example:  .BYTE $00, $FF, 128, %10101010
+
+  .WORD values
+    Emits 16-bit words in little-endian order, separated by commas.
+    Example:  .WORD $0200, label
+
+  .ASCII "text"
+    Emits an ASCII string without a null terminator.
+    Example:  .ASCII "Hello"
+
+  .ASCIZ "text"
+  .ASCIIZ "text"
+    Emits an ASCII string with a null terminator ($00) appended.
+    Example:  .ASCIZ "Hello"
+
+  .INCLUDE "file"
+    Includes another source file. Maximum nesting depth: 4 levels.
+    Example:  .INCLUDE "macros.asm"
+
+
+--------------------------------------------------------------------------------
+6. ADDRESSING MODES
+--------------------------------------------------------------------------------
+
+  Mode                Syntax                Example           Bytes
+  ------------------------------------------------------------------
+  Implied             mnemonic              NOP               1
+  Accumulator         mnemonic A            INC A             1
+  Immediate           #value                LDA #$FF          2
+  Zero Page           value ($00-$FF)       LDA $80           2
+  Zero Page,X         value,X               LDA $80,X         2
+  Zero Page,Y         value,Y               LDX $80,Y         2
+  Absolute            value ($0000-FFFF)    LDA $8000         3
+  Absolute,X          value,X               LDA $8000,X       3
+  Absolute,Y          value,Y               LDA $8000,Y       3
+  ZP Indirect         (value)               JMP ($80)         2
+  ZP Indirect,X       (value,X)             LDA ($80,X)       2
+  ZP Indirect,Y       (value),Y             LDA ($80),Y       2
+  ABS Indirect        (value)               JMP ($8000)       3
+  ABS Indirect,X      (value,X)             JMP ($8000,X)     3
+  PC-Relative         label                 BEQ label         2
+  Stack               (implied)             PHA, BRK, RTS     1
+
+  Note: the assembler automatically selects ZP mode when the value fits in
+  $00-$FF. Use the * prefix to force ZP mode for higher addresses.
+
+
+--------------------------------------------------------------------------------
+7. MNEMONICS
+--------------------------------------------------------------------------------
+
+  Load / Store:
+    LDA  LDX  LDY              - load into A/X/Y
+    STA  STX  STY  STZ         - store A/X/Y or zero
+
+  Arithmetic:
+    ADC  SBC                   - add / subtract with carry
+
+  Logic:
+    AND  EOR  ORA              - AND / XOR / OR with accumulator
+
+  Shifts and Rotates:
+    ASL  LSR                   - arithmetic / logical shift
+    ROL  ROR                   - rotate through carry (C)
+
+  Bit Operations:
+    BIT                        - bit test
+    RMB0..RMB7                 - reset bit 0..7 in zero page (WDC)
+    SMB0..SMB7                 - set bit 0..7 in zero page (WDC)
+    TRB                        - test and reset bits
+    TSB                        - test and set bits
+
+  Increment / Decrement:
+    INC  INX  INY              - increment
+    DEC  DEX  DEY              - decrement
+
+  Register Transfers:
+    TAX  TAY  TXA  TYA        - A <-> X/Y
+    TSX  TXS                  - stack pointer <-> X
+
+  Stack:
+    PHA  PHP  PHX  PHY        - push to stack
+    PLA  PLP  PLX  PLY        - pull from stack
+
+  Unconditional Jumps:
+    JMP                        - jump (direct or indirect)
+    JSR                        - jump to subroutine
+    RTS                        - return from subroutine
+    RTI                        - return from interrupt
+
+  Conditional Branches (range: -128..+127 bytes):
+    BCC  BCS                   - branch if C=0 / C=1
+    BEQ  BNE                   - branch if Z=1 / Z=0
+    BMI  BPL                   - branch if N=1 / N=0
+    BVC  BVS                   - branch if V=0 / V=1
+    BRA                        - branch always (relative)
+
+  Bit-conditional Branches (WDC):
+    BBR0..BBR7 zp,label       - branch if bit N of ZP byte = 0
+    BBS0..BBS7 zp,label       - branch if bit N of ZP byte = 1
+
+  Status Flags:
+    CLC  SEC                   - clear / set carry (C)
+    CLD  SED                   - clear / set BCD mode (D)
+    CLI  SEI                   - clear / set interrupt mask (I)
+    CLV                        - clear overflow (V)
+
+  Comparisons:
+    CMP  CPX  CPY              - compare A/X/Y with value
+
+  Miscellaneous:
+    NOP                        - no operation
+    BRK                        - software break / interrupt
+    WAI                        - wait for interrupt (WDC)
+    STP                        - stop the processor (WDC)
+
+
+--------------------------------------------------------------------------------
+8. LISTING FILE (out.lst)
+--------------------------------------------------------------------------------
+
+  Each listing line has the format:
+
+    AAAA BB BB BB ... | source line
+
+  Where:
+    AAAA     - 4-digit hex address (PC before the instruction)
+    BB BB    - generated machine code bytes
+    |        - separator
+    source   - original source line
+
+  Example:
+    8000 A9 00       | start:  LDA #$00
+    8002 85 80       |         STA $80
+    8004 E8          | loop:   INX
+    8005 D0 FD       |         BNE loop
+                     | ; end
+
+
+--------------------------------------------------------------------------------
+9. LIMITS
+--------------------------------------------------------------------------------
+
+  Parameter                     Value
+  ------------------------------------------
+  Maximum source lines          256
+  Maximum line length           50 characters
+  Maximum code size             8192 bytes (8 KB)
+  Maximum number of symbols     64
+  Maximum symbol name length    47 characters
+  Maximum .INCLUDE nesting      4 levels
+  Conditional branch range      -128..+127 bytes
+  Address space                 16-bit (0000-FFFF)
+
+
+--------------------------------------------------------------------------------
+10. ERROR MESSAGES
+--------------------------------------------------------------------------------
+
+  Pass 1 (analysis):
+    PASS1: ERROR unknown mnemonic at line N: XYZ
+      - unknown mnemonic name
+
+    PASS1: ERROR unattended mode XYZ at line N
+      - instruction does not support the required addressing mode
+
+    PASS1: ERROR .equ unknown symbol NAME
+      - .EQU references an undefined symbol
+
+    PASS1: ERROR syntax .ascii: .ascii "text"
+      - malformed .ASCII directive
+
+    Too many symbols
+      - symbol limit of 64 exceeded
+
+    Too many rows
+      - line limit of 256 exceeded
+
+    Too deep .include
+      - .INCLUDE nesting exceeds maximum depth of 4
+
+  Pass 2 (code generation):
+    PASS2: ERROR write before .ORG at $XXXX
+      - instruction encountered before .ORG was set
+
+    PASS2: ERROR output overflow at $XXXX
+      - generated code exceeds 8 KB
+
+    Unidentified label: NAME
+      - reference to an undefined label
+
+    PASS2: ERROR .byte truncates $XXXX at line N
+      - value > $FF in .BYTE without < or > operator
+
+    PASS2: ERROR branch out of range at line N
+      - conditional branch target outside -128..+127 range
+
+  File errors:
+    Can't open: FILE
+      - source file cannot be opened
+
+    Writing error (open FILE)
+      - output file cannot be created
+
+  On successful assembly:
+    ORG=$XXXX, size=NNNN bytes
+    Save in out.bin
+
+
+================================================================================
+  End of document
+================================================================================
