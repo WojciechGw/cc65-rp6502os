@@ -7,7 +7,6 @@ HASS jest dwuprzebiegowym asemblerem dla procesora WDC 65C02S dzialajacym
 na Picocomputer 6502. Obsluguje pelny zestaw instrukcji 65C02 wlacznie
 z rozszerzeniami WDC (SMBx, RMBx, BBRx, BBSx, WAI, STP).
 
-
 --------------------------------------------------------------------------------
 1. WYWOLANIE
 --------------------------------------------------------------------------------
@@ -32,7 +31,6 @@ z rozszerzeniami WDC (SMBx, RMBx, BBRx, BBSx, WAI, STP).
     hass program.asm -o program.exe (uruchamialny w OS Shell przez wpisanie program.exe)
     hass (dla pisania kodu "na żywo", pusta linia rozpoczyna kompilację)
 
-
 --------------------------------------------------------------------------------
 2. FORMAT PLIKU ZRODLOWEGO
 --------------------------------------------------------------------------------
@@ -47,15 +45,16 @@ z rozszerzeniami WDC (SMBx, RMBx, BBRx, BBSx, WAI, STP).
   - Maksymalna dlugosc linii: 50 znakow
   - Maksymalna liczba linii: 256
 
-  Przyklady:
+  Przyklad:
     ; to jest komentarz
-    start:  
-            LDA #$00        ; zaladuj zero do A
+           .ORG $C000       ; adres poczatkowy
+    start:  LDA #$00        ; zaladuj zero do A
             STA $80         ; zapisz do strony zerowej
-    loop:   
-            INX             ; X++
+    loop:   INX             ; X++
             BNE loop        ; skocz do loop jesli nie zero
-
+            RTS
+    exestart:
+    .word start
 
 --------------------------------------------------------------------------------
 3. ETYKIETY I SYMBOLE
@@ -78,14 +77,13 @@ z rozszerzeniami WDC (SMBx, RMBx, BBRx, BBSx, WAI, STP).
     IO_PORT   .EQU $C000
     MAX_CNT   .EQU 100
 
-
 --------------------------------------------------------------------------------
 4. LITERALY I WYRAZENIA
 --------------------------------------------------------------------------------
 
   Formaty liczb:
     123          - dziesietny
-    $FF          - szesnastkowy (hex)
+    $AF lub $af  - szesnastkowy (hex)
     $1234        - szesnastkowy 16-bitowy
     %10101010    - dwojkowy (binarny, max 8 bitow)
 
@@ -101,7 +99,6 @@ z rozszerzeniami WDC (SMBx, RMBx, BBRx, BBSx, WAI, STP).
     LDA #<LABEL       ; imm: mlodszy bajt etykiety
     LDA #>LABEL       ; imm: starszy bajt etykiety
     LDA *$200         ; wymuszone ZP (choc adres > $FF)
-
 
 --------------------------------------------------------------------------------
 5. DYREKTYWY
@@ -136,7 +133,6 @@ z rozszerzeniami WDC (SMBx, RMBx, BBRx, BBSx, WAI, STP).
     Wlacza plik zrodlowy. Maksymalne zagniezdienie: 4 poziomy.
     Przyklad:  .INCLUDE "macros.asm"
 
-
 --------------------------------------------------------------------------------
 6. TRYBY ADRESOWANIA
 --------------------------------------------------------------------------------
@@ -162,7 +158,6 @@ z rozszerzeniami WDC (SMBx, RMBx, BBRx, BBSx, WAI, STP).
 
   Uwaga: asembler automatycznie wybiera tryb ZP jezeli wartosc miesci sie
   w zakresie $00-$FF. Uzyj prefiksu * aby wymusic tryb ZP dla wyzszych adresow.
-
 
 --------------------------------------------------------------------------------
 7. MNEMONIKI
@@ -233,7 +228,6 @@ z rozszerzeniami WDC (SMBx, RMBx, BBRx, BBSx, WAI, STP).
     WAI                        - czekaj na przerwanie (WDC)
     STP                        - zatrzymaj procesor (WDC)
 
-
 --------------------------------------------------------------------------------
 8. PLIK LISTINGU (out.lst)
 --------------------------------------------------------------------------------
@@ -255,7 +249,6 @@ z rozszerzeniami WDC (SMBx, RMBx, BBRx, BBSx, WAI, STP).
     8005 D0 FD       |         BNE loop
                      | ; koniec
 
-
 --------------------------------------------------------------------------------
 9. OGRANICZENIA
 --------------------------------------------------------------------------------
@@ -270,7 +263,6 @@ z rozszerzeniami WDC (SMBx, RMBx, BBRx, BBSx, WAI, STP).
   Maksymalne zagniezdz. INCLUDE   4 poziomy
   Zasieg skokow warunkowych    -128..+127 bajtow
   Przestrzen adresowa 16-bitowa (0000-FFFF)
-
 
 --------------------------------------------------------------------------------
 10. KOMUNIKATY BLEDOW
@@ -324,7 +316,6 @@ z rozszerzeniami WDC (SMBx, RMBx, BBRx, BBSx, WAI, STP).
   Po pomyslnej asemblacji:
     ORG=$XXXX, size=NNNN bytes
     Save in out.bin
-
 
 ================================================================================
   Koniec dokumentu

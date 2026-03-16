@@ -7,7 +7,6 @@ HASS is a two-pass assembler for the WDC 65C02S processor running on the
 Picocomputer 6502. It supports the full 65C02 instruction set including WDC
 extensions (SMBx, RMBx, BBRx, BBSx, WAI, STP).
 
-
 --------------------------------------------------------------------------------
 1. INVOCATION
 --------------------------------------------------------------------------------
@@ -32,7 +31,6 @@ extensions (SMBx, RMBx, BBRx, BBSx, WAI, STP).
     hass program.asm -o program.exe (run program in OS Shell by typing program.exe)
     hass (for instant code writing, empty line start compiling)
 
-
 --------------------------------------------------------------------------------
 2. SOURCE FILE FORMAT
 --------------------------------------------------------------------------------
@@ -47,15 +45,16 @@ extensions (SMBx, RMBx, BBRx, BBSx, WAI, STP).
   - Maximum line length: 50 characters
   - Maximum number of lines: 256
 
-  Examples:
+  Example:
     ; this is a comment
-    start:  
-            LDA #$00        ; load zero into A
+           .org $C000       ; begin address
+    start:  LDA #$00        ; load zero into A
             STA $80         ; store to zero page
-    loop:   
-            INX             ; X++
+    loop:   INX             ; X++
             BNE loop        ; branch to loop if not zero
-
+            RTS
+    exestart: 
+    .word   start
 
 --------------------------------------------------------------------------------
 3. LABELS AND SYMBOLS
@@ -78,14 +77,13 @@ extensions (SMBx, RMBx, BBRx, BBSx, WAI, STP).
     IO_PORT   .EQU $C000
     MAX_CNT   .EQU 100
 
-
 --------------------------------------------------------------------------------
 4. LITERALS AND EXPRESSIONS
 --------------------------------------------------------------------------------
 
   Number formats:
     123          - decimal
-    $FF          - hexadecimal
+    $AF or $af   - hexadecimal
     $1234        - 16-bit hexadecimal
     %10101010    - binary (max 8 bits)
 
@@ -101,7 +99,6 @@ extensions (SMBx, RMBx, BBRx, BBSx, WAI, STP).
     LDA #<LABEL       ; immediate: low byte of label
     LDA #>LABEL       ; immediate: high byte of label
     LDA *$200         ; forced ZP (even though address > $FF)
-
 
 --------------------------------------------------------------------------------
 5. DIRECTIVES
@@ -136,7 +133,6 @@ extensions (SMBx, RMBx, BBRx, BBSx, WAI, STP).
     Includes another source file. Maximum nesting depth: 4 levels.
     Example:  .INCLUDE "macros.asm"
 
-
 --------------------------------------------------------------------------------
 6. ADDRESSING MODES
 --------------------------------------------------------------------------------
@@ -162,7 +158,6 @@ extensions (SMBx, RMBx, BBRx, BBSx, WAI, STP).
 
   Note: the assembler automatically selects ZP mode when the value fits in
   $00-$FF. Use the * prefix to force ZP mode for higher addresses.
-
 
 --------------------------------------------------------------------------------
 7. MNEMONICS
@@ -233,7 +228,6 @@ extensions (SMBx, RMBx, BBRx, BBSx, WAI, STP).
     WAI                        - wait for interrupt (WDC)
     STP                        - stop the processor (WDC)
 
-
 --------------------------------------------------------------------------------
 8. LISTING FILE (out.lst)
 --------------------------------------------------------------------------------
@@ -255,7 +249,6 @@ extensions (SMBx, RMBx, BBRx, BBSx, WAI, STP).
     8005 D0 FD       |         BNE loop
                      | ; end
 
-
 --------------------------------------------------------------------------------
 9. LIMITS
 --------------------------------------------------------------------------------
@@ -270,7 +263,6 @@ extensions (SMBx, RMBx, BBRx, BBSx, WAI, STP).
   Maximum .INCLUDE nesting          4 levels
   Conditional branch range -128..+127 bytes
   Address space 16-bit (0000-FFFF)
-
 
 --------------------------------------------------------------------------------
 10. ERROR MESSAGES
