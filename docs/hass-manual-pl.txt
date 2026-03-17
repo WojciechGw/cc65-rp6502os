@@ -11,28 +11,102 @@ z rozszerzeniami WDC (SMBx, RMBx, BBRx, BBSx, WAI, STP).
 1. WYWOLANIE
 --------------------------------------------------------------------------------
 
-  hass [plik.asm] [-o plik.bin]
+  hass [plik.asm] [-o plik.bin] [-i]
 
   Parametry:
     plik.asm       - plik zrodlowy asemblera (jesli pominiety: tryb interaktywny)
     -o plik.bin    - nazwa pliku wyjsciowego binarnego (domyslnie: out.bin)
+    -i             - tryb interaktywny: wczytaj plik.asm do bufora, nastepnie
+                     wejdz w tryb interaktywny zamiast od razu asemblowac
 
   Pliki wyjsciowe:
     out.bin        - binarny plik maszyny (raw)
     out.lst        - plik listingu (adres + bajty + zrodlo)
 
   Tryb interaktywny:
-    Jesli nie podano pliku wejsciowego, asembler czyta instrukcje ze standardowego
-    wejscia. Pusta linia konczy wprowadzanie i uruchamia asemblacje.
+    Jesli nie podano pliku wejsciowego lub uzyto flagi -i, asembler czyta
+    instrukcje ze standardowego wejscia linia po linii. Puste linie sa
+    akceptowane jako czesc kodu zrodlowego. Specjalne komendy @ steruja
+    sesja (patrz sekcja 2). Wpisz @EXIT aby zakonczyc sesje.
 
   Przyklady:
     hass program.asm
     hass program.asm -o program.bin
     hass program.asm -o program.exe (uruchamialny w OS Shell przez wpisanie program.exe)
-    hass (dla pisania kodu "na żywo", pusta linia rozpoczyna kompilację)
+    hass                            (tryb interaktywny: wpisuj kod, @MAKE asembluje)
+    hass program.asm -i             (wczytaj plik, kontynuuj edycje interaktywnie)
+    hass program.asm -i -o out.bin  (wczytaj plik, edytuj, @MAKE zapisuje do out.bin)
 
 --------------------------------------------------------------------------------
-2. FORMAT PLIKU ZRODLOWEGO
+2. KOMENDY TRYBU INTERAKTYWNEGO
+--------------------------------------------------------------------------------
+
+  Komendy @ dostepne sa wylacznie w trybie interaktywnym. Wpisuje sie je
+  w osobnej linii; nigdy nie trafiaja do bufora kodu zrodlowego.
+  Komendy @ nie rozrozniaja wielkosci liter.
+
+  @SAVE nazwa_pliku
+    Zapisuje wszystkie linie kodu z bufora do pliku tekstowego.
+    Nie konczy sesji — wpisywanie kodu trwa dalej.
+    Przyklad:  @SAVE MSC0:/moj_program.asm
+
+  @LOAD nazwa_pliku
+    Wczytuje plik zrodlowy i dopisuje jego linie na koniec bufora.
+    Obsluguje dyrektywe .INCLUDE i usuwa znacznik BOM, identycznie jak
+    tryb plikowy. Nie konczy sesji — wpisywanie kodu trwa dalej.
+    Przyklad:  @LOAD MSC0:/biblioteka.asm
+
+  @MAKE [nazwa_pliku]
+    Uruchamia pelna asemblacje (przebieg 1 + przebieg 2) na zawartosci bufora
+    i zapisuje wynik binarny. Jesli podano nazwe pliku, nadpisuje sciezke
+    wyjsciowa (odpowiednik opcji -o). Domyslnie: out.bin.
+    Nie konczy sesji — wpisywanie kodu trwa dalej.
+    Przyklady:
+      @MAKE
+      @MAKE MSC0:/moj_program.bin
+
+  @LIST [od [do]]
+    Wyswietla linie bufora z numerami (numeracja od 1).
+    Bez argumentow pokazuje wszystkie linie. Jeden argument — jedna linia.
+    Dwa argumenty — zakres wlacznie od..do.
+    Przyklady:
+      @LIST
+      @LIST 5
+      @LIST 3 10
+
+  @EDIT N tekst
+    Zastepuje linie N (numeracja od 1) podanym tekstem.
+    N musi byc w zakresie 1..liczba_linii.
+    Przyklad:  @EDIT 7 lda #$FF
+
+  @DEL N
+    Usuwa linie N. Linie ponizej przesuwaja sie w gore; licznik linii maleje o 1.
+    Przyklad:  @DEL 4
+
+  @INS N tekst
+    Wstawia nowa linie z podanym tekstem przed linia N. Linie od N przesuwaja
+    sie w dol. N moze byc rowne liczba_linii+1, aby dopisac na koncu bufora.
+    Przyklad:  @INS 3 sta $80
+
+  @EXIT
+    Konczy sesje interaktywna. Bufor jest automatycznie zapisywany do pliku
+    last.hass przed wyjsciem. Asemblacja nie jest wykonywana.
+    Przyklad:  @EXIT
+
+  Typowy przebieg pracy:
+    .org $8000
+    lda #$01
+    sta $0200
+    @LIST                       <- podglad bufora
+    @EDIT 2 lda #$02            <- poprawa linii 2
+    @DEL 3                      <- usuniecie zbednej linii
+    @INS 3 sta $0201            <- wstawienie nowej linii przed linia 3
+    @MAKE MSC0:/test.bin        <- asemblacja, edycja trwa dalej
+    @SAVE MSC0:/moj_program.asm <- zapis zrodla
+    @EXIT                       <- wyjscie (automatyczny zapis do last.hass)
+
+--------------------------------------------------------------------------------
+3. FORMAT PLIKU ZRODLOWEGO
 --------------------------------------------------------------------------------
 
   Kazda linia ma postac:
@@ -43,7 +117,7 @@ z rozszerzeniami WDC (SMBx, RMBx, BBRx, BBSx, WAI, STP).
   - Mnemonik i operand sa oddzielone bialymi znakami
   - Komentarz zaczyna sie od srednika (;) i trwa do konca linii
   - Maksymalna dlugosc linii: 50 znakow
-  - Maksymalna liczba linii: 256
+  - Maksymalna liczba linii: 512
 
   Przyklad:
     ; to jest komentarz
@@ -57,7 +131,7 @@ z rozszerzeniami WDC (SMBx, RMBx, BBRx, BBSx, WAI, STP).
     .word start
 
 --------------------------------------------------------------------------------
-3. ETYKIETY I SYMBOLE
+4. ETYKIETY I SYMBOLE
 --------------------------------------------------------------------------------
 
   Etykiety:
@@ -66,7 +140,7 @@ z rozszerzeniami WDC (SMBx, RMBx, BBRx, BBSx, WAI, STP).
   - Maksymalna dlugosc: 47 znakow
   - Wielkosc liter nie ma znaczenia (konwertowane wewnetrznie do duzych)
   - Definiowane przez dodanie dwukropka: MYLABEL:
-  - Maksymalna liczba symboli: 64
+  - Maksymalna liczba symboli: 128
 
   Stale (.EQU):
     NAZWA .EQU wartosc      ; definicja stalej
@@ -78,7 +152,7 @@ z rozszerzeniami WDC (SMBx, RMBx, BBRx, BBSx, WAI, STP).
     MAX_CNT   .EQU 100
 
 --------------------------------------------------------------------------------
-4. LITERALY I WYRAZENIA
+5. LITERALY I WYRAZENIA
 --------------------------------------------------------------------------------
 
   Formaty liczb:
@@ -101,7 +175,7 @@ z rozszerzeniami WDC (SMBx, RMBx, BBRx, BBSx, WAI, STP).
     LDA *$200         ; wymuszone ZP (choc adres > $FF)
 
 --------------------------------------------------------------------------------
-5. DYREKTYWY
+6. DYREKTYWY
 --------------------------------------------------------------------------------
 
   .ORG adres
@@ -134,7 +208,7 @@ z rozszerzeniami WDC (SMBx, RMBx, BBRx, BBSx, WAI, STP).
     Przyklad:  .INCLUDE "macros.asm"
 
 --------------------------------------------------------------------------------
-6. TRYBY ADRESOWANIA
+7. TRYBY ADRESOWANIA
 --------------------------------------------------------------------------------
 
   Tryb              Skladnia              Przyklad          Bajtow
@@ -160,7 +234,7 @@ z rozszerzeniami WDC (SMBx, RMBx, BBRx, BBSx, WAI, STP).
   w zakresie $00-$FF. Uzyj prefiksu * aby wymusic tryb ZP dla wyzszych adresow.
 
 --------------------------------------------------------------------------------
-7. MNEMONIKI
+8. MNEMONIKI
 --------------------------------------------------------------------------------
 
   Ladowanie / Zapis:
@@ -229,7 +303,7 @@ z rozszerzeniami WDC (SMBx, RMBx, BBRx, BBSx, WAI, STP).
     STP                        - zatrzymaj procesor (WDC)
 
 --------------------------------------------------------------------------------
-8. PLIK LISTINGU (out.lst)
+9. PLIK LISTINGU (out.lst)
 --------------------------------------------------------------------------------
 
   Kazda linia listingu ma format:
@@ -250,7 +324,7 @@ z rozszerzeniami WDC (SMBx, RMBx, BBRx, BBSx, WAI, STP).
                      | ; koniec
 
 --------------------------------------------------------------------------------
-9. OGRANICZENIA
+10. OGRANICZENIA
 --------------------------------------------------------------------------------
 
   Parametr                Wartosc
@@ -265,7 +339,7 @@ z rozszerzeniami WDC (SMBx, RMBx, BBRx, BBSx, WAI, STP).
   Przestrzen adresowa 16-bitowa (0000-FFFF)
 
 --------------------------------------------------------------------------------
-10. KOMUNIKATY BLEDOW
+11. KOMUNIKATY BLEDOW
 --------------------------------------------------------------------------------
 
   PASS 1 (analiza):
@@ -282,10 +356,10 @@ z rozszerzeniami WDC (SMBx, RMBx, BBRx, BBSx, WAI, STP).
       - niepoprawna skladnia dyrektywy .ASCII
 
     Too many symbols
-      - przekroczono limit 64 symboli
+      - przekroczono limit 128 symboli
 
     Too many rows
-      - przekroczono limit 256 linii
+      - przekroczono limit 512 linii
 
     Too deep .include
       - zbyt gleboke zagniezdzenie .INCLUDE (max 4)
@@ -295,7 +369,7 @@ z rozszerzeniami WDC (SMBx, RMBx, BBRx, BBSx, WAI, STP).
       - instrukcja przed ustawieniem poczatku (.ORG)
 
     PASS2: ERROR output overflow at $XXXX
-      - kod przekroczyl 8 KB
+      - kod przekroczyl 16 KB
 
     Unidentified label: NAME
       - uzycie niezdefiniowanej etykiety
