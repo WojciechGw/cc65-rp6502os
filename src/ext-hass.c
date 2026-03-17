@@ -10,7 +10,7 @@
 #include "commons.h"
 #include "ext-hass-opcodes.h"
 
-#define APPVER "20260317.1628"
+#define APPVER "20260317.1711"
 #define APPDIRDEFAULT "MSC0:/"
 #define APP_MSG_TITLE CSI_RESET "\x1b[2;1H\x1b" HIGHLIGHT_COLOR " OS Shell > " ANSI_RESET " Handy ASSembler WDC65C02S" ANSI_DARK_GRAY "\x1b[2;60Hversion " APPVER ANSI_RESET
 #define APP_MSG_START_ASSEMBLING ANSI_DARK_GRAY "\x1b[4;1HStart assembling ... " ANSI_RESET
@@ -1090,8 +1090,9 @@ static int parse_line_number(const char *s, int *out_n, const char **out_rest){
 
 /* --- @LIST [from [to]] --- */
 static void cmd_list(const char *args){
-    int from, to, i;
+    int from, to, i, page;
     const char *r;
+    char pause_buf[4];
     from = 1; to = nlines;
     if(args && parse_line_number(args, &from, &r)){
         if(parse_line_number(r, &to, &r)){
@@ -1102,9 +1103,16 @@ static void cmd_list(const char *args){
     }
     if(from < 1) from = 1;
     if(to > nlines) to = nlines;
+    page = 0;
     for(i = from; i <= to; i++){
         xram_line_read((unsigned)(i-1), g_buf);
         printf("%4d | %s" NEWLINE, i, g_buf);
+        if(++page == 28 && i < to){
+            page = 0;
+            printf("--- more --- [Enter] continue, [q] quit: ");
+            if(!fgets(pause_buf, sizeof(pause_buf), stdin)) break;
+            if(pause_buf[0]=='q' || pause_buf[0]=='Q') break;
+        }
     }
     if(nlines == 0) printf("(buffer empty)" NEWLINE);
 }
@@ -1329,7 +1337,7 @@ int main(int argc, char **argv){
                 }
                 if(strcmp(dir,"@EXIT")==0){
                     if(nlines > 0) save_source_lines(HASS_LAST_SOURCE_CODE_BUFFER_FILE);
-                    break;
+                    return 0;
                 }
                 if(strcmp(dir,"@MAKE")==0){
                     if(rest && rest[0]) set_output_path(rest);
