@@ -23,16 +23,59 @@ extensions (SMBx, RMBx, BBRx, BBSx, WAI, STP).
 
   Interactive mode:
     If no source file is given, the assembler reads instructions from standard
-    input. An empty line terminates input and starts assembly.
+    input line by line. Empty lines are accepted as part of the source.
+    Special @ commands control the session (see section 2).
+    Type @EXIT to end the session (no compilation; buffer is auto-saved).
 
   Examples:
     hass program.asm
     hass program.asm -o program.bin
     hass program.asm -o program.exe (run program in OS Shell by typing program.exe)
-    hass (for instant code writing, empty line start compiling)
+    hass (interactive mode: enter code, use @COMPILE to assemble, @EXIT to quit)
 
 --------------------------------------------------------------------------------
-2. SOURCE FILE FORMAT
+2. INTERACTIVE MODE COMMANDS
+--------------------------------------------------------------------------------
+
+  @ commands are available only in interactive mode (no source file argument).
+  They are typed on a line by themselves and are never stored in the source
+  buffer. @ commands are case-insensitive.
+
+  @SAVE filename
+    Saves all source lines currently in the buffer to a plain-text file.
+    Does not stop input — editing continues after the save.
+    Example:  @SAVE MSC0:/myprogram.asm
+
+  @LOAD filename
+    Loads a source file and appends its lines to the current buffer.
+    Supports .INCLUDE directives and BOM stripping, identical to file mode.
+    Does not stop input — editing continues after the load.
+    Example:  @LOAD MSC0:/library.asm
+
+  @COMPILE [filename]
+    Runs a full assembly (pass 1 + pass 2) on the current buffer and writes
+    the binary output. If filename is given it overrides the output path
+    (same as the -o command-line option). Defaults to out.bin.
+    Does not stop input — editing continues after compilation.
+    Examples:
+      @COMPILE
+      @COMPILE MSC0:/myprogram.bin
+
+  @EXIT
+    Ends the interactive session. The current buffer is automatically saved
+    to last.hass before exit. No compilation is performed.
+    Example:  @EXIT
+
+  Typical workflow:
+    .org $8000
+    lda #$01
+    sta $0200
+    @COMPILE MSC0:/test.bin     <- assemble, keep adding code
+    @SAVE MSC0:/myprogram.asm   <- save source
+    @EXIT                       <- quit (auto-saves to last.hass)
+
+--------------------------------------------------------------------------------
+3. SOURCE FILE FORMAT
 --------------------------------------------------------------------------------
 
   Each line has the form:
@@ -57,7 +100,7 @@ extensions (SMBx, RMBx, BBRx, BBSx, WAI, STP).
     .word   start
 
 --------------------------------------------------------------------------------
-3. LABELS AND SYMBOLS
+4. LABELS AND SYMBOLS
 --------------------------------------------------------------------------------
 
   Labels:
@@ -78,7 +121,7 @@ extensions (SMBx, RMBx, BBRx, BBSx, WAI, STP).
     MAX_CNT   .EQU 100
 
 --------------------------------------------------------------------------------
-4. LITERALS AND EXPRESSIONS
+5. LITERALS AND EXPRESSIONS
 --------------------------------------------------------------------------------
 
   Number formats:
@@ -101,7 +144,7 @@ extensions (SMBx, RMBx, BBRx, BBSx, WAI, STP).
     LDA *$200         ; forced ZP (even though address > $FF)
 
 --------------------------------------------------------------------------------
-5. DIRECTIVES
+6. DIRECTIVES
 --------------------------------------------------------------------------------
 
   .ORG address
@@ -134,7 +177,7 @@ extensions (SMBx, RMBx, BBRx, BBSx, WAI, STP).
     Example:  .INCLUDE "macros.asm"
 
 --------------------------------------------------------------------------------
-6. ADDRESSING MODES
+7. ADDRESSING MODES
 --------------------------------------------------------------------------------
 
   Mode                Syntax                Example           Bytes
@@ -160,7 +203,7 @@ extensions (SMBx, RMBx, BBRx, BBSx, WAI, STP).
   $00-$FF. Use the * prefix to force ZP mode for higher addresses.
 
 --------------------------------------------------------------------------------
-7. MNEMONICS
+8. MNEMONICS
 --------------------------------------------------------------------------------
 
   Load / Store:
@@ -229,7 +272,7 @@ extensions (SMBx, RMBx, BBRx, BBSx, WAI, STP).
     STP                        - stop the processor (WDC)
 
 --------------------------------------------------------------------------------
-8. LISTING FILE (out.lst)
+9. LISTING FILE (out.lst)
 --------------------------------------------------------------------------------
 
   Each listing line has the format:
@@ -250,7 +293,7 @@ extensions (SMBx, RMBx, BBRx, BBSx, WAI, STP).
                      | ; end
 
 --------------------------------------------------------------------------------
-9. LIMITS
+10. LIMITS
 --------------------------------------------------------------------------------
 
   Parameter                     Value
@@ -265,7 +308,7 @@ extensions (SMBx, RMBx, BBRx, BBSx, WAI, STP).
   Address space 16-bit (0000-FFFF)
 
 --------------------------------------------------------------------------------
-10. ERROR MESSAGES
+11. ERROR MESSAGES
 --------------------------------------------------------------------------------
 
   Pass 1 (analysis):
@@ -282,10 +325,10 @@ extensions (SMBx, RMBx, BBRx, BBSx, WAI, STP).
       - malformed .ASCII directive
 
     Too many symbols
-      - symbol limit of 64 exceeded
+      - symbol limit of 128 exceeded
 
     Too many rows
-      - line limit of 256 exceeded
+      - line limit of 512 exceeded
 
     Too deep .include
       - .INCLUDE nesting exceeds maximum depth of 4
@@ -295,7 +338,7 @@ extensions (SMBx, RMBx, BBRx, BBSx, WAI, STP).
       - instruction encountered before .ORG was set
 
     PASS2: ERROR output overflow at $XXXX
-      - generated code exceeds 8 KB
+      - generated code exceeds 16 KB
 
     Unidentified label: NAME
       - reference to an undefined label

@@ -9,7 +9,7 @@ mass sourcecode.asm -out outfile.bin -base <baseaddress> -run <runaddress>
 #include "commons.h"
 #include "ext-hass-opcodes.h"
 
-#define APPVER "20260316.1141"
+#define APPVER "20260317.1000"
 #define APPDIRDEFAULT "MSC0:/"
 #define APP_MSG_TITLE CSI_RESET "\x1b[2;1H\x1b" HIGHLIGHT_COLOR " OS Shell > " ANSI_RESET " Handy ASSembler WDC65C02S" ANSI_DARK_GRAY "\x1b[2;60Hversion " APPVER ANSI_RESET
 #define APP_MSG_START_ASSEMBLING ANSI_DARK_GRAY "\x1b[4;1HStart compilation ... " ANSI_RESET
@@ -1064,6 +1064,32 @@ static void save_bin(void){
     }
 }
 
+/* --- save entered source lines to a text file --- */
+static void save_source_lines(const char *filename) {
+    int fd, i;
+    size_t len;
+    char nl;
+
+    if (!filename || !filename[0]) {
+        printf("@SAVE: missing filename" NEWLINE);
+        return;
+    }
+    fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    if (fd < 0) {
+        printf("@SAVE: cannot create %s" NEWLINE, filename);
+        return;
+    }
+    nl = '\n';
+    for (i = 0; i < nlines; i++) {
+        xram_line_read((unsigned)i, g_buf);
+        len = strlen(g_buf);
+        if (len > 0) write(fd, g_buf, (unsigned)len);
+        write(fd, &nl, 1u);
+    }
+    close(fd);
+    printf("@SAVE: %d lines -> %s" NEWLINE, nlines, filename);
+}
+
 /* --- main: stdin + .include --- */
 int main(int argc, char **argv){
     char *s,*dir,*rest; const char* q;
@@ -1138,13 +1164,55 @@ int main(int argc, char **argv){
         printf(APP_MSG_START_ENTERCODE NEWLINE NEWLINE);
         while(nlines < MAXLINES){
             if(!fgets(g_buf,sizeof(g_buf),stdin)) break;
-            if(g_buf[0]=='\n'||g_buf[0]==0) break;
             rstrip(g_buf);
             strip_utf8_bom(g_buf);
 
             strncpy(g_buf2, g_buf, sizeof(g_buf2)-1); g_buf2[sizeof(g_buf2)-1]=0;
             trim_comment(g_buf2);
             s = g_buf2; ltrim_ptr(&s);
+            if(s[0]=='@' && split_token(s,&dir,&rest)){
+                to_upper_str(dir);
+                if(strcmp(dir,"@SAVE")==0){
+                    save_source_lines(rest ? rest : "");
+                    continue;
+                }
+                if(strcmp(dir,"@LOAD")==0){
+                    if(rest && rest[0]){
+                        int before = nlines;
+                        read_file_into_lines(rest, 0);
+                        printf("@LOAD: %d lines loaded from %s" NEWLINE, nlines - before, rest);
+                    } else {
+                        printf("@LOAD: missing filename" NEWLINE);
+                    }
+                    continue;
+                }
+                if(strcmp(dir,"@EXIT")==0){
+                    save_source_lines("last.hass");
+                    break;
+                }
+                if(strcmp(dir,"@COMPILE")==0){
+                    if(rest && rest[0]) set_output_path(rest);
+                    if(nlines == 0){
+                        printf("@COMPILE: nothing to compile" NEWLINE);
+                    } else {
+                        assembly_status = STAT_SUCCESS;
+                        nsym = 0; xram_sym_clear_all();
+                        org = 0x9000; pc = 0x9000;
+                        pass1();
+                        if(assembly_status != STAT_SUCCESS)
+                            printf(ANSI_RED "PASS1: ERRORS !" ANSI_RESET NEWLINE);
+                        else
+                            printf(ANSI_GREEN "PASS1: SUCCESS" ANSI_RESET NEWLINE);
+                        pass2();
+                        if(assembly_status != STAT_SUCCESS)
+                            printf(ANSI_RED "PASS2: ERRORS !" ANSI_RESET NEWLINE);
+                        else
+                            printf(ANSI_GREEN "PASS2: SUCCESS" ANSI_RESET NEWLINE);
+                        if(assembly_status == STAT_SUCCESS) save_bin();
+                    }
+                    continue;
+                }
+            }
             if(s[0]=='.' && split_token(s,&dir,&rest)){
                 to_upper_str(dir);
                 if(strcmp(dir,".INCLUDE")==0 && rest && rest[0]=='\"'){
