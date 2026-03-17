@@ -65,9 +65,9 @@ internal commands are case sensitive
 * stat   - show file/directory info
 * time   - show local date and time
 
-### External
-external commands are *.com files in ROM: (case insensitive)</br>
-There's no need to include the .com extension - just type 'dir' instead of 'dir.com'</br>
+### Internal ROM commands
+internal ROM commands are *.com files in shell.rp6502 ROM: (RP6502 BIGROM)</br>
+There's no need to include the .com extension - ie. just type 'dir' instead of 'dir.com' (case insensitive)</br>
 
 * calendar - calendar application
 * crx      - download file transfer (PC => RP6502)
@@ -77,9 +77,9 @@ There's no need to include the .com extension - just type 'dir' instead of 'dir.
 * keyboard - keyboard state visualiser
 * label    - show or set active drive's volume label
 
-### External commands runable binaries 
-this kind of external commands are *.com files in MSC0:/SHELL directory (case insensitive)</br>
-There's no need to include the .com extension - ie. just type 'hass' instead of 'hass.com'</br>
+### External commands
+this kind of external commands are *.com files in MSC0:/SHELL directory</br>
+There's no need to include the .com extension - ie. just type 'hass' instead of 'hass.com' (case insensitive)</br>
 
 * hass     - Handy ASSembler for 65C02S
 
