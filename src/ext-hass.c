@@ -270,14 +270,6 @@ static void xram_out_write_byte(uint16_t off, uint8_t b){
     RIA.rw1 = b;
 }
 
-/*
-static uint8_t xram_out_read_byte(uint16_t off){
-    RIA.addr1 = (unsigned)(XRAM_OUT_BASE + off);
-    RIA.step1 = 1;
-    return RIA.rw1;
-}
-*/
-
 static int parse_ascii_bytes(const char* s, uint8_t* out, int max_out, int* out_len){
     int n = 0;
     if(out_len) *out_len = 0;
@@ -316,17 +308,6 @@ static void set_output_path(const char* path){
     memcpy(g_outpath, path, len);
     g_outpath[len] = 0;
 }
-
-/*
-static void set_listing_path(const char* path){
-    size_t len;
-    if(!path || !*path) return;
-    len = strlen(path);
-    if(len >= sizeof(g_listpath)) len = sizeof(g_listpath) - 1;
-    memcpy(g_listpath, path, len);
-    g_listpath[len] = 0;
-}
-*/
 
 /* recognize syntax: NAME .equ value (return pointers to work buffer) */
 static int parse_named_equ_line(const char* line, char** name_out, char** value_out){
@@ -613,58 +594,6 @@ static int read_file_into_lines(const char* path, int depth){
     fclose(f);
     return 1;
 }
-
-/*
-static char hex_digit(unsigned char v)
-{
-    v &= 0x0F;
-    return (v < 10) ? (char)('0' + v) : (char)('A' + (v - 10));
-}
-*/
-
-/*
-// Returns a pointer to the prepared buffer (outfilebuffer).
-// Optionally returns the length (excluding the ‘\0’ terminator) via out_len.
-// If the buffer was too small, truncates the result.
-static char* build_outfilebuffer(unsigned int* out_len, uint16_t line_pc_before, uint16_t line_pc_after)
-{
-    unsigned int a; 
-    unsigned int out_off;
-    unsigned char byte;
-    unsigned int pos;
-    unsigned int max;
-
-    pos = 0;
-    max = (unsigned int)sizeof(outfilebuffer);
-
-    for (a = line_pc_before; a < line_pc_after; ++a)
-    {
-        // 3 znaki na bajt: "HH " + 1 na końcowe '\0'
-        if (pos + 3u + 1u > max) {
-            break;
-        }
-
-        out_off = (unsigned int)(a - org);
-        byte = (unsigned char)xram_out_read_byte(out_off);
-
-        outfilebuffer[pos++] = hex_digit((unsigned char)(byte >> 4));
-        outfilebuffer[pos++] = hex_digit(byte);
-        outfilebuffer[pos++] = ' ';
-    }
-
-    // usuń końcową spację (opcjonalnie)
-    if (pos > 0 && outfilebuffer[pos - 1] == ' ') {
-        --pos;
-    }
-
-    outfilebuffer[pos] = '\0';
-
-    if (out_len != 0) {
-        *out_len = pos;
-    }
-    return outfilebuffer;
-}
-*/
 
 // --- assembly PASS1 ---
 static void pass1(void){
@@ -1032,19 +961,6 @@ list_line:
             if(n >= (int)sizeof(outfilebuffer)) n = (int)sizeof(outfilebuffer) - 1;
             xram_write_lst_line(outfilebuffer, (unsigned)n, fd);
         }
-        // p = build_outfilebuffer(&len, line_pc_before, line_pc_after);
-        // xram_write_lst_line(p, (unsigned)len, fd);
-
-        /*
-        pad = 36 - 3 * (line_pc_after - line_pc_before);
-        if(pad < 0) pad = 0;
-        while(pad--) {
-            n = sprintf(outfilebuffer, "%s", " ");
-            if(n < 0) continue;
-            if(n >= (int)sizeof(outfilebuffer)) n = (int)sizeof(outfilebuffer) - 1;
-            xram_write_lst_line(outfilebuffer, (unsigned)n, fd);
-        }
-        */
 
         // list source line for current pc
         n = sprintf(outfilebuffer, "| %s", g_buf2);
@@ -1114,7 +1030,7 @@ static void cmd_list(const char *args){
             if(pause_buf[0]=='q' || pause_buf[0]=='Q') break;
         }
     }
-    if(nlines == 0) printf("(buffer empty)" NEWLINE);
+    if(nlines == 0) printf("(buffer is empty)" NEWLINE);
 }
 
 /* --- @EDIT N text --- */
@@ -1337,6 +1253,7 @@ int main(int argc, char **argv){
                 }
                 if(strcmp(dir,"@EXIT")==0){
                     if(nlines > 0) save_source_lines(HASS_LAST_SOURCE_CODE_BUFFER_FILE);
+                    printf(NEWLINE "Bye, bye!" NEWLINE NEWLINE);
                     return 0;
                 }
                 if(strcmp(dir,"@MAKE")==0){
