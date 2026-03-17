@@ -90,12 +90,17 @@ extensions (SMBx, RMBx, BBRx, BBSx, WAI, STP).
   @CYCLES [from [to]]
     Assembles the current buffer and reports the total base cycle count for
     the WDC65C02S CPU. Optional 0-based line numbers restrict counting to
-    a range. Branch-taken and page-crossing penalties (+1/+2 cycles) are
-    NOT included in the reported count.
+    a range.
     Examples:
       @CYCLES              <- count cycles for the entire program
       @CYCLES 5            <- count cycles for line 5 only
       @CYCLES 5 20         <- count cycles for lines 5 through 20
+    Note: the reported count is a minimum. Branch instructions (BPL, BMI,
+    BVC, BVS, BCC, BCS, BNE, BEQ) add +1 cycle when the branch is taken
+    and +2 when the target crosses a page boundary. Indexed instructions
+    (abs,X  abs,Y  (zp),Y) add +1 cycle when the effective address crosses
+    a page boundary. These penalties depend on runtime register values and
+    flag states, so they cannot be computed at assembly time.
 
   @EXIT
     Ends the interactive session. The current buffer is automatically saved

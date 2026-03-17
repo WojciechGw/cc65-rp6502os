@@ -91,12 +91,17 @@ z rozszerzeniami WDC (SMBx, RMBx, BBRx, BBSx, WAI, STP).
   @CYCLES [od [do]]
     Asembluje biezacy bufor i podaje laczna liczbe cykli procesora WDC65C02S
     dla kodu wynikowego. Opcjonalne numery linii (liczone od 0) ograniczaja
-    liczenie do wskazanego zakresu. Kary za galezie i przekroczenie granicy
-    strony (+1/+2 cykli) NIE sa uwzgledniane w wyniku.
+    liczenie do wskazanego zakresu.
     Przyklady:
       @CYCLES              <- cykle dla calego programu
       @CYCLES 5            <- cykle tylko dla linii 5
       @CYCLES 5 20         <- cykle dla linii od 5 do 20
+    Uwaga: podana liczba cykli jest wartoscia minimalna. Instrukcje galezi
+    (BPL, BMI, BVC, BVS, BCC, BCS, BNE, BEQ) dodaja +1 cykl gdy galaz jest
+    wzieta i +2 gdy cel przekracza granice strony. Instrukcje indeksowane
+    (abs,X  abs,Y  (zp),Y) dodaja +1 cykl przy przekroczeniu granicy strony.
+    Te kary zaleza od wartosci rejestrow i flag w czasie wykonania programu
+    i nie moga byc obliczone na etapie asemblacji.
 
   @EXIT
     Konczy sesje interaktywna. Bufor jest automatycznie zapisywany do pliku

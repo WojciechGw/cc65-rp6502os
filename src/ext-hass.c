@@ -9,11 +9,11 @@ mass sourcecode.asm -out outfile.bin -base <baseaddress> -run <runaddress>
 #include "commons.h"
 #include "ext-hass-opcodes.h"
 
-#define APPVER "20260317.1200"
+#define APPVER "20260317.1330"
 #define APPDIRDEFAULT "MSC0:/"
 #define APP_MSG_TITLE CSI_RESET "\x1b[2;1H\x1b" HIGHLIGHT_COLOR " OS Shell > " ANSI_RESET " Handy ASSembler WDC65C02S" ANSI_DARK_GRAY "\x1b[2;60Hversion " APPVER ANSI_RESET
 #define APP_MSG_START_ASSEMBLING ANSI_DARK_GRAY "\x1b[4;1HStart compilation ... " ANSI_RESET
-#define APP_MSG_START_ENTERCODE ANSI_DARK_GRAY "\x1b[4;1HEnter code. Empty line start code compilation ... " ANSI_RESET
+#define APP_MSG_START_ENTERCODE ANSI_DARK_GRAY "\x1b[4;1HEnter code. @HELP show commands list." ANSI_RESET NEWLINE
 
 /* --- limits --- */
 #define MAXLINES    512
@@ -997,7 +997,8 @@ static void pass2(void){ // also write listing to .lst file
 
             if(g_opcode>=0){
                 emit_at((uint8_t)g_opcode, pc++);
-                if(li >= (int)g_cycle_from && li <= (int)g_cycle_to)
+                if((uint16_t)li >= g_cycle_from &&
+                   (g_cycle_to == 0xFFFFu || (uint16_t)li <= g_cycle_to))
                     g_cycle_count += op_cycles[(uint8_t)g_opcode];
                 if(g_mode==M_IMP || g_mode==M_ACC){
                 }else if(g_mode==M_IMM || g_mode==M_ZP || g_mode==M_ZPX || g_mode==M_ZPY || g_mode==M_ZPINDX || g_mode==M_ZPINDY || g_mode==M_ZPIND){
@@ -1184,8 +1185,8 @@ static void cmd_ins(const char *args){
 /* --- save entered source lines to a text file --- */
 static void save_source_lines(const char *filename) {
     int fd, i;
-    size_t len;
-    char nl;
+    unsigned len;
+    uint8_t j;
 
     if (!filename || !filename[0]) {
         printf("@SAVE: missing filename" NEWLINE);
@@ -1196,12 +1197,14 @@ static void save_source_lines(const char *filename) {
         printf("@SAVE: cannot create %s" NEWLINE, filename);
         return;
     }
-    nl = '\n';
     for (i = 0; i < nlines; i++) {
         xram_line_read((unsigned)i, g_buf);
-        len = strlen(g_buf);
-        if (len > 0) write(fd, g_buf, (unsigned)len);
-        write(fd, &nl, 1u);
+        len = (unsigned)strlen(g_buf);
+        RIA.addr0 = XRAM_LST_BASE;
+        RIA.step0 = 1;
+        for (j = 0u; j < (uint8_t)len; j++) RIA.rw0 = (uint8_t)g_buf[j];
+        RIA.rw0 = (uint8_t)'\n';
+        write_xram(XRAM_LST_BASE, len + 1u, fd);
     }
     close(fd);
     printf("@SAVE: %d lines -> %s" NEWLINE, nlines, filename);
@@ -1294,6 +1297,22 @@ int main(int argc, char **argv){
             s = g_buf2; ltrim_ptr(&s);
             if(s[0]=='@' && split_token(s,&dir,&rest)){
                 to_upper_str(dir);
+                if(strcmp(dir,"@HELP")==0){
+                    printf(NEWLINE "Commands list:" NEWLINE
+                                   "---------------------------" NEWLINE
+                        "@HELP               - show this list" NEWLINE
+                        "@SAVE filename      - save buffer to file" NEWLINE
+                        "@LOAD filename      - load file into buffer" NEWLINE
+                        "@LIST [from [to]]   - display buffer lines" NEWLINE
+                        "@EDIT N text        - replace line N" NEWLINE
+                        "@DEL N              - delete line N" NEWLINE
+                        "@INS N text         - insert line before N" NEWLINE
+                        "@MAKE [filename]    - assemble and save binary" NEWLINE
+                        "@CYCLES [from [to]] - count CPU cycles" NEWLINE
+                        "@EXIT               - save to last.hass and exit" NEWLINE NEWLINE
+                    );
+                    continue;
+                }
                 if(strcmp(dir,"@SAVE")==0){
                     save_source_lines(rest ? rest : "");
                     continue;
@@ -1379,7 +1398,6 @@ int main(int argc, char **argv){
                                     printf("@CYCLES: %lu cycles (lines %u-%u)" NEWLINE,
                                            (unsigned long)g_cycle_count,
                                            (unsigned)g_cycle_from, (unsigned)g_cycle_to);
-                                printf("  Note: branch/page-crossing penalties not included." NEWLINE);
                             } else {
                                 printf(ANSI_RED "@CYCLES: PASS2 error" ANSI_RESET NEWLINE);
                             }
@@ -1389,6 +1407,8 @@ int main(int argc, char **argv){
                     }
                     continue;
                 }
+                printf(ANSI_RED "Error: %s unknown. Check your typing." ANSI_RESET NEWLINE, dir);
+                continue;
             }
             if(s[0]=='.' && split_token(s,&dir,&rest)){
                 to_upper_str(dir);

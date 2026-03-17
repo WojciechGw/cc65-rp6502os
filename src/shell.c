@@ -742,24 +742,47 @@ static int execute(cmdline_t *cl) {
             return cmd_exe(exe_argc, exe_argv);
         }
     }
-    // Try implicit .com execution: SHELLDIR/<name>.com
+    // Try implicit .com execution: ROM:<name>.com, then MSC0:/SHELL/<name>.com
     {
+        static const char fallback_prefix[] = "MSC0:/SHELL/";
         unsigned name_len = (unsigned)strlen(tokenList[0]);
-        unsigned prefix_len = (unsigned)strlen(shelldir);
+        unsigned prefix_len;
+        int probe_fd;
         int com_argc;
         int j;
-        if(prefix_len + name_len + 5 < sizeof(com_fname)) {
+
+        com_argc = tokens + 1;
+        if(com_argc > CMD_TOKEN_MAX + 1) com_argc = CMD_TOKEN_MAX + 1;
+        com_argv[0] = (char *)"com";
+        for(j = 1; j < tokens && (j + 1) < (CMD_TOKEN_MAX + 1); j++)
+            com_argv[j + 1] = tokenList[j];
+
+        /* probe shelldir (ROM: by default) */
+        prefix_len = (unsigned)strlen(shelldir);
+        if(prefix_len + name_len + 5 <= sizeof(com_fname)) {
             memcpy(com_fname, shelldir, prefix_len);
             memcpy(com_fname + prefix_len, tokenList[0], name_len);
-            memcpy(com_fname + prefix_len + name_len, ".com", 5); /* includes NUL */
-            com_argv[0] = (char *)"com";
-            com_argv[1] = com_fname;
-            com_argc = tokens + 1; /* add synthetic command name */
-            if(com_argc > CMD_TOKEN_MAX + 1) com_argc = CMD_TOKEN_MAX + 1;
-            for(j = 1; j < tokens && (j + 1) < (CMD_TOKEN_MAX + 1); j++) {
-                com_argv[j + 1] = tokenList[j];
+            memcpy(com_fname + prefix_len + name_len, ".com", 5);
+            probe_fd = open(com_fname, O_RDONLY);
+            if(probe_fd >= 0) {
+                close(probe_fd);
+                com_argv[1] = com_fname;
+                return cmd_com(com_argc, com_argv);
             }
-            return cmd_com(com_argc, com_argv);
+        }
+
+        /* probe MSC0:/SHELL/ */
+        prefix_len = (unsigned)(sizeof(fallback_prefix) - 1u);
+        if(prefix_len + name_len + 5 <= sizeof(com_fname)) {
+            memcpy(com_fname, fallback_prefix, prefix_len);
+            memcpy(com_fname + prefix_len, tokenList[0], name_len);
+            memcpy(com_fname + prefix_len + name_len, ".com", 5);
+            probe_fd = open(com_fname, O_RDONLY);
+            if(probe_fd >= 0) {
+                close(probe_fd);
+                com_argv[1] = com_fname;
+                return cmd_com(com_argc, com_argv);
+            }
         }
     }
     tx_string("Unknown command" NEWLINE);

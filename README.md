@@ -71,11 +71,16 @@ There's no need to include the .com extension - just type 'dir' instead of 'dir.
 
 * calendar - calendar application
 * crx      - download file transfer (PC => RP6502)
-* ctx      - upload file transfer (RP6502 => PC)
+* ctx      - upload file transfer (RP6502 => PC) NOT FINISHED
 * dir      - show active drive directory, wildcards allowed
-* hass     - Handy ASSembler for 65C02S
 * help     - show help informations (same as F1 key)
 * keyboard - keyboard state visualiser
 * label    - show or set active drive's volume label
+
+### External commands runable binaries 
+this kind of external commands are *.com files in MSC0:/SHELL directory (case insensitive)</br>
+There's no need to include the .com extension - ie. just type 'hass' instead of 'hass.com'</br>
+
+* hass     - Handy ASSembler for 65C02S
 
 Enjoy !
