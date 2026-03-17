@@ -101,8 +101,8 @@ static const cmd_t commands_rom[] = {
 };
 
 static const cmd_t commands_ext[] = {
-    { "hass",       "Handy ASSembler for 65C02S",
-                    "hass                            - instant write source and compile" NEWLINE
+    { "hass",       "Handy ASSembler for 65C02S list hass-manual-en.txt for more informations",
+                    "hass                            - interactive code entry and assembly" NEWLINE
                     "hass <source>                   - <source> file, out.bin as a result" NEWLINE
                     "hass <source> -o <destination>  - <source> file, <destination> as a result"},
 };

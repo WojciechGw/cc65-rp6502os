@@ -1,11 +1,12 @@
 /* 
+ * @file      ext-hass.c
+ * @author    Wojciech Gwioździk
+ * @copyright 2026 (c) Wojciech Gwioździk
+ *
+ * Handy ASSembler WDC65C02 for Rumbledethumps' Picocomputer 6502
+ * 
+ */
 
-Features: labels, .org, .byte, .word, .equ, <, >, .include, listing LST
-
-TODO call parameters
-mass sourcecode.asm -out outfile.bin -base <baseaddress> -run <runaddress>
-
-*/
 #include "commons.h"
 #include "ext-hass-opcodes.h"
 
@@ -50,29 +51,6 @@ static uint16_t a;
 #define STAT_PRE_INCLUDE    0b00000100
 
 static unsigned int assembly_status;
-
-/* Base cycle counts for WDC65C02S opcodes (0 = undefined/invalid opcode).
-   Values are the minimum (base) cycle count; branch-taken and page-crossing
-   penalties (+1/+2) are NOT included. */
-static const uint8_t op_cycles[256] = {
-/*       0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F */
-/* 00 */ 7, 6, 2, 0, 5, 3, 5, 5, 3, 2, 2, 0, 6, 4, 6, 5,
-/* 10 */ 2, 5, 5, 0, 5, 4, 6, 5, 2, 4, 2, 0, 6, 4, 6, 5,
-/* 20 */ 6, 6, 2, 0, 3, 3, 5, 5, 4, 2, 2, 0, 4, 4, 6, 5,
-/* 30 */ 2, 5, 5, 0, 4, 4, 6, 5, 2, 4, 2, 0, 4, 4, 6, 5,
-/* 40 */ 6, 6, 2, 0, 3, 3, 5, 5, 3, 2, 2, 0, 3, 4, 6, 5,
-/* 50 */ 2, 5, 5, 0, 4, 4, 6, 5, 2, 4, 3, 0, 8, 4, 6, 5,
-/* 60 */ 6, 6, 2, 0, 3, 3, 5, 5, 4, 2, 2, 0, 6, 4, 6, 5,
-/* 70 */ 2, 5, 5, 0, 4, 4, 6, 5, 2, 4, 4, 0, 6, 4, 6, 5,
-/* 80 */ 2, 6, 2, 0, 3, 3, 3, 5, 2, 2, 2, 0, 4, 4, 4, 5,
-/* 90 */ 2, 6, 5, 0, 4, 4, 4, 5, 2, 5, 2, 0, 4, 5, 5, 5,
-/* A0 */ 2, 6, 2, 0, 3, 3, 3, 5, 2, 2, 2, 0, 4, 4, 4, 5,
-/* B0 */ 2, 5, 5, 0, 4, 4, 4, 5, 2, 4, 2, 0, 4, 4, 4, 5,
-/* C0 */ 2, 6, 2, 0, 3, 3, 5, 5, 2, 2, 2, 0, 4, 4, 6, 5,
-/* D0 */ 2, 5, 5, 0, 4, 4, 6, 5, 2, 4, 3, 0, 4, 4, 7, 5,
-/* E0 */ 2, 6, 2, 0, 3, 3, 5, 5, 2, 2, 2, 0, 4, 4, 6, 5,
-/* F0 */ 2, 5, 5, 0, 4, 4, 6, 5, 2, 4, 4, 0, 4, 4, 7, 5
-};
 
 static uint32_t g_cycle_count = 0u;   /* accumulated during pass2        */
 static uint16_t g_cycle_from  = 0u;   /* first line for @CYCLES counting */
