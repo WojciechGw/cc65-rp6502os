@@ -83,4 +83,9 @@ There's no need to include the .com extension - ie. just type 'hass' instead of 
 
 * hass     - Handy ASSembler for 65C02S
 
+NOTE:
+These commands take precedence over commands in “ROM:”.</br>
+If the same command is also present in “ROM:”, the one in the “MSC0:/SHELL” directory will be executed.</br>
+This allows you to update the command code and place it in “ROM:” once the changes are complete or simply overwrite the "ROM:" commands with your own version on the USB drive.</br>
+
 Enjoy !

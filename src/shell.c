@@ -742,9 +742,9 @@ static int execute(cmdline_t *cl) {
             return cmd_exe(exe_argc, exe_argv);
         }
     }
-    // Try implicit .com execution: ROM:<name>.com, then MSC0:/SHELL/<name>.com
+    // Try implicit .com execution: MSC0:/SHELL/<name>.com, then shelldir (ROM:)
     {
-        static const char fallback_prefix[] = "MSC0:/SHELL/";
+        static const char msc_prefix[] = "MSC0:/SHELL/";
         unsigned name_len = (unsigned)strlen(tokenList[0]);
         unsigned prefix_len;
         int probe_fd;
@@ -757,10 +757,10 @@ static int execute(cmdline_t *cl) {
         for(j = 1; j < tokens && (j + 1) < (CMD_TOKEN_MAX + 1); j++)
             com_argv[j + 1] = tokenList[j];
 
-        /* probe shelldir (ROM: by default) */
-        prefix_len = (unsigned)strlen(shelldir);
+        /* probe MSC0:/SHELL/ first */
+        prefix_len = (unsigned)(sizeof(msc_prefix) - 1u);
         if(prefix_len + name_len + 5 <= sizeof(com_fname)) {
-            memcpy(com_fname, shelldir, prefix_len);
+            memcpy(com_fname, msc_prefix, prefix_len);
             memcpy(com_fname + prefix_len, tokenList[0], name_len);
             memcpy(com_fname + prefix_len + name_len, ".com", 5);
             probe_fd = open(com_fname, O_RDONLY);
@@ -771,10 +771,10 @@ static int execute(cmdline_t *cl) {
             }
         }
 
-        /* probe MSC0:/SHELL/ */
-        prefix_len = (unsigned)(sizeof(fallback_prefix) - 1u);
+        /* probe shelldir (ROM: by default) */
+        prefix_len = (unsigned)strlen(shelldir);
         if(prefix_len + name_len + 5 <= sizeof(com_fname)) {
-            memcpy(com_fname, fallback_prefix, prefix_len);
+            memcpy(com_fname, shelldir, prefix_len);
             memcpy(com_fname + prefix_len, tokenList[0], name_len);
             memcpy(com_fname + prefix_len + name_len, ".com", 5);
             probe_fd = open(com_fname, O_RDONLY);

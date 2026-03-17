@@ -1,6 +1,6 @@
 #include "commons.h"
 
-#define APPVER "20260315.1905"
+#define APPVER "20260317.1520"
 
 #define APP_HEADER CSI_RESET CSI "[2;1H" CSI HIGHLIGHT_COLOR " OS Shell > " ANSI_RESET " Help information                              " ANSI_DARK_GRAY "version " APPVER ANSI_RESET
 #define APP_FOOTER ANSI_DARK_GRAY  "________________________________________________________________________________" NEWLINE NEWLINE ANSI_RESET
@@ -74,7 +74,7 @@ static const cmd_t commands[] = {
                 "time" },
 };
 
-static const cmd_t commands_ext[] = {
+static const cmd_t commands_rom[] = {
     { "calendar",   "calendar application", 
                     "calendar                - current month" NEWLINE
                     "calendar /p yyyy [1-12] - particular month" NEWLINE
@@ -88,10 +88,6 @@ static const cmd_t commands_ext[] = {
     { "dir",        "show active drive directory, wildcards allowed",
                     "dir *.rp6502 (only .rp6502 files)" NEWLINE
                     "dir /da (sorted by date ascending)"},
-    { "hass",       "Handy ASSembler for 65C02S",
-                    "hass                            - instant write source and compile" NEWLINE
-                    "hass <source>                   - <source> file, out.bin as a result" NEWLINE
-                    "hass <source> -o <destination>  - <source> file, <destination> as a result"},
     { "help",       "show help informations", 
                     "help" NEWLINE
                     "help mkdir" NEWLINE
@@ -104,6 +100,13 @@ static const cmd_t commands_ext[] = {
                     "label NEWLABEL - set active drive label to NEWLABEL" },
 };
 
+static const cmd_t commands_ext[] = {
+    { "hass",       "Handy ASSembler for 65C02S",
+                    "hass                            - instant write source and compile" NEWLINE
+                    "hass <source>                   - <source> file, out.bin as a result" NEWLINE
+                    "hass <source> -o <destination>  - <source> file, <destination> as a result"},
+};
+
 int main(int argc, char **argv) {
     int i;
 
@@ -111,8 +114,7 @@ int main(int argc, char **argv) {
     if(argc >= 1 && argv[0][0]) {
         for(i = 0; i < ARRAY_SIZE(commands); i++) {
             if(strcmp(argv[0], commands[i].cmd) == 0) {
-                printf(NEWLINE NEWLINE
-                       "Command: %s" NEWLINE 
+                printf(NEWLINE "Command: %s" NEWLINE 
                        "---------------------" NEWLINE 
                        NEWLINE 
                        "Description:" NEWLINE 
@@ -123,14 +125,24 @@ int main(int argc, char **argv) {
                 return 0;
             }
         }
-    }
 
-    /* If a command name is provided, show only its description */
-    if(argc == 1 && argv[0][0]) {
+        for(i = 0; i < ARRAY_SIZE(commands_rom); i++) {
+            if(strcmp(argv[0], commands_rom[i].cmd) == 0) {
+                printf(NEWLINE "Command: %s" NEWLINE 
+                       "---------------------" NEWLINE 
+                       NEWLINE 
+                       "Description:" NEWLINE 
+                       "%s" NEWLINE 
+                       NEWLINE 
+                       "Usage:" NEWLINE 
+                       "%s" NEWLINE NEWLINE, commands_rom[i].cmd, commands_rom[i].help, commands_rom[i].usage);
+                return 0;
+            }
+        }
+
         for(i = 0; i < ARRAY_SIZE(commands_ext); i++) {
             if(strcmp(argv[0], commands_ext[i].cmd) == 0) {
-                printf(NEWLINE NEWLINE
-                       "Command: %s" NEWLINE 
+                printf(NEWLINE "Command: %s" NEWLINE 
                        "---------------------" NEWLINE 
                        NEWLINE 
                        "Description:" NEWLINE 
@@ -141,23 +153,32 @@ int main(int argc, char **argv) {
                 return 0;
             }
         }
+
         printf(NEWLINE "Command not found" NEWLINE);
         return -1;
     }
 
     /* No args: print full list */
-    printf(APP_HEADER 
-           NEWLINE NEWLINE
-           "Description of a specified command : help <command>" NEWLINE NEWLINE
-           "internal commands (case sensitive):" NEWLINE NEWLINE);
+    printf(APP_HEADER NEWLINE NEWLINE
+           "Description of a specified command : help <command>");
+
+    printf( NEWLINE NEWLINE "INTERNAL (case sensitive):" NEWLINE);
     for(i = 0; i < ARRAY_SIZE(commands); i++) {
         printf("%-10s", commands[i].cmd);
         if((i & 7) == 7) {
             printf(NEWLINE);
         }
     }
-    printf(NEWLINE NEWLINE
-           "external commands in OS Shell ROM: (case insensitive):" NEWLINE NEWLINE);
+
+    printf(NEWLINE NEWLINE "INTERNAL IN ROM: (case insensitive):" NEWLINE);
+    for(i = 0; i < ARRAY_SIZE(commands_rom); i++) {
+        printf("%-10s", commands_rom[i].cmd);
+        if((i & 7) == 7) {
+            printf(NEWLINE);
+        }
+    }
+
+    printf(NEWLINE NEWLINE "EXTERNAL IN MSC0:/SHELL directory (case insensitive):" NEWLINE);
     for(i = 0; i < ARRAY_SIZE(commands_ext); i++) {
         printf("%-10s", commands_ext[i].cmd);
         if((i & 7) == 7) {
@@ -165,14 +186,14 @@ int main(int argc, char **argv) {
         }
     }
 
-    printf(NEWLINE NEWLINE "Keyboard:" NEWLINE NEWLINE);
+    printf(NEWLINE NEWLINE "Keyboard:" NEWLINE);
     printf("<F1>    help informations" NEWLINE);
     printf("<F2>    keyboard visualiser" NEWLINE);
     printf("<F3>    current date/time and calendar" NEWLINE);
     printf("<LEFT>  change active drive to previous if available" NEWLINE);
     printf("<RIGHT> change active drive to next if available" NEWLINE);
     printf("<UP>    recall last command" NEWLINE);
-    printf("<DOWN>  a directory of active drive/catalog" NEWLINE NEWLINE);
+    printf("<DOWN>  a directory of active drive/catalog" NEWLINE);
     printf(APP_FOOTER);
 
     return 0;
