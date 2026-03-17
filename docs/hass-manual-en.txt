@@ -11,27 +11,31 @@ extensions (SMBx, RMBx, BBRx, BBSx, WAI, STP).
 1. INVOCATION
 --------------------------------------------------------------------------------
 
-  hass [source.asm] [-o output.bin]
+  hass [source.asm] [-o output.bin] [-i]
 
   Parameters:
     source.asm     - assembly source file (if omitted: interactive mode)
     -o output.bin  - output binary filename (default: out.bin)
+    -i             - interactive mode: load source.asm into buffer, then enter
+                     interactive mode instead of assembling immediately
 
   Output files:
     out.bin        - raw binary machine code
     out.lst        - listing file (address + bytes + source)
 
   Interactive mode:
-    If no source file is given, the assembler reads instructions from standard
-    input line by line. Empty lines are accepted as part of the source.
-    Special @ commands control the session (see section 2).
+    If no source file is given, or -i is used, the assembler reads instructions
+    from standard input line by line. Empty lines are accepted as part of the
+    source. Special @ commands control the session (see section 2).
     Type @EXIT to end the session (no compilation; buffer is auto-saved).
 
   Examples:
     hass program.asm
     hass program.asm -o program.bin
     hass program.asm -o program.exe (run program in OS Shell by typing program.exe)
-    hass (interactive mode: enter code, use @COMPILE to assemble, @EXIT to quit)
+    hass                            (interactive: enter code, @MAKE to assemble)
+    hass program.asm -i             (load file, then continue editing interactively)
+    hass program.asm -i -o out.bin  (load file, edit, @MAKE saves to out.bin)
 
 --------------------------------------------------------------------------------
 2. INTERACTIVE MODE COMMANDS
@@ -52,14 +56,36 @@ extensions (SMBx, RMBx, BBRx, BBSx, WAI, STP).
     Does not stop input — editing continues after the load.
     Example:  @LOAD MSC0:/library.asm
 
-  @COMPILE [filename]
+  @MAKE [filename]
     Runs a full assembly (pass 1 + pass 2) on the current buffer and writes
     the binary output. If filename is given it overrides the output path
     (same as the -o command-line option). Defaults to out.bin.
     Does not stop input — editing continues after compilation.
     Examples:
-      @COMPILE
-      @COMPILE MSC0:/myprogram.bin
+      @MAKE
+      @MAKE MSC0:/myprogram.bin
+
+  @LIST [from [to]]
+    Displays buffered source lines with 1-based line numbers.
+    Without arguments shows all lines. A single argument shows one line.
+    Two arguments show the inclusive range from..to.
+    Examples:
+      @LIST
+      @LIST 5
+      @LIST 3 10
+
+  @EDIT N text
+    Replaces line N (1-based) with the given text. N must be within 1..nlines.
+    Example:  @EDIT 7 lda #$FF
+
+  @DEL N
+    Deletes line N. Lines below it shift up; the total line count decreases by 1.
+    Example:  @DEL 4
+
+  @INS N text
+    Inserts a new line with the given text before line N. Lines from N onward
+    shift down. N may equal nlines+1 to append after the last line.
+    Example:  @INS 3 sta $80
 
   @EXIT
     Ends the interactive session. The current buffer is automatically saved
@@ -70,7 +96,11 @@ extensions (SMBx, RMBx, BBRx, BBSx, WAI, STP).
     .org $8000
     lda #$01
     sta $0200
-    @COMPILE MSC0:/test.bin     <- assemble, keep adding code
+    @LIST                       <- review buffer
+    @EDIT 2 lda #$02            <- fix line 2
+    @DEL 3                      <- remove unwanted line
+    @INS 3 sta $0201            <- insert new line before line 3
+    @MAKE MSC0:/test.bin     <- assemble, keep editing
     @SAVE MSC0:/myprogram.asm   <- save source
     @EXIT                       <- quit (auto-saves to last.hass)
 
@@ -86,7 +116,7 @@ extensions (SMBx, RMBx, BBRx, BBSx, WAI, STP).
   - Mnemonic and operand are separated by whitespace
   - A comment starts with a semicolon (;) and extends to end of line
   - Maximum line length: 50 characters
-  - Maximum number of lines: 256
+  - Maximum number of lines: 512
 
   Example:
     ; this is a comment

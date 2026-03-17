@@ -1064,6 +1064,93 @@ static void save_bin(void){
     }
 }
 
+/* --- parse leading integer from string, return pointer to remainder --- */
+static int parse_line_number(const char *s, int *out_n, const char **out_rest){
+    int n = 0;
+    if(!s || !isdigit((unsigned char)*s)) return 0;
+    while(isdigit((unsigned char)*s)){ n = n*10 + (*s - '0'); ++s; }
+    while(*s==' '||*s=='\t') ++s;
+    *out_n    = n;
+    *out_rest = s;
+    return 1;
+}
+
+/* --- @LIST [from [to]] --- */
+static void cmd_list(const char *args){
+    int from, to, i;
+    const char *r;
+    from = 1; to = nlines;
+    if(args && parse_line_number(args, &from, &r)){
+        if(parse_line_number(r, &to, &r)){
+            /* range given */
+        } else {
+            to = from;   /* single line */
+        }
+    }
+    if(from < 1) from = 1;
+    if(to > nlines) to = nlines;
+    for(i = from; i <= to; i++){
+        xram_line_read((unsigned)(i-1), g_buf);
+        printf("%4d | %s" NEWLINE, i, g_buf);
+    }
+    if(nlines == 0) printf("(buffer empty)" NEWLINE);
+}
+
+/* --- @EDIT N text --- */
+static void cmd_edit(const char *args){
+    int n;
+    const char *text;
+    if(!args || !parse_line_number(args, &n, &text)){
+        printf("@EDIT: usage: @EDIT N new text" NEWLINE); return;
+    }
+    if(n < 1 || n > nlines){
+        printf("@EDIT: line %d out of range (1..%d)" NEWLINE, n, nlines); return;
+    }
+    xram_line_write((unsigned)(n-1), text);
+    printf("@EDIT: line %d replaced" NEWLINE, n);
+}
+
+/* --- @DEL N --- */
+static void cmd_del(const char *args){
+    int n, i;
+    const char *r;
+    if(!args || !parse_line_number(args, &n, &r)){
+        printf("@DEL: usage: @DEL N" NEWLINE); return;
+    }
+    if(n < 1 || n > nlines){
+        printf("@DEL: line %d out of range (1..%d)" NEWLINE, n, nlines); return;
+    }
+    for(i = n-1; i < nlines-1; i++){
+        xram_line_read((unsigned)(i+1), g_buf);
+        xram_line_write((unsigned)i, g_buf);
+    }
+    xram_line_write((unsigned)(nlines-1), "");
+    nlines--;
+    printf("@DEL: line %d deleted, %d lines remain" NEWLINE, n, nlines);
+}
+
+/* --- @INS N text --- */
+static void cmd_ins(const char *args){
+    int n, i;
+    const char *text;
+    if(!args || !parse_line_number(args, &n, &text)){
+        printf("@INS: usage: @INS N text" NEWLINE); return;
+    }
+    if(n < 1 || n > nlines+1){
+        printf("@INS: line %d out of range (1..%d)" NEWLINE, n, nlines+1); return;
+    }
+    if(nlines >= MAXLINES){
+        printf("@INS: buffer full (%d lines)" NEWLINE, MAXLINES); return;
+    }
+    for(i = nlines-1; i >= n-1; i--){
+        xram_line_read((unsigned)i, g_buf);
+        xram_line_write((unsigned)(i+1), g_buf);
+    }
+    xram_line_write((unsigned)(n-1), text);
+    nlines++;
+    printf("@INS: inserted at line %d, %d lines total" NEWLINE, n, nlines);
+}
+
 /* --- save entered source lines to a text file --- */
 static void save_source_lines(const char *filename) {
     int fd, i;
@@ -1095,6 +1182,7 @@ int main(int argc, char **argv){
     char *s,*dir,*rest; const char* q;
     int i;
     int loaded_from_file = 0;
+    int interactive_mode = 0;
     const char* input_path = 0;
 
     printf(CSI_RESET APP_MSG_TITLE);
@@ -1107,6 +1195,7 @@ int main(int argc, char **argv){
     */
    
     for(i = 0; i < argc; i++){
+        if(strcmp(argv[i], "-i") == 0){ interactive_mode = 1; continue; }
         if(strcmp(argv[i], "-o") == 0){
             if((i + 1) < argc && argv[i + 1] && argv[i + 1][0]){
                 set_output_path(argv[i + 1]);
@@ -1160,8 +1249,11 @@ int main(int argc, char **argv){
     }
 
     // manual entry of the code
-    if(!loaded_from_file){
-        printf(APP_MSG_START_ENTERCODE NEWLINE NEWLINE);
+    if(!loaded_from_file || interactive_mode){
+        if(loaded_from_file)
+            printf(APP_MSG_START_ENTERCODE NEWLINE "Loaded %d lines from %s. Entering interactive mode ..." NEWLINE NEWLINE, nlines, input_path);
+        else
+            printf(APP_MSG_START_ENTERCODE NEWLINE NEWLINE);
         while(nlines < MAXLINES){
             if(!fgets(g_buf,sizeof(g_buf),stdin)) break;
             rstrip(g_buf);
@@ -1186,14 +1278,30 @@ int main(int argc, char **argv){
                     }
                     continue;
                 }
+                if(strcmp(dir,"@LIST")==0){
+                    cmd_list(rest);
+                    continue;
+                }
+                if(strcmp(dir,"@EDIT")==0){
+                    cmd_edit(rest);
+                    continue;
+                }
+                if(strcmp(dir,"@DEL")==0){
+                    cmd_del(rest);
+                    continue;
+                }
+                if(strcmp(dir,"@INS")==0){
+                    cmd_ins(rest);
+                    continue;
+                }
                 if(strcmp(dir,"@EXIT")==0){
                     save_source_lines("last.hass");
                     break;
                 }
-                if(strcmp(dir,"@COMPILE")==0){
+                if(strcmp(dir,"@MAKE")==0){
                     if(rest && rest[0]) set_output_path(rest);
                     if(nlines == 0){
-                        printf("@COMPILE: nothing to compile" NEWLINE);
+                        printf("@MAKE: nothing to compile" NEWLINE);
                     } else {
                         assembly_status = STAT_SUCCESS;
                         nsym = 0; xram_sym_clear_all();
