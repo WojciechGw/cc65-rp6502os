@@ -10,11 +10,11 @@
 #include "commons.h"
 #include "ext-hass-opcodes.h"
 
-#define APPVER "20260317.1330"
+#define APPVER "20260317.1628"
 #define APPDIRDEFAULT "MSC0:/"
 #define APP_MSG_TITLE CSI_RESET "\x1b[2;1H\x1b" HIGHLIGHT_COLOR " OS Shell > " ANSI_RESET " Handy ASSembler WDC65C02S" ANSI_DARK_GRAY "\x1b[2;60Hversion " APPVER ANSI_RESET
-#define APP_MSG_START_ASSEMBLING ANSI_DARK_GRAY "\x1b[4;1HStart compilation ... " ANSI_RESET
-#define APP_MSG_START_ENTERCODE ANSI_DARK_GRAY "\x1b[4;1HEnter code. @HELP show commands list." ANSI_RESET NEWLINE
+#define APP_MSG_START_ASSEMBLING ANSI_DARK_GRAY "\x1b[4;1HStart assembling ... " ANSI_RESET
+#define APP_MSG_START_ENTERCODE ANSI_DARK_GRAY "\x1b[4;1HType @HELP for a list of commands, or start coding." ANSI_RESET NEWLINE
 
 /* --- limits --- */
 #define MAXLINES    512
@@ -22,6 +22,10 @@
 #define MAXOUT      16384u
 #define MAXSYM      128
 #define MAXINCDEPTH 4
+
+#define HASS_LAST_SOURCE_CODE_BUFFER_FILE "hass.backup"
+#define HASS_DEFAULT_OUT_BIN_FILE "hass-out.bin\0"
+#define HASS_DEFAULT_OUT_LST_FILE "hass-out.lst\0"
 
 /* --- input buffer --- */
 static int   nlines = 0;
@@ -38,8 +42,8 @@ static char outfilebuffer[80];
 static char g_tok[80];
 static char g_incpath[256];
 static char g_symtmp[48];
-static char g_outpath[128] = "out.bin\0";
-static char g_listpath[128] = "out.lst\0";
+static char g_outpath[128] = HASS_DEFAULT_OUT_BIN_FILE;
+static char g_listpath[128] = HASS_DEFAULT_OUT_LST_FILE;
 static uint16_t line_pc_before;
 static uint16_t line_pc_after;
 static char *eq_name, *eq_val;
@@ -1261,10 +1265,12 @@ int main(int argc, char **argv){
 
     // manual entry of the code
     if(!loaded_from_file || interactive_mode){
-        if(loaded_from_file)
-            printf(APP_MSG_START_ENTERCODE NEWLINE "Loaded %d lines from %s. Entering interactive mode ..." NEWLINE NEWLINE, nlines, input_path);
-        else
-            printf(APP_MSG_START_ENTERCODE NEWLINE NEWLINE);
+        if(loaded_from_file) {
+            printf(APP_MSG_START_ENTERCODE NEWLINE "Loaded %d lines from %s. Entering interactive mode ..." NEWLINE, nlines, input_path);
+            cmd_list(rest);
+        } else {
+            printf(APP_MSG_START_ENTERCODE NEWLINE);
+        }
         while(nlines < MAXLINES){
             if(!fgets(g_buf,sizeof(g_buf),stdin)) break;
             rstrip(g_buf);
@@ -1276,18 +1282,18 @@ int main(int argc, char **argv){
             if(s[0]=='@' && split_token(s,&dir,&rest)){
                 to_upper_str(dir);
                 if(strcmp(dir,"@HELP")==0){
-                    printf(NEWLINE "Commands list:" NEWLINE
+                    printf(NEWLINE "List of commands:" NEWLINE
                                    "---------------------------" NEWLINE
-                        "@HELP               - show this list" NEWLINE
+                        "@HELP               - show this list of commands" NEWLINE
                         "@SAVE filename      - save buffer to file" NEWLINE
-                        "@LOAD filename      - load file into buffer" NEWLINE
+                        "@LOAD filename      - load a file into the buffer" NEWLINE
                         "@LIST [from [to]]   - display buffer lines" NEWLINE
                         "@EDIT N text        - replace line N" NEWLINE
                         "@DEL N              - delete line N" NEWLINE
-                        "@INS N text         - insert line before N" NEWLINE
-                        "@MAKE [filename]    - assemble and save binary" NEWLINE
+                        "@INS N text         - insert text in line before N" NEWLINE
+                        "@MAKE [filename]    - assemble the code and save the binary" NEWLINE
                         "@CYCLES [from [to]] - count CPU cycles" NEWLINE
-                        "@EXIT               - save to last.hass and exit" NEWLINE NEWLINE
+                        "@EXIT               - save to " HASS_LAST_SOURCE_CODE_BUFFER_FILE " and exit" NEWLINE NEWLINE
                     );
                     continue;
                 }
@@ -1322,13 +1328,13 @@ int main(int argc, char **argv){
                     continue;
                 }
                 if(strcmp(dir,"@EXIT")==0){
-                    save_source_lines("last.hass");
+                    if(nlines > 0) save_source_lines(HASS_LAST_SOURCE_CODE_BUFFER_FILE);
                     break;
                 }
                 if(strcmp(dir,"@MAKE")==0){
                     if(rest && rest[0]) set_output_path(rest);
                     if(nlines == 0){
-                        printf("@MAKE: nothing to compile" NEWLINE);
+                        printf("@MAKE: nothing to assembly" NEWLINE);
                     } else {
                         assembly_status = STAT_SUCCESS;
                         nsym = 0; xram_sym_clear_all();
