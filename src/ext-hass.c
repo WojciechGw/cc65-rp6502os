@@ -9,7 +9,7 @@ mass sourcecode.asm -out outfile.bin -base <baseaddress> -run <runaddress>
 #include "commons.h"
 #include "ext-hass-opcodes.h"
 
-#define APPVER "20260317.1000"
+#define APPVER "20260317.1200"
 #define APPDIRDEFAULT "MSC0:/"
 #define APP_MSG_TITLE CSI_RESET "\x1b[2;1H\x1b" HIGHLIGHT_COLOR " OS Shell > " ANSI_RESET " Handy ASSembler WDC65C02S" ANSI_DARK_GRAY "\x1b[2;60Hversion " APPVER ANSI_RESET
 #define APP_MSG_START_ASSEMBLING ANSI_DARK_GRAY "\x1b[4;1HStart compilation ... " ANSI_RESET
@@ -50,6 +50,33 @@ static uint16_t a;
 #define STAT_PRE_INCLUDE    0b00000100
 
 static unsigned int assembly_status;
+
+/* Base cycle counts for WDC65C02S opcodes (0 = undefined/invalid opcode).
+   Values are the minimum (base) cycle count; branch-taken and page-crossing
+   penalties (+1/+2) are NOT included. */
+static const uint8_t op_cycles[256] = {
+/*       0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F */
+/* 00 */ 7, 6, 2, 0, 5, 3, 5, 5, 3, 2, 2, 0, 6, 4, 6, 5,
+/* 10 */ 2, 5, 5, 0, 5, 4, 6, 5, 2, 4, 2, 0, 6, 4, 6, 5,
+/* 20 */ 6, 6, 2, 0, 3, 3, 5, 5, 4, 2, 2, 0, 4, 4, 6, 5,
+/* 30 */ 2, 5, 5, 0, 4, 4, 6, 5, 2, 4, 2, 0, 4, 4, 6, 5,
+/* 40 */ 6, 6, 2, 0, 3, 3, 5, 5, 3, 2, 2, 0, 3, 4, 6, 5,
+/* 50 */ 2, 5, 5, 0, 4, 4, 6, 5, 2, 4, 3, 0, 8, 4, 6, 5,
+/* 60 */ 6, 6, 2, 0, 3, 3, 5, 5, 4, 2, 2, 0, 6, 4, 6, 5,
+/* 70 */ 2, 5, 5, 0, 4, 4, 6, 5, 2, 4, 4, 0, 6, 4, 6, 5,
+/* 80 */ 2, 6, 2, 0, 3, 3, 3, 5, 2, 2, 2, 0, 4, 4, 4, 5,
+/* 90 */ 2, 6, 5, 0, 4, 4, 4, 5, 2, 5, 2, 0, 4, 5, 5, 5,
+/* A0 */ 2, 6, 2, 0, 3, 3, 3, 5, 2, 2, 2, 0, 4, 4, 4, 5,
+/* B0 */ 2, 5, 5, 0, 4, 4, 4, 5, 2, 4, 2, 0, 4, 4, 4, 5,
+/* C0 */ 2, 6, 2, 0, 3, 3, 5, 5, 2, 2, 2, 0, 4, 4, 6, 5,
+/* D0 */ 2, 5, 5, 0, 4, 4, 6, 5, 2, 4, 3, 0, 4, 4, 7, 5,
+/* E0 */ 2, 6, 2, 0, 3, 3, 5, 5, 2, 2, 2, 0, 4, 4, 6, 5,
+/* F0 */ 2, 5, 5, 0, 4, 4, 6, 5, 2, 4, 4, 0, 4, 4, 7, 5
+};
+
+static uint32_t g_cycle_count = 0u;   /* accumulated during pass2        */
+static uint16_t g_cycle_from  = 0u;   /* first line for @CYCLES counting */
+static uint16_t g_cycle_to    = 0xFFFFu; /* last line (0xFFFF = all)     */
 
 /* --- storage in XRAM (RIA port 1) --- */
 #define XRAM_LINES_BASE 0x0000u
@@ -842,6 +869,7 @@ static void pass2(void){ // also write listing to .lst file
 
     // clean out buffer
     xram1_fill(XRAM_OUT_BASE, 0x00, (unsigned)MAXOUT);
+    g_cycle_count = 0u;
 
     pc = org;
     for(li = 0; li < nlines; ++li){
@@ -969,6 +997,8 @@ static void pass2(void){ // also write listing to .lst file
 
             if(g_opcode>=0){
                 emit_at((uint8_t)g_opcode, pc++);
+                if(li >= (int)g_cycle_from && li <= (int)g_cycle_to)
+                    g_cycle_count += op_cycles[(uint8_t)g_opcode];
                 if(g_mode==M_IMP || g_mode==M_ACC){
                 }else if(g_mode==M_IMM || g_mode==M_ZP || g_mode==M_ZPX || g_mode==M_ZPY || g_mode==M_ZPINDX || g_mode==M_ZPINDY || g_mode==M_ZPIND){
                     uint16_t v16 = resolve_value(&g_val);
@@ -1317,6 +1347,45 @@ int main(int argc, char **argv){
                         else
                             printf(ANSI_GREEN "PASS2: SUCCESS" ANSI_RESET NEWLINE);
                         if(assembly_status == STAT_SUCCESS) save_bin();
+                    }
+                    continue;
+                }
+                if(strcmp(dir,"@CYCLES")==0){
+                    char *tok2;
+                    g_cycle_from = 0u;
+                    g_cycle_to   = 0xFFFFu;
+                    if(rest && rest[0]){
+                        g_cycle_from = (uint16_t)atoi(rest);
+                        tok2 = rest;
+                        while(*tok2 && *tok2!=' ') tok2++;
+                        while(*tok2==' ') tok2++;
+                        if(*tok2) g_cycle_to = (uint16_t)atoi(tok2);
+                        else      g_cycle_to = g_cycle_from;
+                    }
+                    if(nlines == 0){
+                        printf("@CYCLES: nothing to count" NEWLINE);
+                    } else {
+                        assembly_status = STAT_SUCCESS;
+                        nsym = 0; xram_sym_clear_all();
+                        org = 0x9000; pc = 0x9000;
+                        pass1();
+                        if(assembly_status == STAT_SUCCESS){
+                            pass2();
+                            if(assembly_status == STAT_SUCCESS){
+                                if(g_cycle_to == 0xFFFFu)
+                                    printf("@CYCLES: %lu cycles (all %d lines)" NEWLINE,
+                                           (unsigned long)g_cycle_count, nlines);
+                                else
+                                    printf("@CYCLES: %lu cycles (lines %u-%u)" NEWLINE,
+                                           (unsigned long)g_cycle_count,
+                                           (unsigned)g_cycle_from, (unsigned)g_cycle_to);
+                                printf("  Note: branch/page-crossing penalties not included." NEWLINE);
+                            } else {
+                                printf(ANSI_RED "@CYCLES: PASS2 error" ANSI_RESET NEWLINE);
+                            }
+                        } else {
+                            printf(ANSI_RED "@CYCLES: PASS1 error" ANSI_RESET NEWLINE);
+                        }
                     }
                     continue;
                 }

@@ -88,6 +88,16 @@ z rozszerzeniami WDC (SMBx, RMBx, BBRx, BBSx, WAI, STP).
     sie w dol. N moze byc rowne liczba_linii+1, aby dopisac na koncu bufora.
     Przyklad:  @INS 3 sta $80
 
+  @CYCLES [od [do]]
+    Asembluje biezacy bufor i podaje laczna liczbe cykli procesora WDC65C02S
+    dla kodu wynikowego. Opcjonalne numery linii (liczone od 0) ograniczaja
+    liczenie do wskazanego zakresu. Kary za galezie i przekroczenie granicy
+    strony (+1/+2 cykli) NIE sa uwzgledniane w wyniku.
+    Przyklady:
+      @CYCLES              <- cykle dla calego programu
+      @CYCLES 5            <- cykle tylko dla linii 5
+      @CYCLES 5 20         <- cykle dla linii od 5 do 20
+
   @EXIT
     Konczy sesje interaktywna. Bufor jest automatycznie zapisywany do pliku
     last.hass przed wyjsciem. Asemblacja nie jest wykonywana.

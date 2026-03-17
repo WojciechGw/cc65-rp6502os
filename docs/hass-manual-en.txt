@@ -87,6 +87,16 @@ extensions (SMBx, RMBx, BBRx, BBSx, WAI, STP).
     shift down. N may equal nlines+1 to append after the last line.
     Example:  @INS 3 sta $80
 
+  @CYCLES [from [to]]
+    Assembles the current buffer and reports the total base cycle count for
+    the WDC65C02S CPU. Optional 0-based line numbers restrict counting to
+    a range. Branch-taken and page-crossing penalties (+1/+2 cycles) are
+    NOT included in the reported count.
+    Examples:
+      @CYCLES              <- count cycles for the entire program
+      @CYCLES 5            <- count cycles for line 5 only
+      @CYCLES 5 20         <- count cycles for lines 5 through 20
+
   @EXIT
     Ends the interactive session. The current buffer is automatically saved
     to last.hass before exit. No compilation is performed.
