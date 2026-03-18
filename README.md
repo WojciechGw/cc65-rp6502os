@@ -98,15 +98,15 @@ Enjoy !
 
 #### header of file (only once)
 FF    - constant FF for .com FE for .exe *)
-00    - file format version
+byte  - file format version
 
 #### segment of data (at least one)
-FF FF - data segment start</br>
-00    - target memory type 00 - RAM 01 - XRAM</br>
-00    - reserved (idea: number of memory bank, only if target memory is RAM)</br>
-00 80 - begin address for segment's data</br>
-00 80 - RESVEC for .exe, run address for .com if it differs from FF FF (this matters only if target memory is RAM)</br>
-00 DC - size of data</br>
+FF FF   - data segment start</br>
+byte    - target memory type 00 - RAM 01 - XRAM</br>
+byte    - reserved (idea: number of memory bank, only if target memory is RAM)</br>
+LSB MSB - begin address for data</br>
+LSB MSB - RESVEC for .exe, run address for .com if it differs from FF FF (this matters only if target memory is RAM)</br>
+LSB MSB - size of data</br>
 data</br>
 
 next segments if needed</br>
