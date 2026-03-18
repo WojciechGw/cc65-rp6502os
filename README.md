@@ -95,11 +95,9 @@ Enjoy !
 ### .com and .exe file format (project)
 * .com programs for native OS
 * .exe programs demands whole Picocomputer free memory like .rp6502 (dedicated loader and RESVEC)
-
 #### header of file (only once)
-FF    - constant FF for .com FE for .exe *)
-byte  - file format version
-
+FF    - constant FF for .com FE for .exe</br>
+byte  - file format version</br>
 #### segment of data (at least one)
 FF FF   - data segment start</br>
 byte    - target memory type 00 - RAM 01 - XRAM</br>
@@ -108,6 +106,5 @@ LSB MSB - begin address for data</br>
 LSB MSB - RESVEC for .exe, run address for .com if it differs from FF FF (this matters only if target memory is RAM)</br>
 LSB MSB - size of data</br>
 data</br>
-
 next segments if needed</br>
-
+00 EOF
