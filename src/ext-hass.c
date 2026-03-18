@@ -10,7 +10,7 @@
 #include "commons.h"
 #include "ext-hass-opcodes.h"
 
-#define APPVER "20260317.1711"
+#define APPVER "20260318.0807"
 #define APPDIRDEFAULT "MSC0:/"
 #define APP_MSG_TITLE CSI_RESET "\x1b[2;1H\x1b" HIGHLIGHT_COLOR " OS Shell > " ANSI_RESET " Handy ASSembler WDC65C02S" ANSI_DARK_GRAY "\x1b[2;60Hversion " APPVER ANSI_RESET
 #define APP_MSG_START_ASSEMBLING ANSI_DARK_GRAY "\x1b[4;1HStart assembling ... " ANSI_RESET
@@ -1196,6 +1196,7 @@ int main(int argc, char **argv){
             printf(APP_MSG_START_ENTERCODE NEWLINE);
         }
         while(nlines < MAXLINES){
+            printf("?\033[1D");
             if(!fgets(g_buf,sizeof(g_buf),stdin)) break;
             rstrip(g_buf);
             strip_utf8_bom(g_buf);
@@ -1211,6 +1212,7 @@ int main(int argc, char **argv){
                         "@HELP               - show this list of commands" NEWLINE
                         "@SAVE filename      - save buffer to file" NEWLINE
                         "@LOAD filename      - load a file into the buffer" NEWLINE
+                        "@NEW                - clear the buffer" NEWLINE
                         "@LIST [from [to]]   - display buffer lines" NEWLINE
                         "@EDIT N text        - replace line N" NEWLINE
                         "@DEL N              - delete line N" NEWLINE
@@ -1228,11 +1230,21 @@ int main(int argc, char **argv){
                 if(strcmp(dir,"@LOAD")==0){
                     if(rest && rest[0]){
                         int before = nlines;
-                        read_file_into_lines(rest, 0);
-                        printf("@LOAD: %d lines loaded from %s" NEWLINE, nlines - before, rest);
+                        char load_fname[MAXLEN];
+                        strncpy(load_fname, rest, MAXLEN-1);
+                        load_fname[MAXLEN-1] = 0;
+                        read_file_into_lines(load_fname, 0);
+                        printf("@LOAD: %d lines loaded from %s" NEWLINE, nlines - before, load_fname);
                     } else {
                         printf("@LOAD: missing filename" NEWLINE);
                     }
+                    continue;
+                }
+                if(strcmp(dir,"@NEW")==0){
+                    nlines = 0;
+                    nsym = 0;
+                    xram_sym_clear_all();
+                    printf("@NEW: buffer cleared" NEWLINE);
                     continue;
                 }
                 if(strcmp(dir,"@LIST")==0){
