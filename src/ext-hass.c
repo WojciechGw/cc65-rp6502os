@@ -10,7 +10,7 @@
 #include "commons.h"
 #include "ext-hass-opcodes.h"
 
-#define APPVER "20260318.0915"
+#define APPVER "20260318.0925"
 #define APPDIRDEFAULT "MSC0:/"
 #define APP_MSG_TITLE CSI_RESET "\x1b[2;1H\x1b" HIGHLIGHT_COLOR " OS Shell > " ANSI_RESET " Handy ASSembler WDC65C02S" ANSI_DARK_GRAY "\x1b[2;60Hversion " APPVER ANSI_RESET
 #define APP_MSG_START_ASSEMBLING ANSI_DARK_GRAY "\x1b[4;1HStart assembling ... " ANSI_RESET
@@ -1309,7 +1309,7 @@ int main(int argc, char **argv){
                 }
                 if(strcmp(dir,"@SYMBOLS")==0){
                     if(nsym == 0){
-                        printf(ANSI_YELLOW "@SYMBOLS: no symbols (run @MAKE first)" ANSI_RESET NEWLINE);
+                        printf(ANSI_YELLOW "@SYMBOLS: no symbols (run @MAKE first)" ANSI_RESET NEWLINE NEWLINE);
                     } else {
                         int si;
                         for(si = 0; si < nsym; si++){
