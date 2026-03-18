@@ -1,7 +1,7 @@
 /* 
 Courier RX
 OS Shell File Receiver
-ext-crx.c - C89, cc65 (Picocomputer RP6502-RIA UART) 
+ext-crx.c - C89, cc65 (PC => Picocomputer RP6502-RIA UART) 
 */
 
 #include "commons.h"
@@ -69,7 +69,7 @@ static char rx_filename[RX_FILENAME_MAX];
 static char rx_outpath[RX_OUTPATH_MAX];
 
 /* ======================================================================
- * Narzedzia UART TX
+ * related to UART
  * ====================================================================== */
 
 static void ria_tx_putc_blocking(unsigned char b)

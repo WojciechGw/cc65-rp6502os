@@ -1,4 +1,16 @@
+/* 
+Courier TX
+OS Shell File Sender
+ext-ctx.c - C89, cc65 (Picocomputer RP6502-RIA UART => PC) 
+*/
 #include "commons.h"
+
+#define NEWLINE "\r\n"
+
+#define APPVER "20260315.1858"
+#define APPDIRDEFAULT "MSC0:/"
+#define APP_MSG_TITLE "\x1b[2;1H\x1b" HIGHLIGHT_COLOR " OS Shell > " ANSI_RESET " Courier TX" ANSI_DARK_GRAY "\x1b[2;60Hversion " APPVER ANSI_RESET
+#define APP_MSG_START ANSI_DARK_GRAY "\x1b[4;1HSending file in Intel HEX format." ANSI_RESET
 
 #define RX_READY (RIA.ready & RIA_READY_RX_BIT)
 #define TX_READY (RIA.ready & RIA_READY_TX_BIT)
@@ -23,6 +35,23 @@ void print(char *s)
     }
 }
 
+/* ======================================================================
+ * related to UART
+ * ====================================================================== */
+
+static void ria_tx_putc_blocking(unsigned char b)
+{
+    TX_READY_SPIN;
+    RIA.tx = b;
+}
+
+static void ria_tx_puts(const char* s)
+{
+    while (*s) {
+        ria_tx_putc_blocking((unsigned char)*s++);
+    }
+}
+
 static void put_hex(char *dst, uint8_t v) {
     static const char h[] = "0123456789ABCDEF";
     dst[0] = h[v >> 4];
@@ -36,17 +65,17 @@ int main(int argc, char **argv)
     int pos, i;
 
     if (argc < 1 || argv[0][0] == 0) {
-        printf("Usage: courier-tx <filename>" NEWLINE NEWLINE);
+        printf("Usage: ctx <filename>" NEWLINE NEWLINE);
         return -1;
     }
 
     if(argc == 1 && strcmp(argv[0], "/?") == 0) {
         printf(NEWLINE
-              "OS Shell > Courier TX" NEWLINE
-               NEWLINE 
+               "Courier TX - send file to PC"
+               NEWLINE NEWLINE
                "Usage:" NEWLINE
-               "first start receivefile.py script on target machine" NEWLINE
-               "courier-tx <filename> - send a file <filename> via RIA UART" NEWLINE
+               "first start receivefile.ps1 or receivefile.py script on target machine" NEWLINE
+               "ctx <filename> - send a file <filename> via RIA UART" NEWLINE
                NEWLINE);
         return 0;
     }
@@ -57,6 +86,11 @@ int main(int argc, char **argv)
         printf("Cannot open output file.\r\n");
         return -1;
     }
+
+    ria_tx_puts(CSI_RESET);
+    ria_tx_puts(CSI_CURSOR_HIDE);
+    ria_tx_puts(APP_MSG_TITLE);
+    ria_tx_puts(APP_MSG_START);
 
     printf("OS Shell > Courier TX" NEWLINE NEWLINE "Sending file in Intel HEX." NEWLINE);
 
