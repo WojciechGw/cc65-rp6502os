@@ -94,11 +94,11 @@ Enjoy !
 
 ## .com and .exe file format (project)
 
-header of file (only once)
+# header of file (only once)
 FF    - constant FF for .com FE for .exe
 00    - file format version
 
-segment of data (at least one)
+# segment of data (at least one)
 FF FF - data segment start</br>
 00    - target memory type 00 - RAM 01 - XRAM</br>
 00    - reserved (idea: number of memory bank, only if target memory is RAM)</br>
