@@ -10,7 +10,7 @@
 #include "commons.h"
 #include "ext-hass-opcodes.h"
 
-#define APPVER "20260318.0900"
+#define APPVER "20260318.0915"
 #define APPDIRDEFAULT "MSC0:/"
 #define APP_MSG_TITLE CSI_RESET "\x1b[2;1H\x1b" HIGHLIGHT_COLOR " OS Shell > " ANSI_RESET " Handy ASSembler WDC65C02S" ANSI_DARK_GRAY "\x1b[2;60Hversion " APPVER ANSI_RESET
 #define APP_MSG_START_ASSEMBLING ANSI_DARK_GRAY "\x1b[4;1HStart assembling ... " ANSI_RESET
@@ -1197,10 +1197,10 @@ int main(int argc, char **argv){
             printf(APP_MSG_START_ENTERCODE NEWLINE "Loaded %d lines from %s. Entering interactive mode ..." NEWLINE, nlines, input_path);
             cmd_list(rest);
         } else {
-            printf(APP_MSG_START_ENTERCODE NEWLINE);
+            printf(APP_MSG_START_ENTERCODE NEWLINE NEWLINE);
         }
         while(nlines < MAXLINES){
-            printf(NEWLINE "?\033[1D");
+            printf("?\033[1D");
             if(!fgets(g_buf,sizeof(g_buf),stdin)) break;
             rstrip(g_buf);
             strip_utf8_bom(g_buf);
@@ -1240,9 +1240,9 @@ int main(int argc, char **argv){
                         load_fname[MAXLEN-1] = 0;
                         nlines = 0; nsym = 0; xram_sym_clear_all();
                         read_file_into_lines(load_fname, 0, 0);
-                        printf("@LOAD: %d lines loaded from %s" NEWLINE, nlines, load_fname);
+                        printf(ANSI_GREEN "@LOAD: %d lines loaded from %s" ANSI_RESET NEWLINE NEWLINE, nlines, load_fname);
                     } else {
-                        printf("@LOAD: missing filename" NEWLINE);
+                        printf(ANSI_RED "@LOAD: missing filename" ANSI_RESET NEWLINE NEWLINE);
                     }
                     continue;
                 }
@@ -1274,14 +1274,14 @@ int main(int argc, char **argv){
                             /* insert: count file lines first */
                             af = fopen(append_buf, "rb");
                             if(!af){
-                                printf("@APPEND: can't open %s" NEWLINE, append_buf);
+                                printf(ANSI_RED "@APPEND: can't open %s" ANSI_RESET NEWLINE NEWLINE, append_buf);
                                 continue;
                             }
                             file_count = 0;
                             while(fgets(g_buf, sizeof(g_buf), af)) file_count++;
                             fclose(af);
                             if(nlines + file_count > MAXLINES){
-                                printf("@APPEND: buffer full" NEWLINE);
+                                printf(ANSI_RED "@APPEND: buffer full" ANSI_RESET NEWLINE NEWLINE);
                                 continue;
                             }
                             /* shift existing lines from insert_pos downward */
@@ -1301,15 +1301,15 @@ int main(int argc, char **argv){
                             fclose(af);
                             nlines += file_count;
                         }
-                        printf("@APPEND: %d lines added from %s" NEWLINE, nlines - before, append_buf);
+                        printf(ANSI_GREEN "@APPEND: %d lines added from %s" ANSI_RESET NEWLINE NEWLINE, nlines - before, append_buf);
                     } else {
-                        printf("@APPEND: usage: @APPEND filename [startline]" NEWLINE);
+                        printf("@APPEND: usage: @APPEND filename [startline]" NEWLINE NEWLINE);
                     }
                     continue;
                 }
                 if(strcmp(dir,"@SYMBOLS")==0){
                     if(nsym == 0){
-                        printf("@SYMBOLS: no symbols (run @MAKE first)" NEWLINE);
+                        printf(ANSI_YELLOW "@SYMBOLS: no symbols (run @MAKE first)" ANSI_RESET NEWLINE);
                     } else {
                         int si;
                         for(si = 0; si < nsym; si++){
@@ -1317,7 +1317,7 @@ int main(int argc, char **argv){
                             printf("  %-16s = $%04X" NEWLINE,
                                    g_buf, (unsigned)xram_sym_get_value((unsigned)si));
                         }
-                        printf("@SYMBOLS: %d symbol(s)" NEWLINE, nsym);
+                        printf("@SYMBOLS: %d symbol(s)" NEWLINE NEWLINE, nsym);
                     }
                     continue;
                 }
@@ -1325,7 +1325,7 @@ int main(int argc, char **argv){
                     nlines = 0;
                     nsym = 0;
                     xram_sym_clear_all();
-                    printf("@NEW: buffer cleared" NEWLINE);
+                    printf(ANSI_GREEN "@NEW: buffer cleared" ANSI_RESET NEWLINE NEWLINE);
                     continue;
                 }
                 if(strcmp(dir,"@LIST")==0){
@@ -1352,7 +1352,7 @@ int main(int argc, char **argv){
                 if(strcmp(dir,"@MAKE")==0){
                     if(rest && rest[0]) set_output_path(rest);
                     if(nlines == 0){
-                        printf("@MAKE: nothing to assembly" NEWLINE);
+                        printf(ANSI_YELLOW "@MAKE: nothing to assembly" ANSI_RESET NEWLINE NEWLINE);
                     } else {
                         assembly_status = STAT_SUCCESS;
                         nsym = 0; xram_sym_clear_all();
@@ -1384,7 +1384,7 @@ int main(int argc, char **argv){
                         else      g_cycle_to = g_cycle_from;
                     }
                     if(nlines == 0){
-                        printf("@CYCLES: nothing to count" NEWLINE);
+                        printf(ANSI_YELLOW "@CYCLES: nothing to count" ANSI_RESET NEWLINE NEWLINE);
                     } else {
                         assembly_status = STAT_SUCCESS;
                         nsym = 0; xram_sym_clear_all();
@@ -1401,15 +1401,15 @@ int main(int argc, char **argv){
                                            (unsigned long)g_cycle_count,
                                            (unsigned)g_cycle_from, (unsigned)g_cycle_to);
                             } else {
-                                printf(ANSI_RED "@CYCLES: PASS2 error" ANSI_RESET NEWLINE);
+                                printf(ANSI_RED "@CYCLES: PASS2 error" ANSI_RESET NEWLINE NEWLINE);
                             }
                         } else {
-                            printf(ANSI_RED "@CYCLES: PASS1 error" ANSI_RESET NEWLINE);
+                            printf(ANSI_RED "@CYCLES: PASS1 error" ANSI_RESET NEWLINE NEWLINE);
                         }
                     }
                     continue;
                 }
-                printf(ANSI_RED "Error: %s unknown. Check your typing." ANSI_RESET NEWLINE, dir);
+                printf(ANSI_RED "Error: %s unknown. Check your typing." ANSI_RESET NEWLINE NEWLINE, dir);
                 continue;
             }
             if(s[0]=='.' && split_token(s,&dir,&rest)){
@@ -1430,7 +1430,7 @@ int main(int argc, char **argv){
 
     if(nlines == 0)
     {
-        printf(ANSI_RED "nothing to do ... bye, bye!" ANSI_RESET NEWLINE NEWLINE);
+        printf(ANSI_YELLOW "nothing to do ... bye, bye!" ANSI_RESET NEWLINE NEWLINE);
         return -1;
     } else {
         printf(ANSI_WHITE "number of entered source code lines: ");
