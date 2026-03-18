@@ -1,3 +1,18 @@
+/* 
+ * @file      ext-settime.c
+ * @author    Wojciech Gwioździk
+ * @copyright 2026 (c) Wojciech Gwioździk
+ *
+ * set date & time procedure for Rumbledethumps' Picocomputer 6502
+ * 
+ */
+
+#include "commons.h"
+
+#define APPVER "20260317.2100"
+#define APP_MSG_TITLE CSI_RESET "\x1b[2;1H\x1b" HIGHLIGHT_COLOR " OS Shell > " ANSI_RESET " Set date & time" ANSI_DARK_GRAY "\x1b[2;60Hversion " APPVER ANSI_RESET
+#define APP_MSG_START ANSI_DARK_GRAY "\x1b[4;1HEnter current date & time [YYYY-MM-DD HH:MM:SS] or ESC to cancel procedure." ANSI_RESET NEWLINE NEWLINE "> " CSI_CURSOR_SHOW
+
 #include "commons.h"
 
 #define TX_READY (RIA.ready & RIA_READY_TX_BIT)
@@ -64,9 +79,7 @@ int main(void) { // Interactive setter for RTC when it is unset (year 1970).
     time_t epoch;
     int len;
 
-    tx_string(ANSI_CLS "[OS Shell INFO] RTC is not set." NEWLINE
-              "Enter current date & time [YYYY-MM-DD HH:MM:SS]" NEWLINE
-              "or press ESC to cancel procedure." NEWLINE "> " CSI_CURSOR_SHOW);
+    tx_string(APP_MSG_TITLE APP_MSG_START);
     len = read_line_editor(line, sizeof(line));
     if(len <= 0) {
         tx_string(NEWLINE "[OS Shell INFO] Cancel." NEWLINE);

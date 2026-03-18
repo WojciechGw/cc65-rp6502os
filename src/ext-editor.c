@@ -6,47 +6,31 @@
 #include <fcntl.h>
 #include "commons.h"
 
-#define APPVER "20260317.1050"
+#define APPVER "20260318.1000"
 
 /* --- XRAM register addresses --- */
-#define XRAM_STRUCT_GFX_MENU     0xFF00
-#define XRAM_STRUCT_GFX_EDITOR   0xFF10
 #define XRAM_STRUCT_SYS_KEYBOARD 0xFF20
 #define XRAM_STRUCT_SYS_MOUSE    0xFF40
 
-/* --- GFX canvas and mode constants --- */
-#define GFX_CANVAS_640x480      0b00000011
-#define GFX_MODE1_FONTSIZE8     0b00000000
-#define GFX_MODE1_FONTSIZE16    0b00001000
-#define GFX_MODE1_COLORS_16     0b00000010
+/* --- GFX canvas --- */
+#define GFX_CANVAS_640x480       0b00000011
 
-/* --- 16-color palette --- */
-#define GFX_MODE1_COLOR_BLACK       0b0000
-#define GFX_MODE1_COLOR_DARKRED     0b0001
-#define GFX_MODE1_COLOR_DARKGREEN   0b0010
-#define GFX_MODE1_COLOR_DARKYELLOW  0b0011
-#define GFX_MODE1_COLOR_DARKBLUE    0b0100
-#define GFX_MODE1_COLOR_DARKMAGENTA 0b0101
-#define GFX_MODE1_COLOR_DARKCYAN    0b0110
-#define GFX_MODE1_COLOR_GRAY        0b0111
-#define GFX_MODE1_COLOR_DARKGRAY    0b1000
-#define GFX_MODE1_COLOR_RED         0b1001
-#define GFX_MODE1_COLOR_GREEN       0b1010
-#define GFX_MODE1_COLOR_YELLOW      0b1011
-#define GFX_MODE1_COLOR_MAGENTA     0b1100
-#define GFX_MODE1_COLOR_CYAN        0b1101
-#define GFX_MODE1_COLOR_WHITE       0b1111
+/* --- XRAM text buffer: 256 rows x 80 cols x 1 byte = 20480 bytes --- */
+#define TEXT_BUF_BASE    0x0000u
+#define TEXT_COLS        80u
+#define XRAM_SCRATCH     0xA200u   /* scratch for file write (82 bytes) */
 
-/* --- editor / menu colors --- */
-#define MENU_COLOR_BG        GFX_MODE1_COLOR_DARKGREEN
-#define MENU_COLOR_FG        GFX_MODE1_COLOR_WHITE
-#define MENU_PROMPT_BG       GFX_MODE1_COLOR_DARKYELLOW
-#define MENU_PROMPT_FG       GFX_MODE1_COLOR_BLACK
-#define EDITOR_COLOR_BG      GFX_MODE1_COLOR_DARKGRAY
-#define EDITOR_COLOR_FG      GFX_MODE1_COLOR_WHITE
-#define EDITOR_HILITE_BG     GFX_MODE1_COLOR_DARKBLUE
-#define EDITOR_HILITE_FG     GFX_MODE1_COLOR_YELLOW
-#define EDITOR_COLOR_ATTR    ((uint8_t)((EDITOR_COLOR_BG << 4) | EDITOR_COLOR_FG))
+/* --- Terminal dimensions (640x480, 16px font) --- */
+#define TERM_ROWS        30u
+#define EDIT_ROWS        27u
+#define MENU_ROWS        3u
+
+/* --- ANSI escape helpers --- */
+#define ANSI_HOME        "\033[H"
+#define ANSI_HIDE_CUR    "\033[?25l"
+#define ANSI_SHOW_CUR    "\033[?25h"
+#define ANSI_REVERSE     "\033[7m"
+#define ANSI_NORMAL      "\033[0m"
 
 /* --- keyboard --- */
 #define KEYBOARD_BYTES 32
@@ -55,19 +39,14 @@ uint8_t keystates[KEYBOARD_BYTES] = {0};
 
 /* --- cursor --- */
 struct Cursor {
-    uint8_t  row;
-    uint8_t  col;
-    uint16_t blink_counter;
-    bool     blink_state;
+    uint8_t row;
+    uint8_t col;
 };
 static struct Cursor cur;
 
-/* --- screen globals --- */
-static uint16_t screenaddr_base      = 0x0000u;
-static uint16_t screenaddr_base_menu = 0xA000u;
-static uint16_t screenaddr_current   = 0x0000u;
-static uint16_t screenaddr_max       = 0x0000u;
-static uint16_t content_rows         = 0u;
+/* --- scroll / content state --- */
+static uint8_t  scroll_row    = 0u;
+static uint16_t content_rows  = 0u;
 
 /* --- file and search state --- */
 static char current_filename[64];
@@ -75,18 +54,16 @@ static char search_pattern[32];
 static char g_linebuf[82];
 
 /* --- Insert/Overwrite mode and clipboard --- */
-static uint8_t insert_mode = 1u;   /* 1=Insert, 0=Overwrite */
-static uint8_t sel_active  = 0u;   /* selection mark set */
-static uint8_t sel_row     = 0u;   /* mark row */
-static uint8_t sel_col     = 0u;   /* mark col */
-static char    clipboard[81];      /* clipboard buffer (max 80 chars + \0) */
-static uint8_t clip_len    = 0u;   /* number of chars in clipboard */
-static char    line_tmp[80];       /* temp buffer for line-shift operations */
+static uint8_t insert_mode = 1u;
+static uint8_t sel_active  = 0u;
+static uint8_t sel_row     = 0u;
+static uint8_t sel_col     = 0u;
+static char    clipboard[81];
+static uint8_t clip_len    = 0u;
+static char    line_tmp[80];
 
 /* ================================================================
    keycode_to_char: USB HID keycode -> ASCII
-   Handles A-Z, 0-9, space and filename/editor punctuation.
-   Returns 0 for unmapped keys.
    ================================================================ */
 static char keycode_to_char(uint8_t code, uint8_t shift, uint8_t caps)
 {
@@ -113,60 +90,79 @@ static char keycode_to_char(uint8_t code, uint8_t shift, uint8_t caps)
 }
 
 /* ================================================================
-   menu_draw_row: draws text to one row of the menu bar (XRAM).
-   Pads with spaces to 80 columns.
+   menu_print_row: prints text in reverse video to one terminal row,
+   padding to TEXT_COLS with spaces.
+   ansi_row is 1-based.
    ================================================================ */
-static void menu_draw_row(uint8_t row, const char *text, uint8_t bg, uint8_t fg)
+static void menu_print_row(uint8_t ansi_row, const char *text)
 {
     uint8_t i;
-    uint8_t attr = (uint8_t)((bg << 4) | fg);
-    RIA.addr0 = screenaddr_base_menu + (uint16_t)row * 160u;
-    RIA.step0 = 1;
-    for (i = 0u; text[i] && i < 80u; i++) {
-        RIA.rw0 = (uint8_t)text[i];
-        RIA.rw0 = attr;
-    }
-    while (i < 80u) {
-        RIA.rw0 = ' ';
-        RIA.rw0 = attr;
-        i++;
-    }
+    printf("\033[%d;1H" ANSI_REVERSE, (int)ansi_row);
+    for (i = 0u; text[i] && i < TEXT_COLS; i++) putchar((uint8_t)text[i]);
+    while (i < TEXT_COLS) { putchar(' '); i++; }
+    printf(ANSI_NORMAL);
 }
 
 /* ================================================================
-   draw_menu_bar: restores standard 3-row menu bar.
-   Row 0: key shortcuts
-   Row 1: [INS]/[OVR] + status message or current filename
-   Row 2: MARK SET indicator (when sel_active)
+   draw_menu_bar: 3-row status bar at bottom of terminal.
+   Row EDIT_ROWS+1: key shortcuts
+   Row EDIT_ROWS+2: [INS]/[OVR] + status/filename
+   Row EDIT_ROWS+3: MARK SET indicator
    ================================================================ */
 static void draw_menu_bar(const char *status)
 {
-    uint8_t     i, j;
+    uint8_t     i;
     const char *mode_str;
     const char *info;
+    char        row2[81];
 
-    mode_str = insert_mode ? "[INS] " : "[OVR] ";
+    mode_str = insert_mode ? "[INS]" : "[OVR]";
     info     = status ? status : (current_filename[0] ? current_filename : "");
 
-    menu_draw_row(0,
+    menu_print_row(EDIT_ROWS + 1u,
         "Ins=Mode ^K=Mark ^C=Copy ^X=Cut ^V=Paste "
-        "F5=Open F6=Save F7=Find ESC=Exit",
-        MENU_COLOR_BG, MENU_COLOR_FG);
+        "F5=Open F6=Save F7=Find ESC=Exit");
 
-    /* compose "[INS/OVR] info..." in g_linebuf */
-    for (i = 0u; mode_str[i]; i++) g_linebuf[i] = mode_str[i];
-    for (j = 0u; info[j] && i < 80u; j++, i++) g_linebuf[i] = info[j];
-    g_linebuf[i] = 0;
-    menu_draw_row(1, g_linebuf, MENU_COLOR_BG, GFX_MODE1_COLOR_YELLOW);
+    /* compose "[INS/OVR] info..." */
+    for (i = 0u; mode_str[i]; i++) row2[i] = mode_str[i];
+    row2[i++] = ' ';
+    for (; info[0] && (i < 80u); i++, info++) row2[i] = *info;
+    row2[i] = 0;
+    menu_print_row(EDIT_ROWS + 2u, row2);
 
-    menu_draw_row(2,
-        sel_active ? "MARK SET  (^C=copy  ^X=cut  ^K=clear)" : "",
-        MENU_COLOR_BG, GFX_MODE1_COLOR_DARKYELLOW);
+    menu_print_row(EDIT_ROWS + 3u,
+        sel_active ? "MARK SET  (^C=copy  ^X=cut  ^K=clear)" : "");
 }
 
 /* ================================================================
-   menu_input: blocking text-input dialog in menu rows 1-2.
-   Uses edge-detection (press, not held) for reliable single-keystroke.
+   redraw_screen: redraws EDIT_ROWS visible lines from XRAM + menu.
+   Repositions terminal cursor at cur.row/col.
+   ================================================================ */
+static void redraw_screen(void)
+{
+    uint8_t  r, j;
+    uint16_t xrow;
+
+    printf(ANSI_HIDE_CUR ANSI_HOME);
+    for (r = 0u; r < EDIT_ROWS; r++) {
+        xrow = (uint16_t)scroll_row + r;
+        RIA.addr1 = TEXT_BUF_BASE + xrow * TEXT_COLS;
+        RIA.step1 = 1;
+        for (j = 0u; j < TEXT_COLS; j++) {
+            char c = (char)RIA.rw1;
+            g_linebuf[j] = c ? c : ' ';
+        }
+        printf("\033[%d;1H", (int)(r + 1u));
+        for (j = 0u; j < TEXT_COLS; j++) putchar((uint8_t)g_linebuf[j]);
+    }
+    draw_menu_bar(NULL);
+    printf("\033[%d;%dH" ANSI_SHOW_CUR,
+           (int)((cur.row - scroll_row) + 1u),
+           (int)(cur.col + 1u));
+}
+
+/* ================================================================
+   menu_input: blocking text-input dialog in menu rows 2-3.
    Returns 1 on Enter, 0 on Esc.
    ================================================================ */
 static int menu_input(const char *prompt, char *buf, uint8_t maxlen)
@@ -183,14 +179,12 @@ static int menu_input(const char *prompt, char *buf, uint8_t maxlen)
     result = 0;
     buf[0] = 0;
 
-    /* snapshot current state to avoid instant trigger on held keys */
     for (k = 0u; k < KEYBOARD_BYTES; k++) prev_ks[k] = keystates[k];
 
-    menu_draw_row(1, prompt,  MENU_PROMPT_BG, MENU_PROMPT_FG);
-    menu_draw_row(2, "",      MENU_COLOR_BG,  GFX_MODE1_COLOR_WHITE);
+    menu_print_row(EDIT_ROWS + 2u, prompt);
+    menu_print_row(EDIT_ROWS + 3u, "");
 
     while (!done) {
-        /* read fresh keyboard state from XRAM */
         for (k = 0u; k < KEYBOARD_BYTES; k++) {
             RIA.addr1 = XRAM_STRUCT_SYS_KEYBOARD + k;
             RIA.step1 = 0;
@@ -203,9 +197,9 @@ static int menu_input(const char *prompt, char *buf, uint8_t maxlen)
 
         for (k = 0u; k < KEYBOARD_BYTES && !done; k++) {
             for (j = 0u; j < 8u && !done; j++) {
-                was  = (prev_ks[k] >> j) & 1u;
-                now  = (cur_ks [k] >> j) & 1u;
-                if (!was && now) {                  /* key just pressed */
+                was = (prev_ks[k] >> j) & 1u;
+                now = (cur_ks [k] >> j) & 1u;
+                if (!was && now) {
                     code = (uint8_t)((k << 3) | j);
                     if (code == KEY_ENTER || code == KEY_KPENTER) {
                         result = 1; done = 1;
@@ -215,14 +209,14 @@ static int menu_input(const char *prompt, char *buf, uint8_t maxlen)
                         if (len > 0u) {
                             len--;
                             buf[len] = 0;
-                            menu_draw_row(2, buf, MENU_COLOR_BG, GFX_MODE1_COLOR_WHITE);
+                            menu_print_row(EDIT_ROWS + 3u, buf);
                         }
                     } else {
                         ch = keycode_to_char(code, shift, caps);
                         if (ch && len < (uint8_t)(maxlen - 1u)) {
                             buf[len++] = ch;
                             buf[len]   = 0;
-                            menu_draw_row(2, buf, MENU_COLOR_BG, GFX_MODE1_COLOR_WHITE);
+                            menu_print_row(EDIT_ROWS + 3u, buf);
                         }
                     }
                 }
@@ -231,42 +225,33 @@ static int menu_input(const char *prompt, char *buf, uint8_t maxlen)
         }
     }
 
-    /* sync keystates so main loop doesn't re-trigger the same key */
     for (k = 0u; k < KEYBOARD_BYTES; k++) keystates[k] = cur_ks[k];
     return result;
 }
 
 /* ================================================================
-   editor_clear: clears full XRAM canvas (0x0000-0x9FFF) and resets
-   cursor, scroll, and content tracking.
+   editor_clear: fills XRAM text buffer with spaces and clears
+   the terminal display.
    ================================================================ */
 static void editor_clear(void)
 {
     uint16_t i;
 
-    RIA.addr0 = screenaddr_base;
+    RIA.addr0 = TEXT_BUF_BASE;
     RIA.step0 = 1;
-    /* 20480 cells * 2 bytes = 40960 bytes (full canvas 0x0000-0x9FFF) */
-    for (i = 0u; i < 20480u; i++) {
-        RIA.rw0 = ' ';
-        RIA.rw0 = EDITOR_COLOR_ATTR;
-    }
+    for (i = 0u; i < 20480u; i++) RIA.rw0 = ' ';
 
-    cur.row           = 0u;
-    cur.col           = 0u;
-    cur.blink_counter = 0u;
-    cur.blink_state   = false;
-    content_rows      = 0u;
-    sel_active        = 0u;
-    screenaddr_current= screenaddr_base;
-    screenaddr_max    = screenaddr_base;
-    xram0_struct_set(XRAM_STRUCT_GFX_EDITOR, vga_mode1_config_t, xram_data_ptr, screenaddr_base);
+    printf(ANSI_HIDE_CUR ANSI_CLS ANSI_HOME);
+
+    cur.row      = 0u;
+    cur.col      = 0u;
+    scroll_row   = 0u;
+    content_rows = 0u;
+    sel_active   = 0u;
 }
 
 /* ================================================================
-   load_file: reads a text file from SD into the XRAM canvas.
-   Max 256 rows x 80 columns; long lines are silently truncated.
-   Returns 1 on success, -1 on error.
+   load_file: reads text file into XRAM text buffer.
    ================================================================ */
 static int load_file(const char *filename)
 {
@@ -288,7 +273,7 @@ static int load_file(const char *filename)
         if (stop) break;
         nbytes = read(fd, g_linebuf, 80);
         if (nbytes <= 0) {
-            if (col > 0u) row++;    /* flush last line if no trailing \n */
+            if (col > 0u) row++;
             break;
         }
         n = (uint8_t)nbytes;
@@ -300,10 +285,10 @@ static int load_file(const char *filename)
                 col       = 0u;
                 need_addr = 1u;
                 if (row >= 256u) stop = 1u;
-            } else if (col < 80u) {
+            } else if (col < TEXT_COLS) {
                 if (need_addr) {
-                    RIA.addr0 = screenaddr_base + row * 160u;
-                    RIA.step0 = 2;   /* step=2: write chars only, skip color bytes */
+                    RIA.addr0 = TEXT_BUF_BASE + row * TEXT_COLS;
+                    RIA.step0 = 1;
                     need_addr = 0u;
                 }
                 RIA.rw0 = (uint8_t)c;
@@ -315,25 +300,18 @@ static int load_file(const char *filename)
     close(fd);
 
     content_rows = row;
-    if (content_rows > 60u) {
-        screenaddr_max = screenaddr_base + (content_rows - 60u) * 160u;
-    } else {
-        screenaddr_max = screenaddr_base;
-    }
-
     strncpy(current_filename, filename, 63u);
     current_filename[63] = 0;
-    cur.row            = 0u;
-    cur.col            = 0u;
-    screenaddr_current = screenaddr_base;
-    xram0_struct_set(XRAM_STRUCT_GFX_EDITOR, vga_mode1_config_t, xram_data_ptr, screenaddr_base);
+    cur.row    = 0u;
+    cur.col    = 0u;
+    scroll_row = 0u;
+
+    redraw_screen();
     return 1;
 }
 
 /* ================================================================
-   save_file: writes XRAM canvas rows to a text file on SD.
-   Trailing spaces on each line are trimmed before writing.
-   Returns 1 on success, -1 on error.
+   save_file: writes XRAM text buffer to file, trimming trailing spaces.
    ================================================================ */
 static int save_file(const char *filename)
 {
@@ -345,42 +323,42 @@ static int save_file(const char *filename)
     if (fd < 0) return -1;
 
     for (row = 0u; row < content_rows; row++) {
-        /* read 80 chars from XRAM, step=2 skips color bytes */
-        RIA.addr1 = screenaddr_base + row * 160u;
-        RIA.step1 = 2;
-        for (j = 0u; j < 80u; j++) g_linebuf[j] = (char)RIA.rw1;
+        RIA.addr1 = TEXT_BUF_BASE + row * TEXT_COLS;
+        RIA.step1 = 1;
+        for (j = 0u; j < TEXT_COLS; j++) g_linebuf[j] = (char)RIA.rw1;
 
-        /* trim trailing spaces */
-        len = 80u;
+        len = TEXT_COLS;
         while (len > 0u && g_linebuf[len - 1u] == ' ') len--;
 
         g_linebuf[len] = '\n';
-        write(fd, g_linebuf, (unsigned)(len + 1u));
+        /* copy to XRAM scratch then write (RP6502: write reads from XRAM) */
+        RIA.addr0 = XRAM_SCRATCH;
+        RIA.step0 = 1;
+        for (j = 0u; j <= len; j++) RIA.rw0 = (uint8_t)g_linebuf[j];
+        write(fd, (const void *)(unsigned)XRAM_SCRATCH, (unsigned)(len + 1u));
     }
 
     close(fd);
-
     strncpy(current_filename, filename, 63u);
     current_filename[63] = 0;
     return 1;
 }
 
 /* ================================================================
-   find_text: searches XRAM canvas for pattern, starting one position
-   past the current cursor. Highlights the found text and scrolls.
-   Returns 1 if found, 0 if not found.
+   find_text: searches XRAM buffer for pattern from one position past
+   cursor. Highlights match with reverse video and scrolls.
    ================================================================ */
 static int find_text(const char *pattern)
 {
     uint8_t  plen, i, col, match;
     uint16_t row, start_row;
     uint8_t  start_col;
+    uint8_t  disp_row;
 
     plen = (uint8_t)strlen(pattern);
-    if (plen == 0u || plen > 80u) return 0;
+    if (plen == 0u || plen > TEXT_COLS) return 0;
 
-    /* start one position past the current cursor */
-    if (cur.col + 1u < 80u) {
+    if (cur.col + 1u < TEXT_COLS) {
         start_row = (uint16_t)cur.row;
         start_col = (uint8_t)(cur.col + 1u);
     } else {
@@ -389,38 +367,44 @@ static int find_text(const char *pattern)
     }
 
     for (row = start_row; row < content_rows; row++) {
-        /* read row's characters into RAM (step=2 skips color bytes) */
-        RIA.addr1 = screenaddr_base + row * 160u;
-        RIA.step1 = 2;
-        for (i = 0u; i < 80u; i++) g_linebuf[i] = (char)RIA.rw1;
+        RIA.addr1 = TEXT_BUF_BASE + row * TEXT_COLS;
+        RIA.step1 = 1;
+        for (i = 0u; i < TEXT_COLS; i++) g_linebuf[i] = (char)RIA.rw1;
 
         col = (row == start_row) ? start_col : 0u;
 
-        for (; (uint16_t)col + plen <= 80u; col++) {
+        for (; (uint16_t)col + plen <= TEXT_COLS; col++) {
             match = 1u;
             for (i = 0u; i < plen; i++) {
                 if (g_linebuf[(uint8_t)(col + i)] != pattern[i]) { match = 0u; break; }
             }
             if (match) {
-                /* highlight: change color bytes of matched chars */
-                RIA.addr0 = screenaddr_base + row * 160u + (uint16_t)col * 2u + 1u;
-                RIA.step0 = 2;
-                for (i = 0u; i < plen; i++) {
-                    RIA.rw0 = (uint8_t)((EDITOR_HILITE_BG << 4) | EDITOR_HILITE_FG);
-                }
-                /* move cursor to match start */
                 cur.row = (uint8_t)row;
                 cur.col = col;
+
                 /* scroll so found line appears near center */
-                if (row > 30u) {
-                    screenaddr_current = screenaddr_base + (row - 30u) * 160u;
-                    if (screenaddr_current > screenaddr_max)
-                        screenaddr_current = screenaddr_max;
+                if ((uint16_t)row > (uint16_t)(EDIT_ROWS / 2u)) {
+                    scroll_row = (uint8_t)(row - EDIT_ROWS / 2u);
+                    if (content_rows > EDIT_ROWS &&
+                        scroll_row > (uint8_t)(content_rows - EDIT_ROWS))
+                        scroll_row = (uint8_t)(content_rows - EDIT_ROWS);
                 } else {
-                    screenaddr_current = screenaddr_base;
+                    scroll_row = 0u;
                 }
-                xram0_struct_set(XRAM_STRUCT_GFX_EDITOR, vga_mode1_config_t,
-                                 xram_data_ptr, screenaddr_current);
+
+                redraw_screen();
+
+                /* highlight matched text with reverse video */
+                disp_row = (uint8_t)(row - scroll_row);
+                printf("\033[%d;%dH" ANSI_REVERSE,
+                       (int)(disp_row + 1u), (int)(col + 1u));
+                for (i = 0u; i < plen; i++) {
+                    putchar(g_linebuf[(uint8_t)(col + i)]
+                            ? g_linebuf[(uint8_t)(col + i)] : ' ');
+                }
+                printf(ANSI_NORMAL);
+                /* restore cursor position */
+                printf("\033[%d;%dH", (int)(disp_row + 1u), (int)(col + 1u));
                 return 1;
             }
         }
@@ -429,78 +413,68 @@ static int find_text(const char *pattern)
 }
 
 /* ================================================================
-   line_shift_right: shifts chars at positions col..78 one slot right
-   (col+1..79). The char at position 79 is lost.
-   Used for Insert-mode character typing.
+   line_shift_right: shifts chars at positions col..78 one slot right.
    ================================================================ */
 static void line_shift_right(uint8_t row, uint8_t col)
 {
     uint8_t i, n;
 
-    n = (uint8_t)(79u - col);   /* chars to shift: col..78, count = 79-col */
+    n = (uint8_t)(79u - col);
     if (n == 0u) return;
 
-    /* read col..78 (chars only, step=2) into line_tmp */
-    RIA.addr1 = screenaddr_base + (uint16_t)row * 160u + (uint16_t)col * 2u;
-    RIA.step1 = 2;
+    RIA.addr1 = TEXT_BUF_BASE + (uint16_t)row * TEXT_COLS + col;
+    RIA.step1 = 1;
     for (i = 0u; i < n; i++) line_tmp[i] = (char)RIA.rw1;
 
-    /* write to col+1..79 */
-    RIA.addr0 = screenaddr_base + (uint16_t)row * 160u + (uint16_t)(col + 1u) * 2u;
-    RIA.step0 = 2;
+    RIA.addr0 = TEXT_BUF_BASE + (uint16_t)row * TEXT_COLS + col + 1u;
+    RIA.step0 = 1;
     for (i = 0u; i < n; i++) RIA.rw0 = (uint8_t)line_tmp[i];
 }
 
 /* ================================================================
-   line_shift_left: shifts chars at positions from_col..79 one slot
-   left (from_col-1..78). Writes a space at position 79.
-   Used for Insert-mode Backspace (from_col = cursor_col + 1).
+   line_shift_left: shifts chars at positions from_col..79 one slot left.
    ================================================================ */
 static void line_shift_left(uint8_t row, uint8_t from_col)
 {
     uint8_t i, n;
 
-    if (from_col == 0u) return;   /* safety: nothing to the left */
-    n = (uint8_t)(80u - from_col); /* chars from_col..79, count = 80-from_col */
+    if (from_col == 0u) return;
+    n = (uint8_t)(80u - from_col);
 
-    /* read from_col..79 into line_tmp */
-    RIA.addr1 = screenaddr_base + (uint16_t)row * 160u + (uint16_t)from_col * 2u;
-    RIA.step1 = 2;
+    RIA.addr1 = TEXT_BUF_BASE + (uint16_t)row * TEXT_COLS + from_col;
+    RIA.step1 = 1;
     for (i = 0u; i < n; i++) line_tmp[i] = (char)RIA.rw1;
 
-    /* write to from_col-1..79-1 */
-    RIA.addr0 = screenaddr_base + (uint16_t)row * 160u + (uint16_t)(from_col - 1u) * 2u;
-    RIA.step0 = 2;
+    RIA.addr0 = TEXT_BUF_BASE + (uint16_t)row * TEXT_COLS + from_col - 1u;
+    RIA.step0 = 1;
     for (i = 0u; i < n; i++) RIA.rw0 = (uint8_t)line_tmp[i];
 
-    /* clear last position (space at col 79) */
-    RIA.addr0 = screenaddr_base + (uint16_t)row * 160u + 79u * 2u;
+    /* clear last position */
+    RIA.addr0 = TEXT_BUF_BASE + (uint16_t)row * TEXT_COLS + 79u;
     RIA.step0 = 0;
     RIA.rw0   = ' ';
 }
 
 /* ================================================================
-   do_copy: copies selection (same row) or current line to clipboard.
+   do_copy: copies selection or current line to clipboard.
    ================================================================ */
 static void do_copy(void)
 {
     uint8_t i, start_col, end_col;
 
     if (sel_active && sel_row == cur.row) {
-        /* character-level copy within same row */
         if (sel_col < cur.col) { start_col = sel_col; end_col = cur.col; }
         else                   { start_col = cur.col; end_col = sel_col; }
         clip_len = (uint8_t)(end_col - start_col);
-        if (clip_len > 80u) clip_len = 80u;
-        RIA.addr1 = screenaddr_base + (uint16_t)cur.row * 160u + (uint16_t)start_col * 2u;
-        RIA.step1 = 2;
+        if (clip_len > TEXT_COLS) clip_len = (uint8_t)TEXT_COLS;
+        RIA.addr1 = TEXT_BUF_BASE + (uint16_t)cur.row * TEXT_COLS + start_col;
+        RIA.step1 = 1;
         for (i = 0u; i < clip_len; i++) clipboard[i] = (char)RIA.rw1;
     } else {
-        /* no same-row selection: copy whole current line (trimmed) */
-        RIA.addr1 = screenaddr_base + (uint16_t)cur.row * 160u;
-        RIA.step1 = 2;
-        for (i = 0u; i < 80u; i++) clipboard[i] = (char)RIA.rw1;
-        clip_len = 80u;
+        RIA.addr1 = TEXT_BUF_BASE + (uint16_t)cur.row * TEXT_COLS;
+        RIA.step1 = 1;
+        for (i = 0u; i < TEXT_COLS; i++) clipboard[i] = (char)RIA.rw1;
+        clip_len = (uint8_t)TEXT_COLS;
         while (clip_len > 0u && clipboard[clip_len - 1u] == ' ') clip_len--;
     }
 
@@ -516,80 +490,69 @@ static void do_cut(void)
 {
     uint8_t i, was_sel, saved_sel_row, cut_start, cut_end;
 
-    /* save selection state before do_copy() clears sel_active */
     was_sel       = sel_active;
     saved_sel_row = sel_row;
     if (sel_col < cur.col) { cut_start = sel_col; cut_end = cur.col; }
     else                   { cut_start = cur.col; cut_end = sel_col; }
 
-    do_copy();   /* fills clipboard, clears sel_active, calls draw_menu_bar("Copied.") */
+    do_copy();
 
     if (was_sel && saved_sel_row == cur.row && cut_start < cut_end) {
-        /* clear the selected char range */
-        RIA.addr0 = screenaddr_base + (uint16_t)cur.row * 160u + (uint16_t)cut_start * 2u;
-        RIA.step0 = 2;
+        RIA.addr0 = TEXT_BUF_BASE + (uint16_t)cur.row * TEXT_COLS + cut_start;
+        RIA.step0 = 1;
         for (i = cut_start; i < cut_end; i++) RIA.rw0 = ' ';
         cur.col = cut_start;
     } else {
-        /* clear entire current line */
-        RIA.addr0 = screenaddr_base + (uint16_t)cur.row * 160u;
-        RIA.step0 = 2;
-        for (i = 0u; i < 80u; i++) RIA.rw0 = ' ';
+        RIA.addr0 = TEXT_BUF_BASE + (uint16_t)cur.row * TEXT_COLS;
+        RIA.step0 = 1;
+        for (i = 0u; i < TEXT_COLS; i++) RIA.rw0 = ' ';
         cur.col = 0u;
     }
+    redraw_screen();
     draw_menu_bar("Cut.");
 }
 
 /* ================================================================
    do_paste: inserts or overwrites clipboard text at cursor.
-   Insert mode: shifts existing chars right to make room.
-   Overwrite mode: overwrites chars starting at cursor.
    ================================================================ */
 static void do_paste(void)
 {
-    uint8_t i, paste_len, save_len;
+    uint8_t  i, paste_len, save_len;
     uint16_t base;
 
     if (clip_len == 0u) return;
 
     paste_len = clip_len;
-    if ((uint16_t)cur.col + paste_len > 80u)
-        paste_len = (uint8_t)(80u - cur.col);
+    if ((uint16_t)cur.col + paste_len > TEXT_COLS)
+        paste_len = (uint8_t)(TEXT_COLS - cur.col);
 
-    base = screenaddr_base + (uint16_t)cur.row * 160u + (uint16_t)cur.col * 2u;
+    base = TEXT_BUF_BASE + (uint16_t)cur.row * TEXT_COLS + cur.col;
 
     if (insert_mode) {
-        /* chars that survive after the paste (fit within 80-col limit) */
-        save_len = (uint8_t)((uint16_t)cur.col + paste_len < 80u
-                             ? 80u - cur.col - paste_len : 0u);
-
+        save_len = (uint8_t)((uint16_t)cur.col + paste_len < TEXT_COLS
+                             ? TEXT_COLS - cur.col - paste_len : 0u);
         if (save_len > 0u) {
-            /* read chars that will be pushed right */
             RIA.addr1 = base;
-            RIA.step1 = 2;
+            RIA.step1 = 1;
             for (i = 0u; i < save_len; i++) line_tmp[i] = (char)RIA.rw1;
         }
-
-        /* write clipboard at cursor position */
         RIA.addr0 = base;
-        RIA.step0 = 2;
+        RIA.step0 = 1;
         for (i = 0u; i < paste_len; i++) RIA.rw0 = (uint8_t)clipboard[i];
-
-        /* write saved chars after the pasted block */
         if (save_len > 0u) {
-            RIA.addr0 = base + (uint16_t)paste_len * 2u;
-            RIA.step0 = 2;
+            RIA.addr0 = base + (uint16_t)paste_len;
+            RIA.step0 = 1;
             for (i = 0u; i < save_len; i++) RIA.rw0 = (uint8_t)line_tmp[i];
         }
     } else {
-        /* overwrite mode: write clipboard, no shifting */
         RIA.addr0 = base;
-        RIA.step0 = 2;
+        RIA.step0 = 1;
         for (i = 0u; i < paste_len; i++) RIA.rw0 = (uint8_t)clipboard[i];
     }
 
     cur.col = (uint8_t)(cur.col + paste_len);
-    if (cur.col >= 80u) cur.col = 79u;
+    if (cur.col >= TEXT_COLS) cur.col = (uint8_t)(TEXT_COLS - 1u);
+    redraw_screen();
     draw_menu_bar(NULL);
 }
 
@@ -598,23 +561,22 @@ static void do_paste(void)
    ================================================================ */
 void main(void)
 {
-    uint8_t temp;
     uint8_t mouse_wheel, mouse_wheel_prev;
     int     mouse_wheel_change;
     bool    handled_key;
     uint8_t k, j, new_key, new_keys, last_key;
     uint8_t key_capslock, key_shifts, key_ctrl;
+    uint8_t max_scroll;
     int     ok;
     char    ch;
 
     /* init state */
-    cur.row           = 0u;
-    cur.col           = 0u;
-    cur.blink_counter = 0u;
-    cur.blink_state   = false;
+    cur.row             = 0u;
+    cur.col             = 0u;
     current_filename[0] = 0;
     search_pattern[0]   = 0;
     content_rows        = 0u;
+    scroll_row          = 0u;
     last_key            = 0u;
     handled_key         = false;
     mouse_wheel         = 0u;
@@ -627,37 +589,13 @@ void main(void)
     clip_len            = 0u;
     clipboard[0]        = 0;
 
-    /* configure VGA overlay: menu bar at bottom */
-    xram0_struct_set(XRAM_STRUCT_GFX_MENU, vga_mode1_config_t, x_wrap,       false);
-    xram0_struct_set(XRAM_STRUCT_GFX_MENU, vga_mode1_config_t, y_wrap,       false);
-    xram0_struct_set(XRAM_STRUCT_GFX_MENU, vga_mode1_config_t, x_pos_px,     0);
-    xram0_struct_set(XRAM_STRUCT_GFX_MENU, vga_mode1_config_t, y_pos_px,     480-24);
-    xram0_struct_set(XRAM_STRUCT_GFX_MENU, vga_mode1_config_t, width_chars,  80);
-    xram0_struct_set(XRAM_STRUCT_GFX_MENU, vga_mode1_config_t, height_chars, 3);
-    xram0_struct_set(XRAM_STRUCT_GFX_MENU, vga_mode1_config_t, xram_data_ptr,    screenaddr_base_menu);
-    xram0_struct_set(XRAM_STRUCT_GFX_MENU, vga_mode1_config_t, xram_palette_ptr, 0xFFFF);
-    xram0_struct_set(XRAM_STRUCT_GFX_MENU, vga_mode1_config_t, xram_font_ptr,    0xFFFF);
-
-    /* configure VGA overlay: editor canvas */
-    xram0_struct_set(XRAM_STRUCT_GFX_EDITOR, vga_mode1_config_t, x_wrap,       false);
-    xram0_struct_set(XRAM_STRUCT_GFX_EDITOR, vga_mode1_config_t, y_wrap,       false);
-    xram0_struct_set(XRAM_STRUCT_GFX_EDITOR, vga_mode1_config_t, x_pos_px,     0);
-    xram0_struct_set(XRAM_STRUCT_GFX_EDITOR, vga_mode1_config_t, y_pos_px,     0);
-    xram0_struct_set(XRAM_STRUCT_GFX_EDITOR, vga_mode1_config_t, width_chars,  80);
-    xram0_struct_set(XRAM_STRUCT_GFX_EDITOR, vga_mode1_config_t, height_chars, 60);
-    xram0_struct_set(XRAM_STRUCT_GFX_EDITOR, vga_mode1_config_t, xram_data_ptr,    screenaddr_base);
-    xram0_struct_set(XRAM_STRUCT_GFX_EDITOR, vga_mode1_config_t, xram_palette_ptr, 0xFFFF);
-    xram0_struct_set(XRAM_STRUCT_GFX_EDITOR, vga_mode1_config_t, xram_font_ptr,    0xFFFF);
-
-    xreg_vga_canvas(GFX_CANVAS_640x480);
-    xreg_vga_mode(1, GFX_MODE1_FONTSIZE16 | GFX_MODE1_COLORS_16, XRAM_STRUCT_GFX_EDITOR, 1,      0, 480-24);
-    xreg_vga_mode(1, GFX_MODE1_FONTSIZE8  | GFX_MODE1_COLORS_16, XRAM_STRUCT_GFX_MENU,   1, 480-24, 480   );
     xreg_ria_keyboard(XRAM_STRUCT_SYS_KEYBOARD);
     xreg_ria_mouse(XRAM_STRUCT_SYS_MOUSE);
 
-    /* clear editor canvas and draw menu bar */
+    /* clear text buffer and display */
     editor_clear();
     draw_menu_bar(NULL);
+    printf(ANSI_SHOW_CUR "\033[1;1H");
 
     /* capture initial mouse wheel position */
     RIA.addr1 = XRAM_STRUCT_SYS_MOUSE + 3;
@@ -677,33 +615,21 @@ void main(void)
         if (mouse_wheel_change == 1 || mouse_wheel_change == -1) {
             if (mouse_wheel_change < 0) {
                 /* scroll up */
-                if (screenaddr_current >= screenaddr_base + 160u)
-                    screenaddr_current -= 160u;
-                else
-                    screenaddr_current  = screenaddr_base;
+                if (scroll_row > 0u) {
+                    scroll_row--;
+                    redraw_screen();
+                }
             } else {
                 /* scroll down */
-                if (screenaddr_current + 160u <= screenaddr_max)
-                    screenaddr_current += 160u;
-                else
-                    screenaddr_current  = screenaddr_max;
+                max_scroll = (content_rows > (uint16_t)EDIT_ROWS)
+                             ? (uint8_t)(content_rows - EDIT_ROWS) : 0u;
+                if (scroll_row < max_scroll) {
+                    scroll_row++;
+                    redraw_screen();
+                }
             }
-            xram0_struct_set(XRAM_STRUCT_GFX_EDITOR, vga_mode1_config_t,
-                             xram_data_ptr, screenaddr_current);
         }
         mouse_wheel_prev = mouse_wheel;
-
-        /* --- cursor blink (every 60 iterations) --- */
-        cur.blink_counter++;
-        if (cur.blink_counter == 60u) {
-            RIA.addr0 = screenaddr_base + (uint16_t)cur.row * 160u
-                                        + (uint16_t)cur.col * 2u + 1u;
-            RIA.step0 = 0;
-            temp = RIA.rw0;
-            RIA.rw0 = (uint8_t)((temp << 4) | (temp >> 4));
-            cur.blink_counter = 0u;
-            cur.blink_state   = !cur.blink_state;
-        }
 
         /* --- scan keyboard --- */
         for (k = 0u; k < KEYBOARD_BYTES; k++) {
@@ -713,8 +639,10 @@ void main(void)
             for (j = 0u; j < 8u; j++) {
                 uint8_t code = (uint8_t)((k << 3) + j);
                 new_key = new_keys & (uint8_t)(1u << j);
-                if ((code > 3u) && (new_key != (keystates[k] & (uint8_t)(1u << j)))) {
-                    last_key = code;
+                /* rising edge only: key just pressed (0→1) */
+                if ((code > 3u) && new_key && !(keystates[k] & (uint8_t)(1u << j))) {
+                    last_key    = code;
+                    handled_key = false;
                 }
             }
             keystates[k] = new_keys;
@@ -724,15 +652,13 @@ void main(void)
         key_shifts   = (uint8_t)((key(KEY_LEFTSHIFT) || key(KEY_RIGHTSHIFT)) ? 1u : 0u);
         key_ctrl     = (uint8_t)((key(KEY_LEFTCTRL)  || key(KEY_RIGHTCTRL))  ? 1u : 0u);
 
-        /* keystates[0] & 1 == 1 means KEY_NONE is "active" (no real key pressed) */
         if (!(keystates[0] & 1u)) {
             if (!handled_key) {
 
-                /* --- Ctrl+key combos (checked before raw keys) --- */
+                /* --- Ctrl+key combos --- */
                 if (key_ctrl && key(KEY_K)) {
-                    /* set or clear selection mark */
                     if (sel_active && sel_row == cur.row && sel_col == cur.col) {
-                        sel_active = 0u;          /* second press at same spot: clear */
+                        sel_active = 0u;
                     } else {
                         sel_active = 1u;
                         sel_row    = cur.row;
@@ -760,7 +686,7 @@ void main(void)
                         ok = load_file(current_filename);
                         draw_menu_bar(ok >= 0 ? current_filename : "ERROR: cannot open file");
                     } else {
-                        draw_menu_bar(NULL);
+                        redraw_screen();
                     }
 
                 } else if (key(KEY_F6)) {
@@ -768,68 +694,54 @@ void main(void)
                         ok = save_file(current_filename);
                         draw_menu_bar(ok >= 0 ? "Saved." : "ERROR: cannot save file");
                     } else {
-                        draw_menu_bar(NULL);
+                        redraw_screen();
                     }
 
                 } else if (key(KEY_F7)) {
                     if (menu_input("Find:", search_pattern, 32u)) {
                         if (!find_text(search_pattern)) {
                             draw_menu_bar("Not found.");
-                        } else {
-                            draw_menu_bar(NULL);
                         }
                     } else {
-                        draw_menu_bar(NULL);
+                        redraw_screen();
                     }
 
                 /* --- Cursor movement --- */
                 } else if (key(KEY_LEFT)) {
-                    RIA.addr0 = screenaddr_base + (uint16_t)cur.row * 160u
-                                                + (uint16_t)cur.col * 2u + 1u;
-                    RIA.step0 = 0;
-                    RIA.rw0   = EDITOR_COLOR_ATTR;
                     if (cur.col > 0u) cur.col--;
 
                 } else if (key(KEY_RIGHT)) {
-                    RIA.addr0 = screenaddr_base + (uint16_t)cur.row * 160u
-                                                + (uint16_t)cur.col * 2u + 1u;
-                    RIA.step0 = 0;
-                    RIA.rw0   = EDITOR_COLOR_ATTR;
-                    if (cur.col < 79u) cur.col++;
+                    if (cur.col < (uint8_t)(TEXT_COLS - 1u)) cur.col++;
 
                 } else if (key(KEY_UP)) {
-                    RIA.addr0 = screenaddr_base + (uint16_t)cur.row * 160u
-                                                + (uint16_t)cur.col * 2u + 1u;
-                    RIA.step0 = 0;
-                    RIA.rw0   = EDITOR_COLOR_ATTR;
-                    if (cur.row > 0u) cur.row--;
+                    if (cur.row > 0u) {
+                        cur.row--;
+                        if (cur.row < scroll_row) {
+                            scroll_row = cur.row;
+                            redraw_screen();
+                        }
+                    }
 
                 } else if (key(KEY_DOWN)) {
-                    RIA.addr0 = screenaddr_base + (uint16_t)cur.row * 160u
-                                                + (uint16_t)cur.col * 2u + 1u;
-                    RIA.step0 = 0;
-                    RIA.rw0   = EDITOR_COLOR_ATTR;
                     if (cur.row < 255u) {
                         cur.row++;
-                        if ((uint16_t)(cur.row + 1u) > content_rows) {
+                        if ((uint16_t)(cur.row + 1u) > content_rows)
                             content_rows = (uint16_t)(cur.row + 1u);
-                            if (content_rows > 60u)
-                                screenaddr_max = screenaddr_base + (content_rows - 60u) * 160u;
+                        if ((uint8_t)(cur.row - scroll_row) >= EDIT_ROWS) {
+                            scroll_row = (uint8_t)(cur.row - EDIT_ROWS + 1u);
+                            redraw_screen();
                         }
                     }
 
                 /* --- Enter: move to start of next row --- */
                 } else if (key(KEY_ENTER) || key(KEY_KPENTER)) {
-                    RIA.addr0 = screenaddr_base + (uint16_t)cur.row * 160u
-                                                + (uint16_t)cur.col * 2u + 1u;
-                    RIA.step0 = 0;
-                    RIA.rw0   = EDITOR_COLOR_ATTR;
                     if (cur.row < 255u) {
                         cur.row++;
-                        if ((uint16_t)(cur.row + 1u) > content_rows) {
+                        if ((uint16_t)(cur.row + 1u) > content_rows)
                             content_rows = (uint16_t)(cur.row + 1u);
-                            if (content_rows > 60u)
-                                screenaddr_max = screenaddr_base + (content_rows - 60u) * 160u;
+                        if ((uint8_t)(cur.row - scroll_row) >= EDIT_ROWS) {
+                            scroll_row = (uint8_t)(cur.row - EDIT_ROWS + 1u);
+                            redraw_screen();
                         }
                     }
                     cur.col = 0u;
@@ -837,28 +749,34 @@ void main(void)
                 /* --- Backspace --- */
                 } else if (key(KEY_BACKSPACE)) {
                     if (cur.col > 0u) {
-                        /* restore color at current cursor pos (un-blink) */
-                        RIA.addr0 = screenaddr_base + (uint16_t)cur.row * 160u
-                                                    + (uint16_t)cur.col * 2u + 1u;
-                        RIA.step0 = 0;
-                        RIA.rw0   = EDITOR_COLOR_ATTR;
                         cur.col--;
                         if (insert_mode) {
-                            /* delete char: shift remaining chars left */
                             line_shift_left(cur.row, (uint8_t)(cur.col + 1u));
                         } else {
-                            /* overwrite mode: just erase char at new col */
-                            RIA.addr0 = screenaddr_base + (uint16_t)cur.row * 160u
-                                                        + (uint16_t)cur.col * 2u;
-                            RIA.step0 = 1;
+                            RIA.addr0 = TEXT_BUF_BASE + (uint16_t)cur.row * TEXT_COLS + cur.col;
+                            RIA.step0 = 0;
                             RIA.rw0   = ' ';
-                            RIA.rw0   = EDITOR_COLOR_ATTR;
+                        }
+                        /* redraw current line */
+                        {
+                            uint8_t j2;
+                            RIA.addr1 = TEXT_BUF_BASE + (uint16_t)cur.row * TEXT_COLS;
+                            RIA.step1 = 1;
+                            for (j2 = 0u; j2 < TEXT_COLS; j2++) {
+                                char c = (char)RIA.rw1;
+                                g_linebuf[j2] = c ? c : ' ';
+                            }
+                            printf("\033[%d;1H",
+                                   (int)((cur.row - scroll_row) + 1u));
+                            for (j2 = 0u; j2 < TEXT_COLS; j2++)
+                                putchar((uint8_t)g_linebuf[j2]);
                         }
                     }
 
                 /* --- ESC: exit --- */
                 } else if (key(KEY_ESC)) {
-                    printf("Bye!\n\n");
+                    xreg_vga_canvas(GFX_CANVAS_640x480);   /* restore default console mode */
+                    xreg(1, 0, 1, 0);
                     break;
 
                 /* --- Generic character input --- */
@@ -866,28 +784,42 @@ void main(void)
                     ch = keycode_to_char(last_key, (uint8_t)(key_shifts && !key_ctrl),
                                          key_capslock);
                     if (ch) {
-                        if (insert_mode && cur.col < 79u) {
+                        if (insert_mode && cur.col < (uint8_t)(TEXT_COLS - 1u)) {
                             line_shift_right(cur.row, cur.col);
                         }
-                        RIA.addr0 = screenaddr_base + (uint16_t)cur.row * 160u
-                                                    + (uint16_t)cur.col * 2u;
-                        RIA.step0 = 1;
-                        RIA.rw0   = (uint8_t)ch;
-                        RIA.rw0   = EDITOR_COLOR_ATTR;
-                        if (cur.col < 79u) cur.col++;
-                        /* extend content tracking */
-                        if ((uint16_t)(cur.row + 1u) > content_rows) {
-                            content_rows = (uint16_t)(cur.row + 1u);
-                            if (content_rows > 60u)
-                                screenaddr_max = screenaddr_base + (content_rows - 60u) * 160u;
-                        }
-                        /* mark new cursor position */
-                        RIA.addr0 = screenaddr_base + (uint16_t)cur.row * 160u
-                                                    + (uint16_t)cur.col * 2u + 1u;
+                        RIA.addr0 = TEXT_BUF_BASE + (uint16_t)cur.row * TEXT_COLS + cur.col;
                         RIA.step0 = 0;
-                        RIA.rw0   = EDITOR_COLOR_ATTR;
+                        RIA.rw0   = (uint8_t)ch;
+
+                        /* print char at terminal position */
+                        printf("\033[%d;%dH%c",
+                               (int)((cur.row - scroll_row) + 1u),
+                               (int)(cur.col + 1u),
+                               ch);
+
+                        if (cur.col < (uint8_t)(TEXT_COLS - 1u)) cur.col++;
+
+                        /* redraw rest of line (insert mode shifts chars) */
+                        if (insert_mode) {
+                            uint8_t j2;
+                            RIA.addr1 = TEXT_BUF_BASE + (uint16_t)cur.row * TEXT_COLS + cur.col;
+                            RIA.step1 = 1;
+                            for (j2 = cur.col; j2 < TEXT_COLS; j2++) {
+                                char c = (char)RIA.rw1;
+                                putchar(c ? c : ' ');
+                            }
+                        }
+
+                        /* extend content tracking */
+                        if ((uint16_t)(cur.row + 1u) > content_rows)
+                            content_rows = (uint16_t)(cur.row + 1u);
                     }
                 }
+
+                /* position cursor after any key action */
+                printf("\033[%d;%dH",
+                       (int)((cur.row - scroll_row) + 1u),
+                       (int)(cur.col + 1u));
                 handled_key = true;
             }
         } else {

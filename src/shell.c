@@ -65,23 +65,6 @@ int main(void) {
     shelldir[sizeof(shelldir) - 1] = '\0';
 
     cls();
-
-    /*
-    // calling commands from code
-    // phi2 - system speed
-    {
-        char *args[1];
-        args[0] = (char *)"";
-        cmd_phi2(1, args);
-    }
-    // drives - available drives
-    {
-        char *args[1];
-        args[0] = (char *)"";
-        cmd_drives(1, args);
-    }
-    */
-
     prompt(true);
 
     while (1)
@@ -258,51 +241,6 @@ int main(void) {
         }
     }
 }
-/*
-static void load_asset2xram(const char *path, unsigned xram_addr) // load asset from ROM
-{
-    // Example where assets are files in the ROM:
-    //   rp6502_asset(altair altair.pal src/altair.pal.bin)
-    //   rp6502_asset(altair altair.dat src/altair.dat.bin)
-    // These can be loaded from the "ROM:" drive.
-    //    load_asset("ROM:altair.pal", 0x0000);
-    //    load_asset("ROM:altair.dat", 0x0200);
-
-    int fd;
-    int bytes_read;
-    // printf("Loading %s at $%04X\n", path, xram_addr);
-    fd = open(path, O_RDONLY);
-    while ((bytes_read = read_xram(xram_addr, 0x7FFF, fd)) > 0)
-        xram_addr += bytes_read;
-    close(fd);
-}
-*/
-/*
-// load setup from "MSC0:/shell.ini"
-static void load_setup(void) {
-    FILE *f;
-    char *nl;
-
-    strncpy(shelldir, default_shelldir, sizeof(shelldir));
-    shelldir[sizeof(shelldir) - 1] = '\0';
-
-    f = fopen("MSC0:/shell.ini", "r");
-    if (!f) return;
-
-    if (fgets(shelldir, sizeof(shelldir), f)) {
-        nl = strpbrk(shelldir, "\r\n");
-        if (nl) *nl = '\0';
-        if (shelldir[0] == '\0') {
-            strncpy(shelldir, default_shelldir, sizeof(shelldir));
-            shelldir[sizeof(shelldir) - 1] = '\0';
-        }
-    } else {
-        strncpy(shelldir, default_shelldir, sizeof(shelldir));
-        shelldir[sizeof(shelldir) - 1] = '\0';
-    }
-    fclose(f);
-}
-*/
 
 void cls(){ // clear screen
     tx_string(CSI_RESET);
@@ -373,61 +311,6 @@ void tx_dec32(unsigned long val) { // Print an unsigned long in decimal.
     }
     tx_chars(&out[i], 10 - i);
 }
-
-/* things related to : cmd_edit
-
-static void tx_print_existing(const char *buf, unsigned len) { // Print existing file content with CR/LF translation.
-    unsigned i;
-    if(len == 0) {
-        tx_string("<empty>" NEWLINE);
-        return;
-    }
-    for(i = 0; i < len; i++) {
-        char c = buf[i];
-        if(c == '\n') {
-            tx_string(NEWLINE);
-        } else {
-            tx_char(c);
-        }
-    }
-    tx_string(NEWLINE);
-}
-
-static int read_line_editor(char *buf, int maxlen) { // Read a single line from the console; returns length or -1 if cancelled with ESC.
-    int len = 0;
-    char c = 0;
-    while(1) {
-        RX_READY_SPIN;
-        c = (char)RIA.rx;
-        if(c == CHAR_CR || c == CHAR_LF) {
-            tx_string(NEWLINE);
-            buf[len] = 0;
-            return len;
-        }
-        if(c == CHAR_BS || c == KEY_DEL) {
-            if(len) {
-                len--;
-                tx_string("\b \b");
-            } else {
-                tx_char(CHAR_BELL);
-            }
-            continue;
-        }
-        if(c == CHAR_ESC) {
-            buf[0] = 0;
-            return -1;
-        }
-        if(((unsigned char)c >= 32) && (c != 127)) {
-            if(len < maxlen - 1) {
-                buf[len++] = c;
-                tx_char(c);
-            } else {
-                tx_char(CHAR_BELL);
-            }
-        }
-    }
-}
-*/
 
 int hexstr(char *str, uint8_t val) { // Assumes str points to at least two bytes.
     str[0] = hexdigits[val >> 4];
@@ -569,6 +452,8 @@ static void file_reader(uint8_t *buf, uint16_t addr, uint16_t size) {
     if(lseek(filehex_fd, pos, SEEK_SET) < 0) return;
     read(filehex_fd, buf, size);
 }
+
+// things related to memory
 
 uint16_t mem_lo(void) { // Lowest usable address for other programs as shell base adress + shell size
     return (uint16_t)(_BSS_RUN__ + (uint16_t)_BSS_SIZE__);
@@ -937,9 +822,9 @@ int cmd_drive(int argc, char **argv) {
         }
         return -1;
     }
-    /* Verify drive is actually usable */
+    // verify drive is actually usable
     if(f_getcwd(dir_cwd, sizeof(dir_cwd)) < 0) {
-        tx_string("Drive not available" NEWLINE);
+        // tx_string("Drive not available" NEWLINE);
         drv[0] = prev_drive;
         if(f_chdrive(drv) == 0 && prev_path[0]) chdir(prev_path);
         return -1;
@@ -985,7 +870,7 @@ int cmd_list(int argc, char **argv) {
                     tx_string(NEWLINE ANSI_DARK_GRAY "--More-- (q to quit)" ANSI_RESET);
                     RX_READY_SPIN;
                     ans = (char)RIA.rx;
-                    tx_string(NEWLINE "\x1b[K"); /* clear prompt line */
+                    tx_string(NEWLINE "\x1b[K"); // clear prompt line
                     if(ans == 'q' || ans == 'Q' || ans == CHAR_ESC) {
                         close(fd);
                         tx_string(NEWLINE ANSI_DARK_GRAY "--- END ---" ANSI_RESET NEWLINE);
@@ -1041,7 +926,7 @@ int cmd_rm(int argc, char **argv) {
             continue;
         }
 
-        /* wildcard handling: split path/mask */
+        // wildcard handling: split path/mask
         strcpy(rm_path, ".");
         strcpy(rm_mask, "*.*");
         strcpy(rm_file, arg);
@@ -1076,7 +961,7 @@ int cmd_rm(int argc, char **argv) {
                     break;
                 }
                 if(!dir_ent.fname[0]) break;
-                if(dir_ent.fattrib & AM_DIR) continue; /* skip dirs */
+                if(dir_ent.fattrib & AM_DIR) continue;
                 if(!match_mask(dir_ent.fname, rm_mask)) continue;
 
                 if(!strcmp(rm_path, ".") || !rm_path[0]) {
@@ -2207,6 +2092,80 @@ cleanup:
     free(new_content);
     return rc;
 }
+
+// Example: load assets in the ROM:
+//    load_asset("ROM:altair.pal", 0x0000);
+//    load_asset("ROM:altair.dat", 0x0200);
+//
+static void load_asset2xram(const char *path, unsigned xram_addr) // load asset from ROM
+{
+
+    int fd;
+    int bytes_read;
+    // printf("Loading %s at $%04X\n", path, xram_addr);
+    fd = open(path, O_RDONLY);
+    while ((bytes_read = read_xram(xram_addr, 0x7FFF, fd)) > 0)
+        xram_addr += bytes_read;
+    close(fd);
+}
+
+// Example: load setup from "MSC0:/shell.ini"
+//
+static void load_setup(void) {
+    FILE *f;
+    char *nl;
+
+    strncpy(shelldir, default_shelldir, sizeof(shelldir));
+    shelldir[sizeof(shelldir) - 1] = '\0';
+
+    f = fopen("MSC0:/shell.ini", "r");
+    if (!f) return;
+
+    if (fgets(shelldir, sizeof(shelldir), f)) {
+        nl = strpbrk(shelldir, "\r\n");
+        if (nl) *nl = '\0';
+        if (shelldir[0] == '\0') {
+            strncpy(shelldir, default_shelldir, sizeof(shelldir));
+            shelldir[sizeof(shelldir) - 1] = '\0';
+        }
+    } else {
+        strncpy(shelldir, default_shelldir, sizeof(shelldir));
+        shelldir[sizeof(shelldir) - 1] = '\0';
+    }
+    fclose(f);
+}
+
+// Example: calling internal commands from code
+// phi2 - system speed
+{
+    char *args[1];
+    args[0] = (char *)"";
+    cmd_phi2(1, args);
+}
+// drives - available drives
+{
+    char *args[1];
+    args[0] = (char *)"";
+    cmd_drives(1, args);
+}
+
+// Example: calling commands internal ROM:.com or external MSC0:/SHELL/.com
+{
+    char path[FNAMELEN];
+    int com_argc = 2;
+    strcpy(path, shelldir);
+    strcat(path, "help.com");
+    com_argv[0] = (char *)"com";
+    com_argv[1] = path;
+    // Pass current input line as argument if present
+    if(cmdline.bytes > 0) {
+        cmdline.buffer[cmdline.bytes] = 0;
+        com_argv[2] = cmdline.buffer;
+        com_argc = 3;
+    }
+    cmd_com(com_argc, com_argv);
+}
+
 */
 
 // EOF shell.c
