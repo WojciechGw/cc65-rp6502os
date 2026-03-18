@@ -11,7 +11,7 @@ ext-crx.c - C89, cc65 (PC => Picocomputer RP6502-RIA UART)
 
 #define NEWLINE "\r\n"
 
-#define APPVER "20260315.1858"
+#define APPVER "20260318.0644"
 #define APPDIRDEFAULT "MSC0:/"
 #define APP_MSG_TITLE "\x1b[2;1H\x1b" HIGHLIGHT_COLOR " OS Shell > " ANSI_RESET " Courier RX" ANSI_DARK_GRAY "\x1b[2;60Hversion " APPVER ANSI_RESET
 #define APP_MSG_START ANSI_DARK_GRAY "\x1b[4;1HWaiting for incoming data or [Esc] to exit " ANSI_RESET

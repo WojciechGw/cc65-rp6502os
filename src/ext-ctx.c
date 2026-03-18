@@ -7,7 +7,7 @@ ext-ctx.c - C89, cc65 (Picocomputer RP6502-RIA UART => PC)
 
 #define NEWLINE "\r\n"
 
-#define APPVER "20260315.1858"
+#define APPVER "202603185.0644"
 #define APPDIRDEFAULT "MSC0:/"
 #define APP_MSG_TITLE "\x1b[2;1H\x1b" HIGHLIGHT_COLOR " OS Shell > " ANSI_RESET " Courier TX" ANSI_DARK_GRAY "\x1b[2;60Hversion " APPVER ANSI_RESET
 #define APP_MSG_START ANSI_DARK_GRAY "\x1b[4;1HSending file in Intel HEX format." ANSI_RESET
