@@ -28,6 +28,8 @@ extensions (SMBx, RMBx, BBRx, BBSx, WAI, STP).
     from standard input line by line. Empty lines are accepted as part of the
     source. Special @ commands control the session (see section 2).
     Type @EXIT to end the session (no compilation; buffer is auto-saved).
+    A "?" character is shown as a prompt at the start of each input line;
+    typing the first character overwrites it.
 
   Examples:
     hass program.asm
@@ -51,10 +53,25 @@ extensions (SMBx, RMBx, BBRx, BBSx, WAI, STP).
     Example:  @SAVE MSC0:/myprogram.asm
 
   @LOAD filename
-    Loads a source file and appends its lines to the current buffer.
-    Supports .INCLUDE directives and BOM stripping, identical to file mode.
+    Clears the current buffer and symbol table, then loads a source file into
+    the buffer. Supports .INCLUDE directives and BOM stripping.
     Does not stop input — editing continues after the load.
     Example:  @LOAD MSC0:/library.asm
+
+  @APPEND filename [startline]
+    Appends or inserts the content of a file into the buffer.
+    Without startline: the entire file is appended after the last buffer line.
+    With startline: the file content is INSERTED before buffer line startline
+    (1-based), shifting existing lines down — existing code is never overwritten.
+    Does not stop input — editing continues after the operation.
+    Examples:
+      @APPEND MSC0:/extra.asm       <- append entire file at end of buffer
+      @APPEND MSC0:/extra.asm 5    <- insert file before line 5
+
+  @NEW
+    Clears the source buffer and the symbol table. The buffer becomes empty
+    and the line count resets to zero.
+    Example:  @NEW
 
   @MAKE [filename]
     Runs a full assembly (pass 1 + pass 2) on the current buffer and writes
@@ -87,6 +104,16 @@ extensions (SMBx, RMBx, BBRx, BBSx, WAI, STP).
     shift down. N may equal nlines+1 to append after the last line.
     Example:  @INS 3 sta $80
 
+  @SYMBOLS
+    Lists all symbols (labels and constants) currently in the symbol table
+    with their hexadecimal values. The symbol table is populated by @MAKE or
+    @CYCLES — run one of those first. @LOAD and @NEW clear the symbol table.
+    Example:
+      @SYMBOLS
+      ->  START            = $8000
+      ->  LOOP             = $8004
+      ->  @SYMBOLS: 2 symbol(s)
+
   @CYCLES [from [to]]
     Assembles the current buffer and reports the total base cycle count for
     the WDC65C02S CPU. Optional 0-based line numbers restrict counting to
@@ -111,13 +138,18 @@ extensions (SMBx, RMBx, BBRx, BBSx, WAI, STP).
     .org $8000
     lda #$01
     sta $0200
-    @LIST                       <- review buffer
-    @EDIT 2 lda #$02            <- fix line 2
-    @DEL 3                      <- remove unwanted line
-    @INS 3 sta $0201            <- insert new line before line 3
-    @MAKE MSC0:/test.bin     <- assemble, keep editing
-    @SAVE MSC0:/myprogram.asm   <- save source
-    @EXIT                       <- quit (auto-saves to last.hass)
+    @LIST                        <- review buffer
+    @EDIT 2 lda #$02             <- fix line 2
+    @DEL 3                       <- remove unwanted line
+    @INS 3 sta $0201             <- insert new line before line 3
+    @MAKE MSC0:/test.bin         <- assemble, keep editing
+    @SYMBOLS                     <- view assembled labels and constants
+    @APPEND MSC0:/lib.asm        <- append library at end of buffer
+    @APPEND MSC0:/hdr.asm 1      <- insert header before line 1
+    @NEW                         <- clear buffer to start fresh
+    @LOAD MSC0:/other.asm        <- clear buffer and load a new file
+    @SAVE MSC0:/myprogram.asm    <- save source
+    @EXIT                        <- quit (auto-saves to hass.backup)
 
 --------------------------------------------------------------------------------
 3. SOURCE FILE FORMAT

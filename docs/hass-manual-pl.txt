@@ -28,6 +28,8 @@ z rozszerzeniami WDC (SMBx, RMBx, BBRx, BBSx, WAI, STP).
     instrukcje ze standardowego wejscia linia po linii. Puste linie sa
     akceptowane jako czesc kodu zrodlowego. Specjalne komendy @ steruja
     sesja (patrz sekcja 2). Wpisz @EXIT aby zakonczyc sesje.
+    Na poczatku kazdej linii wejsciowej wyswietlany jest znak "?" jako
+    wskaznik gotowosci; wpisanie pierwszego znaku nadpisuje go.
 
   Przyklady:
     hass program.asm
@@ -51,10 +53,26 @@ z rozszerzeniami WDC (SMBx, RMBx, BBRx, BBSx, WAI, STP).
     Przyklad:  @SAVE MSC0:/moj_program.asm
 
   @LOAD nazwa_pliku
-    Wczytuje plik zrodlowy i dopisuje jego linie na koniec bufora.
-    Obsluguje dyrektywe .INCLUDE i usuwa znacznik BOM, identycznie jak
-    tryb plikowy. Nie konczy sesji — wpisywanie kodu trwa dalej.
+    Czysci bufor i tablice symboli, nastepnie wczytuje plik zrodlowy do
+    bufora. Obsluguje dyrektywe .INCLUDE i usuwa znacznik BOM.
+    Nie konczy sesji — wpisywanie kodu trwa dalej.
     Przyklad:  @LOAD MSC0:/biblioteka.asm
+
+  @APPEND nazwa_pliku [linia]
+    Dolacza lub wstawia zawartosc pliku do bufora.
+    Bez parametru linia: caly plik jest dopisywany na koniec bufora.
+    Z parametrem linia: zawartosc pliku jest WSTAWIANA przed linia o podanym
+    numerze (numeracja od 1), przesuwajac istniejace linie w dol — istniejacy
+    kod nigdy nie jest nadpisywany.
+    Nie konczy sesji — wpisywanie kodu trwa dalej.
+    Przyklady:
+      @APPEND MSC0:/extra.asm       <- dopisz caly plik na koniec bufora
+      @APPEND MSC0:/extra.asm 5    <- wstaw plik przed linia 5
+
+  @NEW
+    Czysci bufor zrodlowy oraz tablice symboli. Bufor staje sie pusty,
+    a licznik linii wraca do zera.
+    Przyklad:  @NEW
 
   @MAKE [nazwa_pliku]
     Uruchamia pelna asemblacje (przebieg 1 + przebieg 2) na zawartosci bufora
@@ -88,6 +106,17 @@ z rozszerzeniami WDC (SMBx, RMBx, BBRx, BBSx, WAI, STP).
     sie w dol. N moze byc rowne liczba_linii+1, aby dopisac na koncu bufora.
     Przyklad:  @INS 3 sta $80
 
+  @SYMBOLS
+    Wyswietla wszystkie symbole (etykiety i stale) aktualnie w tablicy symboli
+    wraz z ich wartosciami szesnastkowymi. Tablica jest wypelniana przez @MAKE
+    lub @CYCLES — uruchom jedna z tych komend jako pierwsza. @LOAD i @NEW
+    czyszcza tablice symboli.
+    Przyklad:
+      @SYMBOLS
+      ->  START            = $8000
+      ->  LOOP             = $8004
+      ->  @SYMBOLS: 2 symbol(s)
+
   @CYCLES [od [do]]
     Asembluje biezacy bufor i podaje laczna liczbe cykli procesora WDC65C02S
     dla kodu wynikowego. Opcjonalne numery linii (liczone od 0) ograniczaja
@@ -105,20 +134,25 @@ z rozszerzeniami WDC (SMBx, RMBx, BBRx, BBSx, WAI, STP).
 
   @EXIT
     Konczy sesje interaktywna. Bufor jest automatycznie zapisywany do pliku
-    last.hass przed wyjsciem. Asemblacja nie jest wykonywana.
+    hass.backup przed wyjsciem. Asemblacja nie jest wykonywana.
     Przyklad:  @EXIT
 
   Typowy przebieg pracy:
     .org $8000
     lda #$01
     sta $0200
-    @LIST                       <- podglad bufora
-    @EDIT 2 lda #$02            <- poprawa linii 2
-    @DEL 3                      <- usuniecie zbednej linii
-    @INS 3 sta $0201            <- wstawienie nowej linii przed linia 3
-    @MAKE MSC0:/test.bin        <- asemblacja, edycja trwa dalej
-    @SAVE MSC0:/moj_program.asm <- zapis zrodla
-    @EXIT                       <- wyjscie (automatyczny zapis do last.hass)
+    @LIST                        <- podglad bufora
+    @EDIT 2 lda #$02             <- poprawa linii 2
+    @DEL 3                       <- usuniecie zbednej linii
+    @INS 3 sta $0201             <- wstawienie nowej linii przed linia 3
+    @MAKE MSC0:/test.bin         <- asemblacja, edycja trwa dalej
+    @SYMBOLS                     <- podglad etykiet i stalych po asemblacji
+    @APPEND MSC0:/lib.asm        <- dopisz biblioteke na koniec bufora
+    @APPEND MSC0:/hdr.asm 1      <- wstaw naglowek przed linia 1
+    @NEW                         <- wyczysc bufor i zacznij od nowa
+    @LOAD MSC0:/inny.asm         <- wyczysc bufor i wczytaj nowy plik
+    @SAVE MSC0:/moj_program.asm  <- zapis zrodla
+    @EXIT                        <- wyjscie (automatyczny zapis do hass.backup)
 
 --------------------------------------------------------------------------------
 3. FORMAT PLIKU ZRODLOWEGO
