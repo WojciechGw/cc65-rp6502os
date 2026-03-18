@@ -27,10 +27,6 @@
 #define HASS_DEFAULT_OUT_BIN_FILE "hass-out.bin\0"
 #define HASS_DEFAULT_OUT_LST_FILE "hass-out.lst\0"
 
-#define prn_err(m)  printf(ANSI_RED    m ANSI_RESET NEWLINE NEWLINE)
-#define prn_ok(m)   printf(ANSI_GREEN  m ANSI_RESET NEWLINE NEWLINE)
-#define prn_warn(m) printf(ANSI_YELLOW m ANSI_RESET NEWLINE NEWLINE)
-
 /* --- input buffer --- */
 static int   nlines = 0;
 
@@ -1038,7 +1034,7 @@ static void cmd_list(const char *args){
             if(pause_buf[0]=='q' || pause_buf[0]=='Q') break;
         }
     }
-    if(nlines == 0) prn_warn("(buffer is empty)");
+    if(nlines == 0) printf(ANSI_YELLOW "(buffer is empty)" ANSI_RESET NEWLINE NEWLINE);
 }
 
 /* --- @EDIT N text --- */
@@ -1246,7 +1242,7 @@ int main(int argc, char **argv){
                         read_file_into_lines(load_fname, 0, 0);
                         printf(ANSI_GREEN "@LOAD: %d lines loaded from %s" ANSI_RESET NEWLINE NEWLINE, nlines, load_fname);
                     } else {
-                        prn_err("@LOAD: missing filename");
+                        printf(ANSI_RED "@LOAD: missing filename" ANSI_RESET NEWLINE NEWLINE);
                     }
                     continue;
                 }
@@ -1285,7 +1281,7 @@ int main(int argc, char **argv){
                             while(fgets(g_buf, sizeof(g_buf), af)) file_count++;
                             fclose(af);
                             if(nlines + file_count > MAXLINES){
-                                prn_err("@APPEND: buffer full");
+                                printf(ANSI_RED "@APPEND: buffer full" ANSI_RESET NEWLINE NEWLINE);
                                 continue;
                             }
                             /* shift existing lines from insert_pos downward */
@@ -1313,7 +1309,7 @@ int main(int argc, char **argv){
                 }
                 if(strcmp(dir,"@SYMBOLS")==0){
                     if(nsym == 0){
-                        prn_warn("@SYMBOLS: no symbols (run @MAKE first)");
+                        printf(ANSI_YELLOW "@SYMBOLS: no symbols (run @MAKE first)" ANSI_RESET NEWLINE NEWLINE);
                     } else {
                         int si;
                         for(si = 0; si < nsym; si++){
@@ -1329,7 +1325,7 @@ int main(int argc, char **argv){
                     nlines = 0;
                     nsym = 0;
                     xram_sym_clear_all();
-                    prn_ok("@NEW: buffer cleared");
+                    printf(ANSI_GREEN "@NEW: buffer cleared" ANSI_RESET NEWLINE NEWLINE);
                     continue;
                 }
                 if(strcmp(dir,"@LIST")==0){
@@ -1356,7 +1352,7 @@ int main(int argc, char **argv){
                 if(strcmp(dir,"@MAKE")==0){
                     if(rest && rest[0]) set_output_path(rest);
                     if(nlines == 0){
-                        prn_warn("@MAKE: nothing to assembly");
+                        printf(ANSI_YELLOW "@MAKE: nothing to assembly" ANSI_RESET NEWLINE NEWLINE);
                     } else {
                         assembly_status = STAT_SUCCESS;
                         nsym = 0; xram_sym_clear_all();
@@ -1388,7 +1384,7 @@ int main(int argc, char **argv){
                         else      g_cycle_to = g_cycle_from;
                     }
                     if(nlines == 0){
-                        prn_warn("@CYCLES: nothing to count");
+                        printf(ANSI_YELLOW "@CYCLES: nothing to count" ANSI_RESET NEWLINE NEWLINE);
                     } else {
                         assembly_status = STAT_SUCCESS;
                         nsym = 0; xram_sym_clear_all();
@@ -1405,10 +1401,10 @@ int main(int argc, char **argv){
                                            (unsigned long)g_cycle_count,
                                            (unsigned)g_cycle_from, (unsigned)g_cycle_to);
                             } else {
-                                prn_err("@CYCLES: PASS2 error");
+                                printf(ANSI_RED "@CYCLES: PASS2 error" ANSI_RESET NEWLINE NEWLINE);
                             }
                         } else {
-                            prn_err("@CYCLES: PASS1 error");
+                            printf(ANSI_RED "@CYCLES: PASS1 error" ANSI_RESET NEWLINE NEWLINE);
                         }
                     }
                     continue;
@@ -1434,7 +1430,7 @@ int main(int argc, char **argv){
 
     if(nlines == 0)
     {
-        prn_warn("nothing to do ... bye, bye!");
+        printf(ANSI_YELLOW "nothing to do ... bye, bye!" ANSI_RESET NEWLINE NEWLINE);
         return -1;
     } else {
         printf(ANSI_WHITE "number of entered source code lines: ");
