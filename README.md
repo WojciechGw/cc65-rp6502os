@@ -89,3 +89,23 @@ If the same command is also present in “ROM:”, the one in the “MSC0:/SHELL
 This allows you to update the command code and place it in “ROM:” once the changes are complete or simply overwrite the "ROM:" commands with your own version on the USB drive.</br>
 
 Enjoy !
+
+### Addendum
+
+## .com and .exe file format (project)
+
+header of file (only once)
+FF    - constant FF for .com FE for .exe
+00    - file format version
+
+segment of data (at least one)
+FF FF - data segment start
+00    - target memory type 00 - RAM 01 - XRAM
+00    - reserved (idea: number of memory bank, only if target memory is RAM)
+00 80 - begin address for segment's data
+00 80 - run address if it differs from FF FF (this matters only if target memory is RAM)
+00 DC - size of data
+data
+
+next segments
+
