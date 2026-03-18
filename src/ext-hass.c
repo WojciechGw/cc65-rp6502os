@@ -1034,7 +1034,7 @@ static void cmd_list(const char *args){
             if(pause_buf[0]=='q' || pause_buf[0]=='Q') break;
         }
     }
-    if(nlines == 0) printf("(buffer is empty)" NEWLINE);
+    if(nlines == 0) printf(ANSI_YELLOW "(buffer is empty)" ANSI_RESET NEWLINE NEWLINE);
 }
 
 /* --- @EDIT N text --- */
@@ -1042,13 +1042,13 @@ static void cmd_edit(const char *args){
     int n;
     const char *text;
     if(!args || !parse_line_number(args, &n, &text)){
-        printf("@EDIT: usage: @EDIT N new text" NEWLINE); return;
+        printf("@EDIT: usage: @EDIT N new text" NEWLINE NEWLINE); return;
     }
     if(n < 1 || n > nlines){
-        printf("@EDIT: line %d out of range (1..%d)" NEWLINE, n, nlines); return;
+        printf(ANSI_RED "@EDIT: line %d out of range (1..%d)" ANSI_RESET NEWLINE NEWLINE, n, nlines); return;
     }
     xram_line_write((unsigned)(n-1), text);
-    printf("@EDIT: line %d replaced" NEWLINE, n);
+    printf(ANSI_GREEN "@EDIT: line %d replaced" ANSI_RESET NEWLINE NEWLINE, n);
 }
 
 /* --- @DEL N --- */
