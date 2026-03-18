@@ -71,7 +71,7 @@ There's no need to include the .com extension - ie. just type 'dir' instead of '
 
 * calendar - calendar application
 * crx      - download file transfer (PC => RP6502)
-* ctx      - upload file transfer (RP6502 => PC) NOT FINISHED
+* ctx      - upload file transfer (RP6502 => PC)
 * dir      - show active drive directory, wildcards allowed
 * help     - show help informations (same as F1 key)
 * keyboard - keyboard state visualiser
