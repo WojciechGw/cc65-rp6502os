@@ -17,14 +17,15 @@ All you need to test this project is in 'release/latest' folder.
 * The startup screen appears while waiting for a Wi-Fi connection and has a timeout set; without an active Wi-Fi connection or a manually set time, the 'time' and 'calendar' commands display data according to the current RP6502 system time
 
 ## Memory
-Memory area available for user programs running under OS Shell environment is $8000-$FD00 (33515 bytes).</br>
-User can build .exe programs 'in place' with external OS shell command 'hass' (Handy ASSembler for WDC65C02S).
+Memory area available for user programs running under OS Shell environment is $7B00-$FD00 (33280 bytes).</br>
+User can create .exe programs with external OS shell command 'hass' (Handy ASSembler WDC65C02S).
 
 ## OS Files
 * shell.rp6502
 * hello.asm - test source for hass
 * font.asm - test source for hass
 * sendfile.py - send file from PC to RP6502 as Intel HEX over serial, run crx.com on OS Shell to receive
+* receivefile.py - send file from RP6502 to PC as Intel HEX over serial, run ctx.com on OS Shell to send
 
 ## Keyboard shortcuts
 * F1 - help informations

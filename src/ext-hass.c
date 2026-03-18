@@ -10,11 +10,11 @@
 #include "commons.h"
 #include "ext-hass-opcodes.h"
 
-#define APPVER "20260318.0807"
+#define APPVER "20260318.0900"
 #define APPDIRDEFAULT "MSC0:/"
 #define APP_MSG_TITLE CSI_RESET "\x1b[2;1H\x1b" HIGHLIGHT_COLOR " OS Shell > " ANSI_RESET " Handy ASSembler WDC65C02S" ANSI_DARK_GRAY "\x1b[2;60Hversion " APPVER ANSI_RESET
 #define APP_MSG_START_ASSEMBLING ANSI_DARK_GRAY "\x1b[4;1HStart assembling ... " ANSI_RESET
-#define APP_MSG_START_ENTERCODE ANSI_DARK_GRAY "\x1b[4;1HType @HELP for a list of commands, or start coding." ANSI_RESET NEWLINE
+#define APP_MSG_START_ENTERCODE ANSI_DARK_GRAY "\x1b[4;1HType @HELP for a list of commands, or start coding." ANSI_RESET
 
 /* --- limits --- */
 #define MAXLINES    512
@@ -31,8 +31,8 @@
 static int   nlines = 0;
 
 /* --- default .org address (if .org not defined in source) --- */
-static uint16_t org = 0x8000;
-static uint16_t pc  = 0x8000;
+static uint16_t org = 0x7B00;
+static uint16_t pc  = 0x7B00;
 
 /* common work buffers */
 static char g_buf[MAXLEN];
@@ -561,14 +561,16 @@ static asm_mode_t parse_operand_mode(const char* s, asm_value_t* val){
 }
 
 /* --- I/O for files --- */
-static int read_file_into_lines(const char* path, int depth){
+static int read_file_into_lines(const char* path, int depth, int from_line){
     FILE* f;
     char* s; char *dir,*rest; const char* q;
+    int line_idx;
 
     if(depth > MAXINCDEPTH){ printf("Too deep .include" NEWLINE); return 0; }
     f = fopen(path,"rb");
     if(!f){ printf("Can't open: %s" NEWLINE, path); return 0; }
 
+    line_idx = 0;
     while(fgets(g_buf,sizeof(g_buf),f)){
         rstrip(g_buf);
         strip_utf8_bom(g_buf);
@@ -583,13 +585,15 @@ static int read_file_into_lines(const char* path, int depth){
                     if(q && q>rest){
                         int k = (int)(q-(rest+1)); if(k>255) k=255;
                         memcpy(g_incpath,rest+1,k); g_incpath[k]=0;
-                        read_file_into_lines(g_incpath, depth+1);
+                        read_file_into_lines(g_incpath, depth+1, 0);
                         continue;
                     }
                 }
             }
         }
-        add_line(g_buf);
+        if(line_idx >= from_line)
+            add_line(g_buf);
+        line_idx++;
     }
     fclose(f);
     return 1;
@@ -1175,7 +1179,7 @@ int main(int argc, char **argv){
                         if(q && q>rest){
                             int k = (int)(q-(rest+1)); if(k>255) k=255;
                             memcpy(g_incpath,rest+1,k); g_incpath[k]=0;
-                            read_file_into_lines(g_incpath, 1);
+                            read_file_into_lines(g_incpath, 1, 0);
                             continue;
                         }
                     }
@@ -1196,7 +1200,7 @@ int main(int argc, char **argv){
             printf(APP_MSG_START_ENTERCODE NEWLINE);
         }
         while(nlines < MAXLINES){
-            printf("?\033[1D");
+            printf(NEWLINE "?\033[1D");
             if(!fgets(g_buf,sizeof(g_buf),stdin)) break;
             rstrip(g_buf);
             strip_utf8_bom(g_buf);
@@ -1211,7 +1215,8 @@ int main(int argc, char **argv){
                                    "---------------------------" NEWLINE
                         "@HELP               - show this list of commands" NEWLINE
                         "@SAVE filename      - save buffer to file" NEWLINE
-                        "@LOAD filename      - load a file into the buffer" NEWLINE
+                        "@LOAD filename      - clear buffer and load a file" NEWLINE
+                        "@APPEND file [line] - append file to buffer from line" NEWLINE
                         "@NEW                - clear the buffer" NEWLINE
                         "@LIST [from [to]]   - display buffer lines" NEWLINE
                         "@EDIT N text        - replace line N" NEWLINE
@@ -1219,6 +1224,7 @@ int main(int argc, char **argv){
                         "@INS N text         - insert text in line before N" NEWLINE
                         "@MAKE [filename]    - assemble the code and save the binary" NEWLINE
                         "@CYCLES [from [to]] - count CPU cycles" NEWLINE
+                        "@SYMBOLS            - list assembled symbols" NEWLINE
                         "@EXIT               - save to " HASS_LAST_SOURCE_CODE_BUFFER_FILE " and exit" NEWLINE NEWLINE
                     );
                     continue;
@@ -1229,14 +1235,89 @@ int main(int argc, char **argv){
                 }
                 if(strcmp(dir,"@LOAD")==0){
                     if(rest && rest[0]){
-                        int before = nlines;
                         char load_fname[MAXLEN];
                         strncpy(load_fname, rest, MAXLEN-1);
                         load_fname[MAXLEN-1] = 0;
-                        read_file_into_lines(load_fname, 0);
-                        printf("@LOAD: %d lines loaded from %s" NEWLINE, nlines - before, load_fname);
+                        nlines = 0; nsym = 0; xram_sym_clear_all();
+                        read_file_into_lines(load_fname, 0, 0);
+                        printf("@LOAD: %d lines loaded from %s" NEWLINE, nlines, load_fname);
                     } else {
                         printf("@LOAD: missing filename" NEWLINE);
+                    }
+                    continue;
+                }
+                if(strcmp(dir,"@APPEND")==0){
+                    if(rest && rest[0]){
+                        char append_buf[MAXLEN];
+                        char *sp;
+                        int  insert_pos, before, file_count, i;
+                        FILE *af;
+                        strncpy(append_buf, rest, MAXLEN-1);
+                        append_buf[MAXLEN-1] = 0;
+                        sp = append_buf;
+                        while(*sp && *sp != ' ') sp++;
+                        insert_pos = -1;  /* -1 = append at end */
+                        if(*sp){
+                            *sp = 0; sp++;
+                            while(*sp == ' ') sp++;
+                            if(*sp){
+                                insert_pos = atoi(sp) - 1; /* 1-based -> 0-based */
+                                if(insert_pos < 0) insert_pos = 0;
+                                if(insert_pos > nlines) insert_pos = nlines;
+                            }
+                        }
+                        before = nlines;
+                        if(insert_pos < 0 || insert_pos >= nlines){
+                            /* append at end of buffer */
+                            read_file_into_lines(append_buf, 0, 0);
+                        } else {
+                            /* insert: count file lines first */
+                            af = fopen(append_buf, "rb");
+                            if(!af){
+                                printf("@APPEND: can't open %s" NEWLINE, append_buf);
+                                continue;
+                            }
+                            file_count = 0;
+                            while(fgets(g_buf, sizeof(g_buf), af)) file_count++;
+                            fclose(af);
+                            if(nlines + file_count > MAXLINES){
+                                printf("@APPEND: buffer full" NEWLINE);
+                                continue;
+                            }
+                            /* shift existing lines from insert_pos downward */
+                            for(i = nlines - 1; i >= insert_pos; i--){
+                                xram_line_read((unsigned)i, g_buf);
+                                xram_line_write((unsigned)(i + file_count), g_buf);
+                            }
+                            /* write file lines starting at insert_pos */
+                            af = fopen(append_buf, "rb");
+                            i = insert_pos;
+                            while(fgets(g_buf, sizeof(g_buf), af)){
+                                rstrip(g_buf);
+                                strip_utf8_bom(g_buf);
+                                xram_line_write((unsigned)i, g_buf);
+                                i++;
+                            }
+                            fclose(af);
+                            nlines += file_count;
+                        }
+                        printf("@APPEND: %d lines added from %s" NEWLINE, nlines - before, append_buf);
+                    } else {
+                        printf("@APPEND: usage: @APPEND filename [startline]" NEWLINE);
+                    }
+                    continue;
+                }
+                if(strcmp(dir,"@SYMBOLS")==0){
+                    if(nsym == 0){
+                        printf("@SYMBOLS: no symbols (run @MAKE first)" NEWLINE);
+                    } else {
+                        int si;
+                        for(si = 0; si < nsym; si++){
+                            xram_sym_read_name((unsigned)si, g_buf);
+                            printf("  %-16s = $%04X" NEWLINE,
+                                   g_buf, (unsigned)xram_sym_get_value((unsigned)si));
+                        }
+                        printf("@SYMBOLS: %d symbol(s)" NEWLINE, nsym);
                     }
                     continue;
                 }
@@ -1338,7 +1419,7 @@ int main(int argc, char **argv){
                     if(q && q>rest){
                         int k = (int)(q-(rest+1)); if(k>255) k=255;
                         memcpy(g_incpath,rest+1,k); g_incpath[k]=0;
-                        read_file_into_lines(g_incpath, 1);
+                        read_file_into_lines(g_incpath, 1, 0);
                         continue;
                     }
                 }
