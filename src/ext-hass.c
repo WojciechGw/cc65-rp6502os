@@ -10,7 +10,7 @@
 #include "commons.h"
 #include "ext-hass-opcodes.h"
 
-#define APPVER "20260318.0925"
+#define APPVER "20260319.1706"
 #define APPDIRDEFAULT "MSC0:/"
 #define APP_MSG_TITLE CSI_RESET "\x1b[2;1H\x1b" HIGHLIGHT_COLOR " OS Shell > " ANSI_RESET " Handy ASSembler WDC65C02S" ANSI_DARK_GRAY "\x1b[2;60Hversion " APPVER ANSI_RESET
 #define APP_MSG_START_ASSEMBLING ANSI_DARK_GRAY "\x1b[4;1HStart assembling ... " ANSI_RESET
@@ -1078,6 +1078,7 @@ static void cmd_del(const char *args){
 static void cmd_ins(const char *args){
     int n, i;
     const char *text;
+    char text_save[MAXLEN];
     if(!args || !parse_line_number(args, &n, &text)){
         printf("@INS: usage: @INS N text" NEWLINE); return;
     }
@@ -1087,11 +1088,13 @@ static void cmd_ins(const char *args){
     if(nlines >= MAXLINES){
         printf("@INS: buffer full (%d lines)" NEWLINE, MAXLINES); return;
     }
+    strncpy(text_save, text ? text : "", MAXLEN-1);
+    text_save[MAXLEN-1] = 0;
     for(i = nlines-1; i >= n-1; i--){
         xram_line_read((unsigned)i, g_buf);
         xram_line_write((unsigned)(i+1), g_buf);
     }
-    xram_line_write((unsigned)(n-1), text);
+    xram_line_write((unsigned)(n-1), text_save);
     nlines++;
     printf("@INS: inserted at line %d, %d lines total" NEWLINE, n, nlines);
 }
@@ -1337,7 +1340,10 @@ int main(int argc, char **argv){
                     continue;
                 }
                 if(strcmp(dir,"@EDIT")==0){
-                    cmd_edit(rest);
+                    char *raw = g_buf; ltrim_ptr(&raw);
+                    while(*raw && !isspace((unsigned char)*raw)) raw++;
+                    ltrim_ptr(&raw);
+                    cmd_edit(raw);
                     continue;
                 }
                 if(strcmp(dir,"@DEL")==0){
@@ -1345,7 +1351,10 @@ int main(int argc, char **argv){
                     continue;
                 }
                 if(strcmp(dir,"@INS")==0){
-                    cmd_ins(rest);
+                    char *raw = g_buf; ltrim_ptr(&raw);
+                    while(*raw && !isspace((unsigned char)*raw)) raw++;
+                    ltrim_ptr(&raw);
+                    cmd_ins(raw);
                     continue;
                 }
                 if(strcmp(dir,"@EXIT")==0){
