@@ -10,7 +10,7 @@
 #include "commons.h"
 #include "ext-hass-opcodes.h"
 
-#define APPVER "20260319.1706"
+#define APPVER "20260319.1733"
 #define APPDIRDEFAULT "MSC0:/"
 #define APP_MSG_TITLE CSI_RESET "\x1b[2;1H\x1b" HIGHLIGHT_COLOR " OS Shell > " ANSI_RESET " Handy ASSembler WDC65C02S" ANSI_DARK_GRAY "\x1b[2;60Hversion " APPVER ANSI_RESET
 #define APP_MSG_START_ASSEMBLING ANSI_DARK_GRAY "\x1b[4;1HStart assembling ... " ANSI_RESET
@@ -1055,23 +1055,29 @@ static void cmd_edit(const char *args){
     printf(ANSI_GREEN "@EDIT: line %d replaced" ANSI_RESET NEWLINE NEWLINE, n);
 }
 
-/* --- @DEL N --- */
+/* --- @DEL N [M] --- */
 static void cmd_del(const char *args){
-    int n, i;
+    int from, to, count, i;
     const char *r;
-    if(!args || !parse_line_number(args, &n, &r)){
-        printf("@DEL: usage: @DEL N" NEWLINE); return;
+    if(!args || !parse_line_number(args, &from, &r)){
+        printf("@DEL: usage: @DEL N [M]" NEWLINE); return;
     }
-    if(n < 1 || n > nlines){
-        printf("@DEL: line %d out of range (1..%d)" NEWLINE, n, nlines); return;
+    if(!parse_line_number(r, &to, &r)) to = from;
+    if(from > to){ int tmp = from; from = to; to = tmp; }
+    if(from < 1 || to > nlines){
+        printf("@DEL: range %d..%d out of range (1..%d)" NEWLINE, from, to, nlines); return;
     }
-    for(i = n-1; i < nlines-1; i++){
-        xram_line_read((unsigned)(i+1), g_buf);
+    count = to - from + 1;
+    for(i = from - 1; i < nlines - count; i++){
+        xram_line_read((unsigned)(i + count), g_buf);
         xram_line_write((unsigned)i, g_buf);
     }
-    xram_line_write((unsigned)(nlines-1), "");
-    nlines--;
-    printf("@DEL: line %d deleted, %d lines remain" NEWLINE, n, nlines);
+    for(i = nlines - count; i < nlines; i++) xram_line_write((unsigned)i, "");
+    nlines -= count;
+    if(count == 1)
+        printf("@DEL: line %d deleted, %d lines remain" NEWLINE, from, nlines);
+    else
+        printf("@DEL: lines %d..%d deleted (%d lines), %d lines remain" NEWLINE, from, to, count, nlines);
 }
 
 /* --- @INS N text --- */
@@ -1227,7 +1233,7 @@ int main(int argc, char **argv){
                         "@NEW                - clear the buffer" NEWLINE
                         "@LIST [from [to]]   - display buffer lines" NEWLINE
                         "@EDIT N text        - replace line N" NEWLINE
-                        "@DEL N              - delete line N" NEWLINE
+                        "@DEL N [M]          - delete line N or range N..M" NEWLINE
                         "@INS N text         - insert text in line before N" NEWLINE
                         "@MAKE [filename]    - assemble the code and save the binary" NEWLINE
                         "@CYCLES [from [to]] - count CPU cycles" NEWLINE
