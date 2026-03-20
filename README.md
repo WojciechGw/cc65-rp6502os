@@ -50,7 +50,6 @@ internal commands are case sensitive
 * cp     - copy file
 * cpm    - copy/move multiple files, wildcards allowed
 * drive  - set active drive
-* drives - show available drives
 * exit   - exit to the system monitor
 * hex    - dump file contents to screen
 * list   - show a file content
@@ -74,6 +73,7 @@ There's no need to include the .com extension - ie. just type 'dir' instead of '
 * crx      - download file transfer (PC => RP6502)
 * ctx      - upload file transfer (RP6502 => PC)
 * dir      - show active drive directory, wildcards allowed
+* drives   - show available drives
 * help     - show help informations (same as F1 key)
 * keyboard - keyboard state visualiser
 * label    - show or set active drive's volume label
