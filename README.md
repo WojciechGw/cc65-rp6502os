@@ -95,7 +95,7 @@ Enjoy !
 
 ### .com and .exe file format (project)
 * .com programs for native OS
-* .exe programs demands whole Picocomputer free memory like .rp6502 (dedicated loader and RESVEC)
+* .exe programs may demands whole Picocomputer free memory like .rp6502 (dedicated loader and RESVEC)
 #### header of file (only once)
 FF    - constant FF for .com FE for .exe</br>
 byte  - file format version</br>
