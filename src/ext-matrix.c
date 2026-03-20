@@ -9,8 +9,8 @@
 #define APPVER "20260320.0001"
 
 #define SCREEN_COLS  80
-#define SCREEN_ROWS  25
-#define N_DROPS      35
+#define SCREEN_ROWS  30
+#define N_DROPS      45
 
 /* ---- keyboard ----------------------------------------------------------- */
 #define KEYBOARD_INPUT 0xFFE0
@@ -34,7 +34,8 @@ static drop_t drops[N_DROPS];
 static const char MCHARS[] =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     "0123456789"
-    "!@#$%&*+-=?/|<>[]{}";
+    "!@#$%&*+-=?/|<>[]{}"
+    "";
 #define N_MCHARS (sizeof(MCHARS) - 1)
 
 /* ---- ANSI color shortcuts ----------------------------------------------- */
@@ -58,8 +59,8 @@ static char rnd_char(void)
 static void drop_init(uint8_t i)
 {
     drops[i].col   = (uint8_t)rand() % SCREEN_COLS;
-    drops[i].len   = 6 + (uint8_t)rand() % 14;
-    drops[i].speed = 1 + (uint8_t)rand() % 4;
+    drops[i].len   = 6 + (uint8_t)rand() % 6;
+    drops[i].speed = 1 + (uint8_t)rand() % 6;
     drops[i].tick  = (uint8_t)rand() % drops[i].speed;
     /* stagger: start at random height above screen */
     drops[i].head  = -(int8_t)((uint8_t)rand() % SCREEN_ROWS);
@@ -81,11 +82,10 @@ int main(int argc, char **argv)
 
     if (argc == 1 && strcmp(argv[0], "/?") == 0) {
         printf(NEWLINE
-               "Matrix Rain Screensaver" NEWLINE
-               NEWLINE
+               "Matrix Rain Screensaver for Picocomputer" NEWLINE
                "version " APPVER NEWLINE
                NEWLINE
-               "EXIT - press and hold both Shift keys" NEWLINE
+               "press and hold both Shift keys to EXIT" NEWLINE
                NEWLINE);
         return 0;
     }
