@@ -737,7 +737,7 @@ int cmd_cd(int argc, char **argv) {
     }
     return 0;
 }
-
+/*
 int cmd_drives(int argc, char **argv) {
     int rc;
     char drv[3] = "0:";
@@ -766,7 +766,7 @@ int cmd_drives(int argc, char **argv) {
         rc = f_chdrive(drv);
         if(rc == 0) {
             if(f_getfree(drv, &free_blks, &total_blks) != 0 || !total_blks) {
-                continue; /* Skip drives without size info */
+                continue; // Skip drives without size info
             }
             tx_string("MSC");
             tx_string(drv);
@@ -780,7 +780,7 @@ int cmd_drives(int argc, char **argv) {
             }
             tx_string(TAB);
             {
-                unsigned long mb = total_blks / 2048; /* 512-byte blocks -> MB */
+                unsigned long mb = total_blks / 2048; // 512-byte blocks -> MB
                 pct = (free_blks * 100UL) / total_blks;
                 tx_dec32(mb);
                 tx_string(TAB);
@@ -801,6 +801,7 @@ int cmd_drives(int argc, char **argv) {
     }
     return 0;
 }
+*/
 
 int cmd_drive(int argc, char **argv) {
     char drv[3] = "0:";

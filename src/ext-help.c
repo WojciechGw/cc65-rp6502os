@@ -37,8 +37,6 @@ static const cmd_t commands[] = {
                 "cpm <source> <destination> /m (move file)"},
     { "drive",  "set active drive", 
                 "drive 0:"},
-    { "drives", "show available drives", 
-                "drives"},
     { "exit",   "exit to the system monitor", 
                 "exit"},
     { "hex",    "dump file contents to screen", 
@@ -88,6 +86,8 @@ static const cmd_t commands_rom[] = {
     { "dir",        "show active drive directory, wildcards allowed",
                     "dir *.rp6502 (only .rp6502 files)" NEWLINE
                     "dir /da (sorted by date ascending)"},
+    { "drives",     "show available drives", 
+                    "drives"},
     { "help",       "show help informations", 
                     "help" NEWLINE
                     "help mkdir" NEWLINE

@@ -10,7 +10,7 @@
 #include "commons.h"
 #include "ext-hass-opcodes.h"
 
-#define APPVER "20260319.1733"
+#define APPVER "20260319.2125"
 #define APPDIRDEFAULT "MSC0:/"
 #define APP_MSG_TITLE CSI_RESET "\x1b[2;1H\x1b" HIGHLIGHT_COLOR " OS Shell > " ANSI_RESET " Handy ASSembler WDC65C02S" ANSI_DARK_GRAY "\x1b[2;60Hversion " APPVER ANSI_RESET
 #define APP_MSG_START_ASSEMBLING ANSI_DARK_GRAY "\x1b[4;1HStart assembling ... " ANSI_RESET
@@ -1030,7 +1030,7 @@ static void cmd_list(const char *args){
     page = 0;
     for(i = from; i <= to; i++){
         xram_line_read((unsigned)(i-1), g_buf);
-        printf("%4d | %s" NEWLINE, i, g_buf);
+        printf(ANSI_DARK_GRAY "%4d | " ANSI_RESET "%s" NEWLINE, i, g_buf);
         if(++page == 28 && i < to){
             page = 0;
             printf("--- more --- [Enter] continue, [q] quit: ");
@@ -1227,8 +1227,8 @@ int main(int argc, char **argv){
                     printf(NEWLINE "List of commands:" NEWLINE
                                    "---------------------------" NEWLINE
                         "@HELP               - show this list of commands" NEWLINE
-                        "@SAVE filename      - save buffer to file" NEWLINE
-                        "@LOAD filename      - clear buffer and load a file" NEWLINE
+                        "@SAVE [path]file    - save buffer to file" NEWLINE
+                        "@LOAD [path]file    - clear buffer and load a file" NEWLINE
                         "@APPEND file [line] - append file to buffer from line" NEWLINE
                         "@NEW                - clear the buffer" NEWLINE
                         "@LIST [from [to]]   - display buffer lines" NEWLINE

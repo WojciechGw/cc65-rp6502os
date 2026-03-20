@@ -19,9 +19,9 @@ extern struct _timezone _tz;
     #define __STACKSIZE__ 0x0200
 #endif
 #define MEMTOP (0xFF00-__STACKSIZE__)
-#define COM_LOAD_ADDR 0x7B00  // lowest ram address where to load the external command code (binary shell extensions - .com files)
+#define COM_LOAD_ADDR 0x7500  // lowest ram address where to load the external command code (binary shell extensions - .com files)
 
-#define SHELLVER "20260318.0858"
+#define SHELLVER "20260319.1830"
 #define SHELLDIRDEFAULT "ROM:"
 #define SHELLPROMPT "> "
 #define SHELLPROMPT_1ST "> " ANSI_GREEN "[F1] help" ANSI_RESET " > "
@@ -110,8 +110,6 @@ typedef struct {
 static char dir_cwd[FNAMELEN];
 static f_stat_t dir_ent;
 static char dir_dt_buf[20];
-static char dev_label[16];
-static char saved_cwd[128];
 static char current_drive = '0';
 static char cpm_path[CPMBUFFLEN];
 static char cpm_mask[CPMBUFFLEN];
@@ -147,7 +145,7 @@ int cmd_cp(int, char **);
 int cmd_cpm(int, char **);
 int cmd_ls(int, char **);
 int cmd_drive(int, char **);
-int cmd_drives(int, char **);
+// int cmd_drives(int, char **);
 int cmd_exit(int, char **);
 int cmd_list(int, char **);
 int cmd_mem(int, char **);
@@ -181,7 +179,7 @@ static const cmd_t commands[] = {
     { "exe",    "", "", cmd_exe},
     { "ls",     "", "", cmd_ls},
     { "drive",  "", "", cmd_drive},
-    { "drives", "", "", cmd_drives},
+//    { "drives", "", "", cmd_drives},
     { "exit",   "", "", cmd_exit},
     { "list",   "", "", cmd_list},
     { "mem",    "", "", cmd_mem},
@@ -246,7 +244,7 @@ int cmd_cp(int argc, char **argv);
 int cmd_cpm(int argc, char **argv);
 int cmd_ls(int argc, char **argv);
 int cmd_drive(int argc, char **argv);
-int cmd_drives(int argc, char **argv);
+// int cmd_drives(int argc, char **argv);
 // int cmd_edit(int argc, char **argv);
 int cmd_exit(int status, char **);
 int cmd_list(int argc, char **argv);
