@@ -6,7 +6,7 @@
 
 #include "commons.h"
 
-#define APPVER "20260320.0001"
+#define APPVER "20260325.1747"
 
 #define SCREEN_COLS  80
 #define SCREEN_ROWS  29
@@ -32,8 +32,7 @@ static drop_t drops[N_DROPS];
 
 /* ---- character set ------------------------------------------------------ */
 
-#define SET0
-
+#define SET2
 
 #ifdef SET0
 static const char MCHARS[] =
@@ -91,7 +90,7 @@ static void drop_init(uint8_t i)
 {
     drops[i].col   = (uint8_t)rand() % SCREEN_COLS;
     drops[i].len   = 6 + (uint8_t)rand() % 10;
-    drops[i].speed = 1 + (uint8_t)rand() % 8;
+    drops[i].speed = 8; // 1 + (uint8_t)rand() % 8;
     drops[i].tick  = (uint8_t)rand() % drops[i].speed;
     /* stagger: start at random height above screen */
     drops[i].head  = -(int8_t)((uint8_t)rand() % SCREEN_ROWS);
@@ -122,7 +121,7 @@ int main(int argc, char **argv)
     }
 
     /* seed RNG from clock */
-    srand((unsigned int)clock());
+    _randomize();
 
     /* initialise all drop streams */
     for (i = 0; i < N_DROPS; i++)

@@ -6,7 +6,7 @@
 
 #include "commons.h"
 
-#define APPVER "20260320.0001"
+#define APPVER "20260325.1749"
 
 #define SCREEN_COLS     80
 #define SCREEN_ROWS     30
@@ -60,7 +60,7 @@ static void goto_pos(uint8_t col, uint8_t row)
 
 static char rnd_char(void)
 {
-    return MCHARS[lrand() % N_MCHARS];
+    return MCHARS[rand() % N_MCHARS];
 }
 
 static void flush_rx(void)
@@ -76,7 +76,7 @@ static void fill_screen(void)
     uint8_t row, col;
     printf("\x1b[H");   /* cursor to top-left */
     for (row = 0; row < SCREEN_ROWS; row++) {
-        printf(COLORS[lrand() % N_COLORS]);
+        printf(COLORS[rand() % N_COLORS]);
         for (col = 0; col < SCREEN_COLS; col++)
             putchar(rnd_char());
     }
@@ -98,7 +98,7 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    srand((unsigned int)clock());
+    _randomize();
 
     printf(CSI_RESET CSI_CURSOR_HIDE ANSI_CLS "\x1b[40m");
 
@@ -123,10 +123,10 @@ int main(int argc, char **argv)
 
         /* --- update random cells --- */
         for (i = 0; i < UPDATES_PER_FRAME; i++) {
-            col = (uint8_t)(lrand() % SCREEN_COLS);
-            row = (uint8_t)(lrand() % SCREEN_ROWS);
+            col = (uint8_t)(rand() % SCREEN_COLS);
+            row = (uint8_t)(rand() % SCREEN_ROWS);
             goto_pos(col, row);
-            printf("%s%c", COLORS[lrand() % N_COLORS], rnd_char());
+            printf("%s%c", COLORS[rand() % N_COLORS], rnd_char());
         }
     }
 

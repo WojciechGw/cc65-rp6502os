@@ -10,7 +10,7 @@
 
 #include "commons.h"
 
-#define APPVER "20260320.0001"
+#define APPVER "20260324.0001"
 
 #define FONTDIR "MSC0:/FNT/"
 
@@ -217,8 +217,8 @@ int main(int argc, char **argv)
 
         /* --- update random cells --- */
         for (i = 0; i < UPDATES_PER_FRAME; i++) {
-            col = (uint8_t)(lrand() % CANVAS_COLS);
-            row = (uint8_t)(lrand() % CANVAS_ROWS);
+            col = (uint8_t)(rand() % CANVAS_COLS);
+            row = (uint8_t)(rand() % CANVAS_ROWS);
             draw_cell(row, col, rnd_char(), rnd_fg());
         }
     }
