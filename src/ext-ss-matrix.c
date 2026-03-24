@@ -9,8 +9,8 @@
 #define APPVER "20260320.0001"
 
 #define SCREEN_COLS  80
-#define SCREEN_ROWS  30
-#define N_DROPS      45
+#define SCREEN_ROWS  29
+#define N_DROPS      50
 
 /* ---- keyboard ----------------------------------------------------------- */
 #define KEYBOARD_INPUT 0xFFE0
@@ -31,11 +31,42 @@ typedef struct {
 static drop_t drops[N_DROPS];
 
 /* ---- character set ------------------------------------------------------ */
+
+#define SET0
+
+
+#ifdef SET0
+static const char MCHARS[] =
+    "\x03\x04\x06\x07\x08";
+#endif
+
+#ifdef SET1
 static const char MCHARS[] =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    "abcdefghijklmnopqrstuvwxyz"
+    "0123456789\x60"
+    "!@#$%&*+-=?/|<>[]{}";
+#endif
+
+#ifdef SET2
+static const char MCHARS[] = 
+    "\xe0\xe1\xe2\xe3\xe4\xe5\xe6\xe7\xe8\xe9\xea\xeb\xec\xed\xee"
+    "\xf0\xf1\xf7\xf8"
+    "\xb0\xb1\xb2";
+
+#endif
+
+#ifdef SET3
+static const char MCHARS[] =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    "abcdefghijklmnopqrstuvwxyz"
     "0123456789"
     "!@#$%&*+-=?/|<>[]{}"
-    "";
+    "\xe0\xe1\xe2\xe3\xe4\xe5\xe6\xe7\xe8\xe9\xea\xeb\xec\xed\xee"
+    "\xf0\xf1\xf7\xf8"
+    "\xb0\xb1\xb2";
+#endif
+
 #define N_MCHARS (sizeof(MCHARS) - 1)
 
 /* ---- ANSI color shortcuts ----------------------------------------------- */
@@ -53,14 +84,14 @@ static void goto_pos(uint8_t col, uint8_t row)
 
 static char rnd_char(void)
 {
-    return MCHARS[(uint8_t)rand() % N_MCHARS];
+    return MCHARS[(uint16_t)rand() % N_MCHARS];
 }
 
 static void drop_init(uint8_t i)
 {
     drops[i].col   = (uint8_t)rand() % SCREEN_COLS;
-    drops[i].len   = 6 + (uint8_t)rand() % 6;
-    drops[i].speed = 1 + (uint8_t)rand() % 6;
+    drops[i].len   = 6 + (uint8_t)rand() % 10;
+    drops[i].speed = 1 + (uint8_t)rand() % 8;
     drops[i].tick  = (uint8_t)rand() % drops[i].speed;
     /* stagger: start at random height above screen */
     drops[i].head  = -(int8_t)((uint8_t)rand() % SCREEN_ROWS);

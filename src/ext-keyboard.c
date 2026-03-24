@@ -67,14 +67,14 @@ static const key_shape_t keyboard_shapes[] = {
     {0, 49, 5,  KEY_F11,        "F11"},
     {0, 54, 5,  KEY_F12,        "F12"},
     {0, 60, 8,  KEY_SYSRQ,      "PrtScr"}, // Keyboard Print Screen
-    {0, 68, 7,  KEY_SCROLLLOCK, "ScrLk"}, // Keyboard Scroll Lock
-    {0, 75, 5,  KEY_PAUSE,      "Brk"}, // Keyboard Pause
-    {2, 50, 5,  KEY_INSERT,     "Ins"}, // Keyboard Insert
-    {2, 55, 5,  KEY_HOME,       "Hom"}, // Keyboard Home
-    {2, 60, 5,  KEY_PAGEUP,     "PgU"}, // Keyboard Page Up
-    {3, 50, 5,  KEY_DELETE,     "Del"}, // Keyboard Delete Forward
-    {3, 55, 5,  KEY_END,        "End"}, // Keyboard End
-    {3, 60, 5,  KEY_PAGEDOWN,   "PgD"}, // Keyboard Page Down
+    {0, 68, 7,  KEY_SCROLLLOCK, "ScrLk"},  // Keyboard Scroll Lock
+    {0, 75, 5,  KEY_PAUSE,      "Brk"},    // Keyboard Pause / Break
+    {2, 50, 5,  KEY_INSERT,     "Ins"},    // Keyboard Insert
+    {2, 55, 5,  KEY_HOME,       "Hom"},    // Keyboard Home
+    {2, 60, 5,  KEY_PAGEUP,     "PgU"},    // Keyboard Page Up
+    {3, 50, 5,  KEY_DELETE,     "Del"},    // Keyboard Delete Forward
+    {3, 55, 5,  KEY_END,        "End"},    // Keyboard End
+    {3, 60, 5,  KEY_PAGEDOWN,   "PgD"},    // Keyboard Page Down
     {2,  0, 3,  KEY_GRAVE,      "`"},
     {2,  3, 3,  KEY_1,          "1"},
     {2,  6, 3,  KEY_2,          "2"},
@@ -196,6 +196,7 @@ static void draw_key_on_canvas(const key_shape_t *shape, bool pressed) {
 }
 
 static void render_keyboard_view(void) {
+
     bool changed = !keyboard_view_initialized;
     uint8_t i, c;
     uint8_t rows = (uint8_t)(sizeof(keyboard_shapes) / sizeof(keyboard_shapes[0]));
@@ -286,7 +287,7 @@ int main(int argc, char **argv) {
             for (j = 0; j < 8; j++) {
                 uint8_t code = (i << 3) + j;
                 new_key = (new_keys & (1<<j));
-                if ((code>3) && (new_key != (keystates[i] & (1<<j)))) {
+                if ((code > 3) && (new_key != (keystates[i] & (1<<j)))) {
                     printf("\x1b" POS_KEYPRESS "0x%02X %s", code, (new_key ?  FONT_CHAR_DOWN : FONT_CHAR_UP));
                 }
             }

@@ -6,20 +6,29 @@ add_subdirectory(tools)
 
 add_executable(shell)
 rp6502_asset(shell help src/shell.hlp)
-rp6502_asset(shell wallpaper assets/GFX/wallpaper.bmp)
+
+# ROM: commands
 rp6502_asset(shell calendar.com src/extcmd/build/calendar.com)
 rp6502_asset(shell crx.com src/extcmd/build/crx.com)
 rp6502_asset(shell ctx.com src/extcmd/build/ctx.com)
 rp6502_asset(shell dir.com src/extcmd/build/dir.com)
 rp6502_asset(shell drives.com src/extcmd/build/drives.com)
-#rp6502_asset(shell editor.com src/extcmd/build/editor.com)
 rp6502_asset(shell hass.com src/extcmd/build/hass.com)
 rp6502_asset(shell help.com src/extcmd/build/help.com)
 rp6502_asset(shell keyboard.com src/extcmd/build/keyboard.com)
 rp6502_asset(shell label.com src/extcmd/build/label.com)
-rp6502_asset(shell matrix.com src/extcmd/build/matrix.com)
 rp6502_asset(shell settime.com src/extcmd/build/settime.com)
 rp6502_asset(shell term.com src/extcmd/build/term.com)
+#rp6502_asset(shell editor.com src/extcmd/build/editor.com)
+
+# screen savers
+# rp6502_asset(shell ss-matrix.com src/extcmd/build/ss-matrix.com)
+# rp6502_asset(shell ss-noise.com src/extcmd/build/ss-noise.com)
+# rp6502_asset(shell ss-charnoise.com src/extcmd/build/ss-charnoise.com)
+
+# gfx
+# rp6502_asset(shell wallpaper assets/GFX/wallpaper.bmp)
+
 rp6502_executable(shell DATA 0x0200 RESET 0x0200)
 target_sources(shell PRIVATE src/shell.c)
 target_link_options(shell PRIVATE -C ${CMAKE_SOURCE_DIR}/src/shell.cfg)

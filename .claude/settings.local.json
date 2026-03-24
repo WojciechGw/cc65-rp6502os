@@ -4,7 +4,8 @@
       "WebFetch(domain:picocomputer.github.io)",
       "Bash(xargs grep:*)",
       "Bash(grep -n \"term_prog\\\\|GFX_MODE_CONSOLE\" /c/@prg/@picocomputer/rp6502/src/vga/term/*.c /c/@prg/@picocomputer/rp6502/src/vga/term/*.h)",
-      "Bash(find /c/@prg/@picocomputer/!archiwum/@moje/flappy-bird-game -name *term* -o -name *console* -o -name *gfx*)"
+      "Bash(find /c/@prg/@picocomputer/!archiwum/@moje/flappy-bird-game -name *term* -o -name *console* -o -name *gfx*)",
+      "Bash(grep -n xregb /c/@prg/cc65/lib/rp6502/*.h)"
     ]
   }
 }
