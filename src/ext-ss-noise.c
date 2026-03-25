@@ -100,9 +100,10 @@ int main(int argc, char **argv)
 
     _randomize();
 
+    fill_screen();
+
     printf(CSI_RESET CSI_CURSOR_HIDE ANSI_CLS "\x1b[40m");
 
-    fill_screen();
 
     xreg_ria_keyboard(KEYBOARD_INPUT);
     v = RIA.vsync;

@@ -193,10 +193,12 @@ int main(int argc, char **argv)
         return 0;
     }
     
-    printf(ANSI_CLS);
+    // printf(ANSI_CLS ANSI_DARK_GRAY "please wait ..." ANSI_RESET CSI_CURSOR_HIDE);
 
     _randomize();
+    
     fill_screen();
+    
     setup_canvas();
 
     xreg_ria_keyboard(KEYBOARD_INPUT);
@@ -226,5 +228,9 @@ int main(int argc, char **argv)
 
     flush_rx();
     restore_canvas();
+
+    // printf(ANSI_CLS ANSI_DARK_GRAY "Bye, bye!" ANSI_RESET NEWLINE NEWLINE CSI_CURSOR_SHOW);
+
     return 0;
+
 }
