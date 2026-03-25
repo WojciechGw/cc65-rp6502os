@@ -10,7 +10,7 @@
 
 #include "commons.h"
 
-#define APPVER "20260324.0001"
+#define APPVER "20260325.1628"
 
 #define FONTDIR "MSC0:/FNT/"
 
@@ -193,10 +193,11 @@ int main(int argc, char **argv)
         return 0;
     }
     
-    _randomize();
+    printf(ANSI_CLS);
 
-    setup_canvas();
+    _randomize();
     fill_screen();
+    setup_canvas();
 
     xreg_ria_keyboard(KEYBOARD_INPUT);
     v = RIA.vsync;
