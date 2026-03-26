@@ -1,5 +1,5 @@
 /*
- * Matrix Rain Screensaver
+ * CharNoise Screensaver
  * for Picocomputer OS Shell
  * Copyright (c) 2026 WojciechGw
  */
