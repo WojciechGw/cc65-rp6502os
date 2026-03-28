@@ -1,5 +1,5 @@
-# Sendfile to Picocomputer 6502
-# run courier-rx on Picocomputer' OS Shell to receive file
+# File sender from PC to Picocomputer 6502
+# run "python ctx.py filename_to_send" on PC to send file
 #
 # Copyright (c) 2026 WojciechGw
 #
