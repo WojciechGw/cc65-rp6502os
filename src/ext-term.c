@@ -50,6 +50,7 @@ int main(int argc, char **argv)
     int fd, cp;
 	bool handled_key = false;
 	uint8_t i,j,new_key,new_keys;
+    const char *device = "AT:";
 
     #ifdef DEBUG
     {
