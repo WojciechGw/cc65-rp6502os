@@ -7,12 +7,12 @@ ext-ctx.c - C89, cc65 (Picocomputer RP6502-RIA UART => PC)
 
 #define NEWLINE "\r\n"
 
-#define APPVER "20260328.2000"
+#define APPVER "20260330.1925"
 #define APPDIRDEFAULT "MSC0:/"
 #define APP_MSG_TITLE "\x1b[2;1H\x1b" HIGHLIGHT_COLOR " OS Shell > " ANSI_RESET " Courier TX" ANSI_DARK_GRAY "\x1b[2;60Hversion " APPVER ANSI_RESET
 #define APP_MSG_START ANSI_DARK_GRAY "\x1b[4;1HSending file in Intel HEX format." ANSI_RESET
 
-#define HDR_NAME_MAX 14   /* max filename chars in header (+ null = 15 B) */
+#define HDR_NAME_MAX 31   /* max filename chars in header (+ null = 32 B) */
 
 #define RX_READY (RIA.ready & RIA_READY_RX_BIT)
 #define TX_READY (RIA.ready & RIA_READY_TX_BIT)
@@ -86,7 +86,7 @@ static void send_hex_record(uint8_t type, uint16_t addr,
  */
 static void send_header(const char *filepath, long filesize)
 {
-    uint8_t hdr[20];   /* max HDR_NAME_MAX + null + 4 bytes = 20 */
+    uint8_t hdr[40];   /* max HDR_NAME_MAX + null + 4 bytes = 36 */
     uint8_t hlen, chunk, j;
     uint16_t addr;
     const char *name;
