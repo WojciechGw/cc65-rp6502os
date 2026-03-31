@@ -1,6 +1,6 @@
 #include "commons.h"
 
-#define APPVER "20260317.1520"
+#define APPVER "20260401.0058"
 
 #define APP_HEADER CSI_RESET CSI "[2;1H" CSI HIGHLIGHT_COLOR " OS Shell > " ANSI_RESET " Help information                              " ANSI_DARK_GRAY "version " APPVER ANSI_RESET
 #define APP_FOOTER ANSI_DARK_GRAY  "________________________________________________________________________________" NEWLINE NEWLINE ANSI_RESET
@@ -73,12 +73,15 @@ static const cmd_t commands[] = {
 };
 
 static const cmd_t commands_rom[] = {
-    { "calendar",   "calendar application", 
-                    "calendar                - current month" NEWLINE
-                    "calendar /p yyyy [1-12] - particular month" NEWLINE
-                    "calendar /n [yyyy]      - current or particular and neighbouring months" NEWLINE
-                    "calendar /q [1-4]       - current or particular quarter" NEWLINE
-                    "calendar /y [yyyy]      - current or particular year" },
+    { "date",       "shows current time and/or calendar in various ways",
+                    "time                        - current time and date" NEWLINE
+                    "time /s yyyy-mm-dd hh:mm:ss - set RTC to given date & time " NEWLINE
+                    "time /a                     - current time, date and calendar of current month" NEWLINE
+                    "time /c                     - calendar of current month" NEWLINE
+                    "time /c /p yyyy mm          - calendar of particular month" NEWLINE
+                    "time /c /n                  - calendar of current and neighbouring months" NEWLINE
+                    "time /c /q                  - calendar of current quarter" NEWLINE
+                    "time /c /y                  - calendar of current year" NEWLINE},
     { "crx",        "file transfer application - receiver (UART)", 
                     "crx" },
     { "ctx",        "file transfer application - sender (UART)", 
@@ -95,8 +98,8 @@ static const cmd_t commands_rom[] = {
     { "keyboard",   "keyboard visualiser", 
                     "keyboard" NEWLINE
                     "for exit press both Shift keys" },
-    { "label",      "show or set active drive's volume label", 
-                    "label          - show active drive's label" NEWLINE
+    { "label",      "show or set volume label of active drive", 
+                    "label          - show label of active drive" NEWLINE
                     "label NEWLABEL - set active drive label to NEWLABEL" },
 };
 

@@ -14,7 +14,38 @@ except ImportError:
     print("pyserial is required: pip install pyserial", file=sys.stderr)
     sys.exit(1)
 
-BAR_WIDTH = 40
+try:
+    import msvcrt
+    _HAS_MSVCRT = True
+except ImportError:
+    _HAS_MSVCRT = False
+
+try:
+    import termios, tty, select as _select
+    _HAS_TERMIOS = True
+except ImportError:
+    _HAS_TERMIOS = False
+
+
+def _esc_pressed() -> bool:
+    """Non-blocking check for Escape key (Windows and Linux)."""
+    if _HAS_MSVCRT:
+        while msvcrt.kbhit():
+            if msvcrt.getch() == b'\x1b':
+                return True
+        return False
+    if _HAS_TERMIOS:
+        fd = sys.stdin.fileno()
+        old = termios.tcgetattr(fd)
+        try:
+            tty.setraw(fd)
+            if _select.select([sys.stdin], [], [], 0)[0]:
+                ch = sys.stdin.read(1)
+                if ch == '\x1b':
+                    return True
+        finally:
+            termios.tcsetattr(fd, termios.TCSADRAIN, old)
+    return False
 
 
 def parse_hex_line(line: str) -> Optional[Tuple[int, bytes]]:
@@ -44,10 +75,12 @@ def parse_hex_line(line: str) -> Optional[Tuple[int, bytes]]:
     return rec_type, data
 
 
-def receive_stream(ser: "serial.Serial") -> bytes:
-    """Receive one complete Intel HEX stream until EOF record. Returns accumulated data bytes."""
+def receive_stream(ser: "serial.Serial", check_cancel=None) -> Optional[bytes]:
+    """Receive one complete Intel HEX stream until EOF record. Returns accumulated data bytes, or None if cancelled."""
     buf = bytearray()
     while True:
+        if check_cancel and check_cancel():
+            return None
         line_bytes = ser.readline()
         if not line_bytes:
             continue
@@ -79,7 +112,7 @@ def parse_header(data: bytes) -> Tuple[str, int]:
     filesize = int.from_bytes(size_bytes, "little")
     return name, filesize
 
-
+BAR_WIDTH = 47
 def draw_progress(done: int, total: int) -> None:
     if total > 0:
         pct = min(100, int(100 * done / total))
@@ -88,7 +121,7 @@ def draw_progress(done: int, total: int) -> None:
         pct = 0
         filled = 0
     bar = "\u2588" * filled + "\u2591" * (BAR_WIDTH - filled)
-    print(f"\r[{bar}] {pct:3d}%", end="", flush=True)
+    print(f"\r\u2588 [{bar}] {pct:3d}%", end="", flush=True)
 
 
 def main() -> None:
@@ -104,19 +137,33 @@ def main() -> None:
                        timeout=args.timeout) as ser:
 
         # Phase 1 — header stream
-        print(f"Courier RX - file receiver for Picocomputer 6502")
-        print(f"------------------------------------------------        print(f"Waiting for header on {args.port} @ {args.baud} ...")
-        hdr_data = receive_stream(ser)
+        print();
+        print(f"\u2588\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510")
+        print(f"\u2588  Courier RX \u2014 file receiver for Picocomputer 6502     \u2502")
+        print(f"\u2588\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518")
+        print(f"\u2588 Waiting for header on {args.port} @ {args.baud} ... (Esc to cancel)")
+        ser.timeout = 0.1
+        hdr_data = receive_stream(ser, check_cancel=_esc_pressed)
+        if hdr_data is None:
+            print("\u2588 Cancelled.")
+            return
+        ser.timeout = args.timeout
         filename, filesize = parse_header(hdr_data)
         outfile = args.outfile if args.outfile else filename
-        print(f"Filename : {filename}")
-        print(f"File size: {filesize} B")
-        print(f"Saving to: {outfile}")
+        print(f"\u2588 Filename  : {filename}")
+        print(f"\u2588 File size : {filesize} B")
+        print(f"\u2588 Saving to : {outfile}")
 
         # Phase 2 — file data stream with live progress
         buf = bytearray()
+        cancelled = False
         draw_progress(0, filesize)
+        ser.timeout = 0.1
         while True:
+            if _esc_pressed():
+                cancelled = True
+                ser.write(b'\x1b')
+                break
             line_bytes = ser.readline()
             if not line_bytes:
                 continue
@@ -136,12 +183,17 @@ def main() -> None:
                 draw_progress(len(buf), filesize)
             elif rtype == 0x01:
                 break
+
         draw_progress(len(buf), filesize)
-        print()  # newline after progress bar
+        print()
+
+        if cancelled:
+            print("\u2588 Cancelled. No data was saved.")
+            return
 
         with open(outfile, "wb") as f:
             f.write(buf)
-        print(f"Done. {len(buf)} bytes written to {outfile}.")
+        print(f"\u2588 Done. {len(buf)} bytes written to {outfile}.\n")
 
 
 if __name__ == "__main__":

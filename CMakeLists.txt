@@ -8,16 +8,16 @@ add_executable(shell)
 rp6502_asset(shell help src/shell.hlp)
 
 # ROM: commands
-rp6502_asset(shell calendar.com src/extcmd/build/calendar.com)
+#rp6502_asset(shell calendar.com src/extcmd/build/calendar.com)
 rp6502_asset(shell crx.com src/extcmd/build/crx.com)
 rp6502_asset(shell ctx.com src/extcmd/build/ctx.com)
+rp6502_asset(shell date.com src/extcmd/build/date.com)
 rp6502_asset(shell dir.com src/extcmd/build/dir.com)
 rp6502_asset(shell drives.com src/extcmd/build/drives.com)
 rp6502_asset(shell hass.com src/extcmd/build/hass.com)
 rp6502_asset(shell help.com src/extcmd/build/help.com)
 rp6502_asset(shell keyboard.com src/extcmd/build/keyboard.com)
 rp6502_asset(shell label.com src/extcmd/build/label.com)
-rp6502_asset(shell settime.com src/extcmd/build/settime.com)
 rp6502_asset(shell term.com src/extcmd/build/term.com)
 #rp6502_asset(shell editor.com src/extcmd/build/editor.com)
 

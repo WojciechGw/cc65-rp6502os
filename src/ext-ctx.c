@@ -130,6 +130,7 @@ int main(int argc, char **argv)
     long    filesize;
     long    done_bytes = 0L;
     int     prev_pct   = -1;
+    int     cancelled  = 0;
 
     if (argc < 1 || argv[0][0] == 0) {
         printf("Usage: ctx <filename>" NEWLINE NEWLINE);
@@ -157,6 +158,7 @@ int main(int argc, char **argv)
     close(in_fd);
 
     /* --- switch to Character Mode 1 (8x16) --- */
+    printf(CSI_RESET CSI_CURSOR_HIDE);
     cgx_init();
     draw_title();
 
@@ -176,10 +178,10 @@ int main(int argc, char **argv)
         DrawText(5, col, " B)", DARK_GRAY, BLACK);
     }
 
-    DrawText(9,  0, "[Y]",               GREEN,      BLACK);
-    DrawText(9,  3, " start transfer   ", LIGHT_GRAY, BLACK);
-    DrawText(9, 21, "[Q]",               RED,        BLACK);
-    DrawText(9, 24, " quit to shell",    LIGHT_GRAY, BLACK);
+    DrawText(9,  0, " Y ",                   WHITE, DARK_GREEN);
+    DrawText(9,  3, " start transfer ", LIGHT_GRAY, BLACK);
+    DrawText(10, 0, " Q ",                   WHITE, DARK_RED);
+    DrawText(10, 3, " quit to shell",   LIGHT_GRAY, BLACK);
 
     /* --- Y / Q prompt --- */
     {
@@ -195,6 +197,7 @@ int main(int argc, char **argv)
     }
 
     ClearLine(9, WHITE, BLACK);
+    ClearLine(10, WHITE, BLACK);
     DrawBar(7, 0L, filesize);
     DrawText(9, 0, "Sending...", DARK_GRAY, BLACK);
 
@@ -232,6 +235,11 @@ int main(int argc, char **argv)
 
         for (i = 0; i < pos; i++) send_char(hex_line[i]);
 
+        if (RX_READY && (unsigned char)RIA.rx == 0x1B) {
+            cancelled = 1;
+            break;
+        }
+
         hex_addr   += (uint16_t)n;
         done_bytes += (long)n;
 
@@ -246,26 +254,32 @@ int main(int argc, char **argv)
         }
     }
 
-    send_hex_record(0x01, 0x0000, NULL, 0);  /* EOF — closes data stream */
+    if (!cancelled)
+        send_hex_record(0x01, 0x0000, NULL, 0);  /* EOF — closes data stream */
 
     close(in_fd);
 
-    /* --- completion screen --- */
+    /* --- completion / cancelled screen --- */
     {
         uint8_t r, col;
         char    sb[12];
-        draw_title();
-        sprintf(sb, "%ld", filesize);
         for (r = 1; r < (uint8_t)CGX_ROWS; r++) ClearLine(r, WHITE, BLACK);
-        DrawText(3, 0, "Sent: ",   DARK_GRAY, BLACK);
-        DrawText(3, 6, argv[0],    WHITE,     BLACK);
-        col = (uint8_t)(6 + strlen(argv[0]));
-        DrawText(3, col, "  (size: ", DARK_GRAY, BLACK);
-        col += 9;
-        DrawText(3, col, sb,  WHITE,     BLACK);
-        col += (uint8_t)strlen(sb);
-        DrawText(3, col, " B)", DARK_GRAY, BLACK);
-        DrawText(5, 0, "Transfer completed.", GREEN, BLACK);
+        draw_title();
+        if (cancelled) {
+            DrawText(3, 0, "Transfer cancelled.", YELLOW, BLACK);
+            DrawText(5, 0, "crx.py was interrupted on the PC.", DARK_GRAY, BLACK);
+        } else {
+            sprintf(sb, "%ld", filesize);
+            DrawText(3, 0, "Sent: ",   DARK_GRAY, BLACK);
+            DrawText(3, 6, argv[0],    WHITE,     BLACK);
+            col = (uint8_t)(6 + strlen(argv[0]));
+            DrawText(3, col, "  (size: ", DARK_GRAY, BLACK);
+            col += 9;
+            DrawText(3, col, sb,  WHITE,     BLACK);
+            col += (uint8_t)strlen(sb);
+            DrawText(3, col, " B)", DARK_GRAY, BLACK);
+            DrawText(5, 0, "Transfer completed.", GREEN, BLACK);
+        }
         DrawText((uint8_t)(CGX_ROWS - 2), 0, "Press any key...", DARK_GRAY, BLACK);
     }
 
@@ -273,5 +287,6 @@ int main(int argc, char **argv)
     (void)RIA.rx;
 
     cgx_restore();
+    printf(CSI_RESET CSI_CURSOR_SHOW);
     return 0;
 }

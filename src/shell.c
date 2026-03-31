@@ -159,7 +159,7 @@ int main(void) {
                     com_argv[1] = path;
                     /* Pass current input line as argument if present */
                     if(cmdline.bytes > 0) {
-                        cmdline.buffer[cmdline.bytes] = 0; /* ensure NUL */
+                        cmdline.buffer[cmdline.bytes] = 0; /* ensure NUL terminated*/
                         com_argv[2] = cmdline.buffer;
                         com_argc = 3;
                     }
@@ -173,7 +173,7 @@ int main(void) {
                 if(rx == CHAR_F3 || rx == 'R') {
                     // for external command call
                     char path[FNAMELEN];
-                    int com_argc = 2;
+                    int com_argc = 3;
                     // for internal command call
                     char *args[1];
                     args[0] = (char *)"time";
@@ -185,14 +185,16 @@ int main(void) {
                     cmdline.buffer[0] = 0;
 
                     strcpy(path, shelldir);
-                    strcat(path, "calendar.com");
+                    strcat(path, "date.com");
                     com_argv[0] = (char *)"com";
                     com_argv[1] = path;
+                    com_argv[2] = "/c"; // pass argument to external .com
+                    
                     /* Pass current input line as argument if present */
                     if(cmdline.bytes > 0) {
-                        cmdline.buffer[cmdline.bytes] = 0;
-                        com_argv[2] = cmdline.buffer;
-                        com_argc = 3;
+                        cmdline.buffer[cmdline.bytes] = 0; // ensure NUL terminated
+                        com_argv[3] = cmdline.buffer;
+                        com_argc = 4;
                     }
                     cmd_com(com_argc, com_argv);
                     cmdline.bytes = 0;
@@ -493,15 +495,16 @@ struct tm *get_time(void) { // Return pointer to current RTC time; tm_year=1970 
 }
 
 void show_time(void) { // print current date & time to console
+
     struct tm *tmnow = get_time();
     char buf[32];
 
     if(!(appflags | APPFLAG_RTC)){
-        tx_string(NEWLINE "[time: INFO] Real Time Clock is not set." NEWLINE NEWLINE);
+        tx_string(NEWLINE ANSI_RED "[Time: ERROR] Real Time Clock is not set." ANSI_RESET NEWLINE NEWLINE);
         return;
     }
     strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S %Z", tmnow);
-    tx_string(NEWLINE "Current time is ");
+    tx_string(NEWLINE "Current date & time is ");
     tx_string(buf);
     tx_string(NEWLINE NEWLINE);
     return;
@@ -737,71 +740,6 @@ int cmd_cd(int argc, char **argv) {
     }
     return 0;
 }
-/*
-int cmd_drives(int argc, char **argv) {
-    int rc;
-    char drv[3] = "0:";
-    unsigned i;
-    char saved_drive = '0';
-    const char *saved_path = "/";
-    unsigned long free_blks = 0;
-    unsigned long total_blks = 0;
-    unsigned long pct = 0;
-    (void)argc; (void)argv;
-
-    if(f_getcwd(saved_cwd, sizeof(saved_cwd)) < 0) {
-        tx_string("getcwd failed" NEWLINE);
-        return -1;
-    }
-    if(saved_cwd[1] == ':') {
-        saved_drive = saved_cwd[0];
-        saved_path = saved_cwd + 2;
-        if(!*saved_path) saved_path = "/";
-    }
-
-    tx_string(NEWLINE "Drives" NEWLINE NEWLINE "drive" TAB "label      " TAB "[MB]" TAB "free" NEWLINE
-              "-----" TAB "-----------" TAB "------" TAB "----" NEWLINE);
-    for(i = 0; i < 8; i++) {
-        drv[0] = '0' + i;
-        rc = f_chdrive(drv);
-        if(rc == 0) {
-            if(f_getfree(drv, &free_blks, &total_blks) != 0 || !total_blks) {
-                continue; // Skip drives without size info
-            }
-            tx_string("MSC");
-            tx_string(drv);
-            tx_string(TAB);
-            if(f_getlabel(drv, dev_label) >= 0) {
-                unsigned len = strlen(dev_label);
-                tx_string(dev_label);
-                while(len < 11) { tx_char(' '); len++; }
-            } else {
-                tx_string("(no label)       ");
-            }
-            tx_string(TAB);
-            {
-                unsigned long mb = total_blks / 2048; // 512-byte blocks -> MB
-                pct = (free_blks * 100UL) / total_blks;
-                tx_dec32(mb);
-                tx_string(TAB);
-                tx_dec32(pct);
-                tx_char('%');
-            }
-            tx_string(NEWLINE);
-        }
-    }
-    tx_string(NEWLINE);
-
-    drv[0] = saved_drive;
-    drv[1] = ':';
-    drv[2] = 0;
-    if(f_chdrive(drv) == 0) {
-        chdir(saved_path);
-        current_drive = drv[0];
-    }
-    return 0;
-}
-*/
 
 int cmd_drive(int argc, char **argv) {
     char drv[3] = "0:";
@@ -1306,7 +1244,7 @@ int cmd_cpm(int argc, char **argv) { // multicopier
     int rc = 0;
     int count = 0;
     if(argc < 3) {
-        tx_string("Usage: cm <mask> <dest_dir> [/m]" NEWLINE);
+        tx_string("Usage: cpm <mask> <dest_dir> [/m]" NEWLINE);
         return 0;
     }
     strcpy(cpm_dest, argv[2]);
