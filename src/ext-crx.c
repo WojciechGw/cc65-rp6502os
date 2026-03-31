@@ -1,20 +1,17 @@
 /*
-Courier RX
-OS Shell File Receiver
-ext-crx.c - C89, cc65 (PC => Picocomputer RP6502-RIA UART)
-*/
+ * Courier RX
+ * OS Shell File Receiver
+ * ext-crx.c - C89, cc65 (PC => Picocomputer RP6502-RIA UART)
+ */
 
 #include "commons.h"
-
-#define STR_HELPER(x) #x
-#define STR(x) STR_HELPER(x)
+#include "commons/courier-gfx.h"
 
 #define NEWLINE "\r\n"
 
-#define APPVER "20260330.1925"
-#define APPDIRDEFAULT "MSC0:/"
-#define APP_MSG_TITLE "\x1b[2;1H\x1b" HIGHLIGHT_COLOR " OS Shell > " ANSI_RESET " Courier RX" ANSI_DARK_GRAY "\x1b[2;60Hversion " APPVER ANSI_RESET
-#define APP_MSG_START ANSI_DARK_GRAY "\x1b[4;1HWaiting for incoming data or [Esc] to exit " ANSI_RESET
+#define APPVER "20260330.2200"
+
+/* ---- RIA UART access ---------------------------------------------------- */
 
 typedef struct {
     volatile unsigned char READY; /* $FFE0 */
@@ -24,49 +21,48 @@ typedef struct {
 
 typedef unsigned int u16;
 
-#define ria_push_char(v) RIA.xstack = v
-
 #define RIA_BASE_ADDR ((u16)0xFFE0u)
 #define RIA_PTR       ((ria_uart_t*)(RIA_BASE_ADDR))
 #define RRIA          (*RIA_PTR)
 
-#define RRIA_READY_TX_BIT 0x80u /* bit 7 */
-#define RRIA_READY_RX_BIT 0x40u /* bit 6 */
+#define RRIA_READY_TX_BIT 0x80u  /* bit 7 */
+#define RRIA_READY_RX_BIT 0x40u  /* bit 6 */
 
 #define RX_READY() (RRIA.READY & RRIA_READY_RX_BIT)
 #define TX_READY() (RRIA.READY & RRIA_READY_TX_BIT)
 
-/* timeout w sekundach */
+/* ---- protocol constants ------------------------------------------------- */
+
 #define RX_TIMEOUT_SECONDS 1
-#define TICKS_PER_SEC 100
+#define TICKS_PER_SEC      100
 
 #define ESC 0x1B
-
 #define NUL 0x00
-#define SOT 0x01 /* Start Of Transmission */
-#define EOT 0x02 /* End Of Transmission   */
-#define SOH 0x03 /* Start Of Header       */
-#define EOH 0x04 /* End Of Header         */
-#define STX 0x05 /* Start of TeXt (IHX)  */
-#define ETX 0x06 /* End of TeXt           */
+#define SOT 0x01  /* Start Of Transmission */
+#define EOT 0x02  /* End Of Transmission   */
+#define SOH 0x03  /* Start Of Header       */
+#define EOH 0x04  /* End Of Header         */
+#define STX 0x05  /* Start of Text (IHX)   */
+#define ETX 0x06  /* End of Text           */
 
-/* XRAM staging area dla zdekodowanych bajtow */
+/* ---- XRAM staging area -------------------------------------------------- */
+
 #define XRAM_DECODE_STAGE      0xF000u
 #define XRAM_DECODE_STAGE_SIZE 16u
 
-/* max 31 znakow + null */
+/* ---- file name / path --------------------------------------------------- */
+
 #define RX_FILENAME_MAX 32u
 #define RX_OUTPATH_MAX  48u
 
-/* ======================================================================
- * IHX state machine
- * ====================================================================== */
-#define IHX_WAIT  0   /* czekaj na ':' */
-#define IHX_BC    1   /* byte count: 2 znaki hex */
-#define IHX_ADDR  2   /* adres: 4 znaki, ignoruj */
-#define IHX_TYPE  3   /* typ rekordu: 2 znaki */
-#define IHX_DATA  4   /* dane: byte_count*2 znaki */
-#define IHX_SKIP  5   /* pominij do konca linii (\n) */
+/* ---- IHX state machine -------------------------------------------------- */
+
+#define IHX_WAIT  0  /* wait for ':' */
+#define IHX_BC    1  /* byte count: 2 hex chars */
+#define IHX_ADDR  2  /* address: 4 chars, ignored */
+#define IHX_TYPE  3  /* record type: 2 chars */
+#define IHX_DATA  4  /* data bytes: byte_count*2 chars */
+#define IHX_SKIP  5  /* skip to end of line (\n) */
 
 unsigned char c;
 
@@ -85,75 +81,37 @@ static uint8_t ihx_hn    = 0;
 static uint8_t ihx_buf[16];
 
 /* ======================================================================
- * related to UART
+ * Protocol: send one byte via UART (ACK / READY signals to PC)
  * ====================================================================== */
 
-static void ria_tx_putc_blocking(unsigned char b)
+static void ria_tx_byte(unsigned char b)
 {
     while (TX_READY() == 0) { }
     RRIA.TX = b;
 }
 
-static void ria_tx_puts(const char* s)
-{
-    while (*s) {
-        ria_tx_putc_blocking((unsigned char)*s++);
-    }
-}
-
-static void ria_tx_put_ulong(unsigned long v)
-{
-    char buf[11];
-    char i = 0;
-
-    if (v == 0) {
-        ria_tx_putc_blocking('0');
-        return;
-    }
-
-    while (v != 0 && i < (char)sizeof(buf)) {
-        buf[i++] = (char)('0' + (int)(v % 10u));
-        v /= 10u;
-    }
-    while (i) {
-        ria_tx_putc_blocking((unsigned char)buf[--i]);
-    }
-}
-
-/* Opróznia RX FIFO z echem — uzywac tylko gdy UART juz milczy. */
-static void drop_console_rx(void)
-{
-    while (RX_READY()) {
-        unsigned char ch = RRIA.RX;
-        if (ch == '\n') ria_tx_putc_blocking('\r');
-        ria_tx_putc_blocking(ch);
-    }
-}
-
 /* ======================================================================
- * Protokol: budowanie sciezki wyjsciowej
+ * Protocol: build output file path from received filename
  * ====================================================================== */
 
 static void build_rx_outpath(void)
 {
-    const char* prefix = "\0";
-    const char* fn;
-    char* dst;
-    uint8_t i;
+    const char *fn;
+    char       *dst;
+    uint8_t     i;
 
-    fn = (rx_filename[0] != '\0') ? rx_filename : "rx.bin";
-
+    fn  = (rx_filename[0] != '\0') ? rx_filename : "rx.bin";
     dst = rx_outpath;
-    for (i = 0; prefix[i] != '\0'; i++) *dst++ = prefix[i];
     for (i = 0; fn[i] != '\0' && (u16)(dst - rx_outpath) < (RX_OUTPATH_MAX - 1u); i++)
         *dst++ = fn[i];
     *dst = '\0';
 }
 
 /* ======================================================================
- * Protokol: odbior naglowka SOH..EOH..STX
- * Zwraca 1 przy sukcesie, -1 jesli ESC.
+ * Protocol: receive header SOH + filename + EOH + 4B size + STX
+ * Returns 1 on success, -1 if ESC received.
  * ====================================================================== */
+
 static int receive_header(void)
 {
     uint8_t fn_len = 0;
@@ -181,7 +139,7 @@ static int receive_header(void)
                 rx_filename[fn_len++] = (char)c;
             }
             break;
-        case 2: /* 4 bajty rozmiaru LE */
+        case 2:  /* 4 LE size bytes */
             rx_filesize |= ((unsigned long)c << (sz_idx * 8u));
             if (++sz_idx >= 4u) state = 3;
             break;
@@ -193,10 +151,11 @@ static int receive_header(void)
 }
 
 /* ======================================================================
- * IHX dekoder on-the-fly
- * Zwraca: 0=w trakcie, 1=rekord danych gotowy (ihx_bc bajtow w ihx_buf),
- *         2=rekord EOF
+ * IHX on-the-fly decoder
+ * Returns: 0=in progress, 1=data record ready (ihx_bc bytes in ihx_buf),
+ *          2=EOF record
  * ====================================================================== */
+
 static uint8_t ihx_feed(uint8_t ch)
 {
     switch (ihx_state) {
@@ -245,6 +204,26 @@ static uint8_t ihx_feed(uint8_t ch)
 }
 
 /* ======================================================================
+ * Screen helpers
+ * ====================================================================== */
+
+static void draw_title(void)
+{
+    ClearLine(0, WHITE, DARK_BLUE);
+    DrawText(0,  1, "OS Shell >",       WHITE,     DARK_BLUE);
+    DrawText(0, 12, "Courier RX",       WHITE,     DARK_BLUE);
+    DrawText(0, 60, "version " APPVER,  DARK_GRAY, DARK_BLUE);
+}
+
+/* wait for any key then restore console */
+static void wait_key_and_restore(void)
+{
+    while (!RX_READY()) { }
+    c = RRIA.RX;
+    cgx_restore();
+}
+
+/* ======================================================================
  * main
  * ====================================================================== */
 
@@ -252,15 +231,15 @@ int main(void)
 {
     clock_t start;
     clock_t timeout_ticks = (clock_t)(RX_TIMEOUT_SECONDS * TICKS_PER_SEC);
-    int action = 0;
-    int fd_out;
+    int     action = 0;
+    int     fd_out;
 
-    ria_tx_puts(CSI_RESET);
-    ria_tx_puts(CSI_CURSOR_HIDE);
-    ria_tx_puts(APP_MSG_TITLE);
-    ria_tx_puts(APP_MSG_START);
+    /* --- switch to Character Mode 1 (8x16) --- */
+    cgx_init();
+    draw_title();
+    DrawText(2, 0, "Waiting for incoming data or [Esc] to exit", DARK_GRAY, BLACK);
 
-    /* --- czekaj na SOT --- */
+    /* --- wait for SOT --- */
     for (;;) {
         if (RX_READY()) {
             c = RRIA.RX;
@@ -269,36 +248,48 @@ int main(void)
         }
     }
 
-    /* --- odbierz naglowek SOH + nazwa + EOH + STX --- */
+    /* --- receive header: SOH + name + EOH + 4B size + STX --- */
     if (receive_header() < 0) {
         action = -1;
         goto done_pre;
     }
 
-    /* --- otwórz plik wyjsciowy PRZED petla odbiorcza --- */
+    /* --- open output file BEFORE the receive loop --- */
     build_rx_outpath();
     fd_out = open(rx_outpath, O_WRONLY | O_CREAT | O_TRUNC, 0666);
     if (fd_out < 0) {
-        ria_tx_puts(NEWLINE "ERROR: cannot create " NEWLINE);
-        ria_tx_puts(rx_outpath);
-        ria_tx_puts(NEWLINE);
+        ClearLine(2, WHITE, BLACK);
+        DrawText(2, 0, "ERROR: cannot create output file", RED, BLACK);
+        DrawText(4, 0, rx_outpath, WHITE, BLACK);
         action = 0;
         goto done_pre;
     }
-    ria_tx_puts("\x1b[4;1H" ANSI_DARK_GRAY "Receiving: " ANSI_RESET);
-    ria_tx_puts(rx_outpath);
-    ria_tx_puts("  " ANSI_DARK_GRAY "(");
-    ria_tx_put_ulong(rx_filesize);
-    ria_tx_puts(" B)" ANSI_RESET "          ");
-    ria_tx_putc_blocking('\x00'); /* READY — plik otwarty, gotowy na dane */
 
-    /* ------------------------------------------------------------------ *
-     * Petla odbiorcza — IHX dekodowanie on-the-fly.                      *
-     * Po kazdym write_xram wysylamy ACK '+' do nadawcy (flow control).   *
+    /* show "Receiving: filename (N B)" */
+    {
+        char     sb[12];
+        uint8_t  col;
+        sprintf(sb, "%lu", rx_filesize);
+        ClearLine(2, WHITE, BLACK);
+        DrawText(2,  0, "Receiving: ",  DARK_GRAY, BLACK);
+        DrawText(2, 11, rx_outpath,     WHITE,     BLACK);
+        col = (uint8_t)(11 + strlen(rx_outpath));
+        DrawText(2, col, "  (", DARK_GRAY, BLACK); col += 3;
+        DrawText(2, col, sb,    WHITE,     BLACK);  col += (uint8_t)strlen(sb);
+        DrawText(2, col, " B)", DARK_GRAY, BLACK);
+    }
+
+    DrawBar(4, 0L, (long)rx_filesize);
+
+    ria_tx_byte('\x00');  /* READY — file open, ready for data */
+
+    /* ------------------------------------------------------------------
+     * Receive loop — IHX on-the-fly decode.
+     * Send ACK (NUL) after each write_xram to control sender flow.
      * ------------------------------------------------------------------ */
     ihx_state = IHX_WAIT;
     ihx_pos   = 0;
-    rx_count   = 0;
+    rx_count  = 0;
     rx_decoded = 0;
     start = clock();
 
@@ -322,9 +313,10 @@ int main(void)
                     break;
                 }
                 rx_decoded += (unsigned long)ihx_bc;
-                ria_tx_putc_blocking('\x00'); /* ACK — zezwol nadawcy na kolejna linie */
+                DrawBar(4, (long)rx_decoded, (long)rx_filesize);
+                ria_tx_byte('\x00');  /* ACK — allow sender to send next line */
             } else if (r == 2) {
-                ria_tx_putc_blocking('\x00'); /* ACK dla rekordu EOF */
+                ria_tx_byte('\x00');  /* ACK for EOF record */
                 action = 1;
                 break;
             }
@@ -336,7 +328,7 @@ int main(void)
         }
     }
 
-    /* --- drenaż EOT (max ~100 ms) --- */
+    /* --- drain EOT (max ~100 ms) --- */
     {
         clock_t drain_start = clock();
         while ((clock() - drain_start) < 10) {
@@ -346,33 +338,37 @@ int main(void)
 
     close(fd_out);
 
+    /* --- result screen --- */
     switch (action) {
     case 0:
-        ria_tx_puts(NEWLINE "ERROR: transmission or write error." NEWLINE NEWLINE);
+        DrawText(6, 0, "ERROR: transmission or write error.", RED, BLACK);
         break;
     case 1:
-        drop_console_rx();
-        ria_tx_puts(NEWLINE "SUCCESS: ");
-        ria_tx_put_ulong(rx_decoded);
-        ria_tx_puts(" bytes received" NEWLINE);
-        ria_tx_puts("Saved:   ");
-        ria_tx_puts(rx_outpath);
-        ria_tx_puts(NEWLINE NEWLINE);
+    {
+        char sb[12];
+        sprintf(sb, "%lu", rx_decoded);
+        DrawText(6, 0, "Transfer complete.  ", GREEN, BLACK);
+        DrawText(6, 19, sb, WHITE, BLACK);
+        DrawText(6, (uint8_t)(19 + strlen(sb)), " bytes received", GREEN, BLACK);
+        DrawText(7, 0, "Saved: ", DARK_GRAY, BLACK);
+        DrawText(7, 7, rx_outpath, WHITE, BLACK);
         break;
     }
-
-    ria_tx_puts(CSI_CURSOR_SHOW);
+    }
+    DrawText((uint8_t)(CGX_ROWS - 2), 0, "Press any key...", DARK_GRAY, BLACK);
+    wait_key_and_restore();
     return 0;
 
 done_pre:
     switch (action) {
     case -1:
-        ria_tx_puts(CSI_RESET "Bye, bye!" NEWLINE NEWLINE);
+        DrawText(2, 0, "Cancelled.",  DARK_GRAY, BLACK);
         break;
     case 0:
-        ria_tx_puts(NEWLINE "ERROR: cannot open output file." NEWLINE NEWLINE);
+        DrawText(2, 0, "ERROR: cannot open output file.", RED, BLACK);
         break;
     }
-    ria_tx_puts(CSI_CURSOR_SHOW);
+    DrawText((uint8_t)(CGX_ROWS - 2), 0, "Press any key...", DARK_GRAY, BLACK);
+    wait_key_and_restore();
     return 0;
 }

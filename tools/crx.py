@@ -104,7 +104,8 @@ def main() -> None:
                        timeout=args.timeout) as ser:
 
         # Phase 1 — header stream
-        print(f"Waiting for header on {args.port} @ {args.baud} ...")
+        print(f"Courier RX - file receiver for Picocomputer 6502")
+        print(f"------------------------------------------------        print(f"Waiting for header on {args.port} @ {args.baud} ...")
         hdr_data = receive_stream(ser)
         filename, filesize = parse_header(hdr_data)
         outfile = args.outfile if args.outfile else filename

@@ -1,53 +1,40 @@
 /*
-Courier TX
-OS Shell File Sender
-ext-ctx.c - C89, cc65 (Picocomputer RP6502-RIA UART => PC)
-*/
+ * Courier TX
+ * OS Shell File Sender
+ * ext-ctx.c - C89, cc65 (Picocomputer RP6502-RIA UART => PC)
+ */
 #include "commons.h"
+#include "commons/courier-gfx.h"
 
 #define NEWLINE "\r\n"
 
-#define APPVER "20260330.1925"
-#define APPDIRDEFAULT "MSC0:/"
-#define APP_MSG_TITLE "\x1b[2;1H\x1b" HIGHLIGHT_COLOR " OS Shell > " ANSI_RESET " Courier TX" ANSI_DARK_GRAY "\x1b[2;60Hversion " APPVER ANSI_RESET
-#define APP_MSG_START ANSI_DARK_GRAY "\x1b[4;1HSending file in Intel HEX format." ANSI_RESET
+#define APPVER "20260330.2200"
 
 #define HDR_NAME_MAX 31   /* max filename chars in header (+ null = 32 B) */
 
 #define RX_READY (RIA.ready & RIA_READY_RX_BIT)
 #define TX_READY (RIA.ready & RIA_READY_TX_BIT)
-#define TX_READY_SPIN while(!TX_READY)
-#define RX_READY_SPIN while(!RX_READY)
+#define TX_READY_SPIN  while (!TX_READY)
+#define RX_READY_SPIN  while (!RX_READY)
 
-#define HEX_LINE_MAX 64 /* :LLAAAATT + 2*16 data + CC + CRLF */
+#define HEX_LINE_MAX 64  /* :LLAAAATT + 2*16 data + CC + CRLF */
 
-static char    hex_line[HEX_LINE_MAX];
-static uint8_t hex_bytes[16];
+static char     hex_line[HEX_LINE_MAX];
+static uint8_t  hex_bytes[16];
 static uint16_t hex_addr = 0;
 
-static void send_char(char c) {
+/* ======================================================================
+ * UART helpers (protocol data only — UI goes to XRAM in graphics mode)
+ * ====================================================================== */
+
+static void send_char(char c)
+{
     TX_READY_SPIN;
     RIA.tx = c;
 }
 
-/* ======================================================================
- * related to UART
- * ====================================================================== */
-
-static void ria_tx_putc_blocking(unsigned char b)
+static void put_hex(char *dst, uint8_t v)
 {
-    TX_READY_SPIN;
-    RIA.tx = b;
-}
-
-static void ria_tx_puts(const char* s)
-{
-    while (*s) {
-        ria_tx_putc_blocking((unsigned char)*s++);
-    }
-}
-
-static void put_hex(char *dst, uint8_t v) {
     static const char h[] = "0123456789ABCDEF";
     dst[0] = h[v >> 4];
     dst[1] = h[v & 0x0F];
@@ -59,6 +46,7 @@ static void send_hex_record(uint8_t type, uint16_t addr,
 {
     uint8_t ck;
     int pos, j;
+
     ck  = len;
     ck += (uint8_t)(addr >> 8);
     ck += (uint8_t)(addr & 0xFF);
@@ -81,13 +69,13 @@ static void send_hex_record(uint8_t type, uint16_t addr,
 }
 
 /*
- * Header stream: [basename\0][filesize 4B LE]  then EOF record.
- * Receiver reads this stream first to learn the output filename and size.
+ * Header stream: [basename\0][filesize 4B LE] then EOF record.
+ * Receiver reads this first to learn the output filename and size.
  */
 static void send_header(const char *filepath, long filesize)
 {
-    uint8_t hdr[40];   /* max HDR_NAME_MAX + null + 4 bytes = 36 */
-    uint8_t hlen, chunk, j;
+    uint8_t  hdr[40];   /* max HDR_NAME_MAX + null + 4 bytes = 36 */
+    uint8_t  hlen, chunk, j;
     uint16_t addr;
     const char *name;
 
@@ -101,8 +89,8 @@ static void send_header(const char *filepath, long filesize)
     hlen = 0;
     for (j = 0; name[j] && j < HDR_NAME_MAX; j++)
         hdr[hlen++] = (uint8_t)name[j];
-    hdr[hlen++] = 0;                                      /* null terminator  */
-    hdr[hlen++] = (uint8_t)(filesize & 0xFF);             /* filesize LE      */
+    hdr[hlen++] = 0;                                       /* null terminator */
+    hdr[hlen++] = (uint8_t)(filesize & 0xFF);              /* filesize LE     */
     hdr[hlen++] = (uint8_t)((filesize >>  8) & 0xFF);
     hdr[hlen++] = (uint8_t)((filesize >> 16) & 0xFF);
     hdr[hlen++] = (uint8_t)(((unsigned long)filesize >> 24) & 0xFF);
@@ -118,92 +106,119 @@ static void send_header(const char *filepath, long filesize)
     send_hex_record(0x01, 0x0000, NULL, 0);  /* EOF — closes header stream */
 }
 
+/* ======================================================================
+ * Screen helpers
+ * ====================================================================== */
+
+static void draw_title(void)
+{
+    ClearLine(0, WHITE, BLACK);
+    DrawText(1,  0, " OS Shell > ",    WHITE,     DARK_GREEN);
+    DrawText(1, 12, " Courier TX",      WHITE,     BLACK);
+    DrawText(1, 59, "version " APPVER, DARK_GRAY, BLACK     );
+}
+
+/* ======================================================================
+ * main
+ * ====================================================================== */
+
 int main(int argc, char **argv)
 {
-    int in_fd, n;
+    int     in_fd, n;
     uint8_t ck;
-    int pos, i;
-    long filesize;
+    int     pos, i;
+    long    filesize;
+    long    done_bytes = 0L;
+    int     prev_pct   = -1;
 
     if (argc < 1 || argv[0][0] == 0) {
         printf("Usage: ctx <filename>" NEWLINE NEWLINE);
         return -1;
     }
 
-    if(argc == 1 && strcmp(argv[0], "/?") == 0) {
+    if (argc == 1 && strcmp(argv[0], "/?") == 0) {
         printf(NEWLINE
-               "Courier TX - send file to PC"
-               NEWLINE NEWLINE
+               "Courier TX - send file to PC" NEWLINE NEWLINE
                "Usage:" NEWLINE
-               "first start crx.py script on target machine" NEWLINE
-               "ctx <filename> - send a file <filename> via RIA UART" NEWLINE
+               "  first start crx.py on the target machine" NEWLINE
+               "  ctx <filename>  - send file via RIA UART" NEWLINE
                NEWLINE);
         return 0;
     }
 
     in_fd = open(argv[0], O_RDONLY);
-    if (in_fd < 0)
-    {
-        printf("Cannot open output file.\r\n");
+    if (in_fd < 0) {
+        printf("Cannot open file.\r\n");
         return -1;
     }
 
     filesize = lseek(in_fd, 0L, SEEK_END);
     if (filesize < 0L) filesize = 0L;
     close(in_fd);
-    
+
+    /* --- switch to Character Mode 1 (8x16) --- */
+    cgx_init();
+    draw_title();
+
     {
-        char sb[12];
+        char     sb[12];
+        uint8_t  col;
         sprintf(sb, "%ld", filesize);
-        ria_tx_puts(CSI_RESET);
-        ria_tx_puts(APP_MSG_TITLE);
-        ria_tx_puts("\x1b[4;1H" ANSI_DARK_GRAY "Run on PC script " ANSI_RESET "crx.py");
-        ria_tx_puts("\x1b[6;1H" ANSI_DARK_GRAY "File: " ANSI_RESET);
-        ria_tx_puts(argv[0]);
-        ria_tx_puts("  " ANSI_DARK_GRAY "(size: ");
-        ria_tx_puts(sb);
-        ria_tx_puts(" B)" ANSI_RESET);
-        ria_tx_puts("\x1b[8;1H" ANSI_GREEN "[Y]" ANSI_RESET " start transfer   "
-                ANSI_RED "[Q]" ANSI_RESET " quit to shell" CSI_CURSOR_HIDE);
-    
+        DrawText(3,  0, "Run the receiver script on the PC.", DARK_GRAY, BLACK);
+        DrawText(3, 34, " (python crx.py)",   DARK_GRAY,     BLACK);
+        DrawText(5,  0, "File to transfer:",            DARK_GRAY, BLACK);
+        DrawText(5,  18, argv[0],             WHITE,     BLACK);
+        col = (uint8_t)(18 + strlen(argv[0]));
+        DrawText(5, col, "  (size: ", DARK_GRAY, BLACK);
+        col += 9;
+        DrawText(5, col, sb,  WHITE,     BLACK);
+        col += (uint8_t)strlen(sb);
+        DrawText(5, col, " B)", DARK_GRAY, BLACK);
     }
-    
+
+    DrawText(9,  0, "[Y]",               GREEN,      BLACK);
+    DrawText(9,  3, " start transfer   ", LIGHT_GRAY, BLACK);
+    DrawText(9, 21, "[Q]",               RED,        BLACK);
+    DrawText(9, 24, " quit to shell",    LIGHT_GRAY, BLACK);
+
+    /* --- Y / Q prompt --- */
     {
         unsigned char key;
         do {
             RX_READY_SPIN;
             key = RIA.rx;
             if (key == 'q' || key == 'Q') {
-                close(in_fd);
-                ria_tx_puts(NEWLINE NEWLINE CSI_CURSOR_SHOW);
+                cgx_restore();
                 return 0;
             }
         } while (key != 'y' && key != 'Y');
     }
-    ria_tx_puts("\x1b[?25l\x1b[8;1H" ANSI_DARK_GRAY "Sending...        " ANSI_RESET NEWLINE NEWLINE);
 
-    in_fd = open(argv[0], O_RDONLY);   /* reopen — guaranteed position 0 */
+    ClearLine(9, WHITE, BLACK);
+    DrawBar(7, 0L, filesize);
+    DrawText(9, 0, "Sending...", DARK_GRAY, BLACK);
+
+    in_fd = open(argv[0], O_RDONLY);  /* reopen — guaranteed position 0 */
 
     /* 1. header stream */
     send_header(argv[0], filesize);
 
-    /* 2. file data stream — no console output inside this loop */
-    while (true)
-    {
+    /* 2. file data stream */
+    while (true) {
         n = read(in_fd, hex_bytes, sizeof(hex_bytes));
         if (n <= 0) break;
 
-        ck = (uint8_t)n;
+        ck  = (uint8_t)n;
         ck += (uint8_t)(hex_addr >> 8);
         ck += (uint8_t)(hex_addr & 0xFF);
-        ck += 0x00; /* type */
+        ck += 0x00;  /* type */
 
         pos = 0;
         hex_line[pos++] = ':';
-        put_hex(&hex_line[pos], (uint8_t)n); pos += 2;
-        put_hex(&hex_line[pos], (uint8_t)(hex_addr >> 8)); pos += 2;
+        put_hex(&hex_line[pos], (uint8_t)n);                 pos += 2;
+        put_hex(&hex_line[pos], (uint8_t)(hex_addr >> 8));   pos += 2;
         put_hex(&hex_line[pos], (uint8_t)(hex_addr & 0xFF)); pos += 2;
-        put_hex(&hex_line[pos], 0x00); pos += 2; /* type */
+        put_hex(&hex_line[pos], 0x00);                       pos += 2;  /* type */
 
         for (i = 0; i < n; i++) {
             put_hex(&hex_line[pos], hex_bytes[i]); pos += 2;
@@ -217,21 +232,46 @@ int main(int argc, char **argv)
 
         for (i = 0; i < pos; i++) send_char(hex_line[i]);
 
-        hex_addr += (uint16_t)n;
+        hex_addr   += (uint16_t)n;
+        done_bytes += (long)n;
+
+        /* update bar only when percentage changes */
+        {
+            int cur_pct = (filesize > 0L)
+                          ? (int)(done_bytes * 100L / filesize) : 0;
+            if (cur_pct != prev_pct) {
+                prev_pct = cur_pct;
+                DrawBar(7, done_bytes, filesize);
+            }
+        }
     }
 
     send_hex_record(0x01, 0x0000, NULL, 0);  /* EOF — closes data stream */
 
     close(in_fd);
+
+    /* --- completion screen --- */
     {
-        char sb[12];
+        uint8_t r, col;
+        char    sb[12];
+        draw_title();
         sprintf(sb, "%ld", filesize);
-        ria_tx_puts(ANSI_CLS APP_MSG_TITLE);
-        ria_tx_puts("\x1b[4;1H" ANSI_DARK_GRAY NEWLINE "Sent: " ANSI_RESET);
-        ria_tx_puts(argv[0]);
-        ria_tx_puts("  " ANSI_DARK_GRAY "(size: ");
-        ria_tx_puts(sb);
-        ria_tx_puts(" B)" ANSI_RESET "\r\n\x1b[6;1H\x1b[?25h" ANSI_GREEN "Transfer completed." ANSI_RESET NEWLINE NEWLINE CSI_CURSOR_SHOW);
+        for (r = 1; r < (uint8_t)CGX_ROWS; r++) ClearLine(r, WHITE, BLACK);
+        DrawText(3, 0, "Sent: ",   DARK_GRAY, BLACK);
+        DrawText(3, 6, argv[0],    WHITE,     BLACK);
+        col = (uint8_t)(6 + strlen(argv[0]));
+        DrawText(3, col, "  (size: ", DARK_GRAY, BLACK);
+        col += 9;
+        DrawText(3, col, sb,  WHITE,     BLACK);
+        col += (uint8_t)strlen(sb);
+        DrawText(3, col, " B)", DARK_GRAY, BLACK);
+        DrawText(5, 0, "Transfer completed.", GREEN, BLACK);
+        DrawText((uint8_t)(CGX_ROWS - 2), 0, "Press any key...", DARK_GRAY, BLACK);
     }
+
+    RX_READY_SPIN;
+    (void)RIA.rx;
+
+    cgx_restore();
     return 0;
 }
