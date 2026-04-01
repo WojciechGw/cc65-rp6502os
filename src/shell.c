@@ -202,6 +202,18 @@ int main(void) {
                     prompt(false);
                     continue;
                 }
+            // SOT (0x01) — auto-launch file receiver (crx.com /auto)
+            } else if(rx == '\x01') {
+                char path[FNAMELEN];
+                ext_rx = 0;
+                strcpy(path, shelldir);
+                strcat(path, "crx.com");
+                com_argv[0] = (char *)"com";
+                com_argv[1] = path;
+                com_argv[2] = (char *)"/auto";
+                cmd_com(3, com_argv);
+                prompt(false);
+                continue;
             // Normal character (ASCII printable or extended 8-bit, exclude DEL), just put it on the pile.
             } else if(((unsigned char)rx >= 32) && (rx != 127)) {
                 ext_rx = 0;

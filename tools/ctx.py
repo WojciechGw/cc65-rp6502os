@@ -45,12 +45,13 @@ def intel_hex_records(data: bytes, chunk_size: int = 16) -> Iterable[str]:
     while addr < len(data):
         chunk = data[addr:addr + chunk_size]
         count = len(chunk)
-        cks = count + ((addr >> 8) & 0xFF) + (addr & 0xFF) + 0x00
+        addr16 = addr & 0xFFFF  # IHX address field is 16-bit
+        cks = count + ((addr16 >> 8) & 0xFF) + (addr16 & 0xFF) + 0x00
         hexdata = "".join(f"{b:02X}" for b in chunk)
         for b in chunk:
             cks += b
         cks = (-cks) & 0xFF
-        yield f":{count:02X}{addr:04X}00{hexdata}{cks:02X}"
+        yield f":{count:02X}{addr16:04X}00{hexdata}{cks:02X}"
         addr += count
     # EOF record
     yield ":00000001FF"
@@ -62,13 +63,19 @@ def send_intel_hex(port: str, baud: int, filepath: str, chunk_size: int = 16,
     with open(filepath, "rb") as f:
         data = f.read()
     total = len(data)
+    checksum = sum(data) & 0xFFFFFFFF
     records = list(intel_hex_records(data, chunk_size))
     n_data_records = (total + chunk_size - 1) // chunk_size  # bez rekordu EOF
 
     with serial.Serial(port, baudrate=baud, bytesize=serial.EIGHTBITS,
                        parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE,
                        timeout=ack_timeout) as ser:
+        print();
+        print(f"\u2588\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510")
+        print(f"\u2588  Courier TX \u2014 file sender for Picocomputer 6502       \u2502")
+        print(f"\u2588\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518")
         print(f"Sending '{filename}' ({total} B) to {port} @ {baud} baud ...")
+        print(f"Checksum       : {checksum:08X}")
 
         # --- naglowek ---
         ser.write(SOT)
@@ -77,6 +84,8 @@ def send_intel_hex(port: str, baud: int, filepath: str, chunk_size: int = 16,
         ser.write(EOH)
         ser.write(bytes([total & 0xFF, (total >> 8) & 0xFF,
                          (total >> 16) & 0xFF, (total >> 24) & 0xFF]))
+        ser.write(bytes([checksum & 0xFF, (checksum >> 8) & 0xFF,
+                         (checksum >> 16) & 0xFF, (checksum >> 24) & 0xFF]))
         ser.write(STX)
         ser.flush()
 
@@ -89,8 +98,10 @@ def send_intel_hex(port: str, baud: int, filepath: str, chunk_size: int = 16,
         for i, line in enumerate(records):
             ser.write((line + "\r\n").encode("ascii"))
             ser.flush()
-            if not wait_for(ser, ACK, ack_timeout, f"ACK '+' record {i}"):
-                return
+            is_eof = (i == len(records) - 1)  # last record is always the EOF record
+            if not is_eof:
+                if not wait_for(ser, ACK, ack_timeout, f"ACK '+' record {i}"):
+                    return
             if i < n_data_records:
                 sent += min(chunk_size, total - i * chunk_size)
                 pct = min(100, int(100 * sent / total))

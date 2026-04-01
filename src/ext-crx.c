@@ -9,7 +9,7 @@
 
 #define NEWLINE "\r\n"
 
-#define APPVER "20260330.2200"
+#define APPVER "20260401.0114"
 
 /* ---- RIA UART access ---------------------------------------------------- */
 
@@ -66,9 +66,11 @@ typedef unsigned int u16;
 
 unsigned char c;
 
-static unsigned long rx_count    = 0;
-static unsigned long rx_decoded  = 0;
-static unsigned long rx_filesize = 0;
+static unsigned long rx_count         = 0;
+static unsigned long rx_decoded       = 0;
+static unsigned long rx_filesize      = 0;
+static unsigned long rx_checksum_exp  = 0;  /* checksum from header   */
+static unsigned long rx_checksum_calc = 0;  /* checksum of received data */
 static char rx_filename[RX_FILENAME_MAX];
 static char rx_outpath[RX_OUTPATH_MAX];
 
@@ -118,8 +120,9 @@ static int receive_header(void)
     uint8_t sz_idx = 0;
     uint8_t state  = 0;
 
-    rx_filename[0] = '\0';
-    rx_filesize    = 0;
+    rx_filename[0]    = '\0';
+    rx_filesize       = 0;
+    rx_checksum_exp   = 0;
 
     for (;;) {
         if (!RX_READY()) continue;
@@ -141,9 +144,13 @@ static int receive_header(void)
             break;
         case 2:  /* 4 LE size bytes */
             rx_filesize |= ((unsigned long)c << (sz_idx * 8u));
-            if (++sz_idx >= 4u) state = 3;
+            if (++sz_idx >= 4u) { sz_idx = 0; state = 3; }
             break;
-        case 3:
+        case 3:  /* 4 LE checksum bytes */
+            rx_checksum_exp |= ((unsigned long)c << (sz_idx * 8u));
+            if (++sz_idx >= 4u) state = 4;
+            break;
+        case 4:
             if (c == STX) return 1;
             break;
         }
@@ -209,10 +216,10 @@ static uint8_t ihx_feed(uint8_t ch)
 
 static void draw_title(void)
 {
-    ClearLine(0, WHITE, DARK_BLUE);
-    DrawText(0,  1, "OS Shell >",       WHITE,     DARK_BLUE);
-    DrawText(0, 12, "Courier RX",       WHITE,     DARK_BLUE);
-    DrawText(0, 60, "version " APPVER,  DARK_GRAY, DARK_BLUE);
+    ClearLine(0, WHITE, BLACK);
+    DrawText(1,  0, " OS Shell > ",    WHITE,     DARK_GREEN);
+    DrawText(1, 12, " Courier RX",      WHITE,     BLACK);
+    DrawText(1, 59, "version " APPVER, DARK_GRAY, BLACK);
 }
 
 /* wait for any key then restore console */
@@ -227,25 +234,31 @@ static void wait_key_and_restore(void)
  * main
  * ====================================================================== */
 
-int main(void)
+int main(int argc, char **argv)
 {
     clock_t start;
     clock_t timeout_ticks = (clock_t)(RX_TIMEOUT_SECONDS * TICKS_PER_SEC);
     int     action = 0;
     int     fd_out;
+    int     auto_mode = (argc >= 1 && strcmp(argv[0], "/auto") == 0);
 
     /* --- switch to Character Mode 1 (8x16) --- */
     cgx_init();
     draw_title();
-    DrawText(2, 0, "Waiting for incoming data or [Esc] to exit", DARK_GRAY, BLACK);
 
-    /* --- wait for SOT --- */
-    for (;;) {
-        if (RX_READY()) {
-            c = RRIA.RX;
-            if (c == SOT) break;
-            if (c == ESC) { action = -1; goto done_pre; }
+    if (!auto_mode) {
+        /* --- interactive: wait for SOT or Esc --- */
+        DrawText(2, 0, "Waiting for incoming data or [Esc] to exit", DARK_GRAY, BLACK);
+        for (;;) {
+            if (RX_READY()) {
+                c = RRIA.RX;
+                if (c == SOT) break;
+                if (c == ESC) { action = -1; goto done_pre; }
+            }
         }
+    } else {
+        /* --- auto mode: SOT was consumed by shell, proceed directly --- */
+        DrawText(2, 0, "Receiving...", DARK_GRAY, BLACK);
     }
 
     /* --- receive header: SOH + name + EOH + 4B size + STX --- */
@@ -287,47 +300,61 @@ int main(void)
      * Receive loop — IHX on-the-fly decode.
      * Send ACK (NUL) after each write_xram to control sender flow.
      * ------------------------------------------------------------------ */
-    ihx_state = IHX_WAIT;
-    ihx_pos   = 0;
-    rx_count  = 0;
-    rx_decoded = 0;
-    start = clock();
+    ihx_state        = IHX_WAIT;
+    ihx_pos          = 0;
+    rx_count         = 0;
+    rx_decoded       = 0;
+    rx_checksum_calc = 0;
+    start            = clock();
 
-    for (;;) {
-        if (RX_READY()) {
-            uint8_t r;
-            c = RRIA.RX;
-            rx_count++;
-            start = clock();
+    {
+        int prev_pct = -1;
+        for (;;) {
+            if (RX_READY()) {
+                uint8_t r;
+                c = RRIA.RX;
+                rx_count++;
+                start = clock();
 
-            if (c == ETX) { action = 1; break; }
+                if (c == ETX) { action = 1; break; }
 
-            r = ihx_feed(c);
-            if (r == 1) {
-                uint8_t j;
-                RIA.addr0 = XRAM_DECODE_STAGE;
-                RIA.step0 = 1;
-                for (j = 0; j < ihx_bc; j++) RIA.rw0 = ihx_buf[j];
-                if (write_xram(XRAM_DECODE_STAGE, (unsigned)ihx_bc, fd_out) < 0) {
-                    action = 0;
+                r = ihx_feed(c);
+                if (r == 1) {
+                    uint8_t j;
+                    RIA.addr0 = XRAM_DECODE_STAGE;
+                    RIA.step0 = 1;
+                    for (j = 0; j < ihx_bc; j++) {
+                        RIA.rw0 = ihx_buf[j];
+                        rx_checksum_calc += (unsigned long)ihx_buf[j];
+                    }
+                    if (write_xram(XRAM_DECODE_STAGE, (unsigned)ihx_bc, fd_out) < 0) {
+                        action = 0;
+                        break;
+                    }
+                    rx_decoded += (unsigned long)ihx_bc;
+                    {
+                        int cur_pct = (rx_filesize > 0UL)
+                                    ? (int)(rx_decoded * 100UL / rx_filesize) : 0;
+                        if (cur_pct != prev_pct) {
+                            prev_pct = cur_pct;
+                            DrawBar(4, (long)rx_decoded, (long)rx_filesize);
+                        }
+                    }
+                    ria_tx_byte('\x00');  /* ACK — allow sender to send next line */
+                
+                } else if (r == 2) {
+                    ria_tx_byte('\x00');  /* ACK for EOF record */
+                    action = 1;
                     break;
                 }
-                rx_decoded += (unsigned long)ihx_bc;
-                DrawBar(4, (long)rx_decoded, (long)rx_filesize);
-                ria_tx_byte('\x00');  /* ACK — allow sender to send next line */
-            } else if (r == 2) {
-                ria_tx_byte('\x00');  /* ACK for EOF record */
-                action = 1;
-                break;
-            }
-        } else {
-            if ((clock() - start) >= timeout_ticks) {
-                action = 1;
-                break;
+            } else {
+                if ((clock() - start) >= timeout_ticks) {
+                    action = 1;
+                    break;
+                }
             }
         }
     }
-
     /* --- drain EOT (max ~100 ms) --- */
     {
         clock_t drain_start = clock();
@@ -346,12 +373,18 @@ int main(void)
     case 1:
     {
         char sb[12];
+        uint8_t ck_ok = (rx_checksum_calc == rx_checksum_exp);
         sprintf(sb, "%lu", rx_decoded);
         DrawText(6, 0, "Transfer complete.  ", GREEN, BLACK);
         DrawText(6, 19, sb, WHITE, BLACK);
         DrawText(6, (uint8_t)(19 + strlen(sb)), " bytes received", GREEN, BLACK);
         DrawText(7, 0, "Saved: ", DARK_GRAY, BLACK);
         DrawText(7, 7, rx_outpath, WHITE, BLACK);
+        if (ck_ok) {
+            DrawText(8, 0, "Checksum OK", GREEN, BLACK);
+        } else {
+            DrawText(8, 0, "Checksum FAIL", RED, BLACK);
+        }
         break;
     }
     }

@@ -104,13 +104,15 @@ def receive_stream(ser: "serial.Serial", check_cancel=None) -> Optional[bytes]:
     return bytes(buf)
 
 
-def parse_header(data: bytes) -> Tuple[str, int]:
-    """Parse header block: null-terminated filename + 4-byte LE filesize."""
+def parse_header(data: bytes) -> Tuple[str, int, Optional[int]]:
+    """Parse header block: null-terminated filename + 4-byte LE filesize + 4-byte LE checksum."""
     null_pos = data.index(0)
     name = data[:null_pos].decode("ascii", errors="replace")
     size_bytes = data[null_pos + 1: null_pos + 5]
     filesize = int.from_bytes(size_bytes, "little")
-    return name, filesize
+    ck_bytes = data[null_pos + 5: null_pos + 9]
+    checksum = int.from_bytes(ck_bytes, "little") if len(ck_bytes) == 4 else None
+    return name, filesize, checksum
 
 BAR_WIDTH = 47
 def draw_progress(done: int, total: int) -> None:
@@ -148,10 +150,12 @@ def main() -> None:
             print("\u2588 Cancelled.")
             return
         ser.timeout = args.timeout
-        filename, filesize = parse_header(hdr_data)
+        filename, filesize, hdr_checksum = parse_header(hdr_data)
         outfile = args.outfile if args.outfile else filename
         print(f"\u2588 Filename  : {filename}")
         print(f"\u2588 File size : {filesize} B")
+        if hdr_checksum is not None:
+            print(f"\u2588 Checksum  : {hdr_checksum:08X}")
         print(f"\u2588 Saving to : {outfile}")
 
         # Phase 2 — file data stream with live progress
@@ -193,7 +197,14 @@ def main() -> None:
 
         with open(outfile, "wb") as f:
             f.write(buf)
-        print(f"\u2588 Done. {len(buf)} bytes written to {outfile}.\n")
+        print(f"\u2588 Done. {len(buf)} bytes written to {outfile}.")
+        if hdr_checksum is not None:
+            calc = sum(buf) & 0xFFFFFFFF
+            if calc == hdr_checksum:
+                print(f"\u2588 Checksum OK  : {calc:08X}")
+            else:
+                print(f"\u2588 Checksum FAIL: expected {hdr_checksum:08X}, got {calc:08X}")
+        print()
 
 
 if __name__ == "__main__":

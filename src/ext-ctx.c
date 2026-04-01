@@ -72,9 +72,9 @@ static void send_hex_record(uint8_t type, uint16_t addr,
  * Header stream: [basename\0][filesize 4B LE] then EOF record.
  * Receiver reads this first to learn the output filename and size.
  */
-static void send_header(const char *filepath, long filesize)
+static void send_header(const char *filepath, long filesize, unsigned long checksum)
 {
-    uint8_t  hdr[40];   /* max HDR_NAME_MAX + null + 4 bytes = 36 */
+    uint8_t  hdr[44];   /* max HDR_NAME_MAX + null + 4B size + 4B checksum = 40 */
     uint8_t  hlen, chunk, j;
     uint16_t addr;
     const char *name;
@@ -89,11 +89,15 @@ static void send_header(const char *filepath, long filesize)
     hlen = 0;
     for (j = 0; name[j] && j < HDR_NAME_MAX; j++)
         hdr[hlen++] = (uint8_t)name[j];
-    hdr[hlen++] = 0;                                       /* null terminator */
-    hdr[hlen++] = (uint8_t)(filesize & 0xFF);              /* filesize LE     */
+    hdr[hlen++] = 0;                                        /* null terminator */
+    hdr[hlen++] = (uint8_t)(filesize & 0xFF);               /* filesize LE     */
     hdr[hlen++] = (uint8_t)((filesize >>  8) & 0xFF);
     hdr[hlen++] = (uint8_t)((filesize >> 16) & 0xFF);
     hdr[hlen++] = (uint8_t)(((unsigned long)filesize >> 24) & 0xFF);
+    hdr[hlen++] = (uint8_t)(checksum & 0xFF);               /* checksum LE     */
+    hdr[hlen++] = (uint8_t)((checksum >>  8) & 0xFF);
+    hdr[hlen++] = (uint8_t)((checksum >> 16) & 0xFF);
+    hdr[hlen++] = (uint8_t)((checksum >> 24) & 0xFF);
 
     addr = 0;
     j    = 0;
@@ -124,13 +128,14 @@ static void draw_title(void)
 
 int main(int argc, char **argv)
 {
-    int     in_fd, n;
-    uint8_t ck;
-    int     pos, i;
-    long    filesize;
-    long    done_bytes = 0L;
-    int     prev_pct   = -1;
-    int     cancelled  = 0;
+    int           in_fd, n;
+    uint8_t       ck;
+    int           pos, i;
+    long          filesize      = 0L;
+    unsigned long file_checksum = 0UL;
+    long          done_bytes    = 0L;
+    int           prev_pct      = -1;
+    int           cancelled     = 0;
 
     if (argc < 1 || argv[0][0] == 0) {
         printf("Usage: ctx <filename>" NEWLINE NEWLINE);
@@ -153,8 +158,12 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    filesize = lseek(in_fd, 0L, SEEK_END);
-    if (filesize < 0L) filesize = 0L;
+    /* first pass: calculate filesize and checksum */
+    while ((n = read(in_fd, hex_bytes, sizeof(hex_bytes))) > 0) {
+        for (i = 0; i < n; i++)
+            file_checksum += (unsigned long)hex_bytes[i];
+        filesize += (long)n;
+    }
     close(in_fd);
 
     /* --- switch to Character Mode 1 (8x16) --- */
@@ -164,18 +173,31 @@ int main(int argc, char **argv)
 
     {
         char     sb[12];
+        char     ckbuf[9];
         uint8_t  col;
+        unsigned long tmp;
+        uint8_t  ci;
+        static const char hx[] = "0123456789ABCDEF";
         sprintf(sb, "%ld", filesize);
+        /* format checksum as 8 hex digits */
+        tmp = file_checksum;
+        for (ci = 0; ci < 8u; ci++) {
+            ckbuf[7u - ci] = hx[tmp & 0x0Fu];
+            tmp >>= 4;
+        }
+        ckbuf[8] = '\0';
         DrawText(3,  0, "Run the receiver script on the PC.", DARK_GRAY, BLACK);
         DrawText(3, 34, " (python crx.py)",   DARK_GRAY,     BLACK);
         DrawText(5,  0, "File to transfer:",            DARK_GRAY, BLACK);
-        DrawText(5,  18, argv[0],             WHITE,     BLACK);
+        DrawText(5, 18, argv[0],              WHITE,     BLACK);
         col = (uint8_t)(18 + strlen(argv[0]));
         DrawText(5, col, "  (size: ", DARK_GRAY, BLACK);
         col += 9;
         DrawText(5, col, sb,  WHITE,     BLACK);
         col += (uint8_t)strlen(sb);
         DrawText(5, col, " B)", DARK_GRAY, BLACK);
+        DrawText(6,  0, "Checksum (CK32):", DARK_GRAY, BLACK);
+        DrawText(6, 17, ckbuf,              WHITE,     BLACK);
     }
 
     DrawText(9,  0, " Y ",                   WHITE, DARK_GREEN);
@@ -204,7 +226,7 @@ int main(int argc, char **argv)
     in_fd = open(argv[0], O_RDONLY);  /* reopen — guaranteed position 0 */
 
     /* 1. header stream */
-    send_header(argv[0], filesize);
+    send_header(argv[0], filesize, file_checksum);
 
     /* 2. file data stream */
     while (true) {
