@@ -1,0 +1,563 @@
+Modules list:
+-------------
+ext-ss-noise.c.34092.0.o:
+    CODE              Offs=000000  Size=0001E2  Align=00001  Fill=0000
+    RODATA            Offs=000000  Size=0000C5  Align=00001  Fill=0000
+    BSS               Offs=000000  Size=000020  Align=00001  Fill=0000
+crt0_cmd.s.34092.1.o:
+    STARTUP           Offs=000000  Size=00001B  Align=00001  Fill=0000
+write_stub.c.34092.2.o:
+    CODE              Offs=0001E2  Size=00004C  Align=00001  Fill=0000
+initmainargs.s.34092.3.o:
+    STARTUP           Offs=00001B  Size=000001  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(_file.o):
+    DATA              Offs=000000  Size=00001E  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(_hextab.o):
+    RODATA            Offs=0000C5  Size=000010  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(_longminstr.o):
+    RODATA            Offs=0000D5  Size=00000C  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(_printf.o):
+    CODE              Offs=00022E  Size=0003A1  Align=00001  Fill=0000
+    BSS               Offs=000020  Size=00002B  Align=00001  Fill=0000
+    DATA              Offs=00001E  Size=000003  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(_seterrno.o):
+    CODE              Offs=0005CF  Size=000009  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(addeqsp.o):
+    CODE              Offs=0005D8  Size=000011  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(addysp.o):
+    CODE              Offs=0005E9  Size=00000E  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(axlong.o):
+    CODE              Offs=0005F7  Size=00000D  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(callmain.o):
+    CODE              Offs=000604  Size=000017  Align=00001  Fill=0000
+    DATA              Offs=000021  Size=000004  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(checkferror.o):
+    CODE              Offs=00061B  Size=00000C  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(condes.o):
+    CODE              Offs=000627  Size=00000C  Align=00001  Fill=0000
+    DATA              Offs=000025  Size=000025  Align=00001  Fill=0000
+    ONCE              Offs=000000  Size=00000C  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(copydata.o):
+    CODE              Offs=000633  Size=00002D  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(crt0.o):
+    STARTUP           Offs=00001C  Size=00002B  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(ctype.o):
+    RODATA            Offs=0000E1  Size=00008B  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(ctypemask.o):
+    CODE              Offs=000660  Size=00001E  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(decsp2.o):
+    CODE              Offs=00067E  Size=00000D  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(decsp3.o):
+    CODE              Offs=00068B  Size=00000D  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(decsp4.o):
+    CODE              Offs=000698  Size=00000D  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(decsp6.o):
+    CODE              Offs=0006A5  Size=00000D  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(errno.o):
+    CODE              Offs=0006B2  Size=00000F  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(fputc.o):
+    CODE              Offs=0006C1  Size=000047  Align=00001  Fill=0000
+    BSS               Offs=00004B  Size=000002  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(fwrite.o):
+    CODE              Offs=000708  Size=000077  Align=00001  Fill=0000
+    BSS               Offs=00004D  Size=000002  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(incsp1.o):
+    CODE              Offs=00077F  Size=000007  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(incsp2.o):
+    CODE              Offs=000786  Size=000015  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(incsp5.o):
+    CODE              Offs=00079B  Size=000005  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(incsp6.o):
+    CODE              Offs=0007A0  Size=000005  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(ldaxsp.o):
+    CODE              Offs=0007A5  Size=000009  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(ldeaxysp.o):
+    CODE              Offs=0007AE  Size=000013  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(lneg.o):
+    CODE              Offs=0007C1  Size=00001E  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(lpush.o):
+    CODE              Offs=0007DF  Size=00001E  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(ltoa.o):
+    CODE              Offs=0007FD  Size=000093  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(mod.o):
+    CODE              Offs=000890  Size=000011  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(mul.o):
+    CODE              Offs=0008A1  Size=000045  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(mul8.o):
+    CODE              Offs=0008E6  Size=00003A  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(negabs.o):
+    CODE              Offs=000920  Size=000012  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(popptr1.o):
+    CODE              Offs=000932  Size=00000E  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(printf.o):
+    CODE              Offs=000940  Size=000033  Align=00001  Fill=0000
+    BSS               Offs=00004F  Size=000001  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(push1.o):
+    CODE              Offs=000973  Size=000005  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(pusha.o):
+    CODE              Offs=000978  Size=000016  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(pushax.o):
+    CODE              Offs=00098E  Size=00001A  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(pushptr1.o):
+    CODE              Offs=0009A8  Size=000007  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(pushwsp.o):
+    CODE              Offs=0009AF  Size=00001C  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(putchar.o):
+    CODE              Offs=0009CB  Size=00000C  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(rand.o):
+    CODE              Offs=0009D7  Size=000034  Align=00001  Fill=0000
+    DATA              Offs=00004A  Size=000004  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(randomize.o):
+    CODE              Offs=000A0B  Size=000008  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(returnFFFF.o):
+    CODE              Offs=000A13  Size=000004  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(ria.o):
+    CODE              Offs=000A17  Size=00004E  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(ria_attr.o):
+    CODE              Offs=000A65  Size=000028  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(shelp.o):
+    CODE              Offs=000A8D  Size=000020  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(staxsp.o):
+    CODE              Offs=000AAD  Size=00000B  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(strlen.o):
+    CODE              Offs=000AB8  Size=000016  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(strlower.o):
+    CODE              Offs=000ACE  Size=000027  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(subeqsp.o):
+    CODE              Offs=000AF5  Size=000015  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(udiv.o):
+    CODE              Offs=000B0A  Size=00004F  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(umod.o):
+    CODE              Offs=000B59  Size=000011  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(vfprintf.o):
+    CODE              Offs=000B6A  Size=000060  Align=00001  Fill=0000
+    DATA              Offs=00004E  Size=000008  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(xreg.o):
+    CODE              Offs=000BCA  Size=000015  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(zerobss.o):
+    CODE              Offs=000BDF  Size=000023  Align=00001  Fill=0000
+C:\@prg\cc65\lib/rp6502.lib(zeropage.o):
+    ZEROPAGE          Offs=000000  Size=00001A  Align=00001  Fill=0000
+
+
+Segment list:
+-------------
+Name                   Start     End    Size  Align
+----------------------------------------------------
+ZEROPAGE              000000  000019  00001A  00001
+STARTUP               007500  007546  000047  00001
+ONCE                  007547  007554  00000E  00001
+CODE                  007555  008156  000C02  00001
+RODATA                008157  0082C2  00016C  00001
+DATA                  0082C3  008318  000056  00001
+BSS                   008319  008368  000050  00001
+
+
+Exports list by name:
+---------------------
+__BSS_RUN__               008319 RLA    __BSS_SIZE__              000050 REA    
+__CONSTRUCTOR_COUNT__     000001 REA    __CONSTRUCTOR_TABLE__     007553 RLA    
+__DATA_LOAD__             0082C3 RLA    __DATA_RUN__              0082C3 RLA    
+__DATA_SIZE__             000056 REA    __DESTRUCTOR_COUNT__      000000 REA    
+__DESTRUCTOR_TABLE__      0082C3 RLA    __RAM_SIZE__              008800 REA    
+__RAM_START__             007500 RLA    __STACKSIZE__             000200 REA    
+__STARTADDR__             007500 REA    __STARTUP__               000001 REA    
+___errno                  00FFED RLA    ___randomize              007F60 RLA    
+___seterrno               007B24 RLA    __ctype                   008238 RLA    
+__ctypeidx                008243 RLA    __hextab                  00821C RLA    
+__longminstr              00822C RLA    __printf                  007874 RLA    
+_errno_opt_constructor    007C07  LAI   _fputc                    007C16 RLA    
+_fwrite                   007C5D RLA    _ltoa                     007D6A RLA    
+_main                     007600 RLA    _printf                   007E95 RLA    
+_putchar                  007F20 RLA    _rand                     007F38 RLA    
+_ria_attr_get             007FBA RLA    _ria_call_int             007FA3 RLA    
+_ria_call_long            007FA9 RLA    _ria_push_long            007F6C RLA    
+_srand                    007F2C RLA    _stdout                   0082DD RLA    
+_strlen                   00800D RLA    _strlower                 008023 RLA    
+_ultoa                    007DA9 RLA    _vfprintf                 0080F6 RLA    
+_write                    007737 RLA    _xreg                     00811F RLA    
+addeqysp                  007B2F RLA    addysp                    007B3F RLA    
+axlong                    007B4C RLA    axulong                   007B52 RLA    
+c_sp                      000000 RLZ    callmain                  007B59 RLA    
+checkferror               007B70 RLA    copydata                  007B88 RLA    
+ctypemaskdirect           007BB9 RLA    decsp2                    007BD3 RLA    
+decsp3                    007BE0 RLA    decsp4                    007BED RLA    
+decsp6                    007BFA RLA    donelib                   007B7C RLA    
+incsp1                    007CD4 RLA    incsp2                    007CE2 RLA    
+incsp5                    007CF0 RLA    incsp6                    007CF5 RLA    
+initlib                   007547 RLA    initmainargs              00751B REA    
+ldaxysp                   007CFC RLA    ldeaxysp                  007D05 RLA    
+mul8x16                   007E3D RLA    mul8x16a                  007E47 RLA    
+negax                     007E79 RLA    negeax                    007D16 RLA    
+popax                     007CDB RLA    popptr1                   007E87 RLA    
+popsargsudiv16            007FE2 RLA    ptr1                      000008 RLZ    
+ptr2                      00000A RLZ    ptr3                      00000C RLZ    
+ptr4                      00000E RLZ    push1                     007EC8 RLA    
+pusha                     007ED1 RLA    pusha0                    007EE5 RLA    
+pushax                    007EE7 RLA    pusheax                   007D3B RLA    
+pushptr1                  007EFD RLA    pushwysp                  007F06 RLA    
+regbank                   000014 RLZ    returnFFFF                007F68 RLA    
+sreg                      000002 RLZ    stax0sp                   008002 RLA    
+subeq0sp                  00804A RLA    tmp1                      000010 RLZ    
+tmp2                      000011 RLZ    tosmoda0                  007DE5 RLA    
+tosudivax                 008061 RLA    tosumoda0                 0080AE RLA    
+tosumulax                 007DF6 RLA    udiv16                    008070 RLA    
+zerobss                   008134 RLA    
+
+
+Exports list by value:
+----------------------
+__DESTRUCTOR_COUNT__      000000 REA    c_sp                      000000 RLZ    
+__CONSTRUCTOR_COUNT__     000001 REA    __STARTUP__               000001 REA    
+sreg                      000002 RLZ    ptr1                      000008 RLZ    
+ptr2                      00000A RLZ    ptr3                      00000C RLZ    
+ptr4                      00000E RLZ    tmp1                      000010 RLZ    
+tmp2                      000011 RLZ    regbank                   000014 RLZ    
+__BSS_SIZE__              000050 REA    __DATA_SIZE__             000056 REA    
+__STACKSIZE__             000200 REA    __STARTADDR__             007500 REA    
+__RAM_START__             007500 RLA    initmainargs              00751B REA    
+initlib                   007547 RLA    __CONSTRUCTOR_TABLE__     007553 RLA    
+_main                     007600 RLA    _write                    007737 RLA    
+__printf                  007874 RLA    ___seterrno               007B24 RLA    
+addeqysp                  007B2F RLA    addysp                    007B3F RLA    
+axlong                    007B4C RLA    axulong                   007B52 RLA    
+callmain                  007B59 RLA    checkferror               007B70 RLA    
+donelib                   007B7C RLA    copydata                  007B88 RLA    
+ctypemaskdirect           007BB9 RLA    decsp2                    007BD3 RLA    
+decsp3                    007BE0 RLA    decsp4                    007BED RLA    
+decsp6                    007BFA RLA    _errno_opt_constructor    007C07  LAI   
+_fputc                    007C16 RLA    _fwrite                   007C5D RLA    
+incsp1                    007CD4 RLA    popax                     007CDB RLA    
+incsp2                    007CE2 RLA    incsp5                    007CF0 RLA    
+incsp6                    007CF5 RLA    ldaxysp                   007CFC RLA    
+ldeaxysp                  007D05 RLA    negeax                    007D16 RLA    
+pusheax                   007D3B RLA    _ltoa                     007D6A RLA    
+_ultoa                    007DA9 RLA    tosmoda0                  007DE5 RLA    
+tosumulax                 007DF6 RLA    mul8x16                   007E3D RLA    
+mul8x16a                  007E47 RLA    negax                     007E79 RLA    
+popptr1                   007E87 RLA    _printf                   007E95 RLA    
+push1                     007EC8 RLA    pusha                     007ED1 RLA    
+pusha0                    007EE5 RLA    pushax                    007EE7 RLA    
+pushptr1                  007EFD RLA    pushwysp                  007F06 RLA    
+_putchar                  007F20 RLA    _srand                    007F2C RLA    
+_rand                     007F38 RLA    ___randomize              007F60 RLA    
+returnFFFF                007F68 RLA    _ria_push_long            007F6C RLA    
+_ria_call_int             007FA3 RLA    _ria_call_long            007FA9 RLA    
+_ria_attr_get             007FBA RLA    popsargsudiv16            007FE2 RLA    
+stax0sp                   008002 RLA    _strlen                   00800D RLA    
+_strlower                 008023 RLA    subeq0sp                  00804A RLA    
+tosudivax                 008061 RLA    udiv16                    008070 RLA    
+tosumoda0                 0080AE RLA    _vfprintf                 0080F6 RLA    
+_xreg                     00811F RLA    zerobss                   008134 RLA    
+__hextab                  00821C RLA    __longminstr              00822C RLA    
+__ctype                   008238 RLA    __ctypeidx                008243 RLA    
+__DATA_LOAD__             0082C3 RLA    __DATA_RUN__              0082C3 RLA    
+__DESTRUCTOR_TABLE__      0082C3 RLA    _stdout                   0082DD RLA    
+__BSS_RUN__               008319 RLA    __RAM_SIZE__              008800 REA    
+___errno                  00FFED RLA    
+
+
+Imports list:
+-------------
+__BSS_RUN__ ([linker generated]):
+    zerobss.o                 common/zerobss.s:8
+__BSS_SIZE__ ([linker generated]):
+    zerobss.o                 common/zerobss.s:8
+__CONSTRUCTOR_COUNT__ ([linker generated]):
+    condes.o                  runtime/condes.s:18
+__CONSTRUCTOR_TABLE__ ([linker generated]):
+    condes.o                  runtime/condes.s:18
+__DATA_LOAD__ ([linker generated]):
+    copydata.o                common/copydata.s:8
+__DATA_RUN__ ([linker generated]):
+    copydata.o                common/copydata.s:8
+__DATA_SIZE__ ([linker generated]):
+    copydata.o                common/copydata.s:8
+__DESTRUCTOR_COUNT__ ([linker generated]):
+    condes.o                  runtime/condes.s:19
+__DESTRUCTOR_TABLE__ ([linker generated]):
+    condes.o                  runtime/condes.s:19
+__RAM_SIZE__ ([linker generated]):
+    crt0.o                    rp6502/crt0.s:10
+__RAM_START__ ([linker generated]):
+    crt0.o                    rp6502/crt0.s:10
+__STACKSIZE__ ([linker generated]):
+    [linker generated]        cfg/ext0x7500.cfg:9
+__STARTADDR__ ([linker generated]):
+    [linker generated]        cfg/ext0x7500.cfg:9
+    [linker generated]        cfg/ext0x7500.cfg:9
+__STARTUP__ (crt0.o):
+    ext-ss-noise.c.34092.0.o  ext-ss-noise.c.34092.0.s:13
+    [linker generated]        cfg/ext0x7500.cfg:3
+___errno (errno.o):
+    _seterrno.o               /home/wojciech/git/WojciechGw/cc65/asminc/errno.inc:7
+___randomize (randomize.o):
+    ext-ss-noise.c.34092.0.o  ext-ss-noise.c.34092.0.s:19
+___seterrno (_seterrno.o):
+    fwrite.o                  /home/wojciech/git/WojciechGw/cc65/asminc/errno.inc:9
+__ctype (ctype.o):
+    ctypemask.o               common/ctypemask.s:23
+__ctypeidx (ctype.o):
+    ctypemask.o               common/ctypemask.s:24
+__hextab (_hextab.o):
+    ltoa.o                    common/ltoa.s:10
+__longminstr (_longminstr.o):
+    ltoa.o                    common/ltoa.s:10
+__printf (_printf.o):
+    vfprintf.o                common/vfprintf.s:10
+_fputc (fputc.o):
+    putchar.o                 common/putchar.s:10
+_fwrite (fwrite.o):
+    vfprintf.o                common/vfprintf.s:10
+_ltoa (ltoa.o):
+    _printf.o                 common/_printf.s:12
+_main (ext-ss-noise.c.34092.0.o):
+    callmain.o                runtime/callmain.s:11
+    crt0_cmd.s.34092.1.o      crt0_cmd.s:2
+_printf (printf.o):
+    ext-ss-noise.c.34092.0.o  ext-ss-noise.c.34092.0.s:16
+_putchar (putchar.o):
+    ext-ss-noise.c.34092.0.o  ext-ss-noise.c.34092.0.s:17
+_rand (rand.o):
+    ext-ss-noise.c.34092.0.o  ext-ss-noise.c.34092.0.s:18
+_ria_attr_get (ria_attr.o):
+    randomize.o               ../libwrk/rp6502/randomize.s:17
+_ria_call_int (ria.o):
+    errno.o                   rp6502/errno.s:12
+    xreg.o                    rp6502/xreg.s:9
+    ria_attr.o                ../libwrk/rp6502/ria_attr.s:17
+_ria_call_long (ria.o):
+    ria_attr.o                ../libwrk/rp6502/ria_attr.s:18
+_ria_push_long (ria.o):
+    ria_attr.o                ../libwrk/rp6502/ria_attr.s:16
+_srand (rand.o):
+    randomize.o               ../libwrk/rp6502/randomize.s:18
+_stdout (_file.o):
+    putchar.o                 common/putchar.s:9
+    printf.o                  common/printf.s:8
+_strlen (strlen.o):
+    _printf.o                 common/_printf.s:13
+_strlower (strlower.o):
+    _printf.o                 common/_printf.s:13
+_ultoa (ltoa.o):
+    _printf.o                 common/_printf.s:12
+_vfprintf (vfprintf.o):
+    printf.o                  common/printf.s:8
+_write (write_stub.c.34092.2.o):
+    fwrite.o                  common/fwrite.s:10
+    fputc.o                   common/fputc.s:9
+_xreg (xreg.o):
+    ext-ss-noise.c.34092.0.o  ext-ss-noise.c.34092.0.s:15
+addeqysp (addeqsp.o):
+    write_stub.c.34092.2.o    write_stub.c.34092.2.s:64
+addysp (addysp.o):
+    incsp6.o                  runtime/incsp6.s:8
+    incsp5.o                  runtime/incsp5.s:8
+    fwrite.o                  common/fwrite.s:11
+    xreg.o                    rp6502/xreg.s:9
+    printf.o                  common/printf.s:8
+    write_stub.c.34092.2.o    write_stub.c.34092.2.s:64
+axlong (axlong.o):
+    _printf.o                 common/_printf.s:11
+axulong (axlong.o):
+    _printf.o                 common/_printf.s:11
+c_sp (zeropage.o):
+    popptr1.o                 runtime/popptr1.s:9
+    lpush.o                   runtime/lpush.s:13
+    ldeaxysp.o                runtime/ldeaxysp.s:12
+    ldaxsp.o                  runtime/ldaxsp.s:8
+    incsp1.o                  runtime/incsp1.s:8
+    decsp6.o                  runtime/decsp6.s:8
+    _printf.o                 /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:11
+    xreg.o                    rp6502/xreg.s:8
+    vfprintf.o                common/vfprintf.s:11
+    subeqsp.o                 runtime/subeqsp.s:8
+    staxsp.o                  runtime/staxsp.s:8
+    ria_attr.o                ../libwrk/rp6502/ria_attr.s:10
+    pushwsp.o                 runtime/pushwsp.s:8
+    pushax.o                  runtime/pushax.s:8
+    pusha.o                   runtime/pusha.s:8
+    printf.o                  common/printf.s:9
+    incsp2.o                  runtime/incsp2.s:8
+    decsp4.o                  runtime/decsp4.s:8
+    decsp3.o                  runtime/decsp3.s:8
+    decsp2.o                  runtime/decsp2.s:8
+    crt0.o                    /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:11
+    addysp.o                  runtime/addysp.s:8
+    addeqsp.o                 runtime/addeqsp.s:8
+    write_stub.c.34092.2.o    write_stub.c.34092.2.s:10
+    ext-ss-noise.c.34092.0.o  ext-ss-noise.c.34092.0.s:10
+callmain (callmain.o):
+    crt0.o                    rp6502/crt0.s:7
+checkferror (checkferror.o):
+    fputc.o                   common/fputc.s:9
+copydata (copydata.o):
+    crt0.o                    rp6502/crt0.s:12
+ctypemaskdirect (ctypemask.o):
+    strlower.o                common/strlower.s:14
+decsp2 (decsp2.o):
+    ext-ss-noise.c.34092.0.o  ext-ss-noise.c.34092.0.s:355
+    ext-ss-noise.c.34092.0.o  ext-ss-noise.c.34092.0.s:355
+decsp3 (decsp3.o):
+    ext-ss-noise.c.34092.0.o  ext-ss-noise.c.34092.0.s:355
+decsp4 (decsp4.o):
+    lpush.o                   runtime/lpush.s:12
+    ext-ss-noise.c.34092.0.o  ext-ss-noise.c.34092.0.s:355
+decsp6 (decsp6.o):
+    _printf.o                 common/_printf.s:11
+donelib (condes.o):
+    crt0.o                    rp6502/crt0.s:12
+    crt0_cmd.s.34092.1.o      crt0_cmd.s:2
+incsp1 (incsp1.o):
+    ria_attr.o                ../libwrk/rp6502/ria_attr.s:80
+incsp2 (incsp2.o):
+    popptr1.o                 runtime/popptr1.s:8
+    fputc.o                   common/fputc.s:10
+    ext-ss-noise.c.34092.0.o  ext-ss-noise.c.34092.0.s:355
+    ext-ss-noise.c.34092.0.o  ext-ss-noise.c.34092.0.s:355
+    ext-ss-noise.c.34092.0.o  ext-ss-noise.c.34092.0.s:355
+incsp5 (incsp5.o):
+    ria_attr.o                ../libwrk/rp6502/ria_attr.s:80
+incsp6 (incsp6.o):
+    fwrite.o                  common/fwrite.s:11
+    vfprintf.o                common/vfprintf.s:9
+initlib (condes.o):
+    crt0.o                    rp6502/crt0.s:12
+    crt0_cmd.s.34092.1.o      crt0_cmd.s:2
+initmainargs (initmainargs.s.34092.3.o):
+    ext-ss-noise.c.34092.0.o  ext-ss-noise.c.34092.0.s:14
+ldaxysp (ldaxsp.o):
+    fwrite.o                  common/fwrite.s:11
+ldeaxysp (ldeaxysp.o):
+    ria_attr.o                ../libwrk/rp6502/ria_attr.s:80
+mul8x16 (mul8.o):
+    mul.o                     runtime/mul.s:8
+mul8x16a (mul8.o):
+    mul.o                     runtime/mul.s:8
+negax (negabs.o):
+    shelp.o                   runtime/shelp.s:11
+    mod.o                     runtime/mod.s:11
+negeax (lneg.o):
+    ltoa.o                    common/ltoa.s:9
+popax (incsp2.o):
+    ltoa.o                    common/ltoa.s:9
+    fputc.o                   common/fputc.s:10
+    _printf.o                 common/_printf.s:11
+    shelp.o                   runtime/shelp.s:11
+popptr1 (popptr1.o):
+    mul8.o                    runtime/mul8.s:9
+    mul.o                     runtime/mul.s:9
+    ltoa.o                    common/ltoa.s:9
+    fputc.o                   common/fputc.s:11
+    umod.o                    runtime/umod.s:8
+    udiv.o                    runtime/udiv.s:9
+popsargsudiv16 (shelp.o):
+    mod.o                     runtime/mod.s:11
+ptr1 (zeropage.o):
+    checkferror.o             common/checkferror.s:12
+    strlower.o                common/strlower.s:13
+    pushptr1.o                runtime/pushptr1.s:9
+    popptr1.o                 runtime/popptr1.s:9
+    mul8.o                    runtime/mul8.s:10
+    mul.o                     runtime/mul.s:10
+    ltoa.o                    common/ltoa.s:11
+    fwrite.o                  common/fwrite.s:14
+    fputc.o                   common/fputc.s:8
+    copydata.o                common/copydata.s:9
+    _printf.o                 /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:12
+    zerobss.o                 common/zerobss.s:9
+    vfprintf.o                common/vfprintf.s:11
+    udiv.o                    runtime/udiv.s:10
+    shelp.o                   runtime/shelp.s:12
+    printf.o                  common/printf.s:9
+    write_stub.c.34092.2.o    write_stub.c.34092.2.s:11
+    ext-ss-noise.c.34092.0.o  ext-ss-noise.c.34092.0.s:11
+ptr2 (zeropage.o):
+    strlower.o                common/strlower.s:13
+    ltoa.o                    common/ltoa.s:11
+    copydata.o                common/copydata.s:9
+    _printf.o                 /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:12
+ptr3 (zeropage.o):
+    ltoa.o                    common/ltoa.s:11
+ptr4 (zeropage.o):
+    strlen.o                  common/strlen.s:12
+    mul8.o                    runtime/mul8.s:10
+    mul.o                     runtime/mul.s:10
+    umod.o                    runtime/umod.s:9
+    udiv.o                    runtime/udiv.s:10
+    shelp.o                   runtime/shelp.s:12
+push1 (push1.o):
+    _printf.o                 common/_printf.s:11
+    vfprintf.o                common/vfprintf.s:9
+pusha (pusha.o):
+    ria_attr.o                ../libwrk/rp6502/ria_attr.s:80
+    ria_attr.o                ../libwrk/rp6502/ria_attr.s:80
+    ext-ss-noise.c.34092.0.o  ext-ss-noise.c.34092.0.s:355
+    ext-ss-noise.c.34092.0.o  ext-ss-noise.c.34092.0.s:355
+pusha0 (pushax.o):
+    push1.o                   runtime/push1.s:8
+    fwrite.o                  common/fwrite.s:11
+    fputc.o                   common/fputc.s:10
+pushax (pushax.o):
+    pushptr1.o                runtime/pushptr1.s:8
+    fwrite.o                  common/fwrite.s:11
+    fputc.o                   common/fputc.s:10
+    callmain.o                runtime/callmain.s:11
+    _printf.o                 common/_printf.s:11
+    putchar.o                 common/putchar.s:8
+    printf.o                  common/printf.s:8
+    write_stub.c.34092.2.o    write_stub.c.34092.2.s:64
+    ext-ss-noise.c.34092.0.o  ext-ss-noise.c.34092.0.s:355
+    ext-ss-noise.c.34092.0.o  ext-ss-noise.c.34092.0.s:355
+    ext-ss-noise.c.34092.0.o  ext-ss-noise.c.34092.0.s:355
+    ext-ss-noise.c.34092.0.o  ext-ss-noise.c.34092.0.s:355
+pusheax (lpush.o):
+    _printf.o                 common/_printf.s:11
+pushptr1 (pushptr1.o):
+    fputc.o                   common/fputc.s:11
+pushwysp (pushwsp.o):
+    fwrite.o                  common/fwrite.s:11
+    vfprintf.o                common/vfprintf.s:9
+    write_stub.c.34092.2.o    write_stub.c.34092.2.s:64
+regbank (zeropage.o):
+    _printf.o                 /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:14
+returnFFFF (returnFFFF.o):
+    fputc.o                   common/fputc.s:11
+sreg (zeropage.o):
+    lneg.o                    runtime/lneg.s:11
+    ria.o                     rp6502/ria.s:13
+    ltoa.o                    common/ltoa.s:11
+    lpush.o                   runtime/lpush.s:13
+    ldeaxysp.o                runtime/ldeaxysp.s:12
+    axlong.o                  runtime/axlong.s:9
+    _printf.o                 /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:11
+    umod.o                    runtime/umod.s:9
+    udiv.o                    runtime/udiv.s:10
+    mod.o                     runtime/mod.s:12
+stax0sp (staxsp.o):
+    ext-ss-noise.c.34092.0.o  ext-ss-noise.c.34092.0.s:355
+subeq0sp (subeqsp.o):
+    write_stub.c.34092.2.o    write_stub.c.34092.2.s:64
+tmp1 (zeropage.o):
+    mul.o                     runtime/mul.s:10
+    ltoa.o                    common/ltoa.s:11
+    copydata.o                common/copydata.s:9
+    _printf.o                 /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:13
+    shelp.o                   runtime/shelp.s:12
+    mod.o                     runtime/mod.s:12
+tmp2 (zeropage.o):
+    shelp.o                   runtime/shelp.s:12
+tosmoda0 (mod.o):
+    ext-ss-noise.c.34092.0.o  ext-ss-noise.c.34092.0.s:355
+tosudivax (udiv.o):
+    fwrite.o                  common/fwrite.s:12
+tosumoda0 (umod.o):
+    ext-ss-noise.c.34092.0.o  ext-ss-noise.c.34092.0.s:355
+tosumulax (mul.o):
+    fwrite.o                  common/fwrite.s:12
+udiv16 (udiv.o):
+    umod.o                    runtime/umod.s:8
+    shelp.o                   runtime/shelp.s:11
+zerobss (zerobss.o):
+    crt0.o                    rp6502/crt0.s:12
+

@@ -12,17 +12,18 @@ if (-not $files) {
     exit 1
 }
 
+$extcmdDir = Join-Path $PSScriptRoot '..\src\extcmd'
+Get-ChildItem -Path (Join-Path $extcmdDir 'build') -Filter '*.com' -File -ErrorAction SilentlyContinue | Remove-Item -Force
+Get-ChildItem -Path (Join-Path $extcmdDir 'map') -Filter '*.map' -File -ErrorAction SilentlyContinue | Remove-Item -Force
+
 Push-Location "$PSScriptRoot/..//src/extcmd"
 foreach ($file in $files) {
     $cmd = $file.BaseName -replace '^ext-', ''
 
-    $appver  = (Get-Date).ToString('yyyyMMdd.HHmm')
-    $srcFile = Join-Path $PSScriptRoot "..\src\ext-$shellextcmdname.c"
-    if (Test-Path $srcFile) {
-        (Get-Content $srcFile -Raw) `
-            -replace '#define APPVER "[^"]*"', "#define APPVER `"$appver`"" |
-            Set-Content $srcFile -NoNewline
-    }
+    $appver = (Get-Date).ToString('yyyyMMdd.HHmm')
+    (Get-Content $file.FullName -Raw) `
+        -replace '#define APPVER "[^"]*"', "#define APPVER `"$appver`"" |
+        Set-Content $file.FullName -NoNewline
 
     Write-Host "Executing: make CMD=$cmd START=$Start"
     & make "CMD=$cmd" "START=$Start"

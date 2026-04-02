@@ -6,7 +6,7 @@
 #include <fcntl.h>
 #include "commons.h"
 
-#define APPVER "20260318.1000"
+#define APPVER "20260402.2034"
 
 /* --- XRAM register addresses --- */
 #define XRAM_STRUCT_SYS_KEYBOARD 0xFF20

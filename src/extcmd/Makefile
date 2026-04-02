@@ -10,4 +10,4 @@ MAP = ext-$(TARGET).map
 all: $(TARGET)
 
 $(TARGET): $(SRCS) $(CFG)
-	$(CC65) -t rp6502 -Oirs -C $(CFG) $(SRCS) -m $(MAP) -o build/$@.com
+	$(CC65) -t rp6502 -Oirs -C $(CFG) $(SRCS) -m map/$(MAP) -o build/$@.com

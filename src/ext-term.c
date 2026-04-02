@@ -11,7 +11,7 @@
 
 #include "commons.h"
 
-#define APPVER "20260402.1500"
+#define APPVER "20260402.2035"
 
 // An extremely simple terminal for the Pico RIA W modem.
 // Uses the terminal built in to the Pico VGA.

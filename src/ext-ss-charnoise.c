@@ -10,7 +10,7 @@
 
 #include "commons.h"
 
-#define APPVER "20260325.1628"
+#define APPVER "20260402.2035"
 
 #define FONTDIR "MSC0:/FNT/"
 

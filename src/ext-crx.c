@@ -9,7 +9,7 @@
 
 #define NEWLINE "\r\n"
 
-#define APPVER "20260402.1512"
+#define APPVER "20260402.2035"
 
 /* ---- RIA UART access ---------------------------------------------------- */
 

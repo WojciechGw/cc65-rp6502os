@@ -4,7 +4,7 @@
 
 #include "commons.h"
 
-#define APPVER "20260401.1336"
+#define APPVER "20260402.2032"
 
 #define APPNAME "Test"
 #define APPDIRDEFAULT "MSC0:/"
