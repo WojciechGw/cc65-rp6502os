@@ -143,7 +143,8 @@ def main() -> None:
         print(f"\u2588\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510")
         print(f"\u2588  Courier RX \u2014 file receiver for Picocomputer 6502     \u2502")
         print(f"\u2588\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518")
-        print(f"\u2588 Waiting for header on {args.port} @ {args.baud} ... (Esc to cancel)")
+        print(f"\u2588 Waiting for transmission header")
+        print(f"\u2588 on {args.port} @ {args.baud} ... (Esc to cancel)")
         ser.timeout = 0.1
         hdr_data = receive_stream(ser, check_cancel=_esc_pressed)
         if hdr_data is None:
@@ -155,7 +156,7 @@ def main() -> None:
         print(f"\u2588 Filename  : {filename}")
         print(f"\u2588 File size : {filesize} B")
         if hdr_checksum is not None:
-            print(f"\u2588 Checksum  : {hdr_checksum:08X}")
+            print(f"\u2588 Checksum (CRC32)  : {hdr_checksum:08X}")
         print(f"\u2588 Saving to : {outfile}")
 
         # Phase 2 — file data stream with live progress
@@ -197,7 +198,7 @@ def main() -> None:
 
         with open(outfile, "wb") as f:
             f.write(buf)
-        print(f"\u2588 Done. {len(buf)} bytes written to {outfile}.")
+        print(f"\u2588 Done. {len(buf)} B written to {outfile}.")
         if hdr_checksum is not None:
             calc = sum(buf) & 0xFFFFFFFF
             if calc == hdr_checksum:

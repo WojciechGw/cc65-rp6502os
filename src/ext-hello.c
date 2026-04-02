@@ -1,3 +1,6 @@
+// .COM razemOS VS Code Scaffolding for CC65
+//
+
 #include "commons.h"
 
 int main(int argc, char **argv) {

@@ -217,7 +217,7 @@ static uint8_t ihx_feed(uint8_t ch)
 static void draw_title(void)
 {
     ClearLine(0, WHITE, BLACK);
-    DrawText(1,  0, " OS Shell > ",    WHITE,     DARK_GREEN);
+    DrawText(1,  0, " razemOS > ",    WHITE,     DARK_GREEN);
     DrawText(1, 12, " Courier RX",      WHITE,     BLACK);
     DrawText(1, 59, "version " APPVER, DARK_GRAY, BLACK);
 }

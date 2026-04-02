@@ -95,7 +95,7 @@ try {
 
     try {
         $serialPort.Open()
-        Start-Sleep -Milliseconds 400
+        Start-Sleep -Milliseconds 500
         Send-LineAndWait -port $serialPort -text "set boot -" -label "set boot -" -prompt "]" -delay 400
         Start-Sleep -Milliseconds 400
         Send-LineAndWait -port $serialPort -text "remove ${shellextcmdname}" -label "remove ${shellextcmdname}" -prompt "]" -delay 400

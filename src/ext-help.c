@@ -2,7 +2,7 @@
 
 #define APPVER "20260401.0058"
 
-#define APP_HEADER CSI_RESET CSI "[2;1H" CSI HIGHLIGHT_COLOR " OS Shell > " ANSI_RESET " Help information                              " ANSI_DARK_GRAY "version " APPVER ANSI_RESET
+#define APP_HEADER CSI_RESET CSI "[2;1H" CSI HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " Help information                              " ANSI_DARK_GRAY "version " APPVER ANSI_RESET
 #define APP_FOOTER ANSI_DARK_GRAY  "________________________________________________________________________________" NEWLINE NEWLINE ANSI_RESET
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
@@ -101,6 +101,8 @@ static const cmd_t commands_rom[] = {
     { "label",      "show or set volume label of active drive", 
                     "label          - show label of active drive" NEWLINE
                     "label NEWLABEL - set active drive label to NEWLABEL" },
+    { "view",       "show BMP 640x480xbpp1", 
+                    "view filename.bmp"}
 };
 
 static const cmd_t commands_ext[] = {

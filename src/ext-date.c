@@ -107,9 +107,10 @@ int main(int argc, char **argv) {
     
     switch(action){
         case SHOW_DATETIMECALENDAR:
-            printf(NEWLINE "Current date & time is %04d-%02d-%02d %02d:%02d:%02d" NEWLINE,
+            printf(NEWLINE "INformation about current date & time" NEWLINE 
+                   "%04d-%02d-%02d %02d:%02d:%02d" NEWLINE,
                    year, month, day, hour, minute, second);
-            printf(NEWLINE "day of ... year:%d month:%d week:%d" NEWLINE,
+            printf(NEWLINE "day of : year %d, month %d, week %d" NEWLINE,
                    yday, mday, wday );
             print_calendar(year, month, day);
             break;

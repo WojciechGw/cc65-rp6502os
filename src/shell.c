@@ -16,6 +16,67 @@
 
 #include "shell.h"
 
+/* GFX subsystem setup */
+#define GFX_CANVAS_640x480 3
+#define GFX_MODE_CONSOLE   0
+#define GFX_MODE_BITMAP    3
+#define GFX_BITMAP_bpp1    0b00000000
+#define GFX_PLANE_0        0
+#define GFX_PLANE_1        1
+#define GFX_PLANE_2        2
+
+/* XRAM memory map */
+#define GFX_STRUCT 0xFFC0u
+#define GFX_DATA   0x2000u
+
+/* 640x480, 1 bpp */
+#define PC_FB_ADDR          GFX_DATA
+#define PC_FB_WIDTH         640u
+#define PC_FB_HEIGHT        480u
+#define PC_FB_STRIDE        80u
+#define PC_FB_SIZE_BYTES    38400u
+
+#ifdef CODEOFF
+int LoadBMP(const char *path, uint16_t address) {
+    static uint8_t buf[80];
+    uint16_t pixel_offset;
+    uint8_t  top_down;
+    uint16_t file_row, xram_row;
+    uint8_t  b;
+    int fd;
+
+    fd = open(path, O_RDONLY);
+    if (fd < 0) {
+        printf("View ERROR: cannot open %s" NEWLINE NEWLINE, path);
+        return -1;
+    }
+
+    if (read(fd, buf, 26) != 26 || buf[0] != 'B' || buf[1] != 'M') {
+        printf("View ERROR: invalid BMP" NEWLINE NEWLINE);
+        close(fd);
+        return -1;
+    }
+
+    pixel_offset = (uint16_t)buf[10] | ((uint16_t)buf[11] << 8);
+
+    top_down = (buf[25] & 0x80) != 0;
+
+    lseek(fd, pixel_offset, SEEK_SET);
+
+    for (file_row = 0; file_row < PC_FB_HEIGHT; file_row++) {
+        if (read(fd, buf, PC_FB_STRIDE) != PC_FB_STRIDE) break;
+        xram_row = top_down ? file_row : (uint16_t)(PC_FB_HEIGHT - 1u - file_row);
+        RIA.addr0 = address + xram_row * PC_FB_STRIDE;
+        RIA.step0 = 1;
+        for (b = 0; b < PC_FB_STRIDE; b++)
+            RIA.rw0 = buf[b];
+    }
+
+    close(fd);
+    return 0;
+}
+#endif
+
 int main(void) {
     int i = 0;
     int v = 0;
@@ -24,6 +85,24 @@ int main(void) {
     static cmdline_t cmdline = {0};
     struct tm *tmnow = get_time();
 
+    #ifdef CODEOFF
+
+    tx_string(CSI_RESET);
+    tx_string(CSI_CURSOR_HIDE); // hide cursor
+    xreg(1, 0, 0, GFX_CANVAS_640x480);
+    xram0_struct_set(GFX_STRUCT, vga_mode3_config_t, x_wrap, false);
+    xram0_struct_set(GFX_STRUCT, vga_mode3_config_t, y_wrap, false);
+    xram0_struct_set(GFX_STRUCT, vga_mode3_config_t, x_pos_px, 0);
+    xram0_struct_set(GFX_STRUCT, vga_mode3_config_t, y_pos_px, 0);
+    xram0_struct_set(GFX_STRUCT, vga_mode3_config_t, width_px, 640);
+    xram0_struct_set(GFX_STRUCT, vga_mode3_config_t, height_px, 480);
+    xram0_struct_set(GFX_STRUCT, vga_mode3_config_t, xram_data_ptr, GFX_DATA);
+    xram0_struct_set(GFX_STRUCT, vga_mode3_config_t, xram_palette_ptr, 0xFFFF);
+    xreg(1, 0, 1, GFX_MODE_BITMAP, GFX_BITMAP_bpp1, GFX_STRUCT, GFX_PLANE_2);
+    xreg(1, 0, 1, GFX_MODE_CONSOLE, GFX_PLANE_2);
+    PAUSE(500);
+    #endif
+    
     // start screen
     tx_string(CSI_RESET);
     tx_string(CSI_CURSOR_HIDE); // hide cursor
@@ -52,6 +131,7 @@ int main(void) {
     } else {
         PAUSE(100);
     }
+
     tx_string(CSI_RESET);
     tx_string(CSI_CURSOR_SHOW "\x1b[0m");
 
@@ -60,7 +140,6 @@ int main(void) {
     if(f_getcwd(dir_cwd, sizeof(dir_cwd)) >= 0 && dir_cwd[1] == ':') {
         current_drive = dir_cwd[0];
     }
-    
     strncpy(shelldir, default_shelldir, sizeof(shelldir));
     shelldir[sizeof(shelldir) - 1] = '\0';
 
@@ -95,16 +174,6 @@ int main(void) {
                     tx_string(cmdline.buffer);
                     continue;
                 } else if(rx == CHAR_DOWN){
-                    ext_rx = 0;
-                    {
-                        char *args[1];
-                        args[0] = (char *)"ls";
-                        tx_string(NEWLINE);
-                        cmd_ls(1, args);
-                        cmdline.bytes = 0;
-                        cmdline.buffer[0] = 0;
-                        prompt(false);
-                    }
                     continue;
                 } else if(rx == CHAR_LEFT || rx == CHAR_RIGHT) {
                     char next = current_drive;
@@ -171,25 +240,23 @@ int main(void) {
                     continue;
                 }
                 if(rx == CHAR_F3 || rx == 'R') {
+
+                    // for internal command call
+                    // char *args[1];
+                    // args[0] = (char *)"time";
+                    // tx_string(NEWLINE);
+                    // cmd_time(1, args);
+                    // cmdline.bytes = 0;
+                    // cmdline.buffer[0] = 0;
+
                     // for external command call
                     char path[FNAMELEN];
                     int com_argc = 3;
-                    // for internal command call
-                    char *args[1];
-                    args[0] = (char *)"time";
-
-                    tx_string(NEWLINE);
-
-                    cmd_time(1, args);
-                    cmdline.bytes = 0;
-                    cmdline.buffer[0] = 0;
-
                     strcpy(path, shelldir);
                     strcat(path, "date.com");
                     com_argv[0] = (char *)"com";
                     com_argv[1] = path;
-                    com_argv[2] = "/c"; // pass argument to external .com
-                    
+                    com_argv[2] = "/a"; // pass argument to external .com
                     /* Pass current input line as argument if present */
                     if(cmdline.bytes > 0) {
                         cmdline.buffer[cmdline.bytes] = 0; // ensure NUL terminated
@@ -202,6 +269,19 @@ int main(void) {
                     prompt(false);
                     continue;
                 }
+                if(rx == CHAR_F4 || rx == 'S') {
+                    ext_rx = 0;
+                    {
+                        char *args[1];
+                        args[0] = (char *)"ls";
+                        tx_string(NEWLINE);
+                        cmd_ls(1, args);
+                        cmdline.bytes = 0;
+                        cmdline.buffer[0] = 0;
+                        prompt(false);
+                    }
+                    continue;
+                }
             // SOT (0x01) — auto-launch file receiver (crx.com /auto)
             } else if(rx == '\x01') {
                 char path[FNAMELEN];
@@ -212,6 +292,9 @@ int main(void) {
                 com_argv[1] = path;
                 com_argv[2] = (char *)"/auto";
                 cmd_com(3, com_argv);
+                cmdline.bytes = 0;
+                cmdline.buffer[0] = 0;
+                tx_string(NEWLINE NEWLINE);
                 prompt(false);
                 continue;
             // Normal character (ASCII printable or extended 8-bit, exclude DEL), just put it on the pile.
@@ -1625,32 +1708,6 @@ int cmd_cart(int argc, char **argv) {
     tx_string(NEWLINE);
     // load rp6502 to memory, set RSTVEC at $FFFC, exit and reset
     PAUSE(200);
-    return 0;
-}
-
-int cmd_crx(int argc, char **argv) {
-    int i;
-    for(i = 0; i < argc; i++) {
-        tx_string(NEWLINE);
-        tx_dec32(i);
-        tx_string("\t");
-        tx_string(argv[i]);
-        tx_string(NEWLINE);
-        // printf("%d: [%s]" NEWLINE, i, argv[i]);
-    }
-    return 0;
-}
-
-int cmd_ctx(int argc, char **argv) {
-    int i;
-    for(i = 0; i < argc; i++) {
-        tx_string(NEWLINE);
-        tx_dec32(i);
-        tx_string("\t");
-        tx_string(argv[i]);
-        tx_string(NEWLINE);
-        // printf("%d: [%s]" NEWLINE, i, argv[i]);
-    }
     return 0;
 }
 */

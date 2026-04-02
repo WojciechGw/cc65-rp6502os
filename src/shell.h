@@ -21,14 +21,16 @@ extern struct _timezone _tz;
 #define MEMTOP (0xFF00-__STACKSIZE__)
 #define COM_LOAD_ADDR 0x7500  // lowest ram address where to load the external command code (binary shell extensions - .com files)
 
-#define SHELLVER "20260331.2322"
+#define APPNAME "razemOS"
+#define SHELLVER "20260401.1732"
 #define SHELLDIRDEFAULT "ROM:"
 #define SHELLPROMPT "> "
 #define SHELLPROMPT_1ST "> " ANSI_GREEN "[F1] help" ANSI_RESET " > "
+#define SHELLWALLPAPER "ROM:wallpaper.bmp"
 
-#define APP_MSG_START ANSI_DARK_GRAY "\x1b[13;24HOS Shell for Picocomputer 6502" 
+#define APP_MSG_START ANSI_DARK_GRAY "\x1b[12;35H" APPNAME
 #define APP_HOURGLASS "\x1b[14;34H" "..........\x1b[10D" ANSI_RESET
-#define APP_MSG_TITLE "\x1b[2;1H\x1b" HIGHLIGHT_COLOR " OS Shell > " ANSI_RESET " for Picocomputer 6502" ANSI_DARK_GRAY "\x1b[2;60Hversion " SHELLVER ANSI_RESET
+#define APP_MSG_TITLE "\x1b[2;1H\x1b" HIGHLIGHT_COLOR " " APPNAME " > " ANSI_RESET " for Picocomputer 6502" ANSI_DARK_GRAY "\x1b[2;60Hversion " SHELLVER ANSI_RESET
 #define APP_MSG_HELP_COMADDRESS "\x1b[30;1H" ANSI_DARK_GRAY "Hint: press F1 for help RUN ADDRESS:" STR(COM_LOAD_ADDR) " version " SHELLVER ANSI_RESET
 #define APP_MSG_EXIT NEWLINE "Exiting to the monitor." NEWLINE "Bye, bye !" NEWLINE NEWLINE
 
@@ -145,13 +147,10 @@ int cmd_cp(int, char **);
 int cmd_cpm(int, char **);
 int cmd_ls(int, char **);
 int cmd_drive(int, char **);
-// int cmd_drives(int, char **);
 int cmd_exit(int, char **);
 int cmd_list(int, char **);
 int cmd_mem(int, char **);
 int cmd_hex(int, char **);
-// int cmd_memr(int, char **);
-// int cmd_memx(int, char **);
 int cmd_mkdir(int, char **);
 int cmd_mv(int, char **);
 int cmd_peek(int, char **);
@@ -163,8 +162,6 @@ int cmd_stat(int, char **);
 int cmd_time(int, char **);
 // TO DO
 // int cmd_cart(int, char **); // load and run <romname>.rp6502
-// int cmd_crx(int, char**); // receive file from RIA UART
-// int cmd_ctx(int, char**); // send file to RIA UART
 
 static const cmd_t commands[] = {
     { "bload",  "", "", cmd_bload},
@@ -179,12 +176,9 @@ static const cmd_t commands[] = {
     { "exe",    "", "", cmd_exe},
     { "ls",     "", "", cmd_ls},
     { "drive",  "", "", cmd_drive},
-//    { "drives", "", "", cmd_drives},
     { "exit",   "", "", cmd_exit},
     { "list",   "", "", cmd_list},
     { "mem",    "", "", cmd_mem},
-//    { "memr",   "", "", cmd_memr },
-//    { "memx",   "", "", cmd_memx },
     { "hex",    "", "", cmd_hex },
     { "mkdir",  "", "", cmd_mkdir},
     { "mv",     "", "", cmd_mv},
@@ -197,8 +191,6 @@ static const cmd_t commands[] = {
     { "time",   "", "", cmd_time },
 // TO DO
 //    { "cart",    "", "", cmd_cart},
-//    { "crx",   "", "", cmd_crx },
-//    { "ctx",   "", "", cmd_ctx },
 };
 
 // static void load_asset2xram(const char *path, unsigned xram_addr);
@@ -244,15 +236,9 @@ int cmd_cp(int argc, char **argv);
 int cmd_cpm(int argc, char **argv);
 int cmd_ls(int argc, char **argv);
 int cmd_drive(int argc, char **argv);
-// int cmd_drives(int argc, char **argv);
-// int cmd_edit(int argc, char **argv);
 int cmd_exit(int status, char **);
 int cmd_list(int argc, char **argv);
 int cmd_mem(int argc, char **argv);
-/*
-int cmd_memr(int argc, char **argv);
-int cmd_memx(int argc, char **argv);
-*/
 int cmd_mkdir(int argc, char **argv);
 int cmd_mv(int argc, char **argv);
 int cmd_peek(int argc, char **argv);

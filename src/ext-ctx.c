@@ -8,7 +8,7 @@
 
 #define NEWLINE "\r\n"
 
-#define APPVER "20260330.2200"
+#define APPVER "20260401.2101"
 
 #define HDR_NAME_MAX 31   /* max filename chars in header (+ null = 32 B) */
 
@@ -117,7 +117,7 @@ static void send_header(const char *filepath, long filesize, unsigned long check
 static void draw_title(void)
 {
     ClearLine(0, WHITE, BLACK);
-    DrawText(1,  0, " OS Shell > ",    WHITE,     DARK_GREEN);
+    DrawText(1,  0, " razemOS > ",    WHITE,     DARK_GREEN);
     DrawText(1, 12, " Courier TX",      WHITE,     BLACK);
     DrawText(1, 59, "version " APPVER, DARK_GRAY, BLACK     );
 }
@@ -158,14 +158,6 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    /* first pass: calculate filesize and checksum */
-    while ((n = read(in_fd, hex_bytes, sizeof(hex_bytes))) > 0) {
-        for (i = 0; i < n; i++)
-            file_checksum += (unsigned long)hex_bytes[i];
-        filesize += (long)n;
-    }
-    close(in_fd);
-
     /* --- switch to Character Mode 1 (8x16) --- */
     printf(CSI_RESET CSI_CURSOR_HIDE);
     cgx_init();
@@ -178,7 +170,18 @@ int main(int argc, char **argv)
         unsigned long tmp;
         uint8_t  ci;
         static const char hx[] = "0123456789ABCDEF";
-        sprintf(sb, "%ld", filesize);
+        DrawText(3,  0, "Run the receiver script on the PC.", DARK_GRAY, BLACK);
+        DrawText(4,  0, "Receiver script  : crx.py",          DARK_GRAY, BLACK);
+        DrawText(5,  0, "File to transfer : ",                DARK_GRAY, BLACK);
+        DrawText(5, 19, argv[0],                              WHITE    , BLACK);
+        DrawText(6,  0, "Checksum (CRC32) : ", DARK_GRAY, BLACK);
+        /* first pass: calculate filesize and checksum */
+        DrawText(6, 18, " calculating ", WHITE, BLACK);
+        while ((n = read(in_fd, hex_bytes, sizeof(hex_bytes))) > 0) {
+            for (i = 0; i < n; i++)
+                file_checksum += (unsigned long)hex_bytes[i];
+            filesize += (long)n;
+        }
         /* format checksum as 8 hex digits */
         tmp = file_checksum;
         for (ci = 0; ci < 8u; ci++) {
@@ -186,20 +189,17 @@ int main(int argc, char **argv)
             tmp >>= 4;
         }
         ckbuf[8] = '\0';
-        DrawText(3,  0, "Run the receiver script on the PC.", DARK_GRAY, BLACK);
-        DrawText(3, 34, " (python crx.py)",   DARK_GRAY,     BLACK);
-        DrawText(5,  0, "File to transfer:",            DARK_GRAY, BLACK);
-        DrawText(5, 18, argv[0],              WHITE,     BLACK);
-        col = (uint8_t)(18 + strlen(argv[0]));
-        DrawText(5, col, "  (size: ", DARK_GRAY, BLACK);
-        col += 9;
+        sprintf(sb, "%ld", filesize);
+        col = (uint8_t)(19 + strlen(argv[0]));
+        DrawText(5, col, " (size ", DARK_GRAY, BLACK);
+        col += 7;
         DrawText(5, col, sb,  WHITE,     BLACK);
         col += (uint8_t)strlen(sb);
         DrawText(5, col, " B)", DARK_GRAY, BLACK);
-        DrawText(6,  0, "Checksum (CK32):", DARK_GRAY, BLACK);
-        DrawText(6, 17, ckbuf,              WHITE,     BLACK);
+        close(in_fd);
+        DrawText(6, 19,  ckbuf  , WHITE, BLACK);
+        DrawText(6, 27, "      ", WHITE, BLACK);
     }
-
     DrawText(9,  0, " Y ",                   WHITE, DARK_GREEN);
     DrawText(9,  3, " start transfer ", LIGHT_GRAY, BLACK);
     DrawText(10, 0, " Q ",                   WHITE, DARK_RED);
@@ -309,6 +309,8 @@ int main(int argc, char **argv)
     (void)RIA.rx;
 
     cgx_restore();
-    printf(CSI_RESET CSI_CURSOR_SHOW);
+
+    printf(CSI_RESET NEWLINE CSI_CURSOR_SHOW);
+
     return 0;
 }

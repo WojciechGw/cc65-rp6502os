@@ -1,2 +1,2 @@
-Native 65C02S OS shell 
+razemOS native 65C02S system 
 for Picocomputer 6502 by Rumbledethumps

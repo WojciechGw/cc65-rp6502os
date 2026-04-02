@@ -10,7 +10,8 @@
 #include "commons.h"
 
 #define APPVER "20260317.2100"
-#define APP_MSG_TITLE CSI_RESET "\x1b[2;1H\x1b" HIGHLIGHT_COLOR " OS Shell > " ANSI_RESET " Set date & time" ANSI_DARK_GRAY "\x1b[2;60Hversion " APPVER ANSI_RESET
+#define APPNAME "razemOS"
+#define APP_MSG_TITLE CSI_RESET "\x1b[2;1H\x1b" HIGHLIGHT_COLOR " " APPNAME " > " ANSI_RESET " Set date & time" ANSI_DARK_GRAY "\x1b[2;60Hversion " APPVER ANSI_RESET
 #define APP_MSG_START ANSI_DARK_GRAY "\x1b[4;1HEnter current date & time [YYYY-MM-DD HH:MM:SS] or ESC to cancel procedure." ANSI_RESET NEWLINE NEWLINE "> " CSI_CURSOR_SHOW
 
 #include "commons.h"
@@ -82,16 +83,16 @@ int main(void) { // Interactive setter for RTC when it is unset (year 1970).
     tx_string(APP_MSG_TITLE APP_MSG_START);
     len = read_line_editor(line, sizeof(line));
     if(len <= 0) {
-        tx_string(NEWLINE "[OS Shell INFO] Cancel." NEWLINE);
+        tx_string(NEWLINE "[" APPNAME " INFO] Cancel." NEWLINE);
         return -1;
     }
     if(sscanf(line, "%4d-%2d-%2d %2d:%2d:%2d", &year, &mon, &day, &hour, &min, &sec) != 6) {
-        tx_string(NEWLINE "[OS Shell INFO] Wrong date & time format." NEWLINE);
+        tx_string(NEWLINE "[" APPNAME " INFO] Wrong date & time format." NEWLINE);
         return -1;
     }
     if(year < 1970 || mon < 1 || mon > 12 || day < 1 || day > 31 ||
        hour < 0 || hour > 23 || min < 0 || min > 59 || sec < 0 || sec > 59) {
-        tx_string(NEWLINE "[OS Shell INFO] Wrong date & time values." NEWLINE);
+        tx_string(NEWLINE "[" APPNAME " INFO] Wrong date & time values." NEWLINE);
         return -1;
     }
 
@@ -105,15 +106,15 @@ int main(void) { // Interactive setter for RTC when it is unset (year 1970).
 
     epoch = mktime(&tmset);
     if(epoch == (time_t)-1) {
-        tx_string(NEWLINE "[OS Shell INFO] date & time setting failed." NEWLINE);
+        tx_string(NEWLINE "[" APPNAME " INFO] date & time setting failed." NEWLINE);
         return -1;
     }
     ts.tv_sec = epoch;
     ts.tv_nsec = 0;
     if(clock_settime(CLOCK_REALTIME, &ts) != 0) {
-        tx_string(NEWLINE "[OS Shell INFO] RTC setting failed." NEWLINE);
+        tx_string(NEWLINE "[" APPNAME " INFO] RTC setting failed." NEWLINE);
         return -1;
     }
-    tx_string(NEWLINE "[OS Shell INFO] RTC set." NEWLINE);
+    tx_string(NEWLINE "[" APPNAME " INFO] RTC set." NEWLINE);
     return 0;
 }

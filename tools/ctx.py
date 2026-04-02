@@ -56,6 +56,16 @@ def intel_hex_records(data: bytes, chunk_size: int = 16) -> Iterable[str]:
     # EOF record
     yield ":00000001FF"
 
+BAR_WIDTH = 47
+def draw_progress(done: int, total: int) -> None:
+    if total > 0:
+        pct = min(100, int(100 * done / total))
+        filled = min(BAR_WIDTH, int(BAR_WIDTH * done / total))
+    else:
+        pct = 0
+        filled = 0
+    bar = "\u2588" * filled + "\u2591" * (BAR_WIDTH - filled)
+    print(f"\r\u2588 [{bar}] {pct:3d}%", end="", flush=True)
 
 def send_intel_hex(port: str, baud: int, filepath: str, chunk_size: int = 16,
                    ack_timeout: float = 5.0) -> None:
@@ -74,8 +84,9 @@ def send_intel_hex(port: str, baud: int, filepath: str, chunk_size: int = 16,
         print(f"\u2588\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510")
         print(f"\u2588  Courier TX \u2014 file sender for Picocomputer 6502       \u2502")
         print(f"\u2588\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518")
-        print(f"Sending '{filename}' ({total} B) to {port} @ {baud} baud ...")
-        print(f"Checksum       : {checksum:08X}")
+        print(f"\u2588 Sending '{filename}' ({total} B)")
+        print(f"\u2588 to {port} @ {baud} baud ...")
+        print(f"\u2588 file checksum (CRC32) : {checksum:08X}")
 
         # --- naglowek ---
         ser.write(SOT)
@@ -105,15 +116,15 @@ def send_intel_hex(port: str, baud: int, filepath: str, chunk_size: int = 16,
             if i < n_data_records:
                 sent += min(chunk_size, total - i * chunk_size)
                 pct = min(100, int(100 * sent / total))
-                bar = "\u2588" * (pct * 20 // 100) + "\u2591" * (20 - pct * 20 // 100)
-                print(f"\r[{bar}] {pct:3d}%", end="", flush=True)
+                bar = "\u2588" * (pct * BAR_WIDTH // 100) + "\u2591" * (BAR_WIDTH - pct * BAR_WIDTH // 100)
+                print(f"\r\u2588 [{bar}] {pct:3d}%", end="", flush=True)
 
         # --- koniec transmisji ---
         print()
         ser.write(ETX)
         ser.write(EOT)
         ser.flush()
-        print("Done.")
+        print("\u2588 Done.\r\n")
 
 
 def main() -> None:
