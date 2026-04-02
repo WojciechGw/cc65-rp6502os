@@ -16,6 +16,14 @@
 
 #include "shell.h"
 
+#define APPVER "20260402.2054"
+#define APPNAME "razemOS"
+#define APP_MSG_START ANSI_DARK_GRAY "\x1b[12;35H" APPNAME
+#define APP_HOURGLASS "\x1b[14;34H" "..........\x1b[10D" ANSI_RESET
+#define APP_MSG_TITLE "\x1b[2;1H\x1b" HIGHLIGHT_COLOR " " APPNAME " > " ANSI_RESET " for Picocomputer 6502" ANSI_DARK_GRAY "\x1b[2;60Hversion " APPVER ANSI_RESET
+#define APP_MSG_HELP_COMADDRESS "\x1b[30;1H" ANSI_DARK_GRAY "Hint: press F1 for help RUN ADDRESS:" STR(COM_LOAD_ADDR) " version " APPVER ANSI_RESET
+#define APP_MSG_EXIT NEWLINE "Exiting to the monitor." NEWLINE "Bye, bye !" NEWLINE NEWLINE
+
 /* GFX subsystem setup */
 #define GFX_CANVAS_640x480 3
 #define GFX_MODE_CONSOLE   0
@@ -241,7 +249,7 @@ int main(void) {
                 }
                 if(rx == CHAR_F3 || rx == 'R') {
 
-                    // for internal command call
+                    // internal command call
                     // char *args[1];
                     // args[0] = (char *)"time";
                     // tx_string(NEWLINE);
@@ -249,7 +257,7 @@ int main(void) {
                     // cmdline.bytes = 0;
                     // cmdline.buffer[0] = 0;
 
-                    // for external command call
+                    // external command call
                     char path[FNAMELEN];
                     int com_argc = 3;
                     
@@ -275,6 +283,7 @@ int main(void) {
                 if(rx == CHAR_F4 || rx == 'S') {
                     ext_rx = 0;
                     {
+                        // internal command call
                         char *args[1];
                         args[0] = (char *)"ls";
                         tx_string(NEWLINE);
