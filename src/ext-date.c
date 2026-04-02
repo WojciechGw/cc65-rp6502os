@@ -1,5 +1,7 @@
 #include "commons.h"
 
+#define APPVER "20260402.1500"
+
 struct Month {
     const char* name;
     int days;

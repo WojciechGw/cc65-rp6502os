@@ -10,6 +10,7 @@
 #include "commons.h"
 
 #define APPVER "20260317.2100"
+
 #define APPNAME "razemOS"
 #define APP_MSG_TITLE CSI_RESET "\x1b[2;1H\x1b" HIGHLIGHT_COLOR " " APPNAME " > " ANSI_RESET " Set date & time" ANSI_DARK_GRAY "\x1b[2;60Hversion " APPVER ANSI_RESET
 #define APP_MSG_START ANSI_DARK_GRAY "\x1b[4;1HEnter current date & time [YYYY-MM-DD HH:MM:SS] or ESC to cancel procedure." ANSI_RESET NEWLINE NEWLINE "> " CSI_CURSOR_SHOW

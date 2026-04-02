@@ -1,6 +1,8 @@
 #include "commons.h"
 
-#define VERSION "20251215.1640"
+#define APPVER "20251215.1640"
+
+#define VERSION APPVER
 #define FNAMELEN 64
 #define DIR_LIST_MAX 40
 

@@ -5,6 +5,7 @@
 #include "commons.h"
 
 #define APPVER "20260401.1336"
+
 #define APPNAME "Test"
 #define APPDIRDEFAULT "MSC0:/"
 #define APP_MSG_TITLE CSI_RESET CSI "[2;1H" CSI HIGHLIGHT_COLOR " " APPNAME " > " ANSI_RESET " " APPNAME ANSI_DARK_GRAY CSI "[2;60H" "version " APPVER ANSI_RESET

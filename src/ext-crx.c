@@ -9,7 +9,7 @@
 
 #define NEWLINE "\r\n"
 
-#define APPVER "20260402.1444"
+#define APPVER "20260402.1512"
 
 /* ---- RIA UART access ---------------------------------------------------- */
 
@@ -399,10 +399,11 @@ int main(int argc, char **argv)
         DrawText(6, (uint8_t)(19 + strlen(sb)), " bytes received", GREEN, BLACK);
         DrawText(8, 0, "Saved: ", DARK_GRAY, BLACK);
         DrawText(8, 7, rx_outpath, WHITE, BLACK);
+        sprintf(sb, "%lu", (rx_checksum_calc ^ 0xFFFFFFFFUL));
         if (ck_ok) {
-            DrawText(10, 0, " Checksum OK ", WHITE, DARK_GREEN);
+            DrawText(10, 0, " Checksum [%lu] ", WHITE, DARK_GREEN);
         } else {
-            DrawText(10, 0, " Checksum FAIL ", WHITE, DARK_RED);
+            DrawText(10, 0, " Checksum [%lu] ", WHITE, DARK_RED);
         }
         break;
     }

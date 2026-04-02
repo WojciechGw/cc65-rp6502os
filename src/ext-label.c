@@ -1,5 +1,7 @@
 #include "commons.h"
 
+#define APPVER "20260402.1500"
+
 // #define DEBUG
 
 #define FNAMELEN 64

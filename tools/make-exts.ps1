@@ -15,6 +15,15 @@ if (-not $files) {
 Push-Location "$PSScriptRoot/..//src/extcmd"
 foreach ($file in $files) {
     $cmd = $file.BaseName -replace '^ext-', ''
+
+    $appver  = (Get-Date).ToString('yyyyMMdd.HHmm')
+    $srcFile = Join-Path $PSScriptRoot "..\src\ext-$shellextcmdname.c"
+    if (Test-Path $srcFile) {
+        (Get-Content $srcFile -Raw) `
+            -replace '#define APPVER "[^"]*"', "#define APPVER `"$appver`"" |
+            Set-Content $srcFile -NoNewline
+    }
+
     Write-Host "Executing: make CMD=$cmd START=$Start"
     & make "CMD=$cmd" "START=$Start"
 

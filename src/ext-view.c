@@ -6,6 +6,7 @@
 #include "commons.h"
 
 #define APPVER "20260401.1442"
+
 #define APPNAME "Viewer for BMP files 640x480x1bpp"
 #define APPDIRDEFAULT "" // view in current directory if empty
 #define APP_MSG_TITLE CSI_RESET CSI "[2;1H" CSI HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " " APPNAME ANSI_DARK_GRAY CSI "[2;60H" "version " APPVER ANSI_RESET

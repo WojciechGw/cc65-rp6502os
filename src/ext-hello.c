@@ -3,6 +3,8 @@
 
 #include "commons.h"
 
+#define APPVER "20260402.1500"
+
 int main(int argc, char **argv) {
     int i;
 

@@ -1,3 +1,5 @@
+#define APPVER "20260401.1000"
+
 #include "commons.h"
 
 struct Month {

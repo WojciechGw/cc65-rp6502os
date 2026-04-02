@@ -1,6 +1,7 @@
 #include "commons.h"
 
 #define APPVER "20260318.0925"
+
 #define APPDIRDEFAULT_A "MSC0:/"
 #define APPDIRDEFAULT_B "MSC1:/"
 #define APP_MSG_TITLE CSI_RESET "\x1b[2;1H\x1b" HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " RPcommander" ANSI_DARK_GRAY "\x1b[2;60Hversion " APPVER ANSI_RESET
