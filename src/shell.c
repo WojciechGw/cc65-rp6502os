@@ -252,6 +252,9 @@ int main(void) {
                     // for external command call
                     char path[FNAMELEN];
                     int com_argc = 3;
+                    
+                    tx_string(NEWLINE);
+                    
                     strcpy(path, shelldir);
                     strcat(path, "date.com");
                     com_argv[0] = (char *)"com";

@@ -107,11 +107,16 @@ int main(int argc, char **argv) {
     
     switch(action){
         case SHOW_DATETIMECALENDAR:
-            printf(NEWLINE "INformation about current date & time" NEWLINE 
-                   "%04d-%02d-%02d %02d:%02d:%02d" NEWLINE,
-                   year, month, day, hour, minute, second);
-            printf(NEWLINE "day of : year %d, month %d, week %d" NEWLINE,
-                   yday, mday, wday );
+            printf(NEWLINE 
+                   "Date & time information" NEWLINE
+                   "-----------------------" NEWLINE
+                   NEWLINE 
+                   " %04d-%02d-%02d  %02d:%02d:%02d" NEWLINE,
+                     year, month, day, hour, minute, second);
+            printf(NEWLINE "    day of: year  %d" NEWLINE
+                           "            month %d" NEWLINE
+                           "            week  %d" NEWLINE,
+                           yday, mday, wday );
             print_calendar(year, month, day);
             break;
         case SET_DATETIME:

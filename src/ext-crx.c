@@ -9,7 +9,7 @@
 
 #define NEWLINE "\r\n"
 
-#define APPVER "20260401.0114"
+#define APPVER "20260402.1444"
 
 /* ---- RIA UART access ---------------------------------------------------- */
 
@@ -33,7 +33,7 @@ typedef unsigned int u16;
 
 /* ---- protocol constants ------------------------------------------------- */
 
-#define RX_TIMEOUT_SECONDS 1
+#define RX_TIMEOUT_SECONDS 10
 #define TICKS_PER_SEC      100
 
 #define ESC 0x1B
@@ -64,13 +64,32 @@ typedef unsigned int u16;
 #define IHX_DATA  4  /* data bytes: byte_count*2 chars */
 #define IHX_SKIP  5  /* skip to end of line (\n) */
 
+#define IHX_RTYPE_DATA 0x00u  /* data record */
+#define IHX_RTYPE_EOF  0x01u  /* end-of-file record */
+#define IHX_RTYPE_ELA  0x04u  /* extended linear address — skipped by IHX_SKIP */
+
 unsigned char c;
+
+/* ---- CRC32 bit-at-a-time (polynomial 0xEDB88320, no table) -------------- */
+
+static unsigned long crc32_update(unsigned long crc, unsigned char b)
+{
+    uint8_t i;
+    crc ^= (unsigned long)b;
+    for (i = 0; i < 8u; i++) {
+        if (crc & 1UL)
+            crc = (crc >> 1) ^ 0xEDB88320UL;
+        else
+            crc >>= 1;
+    }
+    return crc;
+}
 
 static unsigned long rx_count         = 0;
 static unsigned long rx_decoded       = 0;
 static unsigned long rx_filesize      = 0;
-static unsigned long rx_checksum_exp  = 0;  /* checksum from header   */
-static unsigned long rx_checksum_calc = 0;  /* checksum of received data */
+static unsigned long rx_checksum_exp  = 0;  /* CRC32 from header     */
+static unsigned long rx_checksum_calc = 0;  /* CRC32 of received data */
 static char rx_filename[RX_FILENAME_MAX];
 static char rx_outpath[RX_OUTPATH_MAX];
 
@@ -198,8 +217,8 @@ static uint8_t ihx_feed(uint8_t ch)
             ihx_di++; ihx_pos = 0;
             if (ihx_di >= ihx_bc) {
                 ihx_state = IHX_SKIP;
-                if (ihx_type == 0x00u) return 1;
-                if (ihx_type == 0x01u) return 2;
+                if (ihx_type == IHX_RTYPE_DATA) return 1;
+                if (ihx_type == IHX_RTYPE_EOF)  return 2;
             }
         }
         break;
@@ -248,7 +267,7 @@ int main(int argc, char **argv)
 
     if (!auto_mode) {
         /* --- interactive: wait for SOT or Esc --- */
-        DrawText(2, 0, "Waiting for incoming data or [Esc] to exit", DARK_GRAY, BLACK);
+        DrawText(3, 0, "Waiting for incoming data or [Esc] to exit", DARK_GRAY, BLACK);
         for (;;) {
             if (RX_READY()) {
                 c = RRIA.RX;
@@ -258,7 +277,7 @@ int main(int argc, char **argv)
         }
     } else {
         /* --- auto mode: SOT was consumed by shell, proceed directly --- */
-        DrawText(2, 0, "Receiving...", DARK_GRAY, BLACK);
+        DrawText(4, 0, "Receiving...", DARK_GRAY, BLACK);
     }
 
     /* --- receive header: SOH + name + EOH + 4B size + STX --- */
@@ -284,15 +303,15 @@ int main(int argc, char **argv)
         uint8_t  col;
         sprintf(sb, "%lu", rx_filesize);
         ClearLine(2, WHITE, BLACK);
-        DrawText(2,  0, "Receiving: ",  DARK_GRAY, BLACK);
-        DrawText(2, 11, rx_outpath,     WHITE,     BLACK);
+        DrawText(4,  0, "Receiving: ",  DARK_GRAY, BLACK);
+        DrawText(4, 11, rx_outpath,     WHITE,     BLACK);
         col = (uint8_t)(11 + strlen(rx_outpath));
-        DrawText(2, col, "  (", DARK_GRAY, BLACK); col += 3;
-        DrawText(2, col, sb,    WHITE,     BLACK);  col += (uint8_t)strlen(sb);
-        DrawText(2, col, " B)", DARK_GRAY, BLACK);
+        DrawText(4, col, "  (", DARK_GRAY, BLACK); col += 3;
+        DrawText(4, col, sb,    WHITE,     BLACK);  col += (uint8_t)strlen(sb);
+        DrawText(4, col, " B)", DARK_GRAY, BLACK);
     }
 
-    DrawBar(4, 0L, (long)rx_filesize);
+    DrawBar(6, 0L, (long)rx_filesize);
 
     ria_tx_byte('\x00');  /* READY — file open, ready for data */
 
@@ -304,7 +323,7 @@ int main(int argc, char **argv)
     ihx_pos          = 0;
     rx_count         = 0;
     rx_decoded       = 0;
-    rx_checksum_calc = 0;
+    rx_checksum_calc = 0xFFFFFFFFUL;  /* CRC32 initial value */
     start            = clock();
 
     {
@@ -325,7 +344,7 @@ int main(int argc, char **argv)
                     RIA.step0 = 1;
                     for (j = 0; j < ihx_bc; j++) {
                         RIA.rw0 = ihx_buf[j];
-                        rx_checksum_calc += (unsigned long)ihx_buf[j];
+                        rx_checksum_calc = crc32_update(rx_checksum_calc, ihx_buf[j]);
                     }
                     if (write_xram(XRAM_DECODE_STAGE, (unsigned)ihx_bc, fd_out) < 0) {
                         action = 0;
@@ -337,7 +356,7 @@ int main(int argc, char **argv)
                                     ? (int)(rx_decoded * 100UL / rx_filesize) : 0;
                         if (cur_pct != prev_pct) {
                             prev_pct = cur_pct;
-                            DrawBar(4, (long)rx_decoded, (long)rx_filesize);
+                            DrawBar(6, (long)rx_decoded, (long)rx_filesize);
                         }
                     }
                     ria_tx_byte('\x00');  /* ACK — allow sender to send next line */
@@ -373,35 +392,35 @@ int main(int argc, char **argv)
     case 1:
     {
         char sb[12];
-        uint8_t ck_ok = (rx_checksum_calc == rx_checksum_exp);
+        uint8_t ck_ok = ((rx_checksum_calc ^ 0xFFFFFFFFUL) == rx_checksum_exp);
         sprintf(sb, "%lu", rx_decoded);
         DrawText(6, 0, "Transfer complete.  ", GREEN, BLACK);
         DrawText(6, 19, sb, WHITE, BLACK);
         DrawText(6, (uint8_t)(19 + strlen(sb)), " bytes received", GREEN, BLACK);
-        DrawText(7, 0, "Saved: ", DARK_GRAY, BLACK);
-        DrawText(7, 7, rx_outpath, WHITE, BLACK);
+        DrawText(8, 0, "Saved: ", DARK_GRAY, BLACK);
+        DrawText(8, 7, rx_outpath, WHITE, BLACK);
         if (ck_ok) {
-            DrawText(8, 0, "Checksum OK", GREEN, BLACK);
+            DrawText(10, 0, " Checksum OK ", WHITE, DARK_GREEN);
         } else {
-            DrawText(8, 0, "Checksum FAIL", RED, BLACK);
+            DrawText(10, 0, " Checksum FAIL ", WHITE, DARK_RED);
         }
         break;
     }
     }
-    DrawText((uint8_t)(CGX_ROWS - 2), 0, "Press any key...", DARK_GRAY, BLACK);
+    DrawText(12, 0, "Press any key...", DARK_GRAY, BLACK);
     wait_key_and_restore();
     return 0;
 
 done_pre:
     switch (action) {
     case -1:
-        DrawText(2, 0, "Cancelled.",  DARK_GRAY, BLACK);
+        DrawText(8, 0, "Cancelled.",  DARK_GRAY, BLACK);
         break;
     case 0:
-        DrawText(2, 0, "ERROR: cannot open output file.", RED, BLACK);
+        DrawText(8, 0, "ERROR: cannot open output file.", RED, BLACK);
         break;
     }
-    DrawText((uint8_t)(CGX_ROWS - 2), 0, "Press any key...", DARK_GRAY, BLACK);
+    DrawText(12, 0, "Press any key...", DARK_GRAY, BLACK);
     wait_key_and_restore();
     return 0;
 }

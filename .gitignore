@@ -6,3 +6,5 @@ __pycache__
 /src/extcmd/*.map
 /tools/obsolete
 /courier
+.codex
+.rp6502

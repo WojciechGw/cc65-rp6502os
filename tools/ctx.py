@@ -8,6 +8,7 @@ import argparse
 import os
 import sys
 import time
+import zlib
 from typing import Iterable
 
 try:
@@ -42,10 +43,17 @@ def wait_for(ser, marker: bytes, timeout: float, label: str) -> bool:
 
 def intel_hex_records(data: bytes, chunk_size: int = 16) -> Iterable[str]:
     addr = 0
+    prev_ela = -1
     while addr < len(data):
+        # Emit Extended Linear Address record when upper 16 bits change
+        ela = addr >> 16
+        if ela != prev_ela:
+            ela_cks = (-(0x02 + 0x04 + ((ela >> 8) & 0xFF) + (ela & 0xFF))) & 0xFF
+            yield f":02000004{ela:04X}{ela_cks:02X}"
+            prev_ela = ela
         chunk = data[addr:addr + chunk_size]
         count = len(chunk)
-        addr16 = addr & 0xFFFF  # IHX address field is 16-bit
+        addr16 = addr & 0xFFFF
         cks = count + ((addr16 >> 8) & 0xFF) + (addr16 & 0xFF) + 0x00
         hexdata = "".join(f"{b:02X}" for b in chunk)
         for b in chunk:
@@ -68,15 +76,12 @@ def draw_progress(done: int, total: int) -> None:
     print(f"\r\u2588 [{bar}] {pct:3d}%", end="", flush=True)
 
 def send_intel_hex(port: str, baud: int, filepath: str, chunk_size: int = 16,
-                   ack_timeout: float = 5.0) -> None:
+                   ack_timeout: float = 30.0) -> None:
     filename = os.path.basename(filepath)
     with open(filepath, "rb") as f:
         data = f.read()
     total = len(data)
-    checksum = sum(data) & 0xFFFFFFFF
-    records = list(intel_hex_records(data, chunk_size))
-    n_data_records = (total + chunk_size - 1) // chunk_size  # bez rekordu EOF
-
+    checksum = zlib.crc32(data) & 0xFFFFFFFF
     with serial.Serial(port, baudrate=baud, bytesize=serial.EIGHTBITS,
                        parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE,
                        timeout=ack_timeout) as ser:
@@ -85,7 +90,7 @@ def send_intel_hex(port: str, baud: int, filepath: str, chunk_size: int = 16,
         print(f"\u2588  Courier TX \u2014 file sender for Picocomputer 6502       \u2502")
         print(f"\u2588\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518")
         print(f"\u2588 Sending '{filename}' ({total} B)")
-        print(f"\u2588 to {port} @ {baud} baud ...")
+        print(f"\u2588 to {port} @ {baud} baud")
         print(f"\u2588 file checksum (CRC32) : {checksum:08X}")
 
         # --- naglowek ---
@@ -105,16 +110,20 @@ def send_intel_hex(port: str, baud: int, filepath: str, chunk_size: int = 16,
             return
 
         # --- dane IntelHEX z ACK flow control ---
+        # Stream generator directly — do NOT call list() to avoid large memory allocation
         sent = 0
-        for i, line in enumerate(records):
+        data_record_idx = 0
+        for line in intel_hex_records(data, chunk_size):
+            is_eof = line.startswith(":00000001")
+            is_ela = line.startswith(":02000004")   # ELA record (type 04), no ACK expected
             ser.write((line + "\r\n").encode("ascii"))
             ser.flush()
-            is_eof = (i == len(records) - 1)  # last record is always the EOF record
-            if not is_eof:
-                if not wait_for(ser, ACK, ack_timeout, f"ACK '+' record {i}"):
+            if not is_eof and not is_ela:
+                if not wait_for(ser, ACK, ack_timeout, f"ACK record"):
                     return
-            if i < n_data_records:
-                sent += min(chunk_size, total - i * chunk_size)
+            if not is_ela and not is_eof:
+                sent += min(chunk_size, total - data_record_idx * chunk_size)
+                data_record_idx += 1
                 pct = min(100, int(100 * sent / total))
                 bar = "\u2588" * (pct * BAR_WIDTH // 100) + "\u2591" * (BAR_WIDTH - pct * BAR_WIDTH // 100)
                 print(f"\r\u2588 [{bar}] {pct:3d}%", end="", flush=True)
@@ -133,7 +142,7 @@ def main() -> None:
     ap.add_argument("--port",    default="COM4",  help="Serial port (default COM4)")
     ap.add_argument("--baud",    type=int, default=115200, help="Baud rate (default 115200)")
     ap.add_argument("--chunk",   type=int, default=16, help="Bytes per record (default 16)")
-    ap.add_argument("--timeout", type=float, default=5.0, help="ACK timeout seconds (default 5.0)")
+    ap.add_argument("--timeout", type=float, default=30.0, help="ACK timeout seconds (default 30.0)")
     args = ap.parse_args()
     send_intel_hex(args.port, args.baud, args.filepath, args.chunk, args.timeout)
 

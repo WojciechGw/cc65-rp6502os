@@ -5,9 +5,8 @@ project(MY-RP6502-PROJECT C ASM)
 add_subdirectory(tools)
 
 add_executable(shell)
-rp6502_asset(shell 0x12000 assets/bin/wallpaper.bin)
+#rp6502_asset(shell 0x12000 assets/bin/wallpaper.bin)
 rp6502_asset(shell help src/shell.hlp)
-
 # ROM: commands
 rp6502_asset(shell crx.com src/extcmd/build/crx.com)
 rp6502_asset(shell ctx.com src/extcmd/build/ctx.com)
