@@ -11,7 +11,7 @@
 
 #include "commons.h"
 
-#define APPVER "20260403.1824"
+#define APPVER "20260403.1855"
 
 // An extremely simple terminal for the Pico RIA W modem.
 // Uses the terminal built in to the Pico VGA.
@@ -26,10 +26,6 @@ uint8_t keystates[KEYBOARD_BYTES] = {0};
 // 1 << (code&7) moves a 1 into proper position to mask with byte contents
 // final & gives 1 if key is pressed, 0 if not
 #define key(code) (keystates[code >> 3] & (1 << (code & 7)))
-
-// wait on clock
-uint32_t ticks = 0; // for PAUSE(millis)
-#define PAUSE(millis) ticks=clock(); while(clock() < (ticks + millis)){}
 
 #define RX_READY (RIA.ready & RIA_READY_RX_BIT)
 
@@ -54,6 +50,9 @@ int main(int argc, char **argv)
 	uint8_t i,j,new_key,new_keys;
     const char *device = "AT:";
 
+    (void)argc;
+    (void)argv;
+    
     #ifdef DEBUG
     {
         int i;

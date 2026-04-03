@@ -5,7 +5,7 @@
 
 #include "commons.h"
 
-#define APPVER "20260403.1824"
+#define APPVER "20260403.1855"
 
 #define APPNAME "Viewer for BMP files 640x480x1bpp"
 #define APPDIRDEFAULT "" // view in current directory if empty
@@ -19,8 +19,6 @@
 uint8_t keystates[KEYBOARD_BYTES] = {0};
 bool handled_key = false;
 #define key(code) (keystates[(code) >> 3] & (1 << ((code) & 7)))
-
-#define PAUSE(millis) ticks=clock(); while(clock() < (ticks + millis)){}
 
 /* GFX subsystem setup */
 #define GFX_CANVAS_640x480 3
@@ -206,7 +204,7 @@ int main(int argc, char **argv) {
         xram0_struct_set(GFX_STRUCT, vga_mode3_config_t, y_pos_px, 0);
         xram0_struct_set(GFX_STRUCT, vga_mode3_config_t, width_px, 640);
         xram0_struct_set(GFX_STRUCT, vga_mode3_config_t, height_px, 480);
-        if (strcmp(argv[0], "/x") == 0) {
+        if (strcmp(argv[0], "/x") == 0 || strcmp(argv[0], "/xw") == 0) {
             uint16_t xaddr = (argc > 1) ? (uint16_t)strtoul(argv[1], NULL, 0) : GFX_DATA;
             xram0_struct_set(GFX_STRUCT, vga_mode3_config_t, xram_data_ptr, xaddr);
             xram0_struct_set(GFX_STRUCT, vga_mode3_config_t, xram_palette_ptr, 0xFFFF);
@@ -230,7 +228,9 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    if (strcmp(argv[0], "/x") == 0) {
+
+    if (strcmp(argv[0], "/x") == 0 || strcmp(argv[0], "/xw") == 0) {
+      if (strcmp(argv[0], "/xw") == 0) PAUSE(200);
       xreg(1, 0, 1, GFX_MODE_CONSOLE);
       printf(CSI_CLS);
       return 0;      

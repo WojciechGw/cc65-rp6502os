@@ -19,7 +19,7 @@ extern struct _timezone _tz;
     #define __STACKSIZE__ 0x0200
 #endif
 #define MEMTOP (0xFF00-__STACKSIZE__)
-#define COM_LOAD_ADDR 0x7500  // lowest ram address where to load the external command code (binary shell extensions - .com files)
+#define COM_LOAD_ADDR 0x7400  // lowest ram address where to load the external command code (binary shell extensions - .com files)
 
 #define SHELLDIRDEFAULT "ROM:"
 #define SHELLPROMPT "> "
@@ -62,10 +62,6 @@ extern struct _timezone _tz;
 #define CPMBUFFLEN 96
 #define RMBUFFLEN 96
 #define DIR_LIST_MAX 40
-
-// wait on clock
-uint32_t ticks = 0; // for PAUSE(millis)
-#define PAUSE(millis) ticks=clock(); while(clock() < (ticks + millis)){}
 
 #define APPFLAG_RTC 0b00000001
 unsigned char appflags = 0b00000000;

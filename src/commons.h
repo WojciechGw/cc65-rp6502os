@@ -17,3 +17,7 @@
 
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)
+
+// wait on clock
+uint32_t ticks = 0; // for PAUSE(millis)
+#define PAUSE(millis) ticks=clock(); while(clock() < (ticks + millis)){}

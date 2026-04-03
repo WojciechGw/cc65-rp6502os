@@ -14,7 +14,7 @@ from datetime import datetime
 
 def main() -> None:
     ap = argparse.ArgumentParser(description="Build all ext-*.c shell extensions.")
-    ap.add_argument("--start", default="7500", help="Load address START (default 7500)")
+    ap.add_argument("--start", default="7400", help="Load address START (default 7400)")
     args = ap.parse_args()
 
     tools_dir  = os.path.dirname(os.path.abspath(__file__))

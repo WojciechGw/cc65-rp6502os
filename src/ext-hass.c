@@ -10,7 +10,7 @@
 #include "commons.h"
 #include "ext-hass-opcodes.h"
 
-#define APPVER "20260403.1824"
+#define APPVER "20260403.1855"
 
 #define APPDIRDEFAULT "MSC0:/"
 #define APP_MSG_TITLE CSI_RESET "\x1b[2;1H\x1b" HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " Handy ASSembler WDC65C02S" ANSI_DARK_GRAY "\x1b[2;60Hversion " APPVER ANSI_RESET
@@ -1366,7 +1366,7 @@ int main(int argc, char **argv){
                 }
                 if(strcmp(dir,"@EXIT")==0){
                     if(nlines > 0) save_source_lines(HASS_LAST_SOURCE_CODE_BUFFER_FILE);
-                    printf(NEWLINE "Bye, bye!" NEWLINE NEWLINE);
+                    printf(NEWLINE NEWLINE);
                     return 0;
                 }
                 if(strcmp(dir,"@MAKE")==0){

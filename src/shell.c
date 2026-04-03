@@ -113,10 +113,10 @@ int main(void) {
 
     strncpy(shelldir, default_shelldir, sizeof(shelldir));
     shelldir[sizeof(shelldir) - 1] = '\0';
-    execute_cmd(&cmdline, "view /x");
+    execute_cmd(&cmdline, "view /xw");
     cmdline.bytes = 0;
     cmdline.buffer[0] = 0;
-    
+
     // start screen
     tx_string(CSI_CLS CSI_CURSOR_HIDE); // hide cursor
     // tx_string(APP_MSG_START);

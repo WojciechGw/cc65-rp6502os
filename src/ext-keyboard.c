@@ -8,7 +8,7 @@
 
 #include "commons.h"
 
-#define APPVER "20260403.1824"
+#define APPVER "20260403.1855"
 
 #define APP_HEADER CSI "[2;1H" CSI HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " Keyboard Visualiser                           " ANSI_DARK_GRAY "version " APPVER ANSI_RESET
 #define APP_FOOTER ANSI_DARK_GRAY CSI "[11;1H________________________________________________________________________________" NEWLINE "press and hold both Shift keys to exit                     last keycode :       " ANSI_RESET
@@ -35,10 +35,6 @@ uint8_t keystates[KEYBOARD_BYTES] = {0};
 
 #define POS_KEYBOARD  "[4;1H"
 #define POS_KEYPRESS  "[12;75H"
-
-// wait on clock
-uint32_t ticks = 0; // for PAUSE(millis)
-#define PAUSE(millis) ticks=clock(); while(clock() < (ticks + millis)){}
 
 #define RX_READY (RIA.ready & RIA_READY_RX_BIT)
 
