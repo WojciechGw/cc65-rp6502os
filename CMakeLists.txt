@@ -6,7 +6,8 @@ add_subdirectory(tools)
 
 add_executable(shell)
 rp6502_asset(shell help src/shell.hlp)
-rp6502_asset(shell 0x12000 assets/bin/wallpaper.bin)
+# XRAM
+rp6502_asset(shell 0x12000 assets/gfx/bin/wallpaper.bin)
 # ROM: commands
 rp6502_asset(shell crx.com src/extcmd/build/crx.com)
 rp6502_asset(shell ctx.com src/extcmd/build/ctx.com)

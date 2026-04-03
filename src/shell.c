@@ -16,11 +16,12 @@
 
 #include "shell.h"
 
-#define APPVER "20260403.1440"
+#define APPVER "20260403.2100"
 #define APPNAME "razemOS"
 #define APP_MSG_START ANSI_DARK_GRAY "\x1b[12;35H" APPNAME
-#define APP_HOURGLASS "\x1b[14;34H" "..........\x1b[10D" ANSI_RESET
+#define APP_HOURGLASS "\x1b[14;34H" ANSI_DARK_GRAY "..........\x1b[10D" ANSI_RESET
 #define APP_MSG_TITLE "\x1b[2;1H\x1b" HIGHLIGHT_COLOR " " APPNAME " > " ANSI_RESET " for Picocomputer 6502" ANSI_DARK_GRAY "\x1b[2;60Hversion " APPVER ANSI_RESET
+#define APP_STARTPROMPTPOS CSI "[4;1H"
 #define APP_MSG_HELP_COMADDRESS "\x1b[30;1H" ANSI_DARK_GRAY "Hint: press F1 for help RUN ADDRESS:" STR(COM_LOAD_ADDR) " version " APPVER ANSI_RESET
 #define APP_MSG_EXIT NEWLINE "Exiting to the monitor." NEWLINE "Bye, bye !" NEWLINE NEWLINE
 
@@ -93,31 +94,14 @@ int main(void) {
     static cmdline_t cmdline = {0};
     struct tm *tmnow = get_time();
 
-    #ifdef CODEOFF
     // start screen
-    xreg(1, 0, 0, GFX_CANVAS_640x480);
-    xram0_struct_set(GFX_STRUCT, vga_mode3_config_t, x_wrap, false);
-    xram0_struct_set(GFX_STRUCT, vga_mode3_config_t, y_wrap, false);
-    xram0_struct_set(GFX_STRUCT, vga_mode3_config_t, x_pos_px, 0);
-    xram0_struct_set(GFX_STRUCT, vga_mode3_config_t, y_pos_px, 0);
-    xram0_struct_set(GFX_STRUCT, vga_mode3_config_t, width_px, 640);
-    xram0_struct_set(GFX_STRUCT, vga_mode3_config_t, height_px, 480);
-    xram0_struct_set(GFX_STRUCT, vga_mode3_config_t, xram_data_ptr, GFX_DATA);
-    xram0_struct_set(GFX_STRUCT, vga_mode3_config_t, xram_palette_ptr, 0xFFFF);
-    xreg(1, 0, 1, GFX_MODE_BITMAP, GFX_BITMAP_bpp1, GFX_STRUCT, GFX_PLANE_2);
-    // xreg(1, 0, 1, GFX_MODE_CONSOLE, GFX_PLANE_2);
-    PAUSE(300);
-    xreg(1, 0, 0, GFX_CANVAS_640x480);
-    xreg(1, 0, 1, GFX_MODE_CONSOLE);
-    #endif
-
     strncpy(shelldir, default_shelldir, sizeof(shelldir));
     shelldir[sizeof(shelldir) - 1] = '\0';
     execute_cmd(&cmdline, "view /xw");
     cmdline.bytes = 0;
     cmdline.buffer[0] = 0;
 
-    // start screen
+    #ifdef CODEOFF
     tx_string(CSI_CLS CSI_CURSOR_HIDE); // hide cursor
     // tx_string(APP_MSG_START);
 
@@ -144,9 +128,10 @@ int main(void) {
     } else {
         PAUSE(100);
     }
+    #endif
 
     tx_string(CSI_RESET);
-    tx_string(CSI_CURSOR_SHOW "\x1b[0m");
+    tx_string(CSI_CURSOR_SHOW ANSI_RESET);
 
     f_chdrive("0:");
     current_drive = '0';
@@ -158,6 +143,7 @@ int main(void) {
 
     cls();
     prompt(true);
+    ria_attr_set(1, RIA_ATTR_LAUNCHER);
 
     while (1)
     {
@@ -299,8 +285,7 @@ int main(void) {
 }
 
 void cls(){ // clear screen
-    tx_string(CSI_CLS CSI_CURSOR_SHOW);
-    tx_string(APP_MSG_TITLE NEWLINE NEWLINE);
+    tx_string(CSI_CLS CSI_CURSOR_SHOW APP_MSG_TITLE APP_STARTPROMPTPOS);
     return;
 }
 
@@ -1648,6 +1633,42 @@ int cmd_ls(int argc, char **argv){
     tx_string(NEWLINE);
     return rc;
 }
+
+#ifdef CODE_LAUNCH
+int cmd_launcher(int argc, char **argv){
+
+    if(argc < 2) {
+        tx_string("Usage: launcher /s - register as a launcher" NEWLINE
+                  "       launcher /r - deregister" NEWLINE
+                  "       launcher /status - status" NEWLINE);
+        return 0;
+    } else if(strcmp(argv[1],"/s") == 0){
+        ria_attr_set(1, RIA_ATTR_LAUNCHER);
+        return 1;
+    } else if(strcmp(argv[1],"/r") == 0) {
+        ria_attr_set(0, RIA_ATTR_LAUNCHER);
+        return -1;
+    } else if(strcmp(argv[1],"/status") == 0 && (ria_attr_get(RIA_ATTR_LAUNCHER) == 1)){
+        tx_string(NEWLINE "is a launcher" NEWLINE NEWLINE); 
+    } else {
+        tx_string(NEWLINE "is not a launcher" NEWLINE NEWLINE); 
+    }
+    return 0;
+
+}
+#endif
+
+#ifdef CODE_CART
+int cmd_cart(int argc, char **argv){
+
+    if(argc < 2) {
+        tx_string("Usage: cart romname" NEWLINE NEWLINE);
+    } else {
+        ria_execl(strcat(argv[1],".rp6502"));
+    }
+    return 0;
+}
+#endif
 
 // --------------------- TO DO --------------------------
 /*

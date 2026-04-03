@@ -13,13 +13,16 @@
 
 #include "commons.h"
 
+#define CODE_LAUNCH
+#define CODE_CART
+
 extern struct _timezone _tz;
 
 #ifndef __STACKSIZE__
     #define __STACKSIZE__ 0x0200
 #endif
 #define MEMTOP (0xFF00-__STACKSIZE__)
-#define COM_LOAD_ADDR 0x7400  // lowest ram address where to load the external command code (binary shell extensions - .com files)
+#define COM_LOAD_ADDR 0x7800  // lowest ram address where to load the external command code (binary shell extensions - .com files)
 
 #define SHELLDIRDEFAULT "ROM:"
 #define SHELLPROMPT "> "
@@ -148,8 +151,12 @@ int cmd_rm(int, char **);
 int cmd_run(int, char **);
 int cmd_stat(int, char **);
 int cmd_time(int, char **);
-// TO DO
-// int cmd_cart(int, char **); // load and run <romname>.rp6502
+#ifdef CODE_LAUNCH
+    int cmd_launcher(int, char **); 
+#endif
+#ifdef CODE_CART
+    int cmd_cart(int, char **);
+#endif
 
 static const cmd_t commands[] = {
     { "bload",  "", "", cmd_bload},
@@ -177,8 +184,12 @@ static const cmd_t commands[] = {
     { "run",    "", "", cmd_run},
     { "stat",   "", "", cmd_stat},
     { "time",   "", "", cmd_time },
-// TO DO
-//    { "cart",    "", "", cmd_cart},
+#ifdef CODE_LAUNCH
+    { "launcher",   "", "", cmd_launcher },
+#endif
+#ifdef CODE_CART
+    { "cart",   "", "", cmd_cart },
+#endif
 };
 
 // static void load_asset2xram(const char *path, unsigned xram_addr);
@@ -237,13 +248,14 @@ int cmd_rm(int argc, char **argv);
 int cmd_run(int argc, char **argv);
 int cmd_stat(int argc, char **argv);
 int cmd_time(int argc, char **argv);
+#ifdef CODE_LAUNCH
+   int cmd_launcher(int argc, char **argv);
+#endif
+#ifdef CODE_CART
+   int cmd_cart(int argc, char **argv);
+#endif
 extern char _BSS_RUN__[];
 extern char _BSS_SIZE__[];
-
-// TO DO
-// int cmd_cart(int argc, char **argv);
-// int cmd_crx(int argc, char **argv);
-// int cmd_ctx(int argc, char **argv);
 
 // ------------------- SCRATCHPAD -----------------------
 /*
