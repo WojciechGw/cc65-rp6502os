@@ -23,7 +23,7 @@
 #define APP_MSG_TITLE "\x1b[2;1H\x1b" HIGHLIGHT_COLOR " " APPNAME " > " ANSI_RESET " for Picocomputer 6502" ANSI_DARK_GRAY "\x1b[2;60Hversion " APPVER ANSI_RESET
 #define APP_STARTPROMPTPOS CSI "[4;1H"
 #define APP_MSG_HELP_COMADDRESS "\x1b[30;1H" ANSI_DARK_GRAY "Hint: press F1 for help RUN ADDRESS:" STR(COM_LOAD_ADDR) " version " APPVER ANSI_RESET
-#define APP_MSG_EXIT NEWLINE "Exiting to the monitor." NEWLINE "Bye, bye !" NEWLINE NEWLINE
+#define APP_MSG_EXIT NEWLINE "Exiting to the monitor." NEWLINE NEWLINE
 
 /* GFX subsystem setup */
 #define GFX_CANVAS_640x480 3
@@ -1662,7 +1662,7 @@ int cmd_launcher(int argc, char **argv){
 int cmd_cart(int argc, char **argv){
 
     if(argc < 2) {
-        tx_string("Usage: cart romname" NEWLINE NEWLINE);
+        tx_string("Usage: cart romname (without .rp6502 extension)" NEWLINE NEWLINE);
     } else {
         ria_execl(strcat(argv[1],".rp6502"));
     }
