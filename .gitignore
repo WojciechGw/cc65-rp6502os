@@ -4,8 +4,7 @@ __pycache__
 /.rp6502
 /build
 /src/trash
+/src/extcmd/build
 /src/extcmd/map
 /tools/obsolete
-/courier
-.codex
 .rp6502

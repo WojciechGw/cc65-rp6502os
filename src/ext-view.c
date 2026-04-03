@@ -5,7 +5,7 @@
 
 #include "commons.h"
 
-#define APPVER "20260403.1532"
+#define APPVER "20260403.1824"
 
 #define APPNAME "Viewer for BMP files 640x480x1bpp"
 #define APPDIRDEFAULT "" // view in current directory if empty
@@ -228,6 +228,12 @@ int main(int argc, char **argv) {
         #endif
         printf(NEWLINE "Usage: view [file.bmp]" NEWLINE NEWLINE);
         return 1;
+    }
+
+    if (strcmp(argv[0], "/x") == 0) {
+      xreg(1, 0, 1, GFX_MODE_CONSOLE);
+      printf(CSI_CLS);
+      return 0;      
     }
 
     xreg_ria_keyboard(KEYBORD_INPUT);
