@@ -1,14 +1,14 @@
 Modules list:
 -------------
-ext-label.c.22024.0.o:
+ext-label.c.29840.0.o:
     CODE              Offs=000000  Size=000204  Align=00001  Fill=0000
     RODATA            Offs=000000  Size=0000BD  Align=00001  Fill=0000
     DATA              Offs=000000  Size=000004  Align=00001  Fill=0000
-crt0_cmd.s.22024.1.o:
+crt0_cmd.s.29840.1.o:
     STARTUP           Offs=000000  Size=00001B  Align=00001  Fill=0000
-write_stub.c.22024.2.o:
+write_stub.c.29840.2.o:
     CODE              Offs=000204  Size=00004C  Align=00001  Fill=0000
-initmainargs.s.22024.3.o:
+initmainargs.s.29840.3.o:
     STARTUP           Offs=00001B  Size=000001  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(_file.o):
     DATA              Offs=000004  Size=00001E  Align=00001  Fill=0000
@@ -253,7 +253,7 @@ __STARTADDR__ ([linker generated]):
     [linker generated]        cfg/ext0x7800.cfg:9
     [linker generated]        cfg/ext0x7800.cfg:9
 __STARTUP__ (crt0.o):
-    ext-label.c.22024.0.o     ext-label.c.22024.0.s:13
+    ext-label.c.29840.0.o     ext-label.c.29840.0.s:13
     [linker generated]        cfg/ext0x7800.cfg:3
 ___errno (errno.o):
     _seterrno.o               /home/wojciech/git/WojciechGw/cc65/asminc/errno.inc:7
@@ -273,20 +273,20 @@ __longminstr (_longminstr.o):
 __printf (_printf.o):
     vfprintf.o                common/vfprintf.s:10
 _f_getcwd (f_getcwd.o):
-    ext-label.c.22024.0.o     ext-label.c.22024.0.s:15
+    ext-label.c.29840.0.o     ext-label.c.29840.0.s:15
 _f_getlabel (f_getlabel.o):
-    ext-label.c.22024.0.o     ext-label.c.22024.0.s:17
+    ext-label.c.29840.0.o     ext-label.c.29840.0.s:17
 _f_setlabel (f_setlabel.o):
-    ext-label.c.22024.0.o     ext-label.c.22024.0.s:16
+    ext-label.c.29840.0.o     ext-label.c.29840.0.s:16
 _fwrite (fwrite.o):
     vfprintf.o                common/vfprintf.s:10
 _ltoa (ltoa.o):
     _printf.o                 common/_printf.s:12
-_main (ext-label.c.22024.0.o):
+_main (ext-label.c.29840.0.o):
     callmain.o                runtime/callmain.s:11
-    crt0_cmd.s.22024.1.o      crt0_cmd.s:2
+    crt0_cmd.s.29840.1.o      crt0_cmd.s:2
 _printf (printf.o):
-    ext-label.c.22024.0.o     ext-label.c.22024.0.s:18
+    ext-label.c.29840.0.o     ext-label.c.29840.0.s:18
 _ria_call_int (ria.o):
     errno.o                   rp6502/errno.s:12
     f_setlabel.o              ../libwrk/rp6502/f_setlabel.s:19
@@ -301,18 +301,18 @@ _strlen (strlen.o):
 _strlower (strlower.o):
     _printf.o                 common/_printf.s:13
 _toupper (toupper.o):
-    ext-label.c.22024.0.o     ext-label.c.22024.0.s:19
+    ext-label.c.29840.0.o     ext-label.c.29840.0.s:19
 _ultoa (ltoa.o):
     _printf.o                 common/_printf.s:12
 _vfprintf (vfprintf.o):
     printf.o                  common/printf.s:8
-_write (write_stub.c.22024.2.o):
+_write (write_stub.c.29840.2.o):
     fwrite.o                  common/fwrite.s:10
 addeqysp (addeqsp.o):
     f_getlabel.o              ../libwrk/rp6502/f_getlabel.s:127
     f_getcwd.o                ../libwrk/rp6502/f_getcwd.s:103
-    write_stub.c.22024.2.o    write_stub.c.22024.2.s:64
-    ext-label.c.22024.0.o     ext-label.c.22024.0.s:342
+    write_stub.c.29840.2.o    write_stub.c.29840.2.s:64
+    ext-label.c.29840.0.o     ext-label.c.29840.0.s:342
 addysp (addysp.o):
     incsp6.o                  runtime/incsp6.s:8
     fwrite.o                  common/fwrite.s:11
@@ -320,7 +320,7 @@ addysp (addysp.o):
     incsp8.o                  runtime/incsp8.s:8
     incsp4.o                  runtime/incsp4.s:8
     f_getlabel.o              ../libwrk/rp6502/f_getlabel.s:127
-    write_stub.c.22024.2.o    write_stub.c.22024.2.s:64
+    write_stub.c.29840.2.o    write_stub.c.29840.2.s:64
 axlong (axlong.o):
     _printf.o                 common/_printf.s:11
 axulong (axlong.o):
@@ -348,8 +348,8 @@ c_sp (zeropage.o):
     crt0.o                    /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:11
     addysp.o                  runtime/addysp.s:8
     addeqsp.o                 runtime/addeqsp.s:8
-    write_stub.c.22024.2.o    write_stub.c.22024.2.s:10
-    ext-label.c.22024.0.o     ext-label.c.22024.0.s:10
+    write_stub.c.29840.2.o    write_stub.c.29840.2.s:10
+    ext-label.c.29840.0.o     ext-label.c.29840.0.s:10
 callmain (callmain.o):
     crt0.o                    rp6502/crt0.s:7
 copydata (copydata.o):
@@ -365,7 +365,7 @@ decsp6 (decsp6.o):
     _printf.o                 common/_printf.s:11
 donelib (condes.o):
     crt0.o                    rp6502/crt0.s:12
-    crt0_cmd.s.22024.1.o      crt0_cmd.s:2
+    crt0_cmd.s.29840.1.o      crt0_cmd.s:2
 incsp2 (incsp2.o):
     popptr1.o                 runtime/popptr1.s:8
     staspidx.o                runtime/staspidx.s:8
@@ -378,9 +378,9 @@ incsp8 (incsp8.o):
     f_getcwd.o                ../libwrk/rp6502/f_getcwd.s:103
 initlib (condes.o):
     crt0.o                    rp6502/crt0.s:12
-    crt0_cmd.s.22024.1.o      crt0_cmd.s:2
-initmainargs (initmainargs.s.22024.3.o):
-    ext-label.c.22024.0.o     ext-label.c.22024.0.s:14
+    crt0_cmd.s.29840.1.o      crt0_cmd.s:2
+initmainargs (initmainargs.s.29840.3.o):
+    ext-label.c.29840.0.o     ext-label.c.29840.0.s:14
 ldax0sp (ldaxsp.o):
     f_setlabel.o              ../libwrk/rp6502/f_setlabel.s:83
     f_getlabel.o              ../libwrk/rp6502/f_getlabel.s:127
@@ -420,8 +420,8 @@ ptr1 (zeropage.o):
     f_setlabel.o              ../libwrk/rp6502/f_setlabel.s:11
     f_getlabel.o              ../libwrk/rp6502/f_getlabel.s:11
     f_getcwd.o                ../libwrk/rp6502/f_getcwd.s:11
-    write_stub.c.22024.2.o    write_stub.c.22024.2.s:11
-    ext-label.c.22024.0.o     ext-label.c.22024.0.s:11
+    write_stub.c.29840.2.o    write_stub.c.29840.2.s:11
+    ext-label.c.29840.0.o     ext-label.c.29840.0.s:11
 ptr2 (zeropage.o):
     strlower.o                common/strlower.s:13
     ltoa.o                    common/ltoa.s:11
@@ -448,14 +448,14 @@ pushax (pushax.o):
     f_setlabel.o              ../libwrk/rp6502/f_setlabel.s:83
     f_getlabel.o              ../libwrk/rp6502/f_getlabel.s:127
     f_getcwd.o                ../libwrk/rp6502/f_getcwd.s:103
-    write_stub.c.22024.2.o    write_stub.c.22024.2.s:64
-    ext-label.c.22024.0.o     ext-label.c.22024.0.s:342
+    write_stub.c.29840.2.o    write_stub.c.29840.2.s:64
+    ext-label.c.29840.0.o     ext-label.c.29840.0.s:342
 pusheax (lpush.o):
     _printf.o                 common/_printf.s:11
 pushwysp (pushwsp.o):
     fwrite.o                  common/fwrite.s:11
     vfprintf.o                common/vfprintf.s:9
-    write_stub.c.22024.2.o    write_stub.c.22024.2.s:64
+    write_stub.c.29840.2.o    write_stub.c.29840.2.s:64
 regbank (zeropage.o):
     _printf.o                 /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:14
 sreg (zeropage.o):
@@ -468,7 +468,7 @@ sreg (zeropage.o):
     ria.o                     rp6502/ria.s:13
     icmp.o                    runtime/icmp.s:9
 staspidx (staspidx.o):
-    ext-label.c.22024.0.o     ext-label.c.22024.0.s:342
+    ext-label.c.29840.0.o     ext-label.c.29840.0.s:342
 stax0sp (staxsp.o):
     f_getcwd.o                ../libwrk/rp6502/f_getcwd.s:103
 staxysp (staxsp.o):
@@ -477,9 +477,9 @@ staxysp (staxsp.o):
 subeq0sp (subeqsp.o):
     f_setlabel.o              ../libwrk/rp6502/f_setlabel.s:83
     f_getlabel.o              ../libwrk/rp6502/f_getlabel.s:127
-    write_stub.c.22024.2.o    write_stub.c.22024.2.s:64
+    write_stub.c.29840.2.o    write_stub.c.29840.2.s:64
 subysp (subysp.o):
-    ext-label.c.22024.0.o     ext-label.c.22024.0.s:342
+    ext-label.c.29840.0.o     ext-label.c.29840.0.s:342
 tmp1 (zeropage.o):
     mul.o                     runtime/mul.s:10
     ltoa.o                    common/ltoa.s:11

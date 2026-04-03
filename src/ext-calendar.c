@@ -1,4 +1,4 @@
-#define APPVER "20260403.2204"
+#define APPVER "20260403.2220"
 
 #include "commons.h"
 

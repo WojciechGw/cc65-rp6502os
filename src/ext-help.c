@@ -1,6 +1,6 @@
 #include "commons.h"
 
-#define APPVER "20260403.2204"
+#define APPVER "20260403.2220"
 
 #define APP_HEADER CSI_CLS CSI "[2;1H" CSI HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " Help information                              " ANSI_DARK_GRAY "version " APPVER ANSI_RESET
 #define APP_FOOTER ANSI_DARK_GRAY  "________________________________________________________________________________" NEWLINE NEWLINE ANSI_RESET
@@ -41,6 +41,10 @@ static const cmd_t commands[] = {
                 "exit"},
     { "hex",    "dump file contents to screen", 
                 "hex <filename> 0x0600 512 (show 512 bytes of a file start from offset 0x0600)" },
+    { "launcher", "register/deregister OS as a launcher", 
+                "launcher /status - status info" NEWLINE
+                "launcher /s      - register" NEWLINE
+                "launcher /r      - deregister" NEWLINE},
     { "list",   "show a file content",
                 "list <filename>"},
     { "ls",     "list active directory",
@@ -82,6 +86,8 @@ static const cmd_t commands_rom[] = {
                     "time /c /n                  - calendar of current and neighbouring months" NEWLINE
                     "time /c /q                  - calendar of current quarter" NEWLINE
                     "time /c /y                  - calendar of current year" NEWLINE},
+    { "cart",       "launch ROM (filename without extension)", 
+                    "cart romfilename"},
     { "crx",        "file transfer application - receiver (UART)", 
                     "crx" },
     { "ctx",        "file transfer application - sender (UART)", 
@@ -97,12 +103,14 @@ static const cmd_t commands_rom[] = {
                     "user can also write a command and press <F1> key to get help information" },
     { "keyboard",   "keyboard visualiser", 
                     "keyboard" NEWLINE
-                    "for exit press both Shift keys" },
+                    "for exit press both Shift keys" NEWLINE
+                    "application not for terminal connection" },
     { "label",      "show or set volume label of active drive", 
                     "label          - show label of active drive" NEWLINE
                     "label NEWLABEL - set active drive label to NEWLABEL" },
     { "view",       "show BMP 640x480xbpp1", 
                     "view filename.bmp"}
+
 };
 
 static const cmd_t commands_ext[] = {
@@ -195,10 +203,8 @@ int main(int argc, char **argv) {
     printf("<F1>    help informations" NEWLINE);
     printf("<F2>    keyboard visualiser" NEWLINE);
     printf("<F3>    current date/time and calendar" NEWLINE);
-    printf("<LEFT>  change active drive to previous if available" NEWLINE);
-    printf("<RIGHT> change active drive to next if available" NEWLINE);
+    printf("<F4>    list current directory" NEWLINE);
     printf("<UP>    recall last command" NEWLINE);
-    printf("<DOWN>  a directory of active drive/catalog" NEWLINE);
     printf(APP_FOOTER);
 
     return 0;
