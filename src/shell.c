@@ -16,7 +16,7 @@
 
 #include "shell.h"
 
-#define APPVER "20260402.2054"
+#define APPVER "20260403.1440"
 #define APPNAME "razemOS"
 #define APP_MSG_START ANSI_DARK_GRAY "\x1b[12;35H" APPNAME
 #define APP_HOURGLASS "\x1b[14;34H" "..........\x1b[10D" ANSI_RESET
@@ -94,9 +94,7 @@ int main(void) {
     struct tm *tmnow = get_time();
 
     #ifdef CODEOFF
-
-    tx_string(CSI_RESET);
-    tx_string(CSI_CURSOR_HIDE); // hide cursor
+    // start screen
     xreg(1, 0, 0, GFX_CANVAS_640x480);
     xram0_struct_set(GFX_STRUCT, vga_mode3_config_t, x_wrap, false);
     xram0_struct_set(GFX_STRUCT, vga_mode3_config_t, y_wrap, false);
@@ -107,14 +105,21 @@ int main(void) {
     xram0_struct_set(GFX_STRUCT, vga_mode3_config_t, xram_data_ptr, GFX_DATA);
     xram0_struct_set(GFX_STRUCT, vga_mode3_config_t, xram_palette_ptr, 0xFFFF);
     xreg(1, 0, 1, GFX_MODE_BITMAP, GFX_BITMAP_bpp1, GFX_STRUCT, GFX_PLANE_2);
-    xreg(1, 0, 1, GFX_MODE_CONSOLE, GFX_PLANE_2);
-    PAUSE(500);
+    // xreg(1, 0, 1, GFX_MODE_CONSOLE, GFX_PLANE_2);
+    PAUSE(300);
+    xreg(1, 0, 0, GFX_CANVAS_640x480);
+    xreg(1, 0, 1, GFX_MODE_CONSOLE);
     #endif
+
+    strncpy(shelldir, default_shelldir, sizeof(shelldir));
+    shelldir[sizeof(shelldir) - 1] = '\0';
+    execute_cmd(&cmdline, "view /x");
+    cmdline.bytes = 0;
+    cmdline.buffer[0] = 0;
     
     // start screen
-    tx_string(CSI_RESET);
-    tx_string(CSI_CURSOR_HIDE); // hide cursor
-    tx_string(APP_MSG_START);
+    tx_string(CSI_CLS CSI_CURSOR_HIDE); // hide cursor
+    // tx_string(APP_MSG_START);
 
     if(!(appflags & APPFLAG_RTC)){
         tx_string(APP_HOURGLASS);
@@ -183,24 +188,11 @@ int main(void) {
                     continue;
                 } else if(rx == CHAR_DOWN){
                     continue;
-                } else if(rx == CHAR_LEFT || rx == CHAR_RIGHT) {
-                    char next = current_drive;
-                    if(rx == CHAR_LEFT) {
-                        if(next > '0') next--;
-                    } else {
-                        if(next < '7') next++;
-                    }
-                    drv_args_buf[0] = next;
-                    drv_args_buf[1] = ':';
-                    drv_args_buf[2] = 0;
-                    cmd_drive(2, drv_args);
-                    tx_string("\r\x1b[K");
-                    cmdline.bytes = 0;
-                    cmdline.buffer[0] = 0;
-                    prompt(false);
-                    ext_rx = 0;
+                } else if(rx == CHAR_LEFT){
                     continue;
-                } else if(rx == 'O') { /* F1-F4 in xterm-style ESC O P|Q|R|S  */
+                } else if(rx == CHAR_RIGHT) {
+                    continue;
+                } else if(rx == 'O') { // handle terminal access
                     ext_rx = 6;
                     continue;
                 } else {
@@ -228,53 +220,16 @@ int main(void) {
                     continue;
                 }
                 if(rx == CHAR_F2 || rx == 'Q') {
-                    char path[FNAMELEN];
-                    int com_argc = 2;
-                    strcpy(path, shelldir);
-                    strcat(path, "keyboard.com");
-                    com_argv[0] = (char *)"com";
-                    com_argv[1] = path;
-                    /* Pass current input line as argument if present */
-                    if(cmdline.bytes > 0) {
-                        cmdline.buffer[cmdline.bytes] = 0; /* ensure NUL terminated*/
-                        com_argv[2] = cmdline.buffer;
-                        com_argc = 3;
-                    }
-                    cmd_com(com_argc, com_argv);
+                    ext_rx = 0;
+                    execute_cmd(&cmdline, "keyboard");
                     cmdline.bytes = 0;
                     cmdline.buffer[0] = 0;
-                    cls();
                     prompt(false);
                     continue;
                 }
                 if(rx == CHAR_F3 || rx == 'R') {
-
-                    // internal command call
-                    // char *args[1];
-                    // args[0] = (char *)"time";
-                    // tx_string(NEWLINE);
-                    // cmd_time(1, args);
-                    // cmdline.bytes = 0;
-                    // cmdline.buffer[0] = 0;
-
-                    // external command call
-                    char path[FNAMELEN];
-                    int com_argc = 3;
-                    
-                    tx_string(NEWLINE);
-                    
-                    strcpy(path, shelldir);
-                    strcat(path, "date.com");
-                    com_argv[0] = (char *)"com";
-                    com_argv[1] = path;
-                    com_argv[2] = "/a"; // pass argument to external .com
-                    /* Pass current input line as argument if present */
-                    if(cmdline.bytes > 0) {
-                        cmdline.buffer[cmdline.bytes] = 0; // ensure NUL terminated
-                        com_argv[3] = cmdline.buffer;
-                        com_argc = 4;
-                    }
-                    cmd_com(com_argc, com_argv);
+                    ext_rx = 0;
+                    execute_cmd(&cmdline, "date /a");
                     cmdline.bytes = 0;
                     cmdline.buffer[0] = 0;
                     prompt(false);
@@ -296,16 +251,8 @@ int main(void) {
                 }
             // SOT (0x01) — auto-launch file receiver (crx.com /auto)
             } else if(rx == '\x01') {
-                char path[FNAMELEN];
                 ext_rx = 0;
-                strcpy(path, shelldir);
-                strcat(path, "crx.com");
-                com_argv[0] = (char *)"com";
-                com_argv[1] = path;
-                com_argv[2] = (char *)"/auto";
-                cmd_com(3, com_argv);
-                cmdline.bytes = 0;
-                cmdline.buffer[0] = 0;
+                execute_cmd(&cmdline, "crx /auto");
                 tx_string(NEWLINE NEWLINE);
                 prompt(false);
                 continue;
@@ -313,7 +260,7 @@ int main(void) {
             } else if(((unsigned char)rx >= 32) && (rx != 127)) {
                 ext_rx = 0;
                 if(cmdline.bytes == CMD_BUF_MAX) {
-                    tx_char(0x7); // if the buffer is full, send a bell
+                    tx_char(CHAR_BELL); // if the buffer is full, sound a bell
                 } else {
                     cmdline.buffer[cmdline.bytes++] = rx;
                     cmdline.buffer[cmdline.bytes] = 0;
@@ -352,7 +299,7 @@ int main(void) {
 }
 
 void cls(){ // clear screen
-    tx_string(CSI_RESET);
+    tx_string(CSI_CLS CSI_CURSOR_SHOW);
     tx_string(APP_MSG_TITLE NEWLINE NEWLINE);
     return;
 }
@@ -782,6 +729,14 @@ static int execute(cmdline_t *cl) {
     }
     tx_string("Unknown command" NEWLINE);
     return -1;
+}
+
+static int execute_cmd(cmdline_t *cl, const char *cmd) {
+    unsigned len = (unsigned)strlen(cmd);
+    if(len > CMD_BUF_MAX) len = CMD_BUF_MAX;
+    memcpy(cl->buffer, cmd, len + 1);
+    cl->bytes = (int)len;
+    return execute(cl);
 }
 
 static void build_run_args(int user_argc, char **user_argv) {

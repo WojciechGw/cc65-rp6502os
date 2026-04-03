@@ -1,8 +1,8 @@
 #include "commons.h"
 
-#define APPVER "20260402.2141"
+#define APPVER "20260403.1532"
 
-#define APP_HEADER CSI_RESET CSI "[2;1H" CSI HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " Help information                              " ANSI_DARK_GRAY "version " APPVER ANSI_RESET
+#define APP_HEADER CSI_CLS CSI "[2;1H" CSI HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " Help information                              " ANSI_DARK_GRAY "version " APPVER ANSI_RESET
 #define APP_FOOTER ANSI_DARK_GRAY  "________________________________________________________________________________" NEWLINE NEWLINE ANSI_RESET
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))

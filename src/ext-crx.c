@@ -9,7 +9,7 @@
 
 #define NEWLINE "\r\n"
 
-#define APPVER "20260402.2141"
+#define APPVER "20260403.1532"
 
 /* ---- RIA UART access ---------------------------------------------------- */
 
@@ -297,18 +297,22 @@ int main(int argc, char **argv)
         goto done_pre;
     }
 
-    /* show "Receiving: filename (N B)" */
+    /* show "Receiving: filename (N B, CRC32: XXXXXXXX)" */
     {
         char     sb[12];
+        char     sb_crc[12];
         uint8_t  col;
         sprintf(sb, "%lu", rx_filesize);
+        sprintf(sb_crc, "%08lX", rx_checksum_exp);
         ClearLine(2, WHITE, BLACK);
-        DrawText(4,  0, "Receiving: ",  DARK_GRAY, BLACK);
-        DrawText(4, 11, rx_outpath,     WHITE,     BLACK);
+        DrawText(5,  0, "Receiving: ",  DARK_GRAY, BLACK);
+        DrawText(5, 11, rx_outpath,     WHITE,     BLACK);
         col = (uint8_t)(11 + strlen(rx_outpath));
-        DrawText(4, col, "  (", DARK_GRAY, BLACK); col += 3;
-        DrawText(4, col, sb,    WHITE,     BLACK);  col += (uint8_t)strlen(sb);
-        DrawText(4, col, " B)", DARK_GRAY, BLACK);
+        DrawText(5, col, "  (", DARK_GRAY, BLACK); col += 3;
+        DrawText(5, col, sb,    WHITE,     BLACK);  col += (uint8_t)strlen(sb);
+        DrawText(5, col, " B, CRC32: ", DARK_GRAY, BLACK); col += 11;
+        DrawText(5, col, sb_crc, WHITE,  BLACK);    col += 8;
+        DrawText(5, col, ")", DARK_GRAY, BLACK);
     }
 
     DrawBar(6, 0L, (long)rx_filesize);
@@ -392,18 +396,22 @@ int main(int argc, char **argv)
     case 1:
     {
         char sb[12];
-        uint8_t ck_ok = ((rx_checksum_calc ^ 0xFFFFFFFFUL) == rx_checksum_exp);
+        uint32_t crc32_final = rx_checksum_calc ^ 0xFFFFFFFFUL;
+        uint8_t ck_ok = (crc32_final == rx_checksum_exp);
+        DrawText(7, 0, "Saved: ", DARK_GRAY, BLACK);
+        DrawText(7, 7, rx_outpath, WHITE, BLACK);
         sprintf(sb, "%lu", rx_decoded);
-        DrawText(6, 0, "Transfer complete.  ", GREEN, BLACK);
-        DrawText(6, 19, sb, WHITE, BLACK);
-        DrawText(6, (uint8_t)(19 + strlen(sb)), " bytes received", GREEN, BLACK);
-        DrawText(8, 0, "Saved: ", DARK_GRAY, BLACK);
-        DrawText(8, 7, rx_outpath, WHITE, BLACK);
-        sprintf(sb, "%lu", (rx_checksum_calc ^ 0xFFFFFFFFUL));
-        if (ck_ok) {
-            DrawText(10, 0, " Checksum [%lu] ", WHITE, DARK_GREEN);
-        } else {
-            DrawText(10, 0, " Checksum [%lu] ", WHITE, DARK_RED);
+        DrawText(8, 0, "Transfer complete.", GREEN, BLACK);
+        DrawText(8, 19, sb, WHITE, BLACK);
+        DrawText(8, (uint8_t)(19 + strlen(sb)), " bytes received", GREEN, BLACK);
+        {
+            char sb2[24];
+            sprintf(sb2, " Checksum [%08lX] ", crc32_final);
+            if (ck_ok) {
+                DrawText(10, 0, sb2, WHITE, DARK_GREEN);
+            } else {
+                DrawText(10, 0, sb2, WHITE, DARK_RED);
+            }
         }
         break;
     }

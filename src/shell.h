@@ -213,6 +213,7 @@ void cls();
 void prompt(bool first_time);
 static int tokenize(char *buf, int maxBuf, char **tokenList, int maxTokens);
 static int execute(cmdline_t *cl);
+static int execute_cmd(cmdline_t *cl, const char *cmd);
 static void build_run_args(int user_argc, char **user_argv);
 
 // shell commands

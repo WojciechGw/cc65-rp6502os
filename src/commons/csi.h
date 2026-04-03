@@ -1,5 +1,6 @@
 #define CSI "\x1b"
 #define CSI_RESET       CSI "c"
+#define CSI_CLS         CSI "[2J" CSI "[H"
 #define CSI_CURSOR_SHOW CSI "[?25h"
 #define CSI_CURSOR_HIDE CSI "[?25l"
 #define CSI_CURSOR_AT   CSI "n20;m15H"

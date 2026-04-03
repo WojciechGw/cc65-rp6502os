@@ -5,7 +5,7 @@
 
 #include "commons.h"
 
-#define APPVER "20260402.2141"
+#define APPVER "20260403.1532"
 
 #define APPNAME "Viewer for BMP files 640x480x1bpp"
 #define APPDIRDEFAULT "" // view in current directory if empty
@@ -193,7 +193,7 @@ int main(int argc, char **argv) {
     uint8_t new_key, new_keys, keylast;
     
     #ifdef SHOWAPPNAME 
-    printf(CSI_RESET APP_MSG_TITLE APP_MSG_START APP_WORKBENCH_POS);
+    printf(CSI_CLS APP_MSG_TITLE APP_MSG_START APP_WORKBENCH_POS);
     #endif
 
     if (argc > 0) {
@@ -206,17 +206,27 @@ int main(int argc, char **argv) {
         xram0_struct_set(GFX_STRUCT, vga_mode3_config_t, y_pos_px, 0);
         xram0_struct_set(GFX_STRUCT, vga_mode3_config_t, width_px, 640);
         xram0_struct_set(GFX_STRUCT, vga_mode3_config_t, height_px, 480);
-        xram0_struct_set(GFX_STRUCT, vga_mode3_config_t, xram_data_ptr, GFX_DATA);
-        xram0_struct_set(GFX_STRUCT, vga_mode3_config_t, xram_palette_ptr, 0xFFFF);
-        snprintf(filename, sizeof(filename), APPDIRDEFAULT "%s", argv[0]);
-        LoadBMP(filename, GFX_DATA);
+        if (strcmp(argv[0], "/x") == 0) {
+            uint16_t xaddr = (argc > 1) ? (uint16_t)strtoul(argv[1], NULL, 0) : GFX_DATA;
+            xram0_struct_set(GFX_STRUCT, vga_mode3_config_t, xram_data_ptr, xaddr);
+            xram0_struct_set(GFX_STRUCT, vga_mode3_config_t, xram_palette_ptr, 0xFFFF);
+        } else {
+            xram0_struct_set(GFX_STRUCT, vga_mode3_config_t, xram_data_ptr, GFX_DATA);
+            xram0_struct_set(GFX_STRUCT, vga_mode3_config_t, xram_palette_ptr, 0xFFFF);
+            snprintf(filename, sizeof(filename), APPDIRDEFAULT "%s", argv[0]);
+            {
+                int fnlen = strlen(filename);
+                if (fnlen >= 4 && (strcmp(filename + fnlen - 4, ".bmp") == 0 || strcmp(filename + fnlen - 4, ".BMP") == 0))
+                    LoadBMP(filename, GFX_DATA);
+            }
+        }
         xreg(1, 0, 1, GFX_MODE_BITMAP, GFX_BITMAP_bpp1, GFX_STRUCT, GFX_PLANE_0);
         if (argc > 1) return 0;
     } else {
         #ifdef SHOWAPPNAME 
         printf(APPNAME);
         #endif
-        printf(NEWLINE "Usage: view <file.bmp>" NEWLINE NEWLINE);
+        printf(NEWLINE "Usage: view [file.bmp]" NEWLINE NEWLINE);
         return 1;
     }
 
@@ -291,7 +301,7 @@ int main(int argc, char **argv) {
          break;
       case 99:
          xreg(1, 0, 1, GFX_MODE_CONSOLE);
-         printf(NEWLINE);
+         printf(CSI_CLS);
          return 0;
       default:
          break;

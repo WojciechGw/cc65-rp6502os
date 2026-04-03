@@ -6,7 +6,7 @@
 
 #include "commons.h"
 
-#define APPVER "20260402.2141"
+#define APPVER "20260403.1532"
 
 #define SCREEN_COLS  80
 #define SCREEN_ROWS  29

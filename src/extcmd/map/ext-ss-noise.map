@@ -1,14 +1,14 @@
 Modules list:
 -------------
-ext-ss-noise.c.35804.0.o:
+ext-ss-noise.c.24560.0.o:
     CODE              Offs=000000  Size=0001E2  Align=00001  Fill=0000
     RODATA            Offs=000000  Size=0000C5  Align=00001  Fill=0000
     BSS               Offs=000000  Size=000020  Align=00001  Fill=0000
-crt0_cmd.s.35804.1.o:
+crt0_cmd.s.24560.1.o:
     STARTUP           Offs=000000  Size=00001B  Align=00001  Fill=0000
-write_stub.c.35804.2.o:
+write_stub.c.24560.2.o:
     CODE              Offs=0001E2  Size=00004C  Align=00001  Fill=0000
-initmainargs.s.35804.3.o:
+initmainargs.s.24560.3.o:
     STARTUP           Offs=00001B  Size=000001  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(_file.o):
     DATA              Offs=000000  Size=00001E  Align=00001  Fill=0000
@@ -287,12 +287,12 @@ __STARTADDR__ ([linker generated]):
     [linker generated]        cfg/ext0x7500.cfg:9
     [linker generated]        cfg/ext0x7500.cfg:9
 __STARTUP__ (crt0.o):
-    ext-ss-noise.c.35804.0.o  ext-ss-noise.c.35804.0.s:13
+    ext-ss-noise.c.24560.0.o  ext-ss-noise.c.24560.0.s:13
     [linker generated]        cfg/ext0x7500.cfg:3
 ___errno (errno.o):
     _seterrno.o               /home/wojciech/git/WojciechGw/cc65/asminc/errno.inc:7
 ___randomize (randomize.o):
-    ext-ss-noise.c.35804.0.o  ext-ss-noise.c.35804.0.s:19
+    ext-ss-noise.c.24560.0.o  ext-ss-noise.c.24560.0.s:19
 ___seterrno (_seterrno.o):
     fwrite.o                  /home/wojciech/git/WojciechGw/cc65/asminc/errno.inc:9
 __ctype (ctype.o):
@@ -311,15 +311,15 @@ _fwrite (fwrite.o):
     vfprintf.o                common/vfprintf.s:10
 _ltoa (ltoa.o):
     _printf.o                 common/_printf.s:12
-_main (ext-ss-noise.c.35804.0.o):
+_main (ext-ss-noise.c.24560.0.o):
     callmain.o                runtime/callmain.s:11
-    crt0_cmd.s.35804.1.o      crt0_cmd.s:2
+    crt0_cmd.s.24560.1.o      crt0_cmd.s:2
 _printf (printf.o):
-    ext-ss-noise.c.35804.0.o  ext-ss-noise.c.35804.0.s:16
+    ext-ss-noise.c.24560.0.o  ext-ss-noise.c.24560.0.s:16
 _putchar (putchar.o):
-    ext-ss-noise.c.35804.0.o  ext-ss-noise.c.35804.0.s:17
+    ext-ss-noise.c.24560.0.o  ext-ss-noise.c.24560.0.s:17
 _rand (rand.o):
-    ext-ss-noise.c.35804.0.o  ext-ss-noise.c.35804.0.s:18
+    ext-ss-noise.c.24560.0.o  ext-ss-noise.c.24560.0.s:18
 _ria_attr_get (ria_attr.o):
     randomize.o               ../libwrk/rp6502/randomize.s:17
 _ria_call_int (ria.o):
@@ -343,20 +343,20 @@ _ultoa (ltoa.o):
     _printf.o                 common/_printf.s:12
 _vfprintf (vfprintf.o):
     printf.o                  common/printf.s:8
-_write (write_stub.c.35804.2.o):
+_write (write_stub.c.24560.2.o):
     fwrite.o                  common/fwrite.s:10
     fputc.o                   common/fputc.s:9
 _xreg (xreg.o):
-    ext-ss-noise.c.35804.0.o  ext-ss-noise.c.35804.0.s:15
+    ext-ss-noise.c.24560.0.o  ext-ss-noise.c.24560.0.s:15
 addeqysp (addeqsp.o):
-    write_stub.c.35804.2.o    write_stub.c.35804.2.s:64
+    write_stub.c.24560.2.o    write_stub.c.24560.2.s:64
 addysp (addysp.o):
     incsp6.o                  runtime/incsp6.s:8
     incsp5.o                  runtime/incsp5.s:8
     fwrite.o                  common/fwrite.s:11
     xreg.o                    rp6502/xreg.s:9
     printf.o                  common/printf.s:8
-    write_stub.c.35804.2.o    write_stub.c.35804.2.s:64
+    write_stub.c.24560.2.o    write_stub.c.24560.2.s:64
 axlong (axlong.o):
     _printf.o                 common/_printf.s:11
 axulong (axlong.o):
@@ -385,8 +385,8 @@ c_sp (zeropage.o):
     crt0.o                    /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:11
     addysp.o                  runtime/addysp.s:8
     addeqsp.o                 runtime/addeqsp.s:8
-    write_stub.c.35804.2.o    write_stub.c.35804.2.s:10
-    ext-ss-noise.c.35804.0.o  ext-ss-noise.c.35804.0.s:10
+    write_stub.c.24560.2.o    write_stub.c.24560.2.s:10
+    ext-ss-noise.c.24560.0.o  ext-ss-noise.c.24560.0.s:10
 callmain (callmain.o):
     crt0.o                    rp6502/crt0.s:7
 checkferror (checkferror.o):
@@ -396,26 +396,26 @@ copydata (copydata.o):
 ctypemaskdirect (ctypemask.o):
     strlower.o                common/strlower.s:14
 decsp2 (decsp2.o):
-    ext-ss-noise.c.35804.0.o  ext-ss-noise.c.35804.0.s:355
-    ext-ss-noise.c.35804.0.o  ext-ss-noise.c.35804.0.s:355
+    ext-ss-noise.c.24560.0.o  ext-ss-noise.c.24560.0.s:355
+    ext-ss-noise.c.24560.0.o  ext-ss-noise.c.24560.0.s:355
 decsp3 (decsp3.o):
-    ext-ss-noise.c.35804.0.o  ext-ss-noise.c.35804.0.s:355
+    ext-ss-noise.c.24560.0.o  ext-ss-noise.c.24560.0.s:355
 decsp4 (decsp4.o):
     lpush.o                   runtime/lpush.s:12
-    ext-ss-noise.c.35804.0.o  ext-ss-noise.c.35804.0.s:355
+    ext-ss-noise.c.24560.0.o  ext-ss-noise.c.24560.0.s:355
 decsp6 (decsp6.o):
     _printf.o                 common/_printf.s:11
 donelib (condes.o):
     crt0.o                    rp6502/crt0.s:12
-    crt0_cmd.s.35804.1.o      crt0_cmd.s:2
+    crt0_cmd.s.24560.1.o      crt0_cmd.s:2
 incsp1 (incsp1.o):
     ria_attr.o                ../libwrk/rp6502/ria_attr.s:80
 incsp2 (incsp2.o):
     popptr1.o                 runtime/popptr1.s:8
     fputc.o                   common/fputc.s:10
-    ext-ss-noise.c.35804.0.o  ext-ss-noise.c.35804.0.s:355
-    ext-ss-noise.c.35804.0.o  ext-ss-noise.c.35804.0.s:355
-    ext-ss-noise.c.35804.0.o  ext-ss-noise.c.35804.0.s:355
+    ext-ss-noise.c.24560.0.o  ext-ss-noise.c.24560.0.s:355
+    ext-ss-noise.c.24560.0.o  ext-ss-noise.c.24560.0.s:355
+    ext-ss-noise.c.24560.0.o  ext-ss-noise.c.24560.0.s:355
 incsp5 (incsp5.o):
     ria_attr.o                ../libwrk/rp6502/ria_attr.s:80
 incsp6 (incsp6.o):
@@ -423,9 +423,9 @@ incsp6 (incsp6.o):
     vfprintf.o                common/vfprintf.s:9
 initlib (condes.o):
     crt0.o                    rp6502/crt0.s:12
-    crt0_cmd.s.35804.1.o      crt0_cmd.s:2
-initmainargs (initmainargs.s.35804.3.o):
-    ext-ss-noise.c.35804.0.o  ext-ss-noise.c.35804.0.s:14
+    crt0_cmd.s.24560.1.o      crt0_cmd.s:2
+initmainargs (initmainargs.s.24560.3.o):
+    ext-ss-noise.c.24560.0.o  ext-ss-noise.c.24560.0.s:14
 ldaxysp (ldaxsp.o):
     fwrite.o                  common/fwrite.s:11
 ldeaxysp (ldeaxysp.o):
@@ -470,8 +470,8 @@ ptr1 (zeropage.o):
     udiv.o                    runtime/udiv.s:10
     shelp.o                   runtime/shelp.s:12
     printf.o                  common/printf.s:9
-    write_stub.c.35804.2.o    write_stub.c.35804.2.s:11
-    ext-ss-noise.c.35804.0.o  ext-ss-noise.c.35804.0.s:11
+    write_stub.c.24560.2.o    write_stub.c.24560.2.s:11
+    ext-ss-noise.c.24560.0.o  ext-ss-noise.c.24560.0.s:11
 ptr2 (zeropage.o):
     strlower.o                common/strlower.s:13
     ltoa.o                    common/ltoa.s:11
@@ -492,8 +492,8 @@ push1 (push1.o):
 pusha (pusha.o):
     ria_attr.o                ../libwrk/rp6502/ria_attr.s:80
     ria_attr.o                ../libwrk/rp6502/ria_attr.s:80
-    ext-ss-noise.c.35804.0.o  ext-ss-noise.c.35804.0.s:355
-    ext-ss-noise.c.35804.0.o  ext-ss-noise.c.35804.0.s:355
+    ext-ss-noise.c.24560.0.o  ext-ss-noise.c.24560.0.s:355
+    ext-ss-noise.c.24560.0.o  ext-ss-noise.c.24560.0.s:355
 pusha0 (pushax.o):
     push1.o                   runtime/push1.s:8
     fwrite.o                  common/fwrite.s:11
@@ -506,11 +506,11 @@ pushax (pushax.o):
     _printf.o                 common/_printf.s:11
     putchar.o                 common/putchar.s:8
     printf.o                  common/printf.s:8
-    write_stub.c.35804.2.o    write_stub.c.35804.2.s:64
-    ext-ss-noise.c.35804.0.o  ext-ss-noise.c.35804.0.s:355
-    ext-ss-noise.c.35804.0.o  ext-ss-noise.c.35804.0.s:355
-    ext-ss-noise.c.35804.0.o  ext-ss-noise.c.35804.0.s:355
-    ext-ss-noise.c.35804.0.o  ext-ss-noise.c.35804.0.s:355
+    write_stub.c.24560.2.o    write_stub.c.24560.2.s:64
+    ext-ss-noise.c.24560.0.o  ext-ss-noise.c.24560.0.s:355
+    ext-ss-noise.c.24560.0.o  ext-ss-noise.c.24560.0.s:355
+    ext-ss-noise.c.24560.0.o  ext-ss-noise.c.24560.0.s:355
+    ext-ss-noise.c.24560.0.o  ext-ss-noise.c.24560.0.s:355
 pusheax (lpush.o):
     _printf.o                 common/_printf.s:11
 pushptr1 (pushptr1.o):
@@ -518,7 +518,7 @@ pushptr1 (pushptr1.o):
 pushwysp (pushwsp.o):
     fwrite.o                  common/fwrite.s:11
     vfprintf.o                common/vfprintf.s:9
-    write_stub.c.35804.2.o    write_stub.c.35804.2.s:64
+    write_stub.c.24560.2.o    write_stub.c.24560.2.s:64
 regbank (zeropage.o):
     _printf.o                 /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:14
 returnFFFF (returnFFFF.o):
@@ -535,9 +535,9 @@ sreg (zeropage.o):
     udiv.o                    runtime/udiv.s:10
     mod.o                     runtime/mod.s:12
 stax0sp (staxsp.o):
-    ext-ss-noise.c.35804.0.o  ext-ss-noise.c.35804.0.s:355
+    ext-ss-noise.c.24560.0.o  ext-ss-noise.c.24560.0.s:355
 subeq0sp (subeqsp.o):
-    write_stub.c.35804.2.o    write_stub.c.35804.2.s:64
+    write_stub.c.24560.2.o    write_stub.c.24560.2.s:64
 tmp1 (zeropage.o):
     mul.o                     runtime/mul.s:10
     ltoa.o                    common/ltoa.s:11
@@ -548,11 +548,11 @@ tmp1 (zeropage.o):
 tmp2 (zeropage.o):
     shelp.o                   runtime/shelp.s:12
 tosmoda0 (mod.o):
-    ext-ss-noise.c.35804.0.o  ext-ss-noise.c.35804.0.s:355
+    ext-ss-noise.c.24560.0.o  ext-ss-noise.c.24560.0.s:355
 tosudivax (udiv.o):
     fwrite.o                  common/fwrite.s:12
 tosumoda0 (umod.o):
-    ext-ss-noise.c.35804.0.o  ext-ss-noise.c.35804.0.s:355
+    ext-ss-noise.c.24560.0.o  ext-ss-noise.c.24560.0.s:355
 tosumulax (mul.o):
     fwrite.o                  common/fwrite.s:12
 udiv16 (udiv.o):
