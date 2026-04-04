@@ -1,6 +1,6 @@
 #include "commons.h"
 
-#define APPVER "20260403.2220"
+#define APPVER "20260404.0951"
 
 #define APP_HEADER CSI_CLS CSI "[2;1H" CSI HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " Help information                              " ANSI_DARK_GRAY "version " APPVER ANSI_RESET
 #define APP_FOOTER ANSI_DARK_GRAY  "________________________________________________________________________________" NEWLINE NEWLINE ANSI_RESET
@@ -30,14 +30,14 @@ static const cmd_t commands[] = {
                 "cls" },
     { "com",    "load .com binary and run", 
                 "com hello.com A000 (load and run file hello.com at address 0xA000)"},
-    { "cp",     "copy file", 
-                "cp <source> <destination>"},
-    { "cpm",    "copy/move multiple files, wildcards allowed",
-                "cpm <source> <destination> (copy file)" NEWLINE
-                "cpm <source> <destination> /m (move file)"},
+    { "copy",   "copy single file", 
+                "copy <source> <destination>"},
+    { "cp",     "copy/move files (wildcards allowed)",
+                "cp <source> <destination> (copy)" NEWLINE
+                "cp <source> <destination> /m (move)"},
     { "drive",  "set active drive", 
                 "drive 0:"},
-    { "exit",   "exit to the system monitor", 
+    { "exit",   "exit to the monitor", 
                 "exit"},
     { "hex",    "dump file contents to screen", 
                 "hex <filename> 0x0600 512 (show 512 bytes of a file start from offset 0x0600)" },
@@ -51,22 +51,16 @@ static const cmd_t commands[] = {
                 "ls"},
     { "mem",    "show OS Shell RAM informations" NEWLINE "lowest and highest RAM address and size available for user program",
                 "mem"},
-//    { "memr",   "show RAM from given address", 
-//                "memx 0x0600 512 (show 512 bytes of RAM start from address 0x0600)" },
-//    { "memx",   "show XRAM from given address", 
-//                "memx 0xA500 256 (show 256 bytes of XRAM start from address 0xA500)" },
     { "mkdir",  "create directory", 
                 "mkdir <directory>"},
-    { "mv",     "move/rename a file or directory",
-                "mv <source> <destination>"},
     { "peek",   "memory viewer",
                 "peek 0xA000 128 (show 128 bytes of base RAM start from address 0xA000)" NEWLINE
                 "peek 0xF000 256 /X (show 256 bytes of XRAM start from address 0xF000)" },
     { "phi2",   "show CPU clock frequency", 
                 "phi2"},
-    { "rename", "rename a file or directory",
+    { "rename", "rename/move file or directory",
                 "rename <oldname> <newname>"},
-    { "rm",     "remove a file/files, wildcards allowed",
+    { "rm",     "remove file/files (wildcards allowed)",
                 "rm <filename>"},
     { "run",    "run code at address", 
                 "run A000 (run code at 0xA000)"},
@@ -127,7 +121,7 @@ int main(int argc, char **argv) {
     if(argc >= 1 && argv[0][0]) {
         for(i = 0; i < ARRAY_SIZE(commands); i++) {
             if(strcmp(argv[0], commands[i].cmd) == 0) {
-                printf(NEWLINE "Command: %s" NEWLINE 
+                printf(NEWLINE NEWLINE "Command: %s" NEWLINE 
                        "---------------------" NEWLINE 
                        NEWLINE 
                        "Description:" NEWLINE 
@@ -141,7 +135,7 @@ int main(int argc, char **argv) {
 
         for(i = 0; i < ARRAY_SIZE(commands_rom); i++) {
             if(strcmp(argv[0], commands_rom[i].cmd) == 0) {
-                printf(NEWLINE "Command: %s" NEWLINE 
+                printf(NEWLINE NEWLINE "Command: %s" NEWLINE 
                        "---------------------" NEWLINE 
                        NEWLINE 
                        "Description:" NEWLINE 
@@ -155,7 +149,7 @@ int main(int argc, char **argv) {
 
         for(i = 0; i < ARRAY_SIZE(commands_ext); i++) {
             if(strcmp(argv[0], commands_ext[i].cmd) == 0) {
-                printf(NEWLINE "Command: %s" NEWLINE 
+                printf(NEWLINE NEWLINE "Command: %s" NEWLINE 
                        "---------------------" NEWLINE 
                        NEWLINE 
                        "Description:" NEWLINE 
@@ -167,7 +161,7 @@ int main(int argc, char **argv) {
             }
         }
 
-        printf(NEWLINE "Command not found" NEWLINE);
+        printf(NEWLINE NEWLINE "Command not found" NEWLINE);
         return -1;
     }
 

@@ -5,7 +5,7 @@
 
 #include "commons.h"
 
-#define APPVER "20260403.2220"
+#define APPVER "20260404.0951"
 
 #define APPNAME "Viewer for BMP files 640x480x1bpp"
 #define APPDIRDEFAULT "" // view in current directory if empty
@@ -20,25 +20,6 @@ uint8_t keystates[KEYBOARD_BYTES] = {0};
 bool handled_key = false;
 #define key(code) (keystates[(code) >> 3] & (1 << ((code) & 7)))
 
-/* GFX subsystem setup */
-#define GFX_CANVAS_640x480 3
-#define GFX_MODE_CONSOLE 0
-#define GFX_MODE_BITMAP    3
-#define GFX_BITMAP_bpp1    0b00000000
-#define GFX_PLANE_0        0
-
-/* XRAM memory map */
-#define GFX_STRUCT 0xFFC0u
-#define GFX_DATA   0x2000u
-
-/* 640x480, 1 bpp */
-#define PC_FB_ADDR          0x2000u
-#define PC_FB_WIDTH         640u
-#define PC_FB_HEIGHT        480u
-#define PC_FB_STRIDE        80u
-#define PC_FB_SIZE_BYTES    38400u
-
-#ifdef CODEOFF
 void pc_fb_clear(unsigned char value) {
     unsigned int i;
     RIA.addr0 = PC_FB_ADDR;
@@ -47,7 +28,6 @@ void pc_fb_clear(unsigned char value) {
         RIA.rw0 = value;
     }
 }
-#endif
 
 // LoadBMP - load BMP file 1-bit 640x480 to XRAM given address.
 // handle both direction: bottom-up (standard BMP, height > 0)

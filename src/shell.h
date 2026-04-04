@@ -134,8 +134,8 @@ int cmd_chmod(int, char **);
 int cmd_cls(int, char **);
 int cmd_com(int, char **);
 int cmd_exe(int, char **);
+int cmd_copy(int, char **);
 int cmd_cp(int, char **);
-int cmd_cpm(int, char **);
 int cmd_ls(int, char **);
 int cmd_drive(int, char **);
 int cmd_exit(int, char **);
@@ -143,7 +143,6 @@ int cmd_list(int, char **);
 int cmd_mem(int, char **);
 int cmd_hex(int, char **);
 int cmd_mkdir(int, char **);
-int cmd_mv(int, char **);
 int cmd_peek(int, char **);
 int cmd_phi2(int, char **);
 int cmd_rename(int, char **);
@@ -165,8 +164,8 @@ static const cmd_t commands[] = {
     { "cd",     "", "", cmd_cd},
     { "chmod",  "", "", cmd_chmod},
     { "cls",    "", "", cmd_cls },
+    { "copy",   "", "", cmd_copy},
     { "cp",     "", "", cmd_cp},
-    { "cpm",     "", "", cmd_cpm},
     { "com",    "", "", cmd_com},
     { "exe",    "", "", cmd_exe},
     { "ls",     "", "", cmd_ls},
@@ -176,7 +175,6 @@ static const cmd_t commands[] = {
     { "mem",    "", "", cmd_mem},
     { "hex",    "", "", cmd_hex },
     { "mkdir",  "", "", cmd_mkdir},
-    { "mv",     "", "", cmd_mv},
     { "peek",   "", "", cmd_peek},
     { "phi2",   "", "", cmd_phi2},
     { "rename", "", "", cmd_rename},
@@ -232,15 +230,14 @@ int cmd_chmod(int argc, char **argv);
 int cmd_cls(int, char **);
 int cmd_com(int argc, char **argv);
 int cmd_exe(int argc, char **argv);
+int cmd_copy(int argc, char **argv);
 int cmd_cp(int argc, char **argv);
-int cmd_cpm(int argc, char **argv);
 int cmd_ls(int argc, char **argv);
 int cmd_drive(int argc, char **argv);
 int cmd_exit(int status, char **);
 int cmd_list(int argc, char **argv);
 int cmd_mem(int argc, char **argv);
 int cmd_mkdir(int argc, char **argv);
-int cmd_mv(int argc, char **argv);
 int cmd_peek(int argc, char **argv);
 int cmd_phi2(int argc, char **argv);
 int cmd_rename(int argc, char **argv);
