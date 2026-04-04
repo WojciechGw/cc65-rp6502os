@@ -8,7 +8,7 @@
 
 #include "commons.h"
 
-#define APPVER "20260404.0951"
+#define APPVER "20260404.1535"
 
 #define APP_HEADER CSI "[2;1H" CSI HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " Keyboard Visualiser                           " ANSI_DARK_GRAY "version " APPVER ANSI_RESET
 #define APP_FOOTER ANSI_DARK_GRAY CSI "[11;1H________________________________________________________________________________" NEWLINE "press and hold both Shift keys to exit                     last keycode :       " ANSI_RESET

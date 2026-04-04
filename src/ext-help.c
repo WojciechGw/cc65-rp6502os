@@ -1,6 +1,6 @@
 #include "commons.h"
 
-#define APPVER "20260404.0951"
+#define APPVER "20260404.1535"
 
 #define APP_HEADER CSI_CLS CSI "[2;1H" CSI HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " Help information                              " ANSI_DARK_GRAY "version " APPVER ANSI_RESET
 #define APP_FOOTER ANSI_DARK_GRAY  "________________________________________________________________________________" NEWLINE NEWLINE ANSI_RESET

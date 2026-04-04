@@ -22,9 +22,7 @@
 #define APP_HOURGLASS CSI "[14;34H" ANSI_DARK_GRAY ".........." CSI "[10D" ANSI_RESET
 #define APP_MSG_TITLE CSI "[2;1H" CSI HIGHLIGHT_COLOR " " APPNAME " > " ANSI_RESET " for Picocomputer 6502" ANSI_DARK_GRAY CSI "[2;60Hversion " APPVER ANSI_RESET
 #define APP_STARTPROMPTPOS CSI "[4;1H"
-#define APP_MSG_HELP_COMADDRESS CSI "[30;1H" ANSI_DARK_GRAY "Hint: press F1 for help RUN ADDRESS:" STR(COM_LOAD_ADDR) " version " APPVER ANSI_RESET
 #define APP_MSG_EXIT CSI_RESET
-#define EXCLAMATION "[!] "
 
 int main(void) {
     int i = 0;
@@ -1363,6 +1361,7 @@ int cmd_time(int argc, char **argv) {
     return 0;
 }
 
+#ifdef CODE_PHI2
 int cmd_phi2(int argc, char **argv) {
     int hz = phi2();
     (void)argc; (void)argv;
@@ -1371,6 +1370,7 @@ int cmd_phi2(int argc, char **argv) {
     tx_string(" Hz" NEWLINE);
     return 0;
 }
+#endif
 
 int cmd_mem(int argc, char **argv) {
     uint16_t bottom = mem_lo();
@@ -1569,9 +1569,9 @@ int cmd_launcher(int argc, char **argv){
         ria_attr_set(0, RIA_ATTR_LAUNCHER);
         return -1;
     } else if(!strcmp(argv[1],"/status") && ria_attr_get(RIA_ATTR_LAUNCHER)){
-        tx_string(NEWLINE "is a launcher" NEWLINE NEWLINE); 
+        tx_string(NEWLINE APPNAME " is a launcher" NEWLINE); 
     } else {
-        tx_string(NEWLINE "isn't a launcher" NEWLINE); 
+        tx_string(NEWLINE APPNAME " isn't a launcher" NEWLINE); 
     }
     return 0;
 
@@ -1580,19 +1580,22 @@ int cmd_launcher(int argc, char **argv){
 
 #ifdef CODE_CART
 int cmd_cart(int argc, char **argv){
-
     if(argc < 2) {
         tx_string("Usage: cart romname (without .rp6502 extension)" NEWLINE);
     } else {
-        {
-            int cf;
-            cf = open(strcat(argv[1],".rp6502"),O_RDONLY);
+        char fname[FNAMELEN];
+        int cf;
+        strcpy(fname, argv[1]);
+        strcat(fname, ".rp6502");
+        cf = open(fname, O_RDONLY);
+        if(cf >= 0){
             close(cf);
-            if(!cf){
-                ria_execl(strcat(argv[1],".rp6502"));
-            } else {
-                tx_string(NEWLINE EXCLAMATION "file doesn't exists" NEWLINE);
-            }
+            tx_string(NEWLINE "please wait ..." NEWLINE);
+            ria_execl(fname);
+            PAUSE(500);
+            ria_execl(fname);
+        } else {
+            tx_string(NEWLINE EXCLAMATION "file not found" NEWLINE);
         }
     }
     return 0;

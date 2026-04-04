@@ -1,15 +1,15 @@
 Modules list:
 -------------
-ext-ss-charnoise.c.16728.0.o:
+ext-ss-charnoise.c.32120.0.o:
     CODE              Offs=000000  Size=000629  Align=00001  Fill=0000
     RODATA            Offs=000000  Size=000117  Align=00001  Fill=0000
     BSS               Offs=000000  Size=000022  Align=00001  Fill=0000
     DATA              Offs=000000  Size=000068  Align=00001  Fill=0000
-crt0_cmd.s.16728.1.o:
+crt0_cmd.s.32120.1.o:
     STARTUP           Offs=000000  Size=00001B  Align=00001  Fill=0000
-write_stub.c.16728.2.o:
+write_stub.c.32120.2.o:
     CODE              Offs=000629  Size=00004C  Align=00001  Fill=0000
-initmainargs.s.16728.3.o:
+initmainargs.s.32120.3.o:
     STARTUP           Offs=00001B  Size=000001  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(_directerrno.o):
     CODE              Offs=000675  Size=000009  Align=00001  Fill=0000
@@ -173,74 +173,74 @@ Segment list:
 Name                   Start     End    Size  Align
 ----------------------------------------------------
 ZEROPAGE              000000  000019  00001A  00001
-STARTUP               007800  007846  000047  00001
-ONCE                  007847  007854  00000E  00001
-CODE                  007855  008AB3  00125F  00001
-RODATA                008AB4  008C71  0001BE  00001
-DATA                  008C72  008D37  0000C6  00001
-BSS                   008D38  008D89  000052  00001
+STARTUP               007900  007946  000047  00001
+ONCE                  007947  007954  00000E  00001
+CODE                  007955  008BB3  00125F  00001
+RODATA                008BB4  008D71  0001BE  00001
+DATA                  008D72  008E37  0000C6  00001
+BSS                   008E38  008E89  000052  00001
 
 
 Exports list by name:
 ---------------------
-__BSS_RUN__               008D38 RLA    __BSS_SIZE__              000052 REA    
-__CONSTRUCTOR_COUNT__     000001 REA    __CONSTRUCTOR_TABLE__     007853 RLA    
-__DATA_LOAD__             008C72 RLA    __DATA_RUN__              008C72 RLA    
+__BSS_RUN__               008E38 RLA    __BSS_SIZE__              000052 REA    
+__CONSTRUCTOR_COUNT__     000001 REA    __CONSTRUCTOR_TABLE__     007953 RLA    
+__DATA_LOAD__             008D72 RLA    __DATA_RUN__              008D72 RLA    
 __DATA_SIZE__             0000C6 REA    __DESTRUCTOR_COUNT__      000000 REA    
-__DESTRUCTOR_TABLE__      008C72 RLA    __RAM_SIZE__              008500 REA    
-__RAM_START__             007800 RLA    __STACKSIZE__             000200 REA    
-__STARTADDR__             007800 REA    __STARTUP__               000001 REA    
-___directerrno            007ECA RLA    ___errno                  00FFED RLA    
-___oserror                008D5A RLA    ___randomize              00879A RLA    
-___seterrno               008274 RLA    __ctype                   008BE7 RLA    
-__ctypeidx                008BF2 RLA    __hextab                  008BCB RLA    
-__longminstr              008BDB RLA    __printf                  007FC4 RLA    
-_close                    0082DF RLA    _errno_opt_constructor    008390  LAI   
-_fwrite                   00839F RLA    _lseek                    0084D2 RLA    
-_ltoa                     00850A RLA    _main                     007D64 RLA    
-_memcpy                   008585 RLA    _open                     008663 RLA    
-_printf                   0086E2 RLA    _rand                     008772 RLA    
-_read_xram                0087A2 RLA    _ria_attr_get             008811 RLA    
-_ria_call_int             0087FA RLA    _ria_call_long            008800 RLA    
-_ria_push_int             0087CD RLA    _ria_push_long            0087C3 RLA    
-_ria_set_ax               0087F3 RLA    _sprintf                  008859 RLA    
-_srand                    008766 RLA    _stdout                   008CF4 RLA    
-_strlen                   00888F RLA    _strlower                 0088A5 RLA    
-_ultoa                    008549 RLA    _vfprintf                 008967 RLA    
-_vsprintf                 008A6A RLA    _write                    007E7E RLA    
-_xreg                     008A7C RLA    addeq0sp                  00827D RLA    
-addeqysp                  00827F RLA    addysp                    00828F RLA    
-axlong                    0082BB RLA    axulong                   0082C1 RLA    
-c_sp                      000000 RLZ    callmain                  0082C8 RLA    
-copydata                  0082FC RLA    ctypemaskdirect           00832D RLA    
-decax1                    008347 RLA    decsp2                    00834E RLA    
-decsp3                    00835B RLA    decsp4                    008368 RLA    
-decsp6                    008375 RLA    donelib                   0082F0 RLA    
-enter                     008382 RLA    incsp1                    008416 RLA    
-incsp2                    008424 RLA    incsp4                    008432 RLA    
-incsp5                    008437 RLA    incsp6                    00843C RLA    
-incsp8                    008441 RLA    initlib                   007847 RLA    
-initmainargs              00781B REA    ldax0sp                   008453 RLA    
-ldaxi                     008446 RLA    ldaxysp                   008455 RLA    
-ldeaxysp                  00845E RLA    leaa0sp                   00846F RLA    
-leavey                    008485 RLA    mul8x16                   008619 RLA    
-mul8x16a                  008623 RLA    negax                     008655 RLA    
-negeax                    008496 RLA    popax                     00841D RLA    
-popptr1                   0086D4 RLA    popsargsudiv16            008839 RLA    
+__DESTRUCTOR_TABLE__      008D72 RLA    __RAM_SIZE__              008400 REA    
+__RAM_START__             007900 RLA    __STACKSIZE__             000200 REA    
+__STARTADDR__             007900 REA    __STARTUP__               000001 REA    
+___directerrno            007FCA RLA    ___errno                  00FFED RLA    
+___oserror                008E5A RLA    ___randomize              00889A RLA    
+___seterrno               008374 RLA    __ctype                   008CE7 RLA    
+__ctypeidx                008CF2 RLA    __hextab                  008CCB RLA    
+__longminstr              008CDB RLA    __printf                  0080C4 RLA    
+_close                    0083DF RLA    _errno_opt_constructor    008490  LAI   
+_fwrite                   00849F RLA    _lseek                    0085D2 RLA    
+_ltoa                     00860A RLA    _main                     007E64 RLA    
+_memcpy                   008685 RLA    _open                     008763 RLA    
+_printf                   0087E2 RLA    _rand                     008872 RLA    
+_read_xram                0088A2 RLA    _ria_attr_get             008911 RLA    
+_ria_call_int             0088FA RLA    _ria_call_long            008900 RLA    
+_ria_push_int             0088CD RLA    _ria_push_long            0088C3 RLA    
+_ria_set_ax               0088F3 RLA    _sprintf                  008959 RLA    
+_srand                    008866 RLA    _stdout                   008DF4 RLA    
+_strlen                   00898F RLA    _strlower                 0089A5 RLA    
+_ultoa                    008649 RLA    _vfprintf                 008A67 RLA    
+_vsprintf                 008B6A RLA    _write                    007F7E RLA    
+_xreg                     008B7C RLA    addeq0sp                  00837D RLA    
+addeqysp                  00837F RLA    addysp                    00838F RLA    
+axlong                    0083BB RLA    axulong                   0083C1 RLA    
+c_sp                      000000 RLZ    callmain                  0083C8 RLA    
+copydata                  0083FC RLA    ctypemaskdirect           00842D RLA    
+decax1                    008447 RLA    decsp2                    00844E RLA    
+decsp3                    00845B RLA    decsp4                    008468 RLA    
+decsp6                    008475 RLA    donelib                   0083F0 RLA    
+enter                     008482 RLA    incsp1                    008516 RLA    
+incsp2                    008524 RLA    incsp4                    008532 RLA    
+incsp5                    008537 RLA    incsp6                    00853C RLA    
+incsp8                    008541 RLA    initlib                   007947 RLA    
+initmainargs              00791B REA    ldax0sp                   008553 RLA    
+ldaxi                     008546 RLA    ldaxysp                   008555 RLA    
+ldeaxysp                  00855E RLA    leaa0sp                   00856F RLA    
+leavey                    008585 RLA    mul8x16                   008719 RLA    
+mul8x16a                  008723 RLA    negax                     008755 RLA    
+negeax                    008596 RLA    popax                     00851D RLA    
+popptr1                   0087D4 RLA    popsargsudiv16            008939 RLA    
 ptr1                      000008 RLZ    ptr2                      00000A RLZ    
 ptr3                      00000C RLZ    ptr4                      00000E RLZ    
-push0                     008730 RLA    push1                     008715 RLA    
-pusha                     00871E RLA    pusha0                    008732 RLA    
-pushax                    008734 RLA    pusheax                   0084BB RLA    
-pushw0sp                  00874A RLA    pushwysp                  00874C RLA    
-regbank                   000014 RLZ    shlax3                    00829C RLA    
-shlax4                    0082AA RLA    sreg                      000002 RLZ    
-stax0sp                   008884 RLA    staxysp                   008886 RLA    
-subeq0sp                  0088CC RLA    tmp1                      000010 RLZ    
-tmp2                      000011 RLZ    tosmoda0                  0085C1 RLA    
-tosudivax                 0088E3 RLA    tosumula0                 008617 RLA    
-tosumulax                 0085D2 RLA    udiv16                    0088F2 RLA    
-vsnprintf                 008993 RLA    zerobss                   008A91 RLA    
+push0                     008830 RLA    push1                     008815 RLA    
+pusha                     00881E RLA    pusha0                    008832 RLA    
+pushax                    008834 RLA    pusheax                   0085BB RLA    
+pushw0sp                  00884A RLA    pushwysp                  00884C RLA    
+regbank                   000014 RLZ    shlax3                    00839C RLA    
+shlax4                    0083AA RLA    sreg                      000002 RLZ    
+stax0sp                   008984 RLA    staxysp                   008986 RLA    
+subeq0sp                  0089CC RLA    tmp1                      000010 RLZ    
+tmp2                      000011 RLZ    tosmoda0                  0086C1 RLA    
+tosudivax                 0089E3 RLA    tosumula0                 008717 RLA    
+tosumulax                 0086D2 RLA    udiv16                    0089F2 RLA    
+vsnprintf                 008A93 RLA    zerobss                   008B91 RLA    
 
 
 
@@ -253,57 +253,57 @@ ptr2                      00000A RLZ    ptr3                      00000C RLZ
 ptr4                      00000E RLZ    tmp1                      000010 RLZ    
 tmp2                      000011 RLZ    regbank                   000014 RLZ    
 __BSS_SIZE__              000052 REA    __DATA_SIZE__             0000C6 REA    
-__STACKSIZE__             000200 REA    __RAM_START__             007800 RLA    
-__STARTADDR__             007800 REA    initmainargs              00781B REA    
-initlib                   007847 RLA    __CONSTRUCTOR_TABLE__     007853 RLA    
-_main                     007D64 RLA    _write                    007E7E RLA    
-___directerrno            007ECA RLA    __printf                  007FC4 RLA    
-___seterrno               008274 RLA    addeq0sp                  00827D RLA    
-addeqysp                  00827F RLA    addysp                    00828F RLA    
-shlax3                    00829C RLA    shlax4                    0082AA RLA    
-axlong                    0082BB RLA    axulong                   0082C1 RLA    
-callmain                  0082C8 RLA    _close                    0082DF RLA    
-donelib                   0082F0 RLA    copydata                  0082FC RLA    
-ctypemaskdirect           00832D RLA    decax1                    008347 RLA    
-decsp2                    00834E RLA    decsp3                    00835B RLA    
-decsp4                    008368 RLA    decsp6                    008375 RLA    
-enter                     008382 RLA    _errno_opt_constructor    008390  LAI   
-_fwrite                   00839F RLA    incsp1                    008416 RLA    
-popax                     00841D RLA    incsp2                    008424 RLA    
-incsp4                    008432 RLA    incsp5                    008437 RLA    
-incsp6                    00843C RLA    incsp8                    008441 RLA    
-ldaxi                     008446 RLA    ldax0sp                   008453 RLA    
-ldaxysp                   008455 RLA    ldeaxysp                  00845E RLA    
-leaa0sp                   00846F RLA    leavey                    008485 RLA    
-negeax                    008496 RLA    pusheax                   0084BB RLA    
-_lseek                    0084D2 RLA    __RAM_SIZE__              008500 REA    
-_ltoa                     00850A RLA    _ultoa                    008549 RLA    
-_memcpy                   008585 RLA    tosmoda0                  0085C1 RLA    
-tosumulax                 0085D2 RLA    tosumula0                 008617 RLA    
-mul8x16                   008619 RLA    mul8x16a                  008623 RLA    
-negax                     008655 RLA    _open                     008663 RLA    
-popptr1                   0086D4 RLA    _printf                   0086E2 RLA    
-push1                     008715 RLA    pusha                     00871E RLA    
-push0                     008730 RLA    pusha0                    008732 RLA    
-pushax                    008734 RLA    pushw0sp                  00874A RLA    
-pushwysp                  00874C RLA    _srand                    008766 RLA    
-_rand                     008772 RLA    ___randomize              00879A RLA    
-_read_xram                0087A2 RLA    _ria_push_long            0087C3 RLA    
-_ria_push_int             0087CD RLA    _ria_set_ax               0087F3 RLA    
-_ria_call_int             0087FA RLA    _ria_call_long            008800 RLA    
-_ria_attr_get             008811 RLA    popsargsudiv16            008839 RLA    
-_sprintf                  008859 RLA    stax0sp                   008884 RLA    
-staxysp                   008886 RLA    _strlen                   00888F RLA    
-_strlower                 0088A5 RLA    subeq0sp                  0088CC RLA    
-tosudivax                 0088E3 RLA    udiv16                    0088F2 RLA    
-_vfprintf                 008967 RLA    vsnprintf                 008993 RLA    
-_vsprintf                 008A6A RLA    _xreg                     008A7C RLA    
-zerobss                   008A91 RLA    __hextab                  008BCB RLA    
-__longminstr              008BDB RLA    __ctype                   008BE7 RLA    
-__ctypeidx                008BF2 RLA    __DATA_RUN__              008C72 RLA    
-__DATA_LOAD__             008C72 RLA    __DESTRUCTOR_TABLE__      008C72 RLA    
-_stdout                   008CF4 RLA    __BSS_RUN__               008D38 RLA    
-___oserror                008D5A RLA    ___errno                  00FFED RLA    
+__STACKSIZE__             000200 REA    __RAM_START__             007900 RLA    
+__STARTADDR__             007900 REA    initmainargs              00791B REA    
+initlib                   007947 RLA    __CONSTRUCTOR_TABLE__     007953 RLA    
+_main                     007E64 RLA    _write                    007F7E RLA    
+___directerrno            007FCA RLA    __printf                  0080C4 RLA    
+___seterrno               008374 RLA    addeq0sp                  00837D RLA    
+addeqysp                  00837F RLA    addysp                    00838F RLA    
+shlax3                    00839C RLA    shlax4                    0083AA RLA    
+axlong                    0083BB RLA    axulong                   0083C1 RLA    
+callmain                  0083C8 RLA    _close                    0083DF RLA    
+donelib                   0083F0 RLA    copydata                  0083FC RLA    
+__RAM_SIZE__              008400 REA    ctypemaskdirect           00842D RLA    
+decax1                    008447 RLA    decsp2                    00844E RLA    
+decsp3                    00845B RLA    decsp4                    008468 RLA    
+decsp6                    008475 RLA    enter                     008482 RLA    
+_errno_opt_constructor    008490  LAI   _fwrite                   00849F RLA    
+incsp1                    008516 RLA    popax                     00851D RLA    
+incsp2                    008524 RLA    incsp4                    008532 RLA    
+incsp5                    008537 RLA    incsp6                    00853C RLA    
+incsp8                    008541 RLA    ldaxi                     008546 RLA    
+ldax0sp                   008553 RLA    ldaxysp                   008555 RLA    
+ldeaxysp                  00855E RLA    leaa0sp                   00856F RLA    
+leavey                    008585 RLA    negeax                    008596 RLA    
+pusheax                   0085BB RLA    _lseek                    0085D2 RLA    
+_ltoa                     00860A RLA    _ultoa                    008649 RLA    
+_memcpy                   008685 RLA    tosmoda0                  0086C1 RLA    
+tosumulax                 0086D2 RLA    tosumula0                 008717 RLA    
+mul8x16                   008719 RLA    mul8x16a                  008723 RLA    
+negax                     008755 RLA    _open                     008763 RLA    
+popptr1                   0087D4 RLA    _printf                   0087E2 RLA    
+push1                     008815 RLA    pusha                     00881E RLA    
+push0                     008830 RLA    pusha0                    008832 RLA    
+pushax                    008834 RLA    pushw0sp                  00884A RLA    
+pushwysp                  00884C RLA    _srand                    008866 RLA    
+_rand                     008872 RLA    ___randomize              00889A RLA    
+_read_xram                0088A2 RLA    _ria_push_long            0088C3 RLA    
+_ria_push_int             0088CD RLA    _ria_set_ax               0088F3 RLA    
+_ria_call_int             0088FA RLA    _ria_call_long            008900 RLA    
+_ria_attr_get             008911 RLA    popsargsudiv16            008939 RLA    
+_sprintf                  008959 RLA    stax0sp                   008984 RLA    
+staxysp                   008986 RLA    _strlen                   00898F RLA    
+_strlower                 0089A5 RLA    subeq0sp                  0089CC RLA    
+tosudivax                 0089E3 RLA    udiv16                    0089F2 RLA    
+_vfprintf                 008A67 RLA    vsnprintf                 008A93 RLA    
+_vsprintf                 008B6A RLA    _xreg                     008B7C RLA    
+zerobss                   008B91 RLA    __hextab                  008CCB RLA    
+__longminstr              008CDB RLA    __ctype                   008CE7 RLA    
+__ctypeidx                008CF2 RLA    __DATA_RUN__              008D72 RLA    
+__DATA_LOAD__             008D72 RLA    __DESTRUCTOR_TABLE__      008D72 RLA    
+_stdout                   008DF4 RLA    __BSS_RUN__               008E38 RLA    
+___oserror                008E5A RLA    ___errno                  00FFED RLA    
 
 
 
@@ -332,13 +332,13 @@ __RAM_SIZE__ ([linker generated]):
 __RAM_START__ ([linker generated]):
     crt0.o                    rp6502/crt0.s:10
 __STACKSIZE__ ([linker generated]):
-    [linker generated]        cfg/ext0x7800.cfg:9
+    [linker generated]        cfg/ext0x7900.cfg:9
 __STARTADDR__ ([linker generated]):
-    [linker generated]        cfg/ext0x7800.cfg:9
-    [linker generated]        cfg/ext0x7800.cfg:9
+    [linker generated]        cfg/ext0x7900.cfg:9
+    [linker generated]        cfg/ext0x7900.cfg:9
 __STARTUP__ (crt0.o):
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:13
-    [linker generated]        cfg/ext0x7800.cfg:3
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:13
+    [linker generated]        cfg/ext0x7900.cfg:3
 ___directerrno (_directerrno.o):
     vsnprintf.o               /home/wojciech/git/WojciechGw/cc65/asminc/errno.inc:10
 ___errno (errno.o):
@@ -347,7 +347,7 @@ ___errno (errno.o):
 ___oserror (_oserror.o):
     _directerrno.o            /home/wojciech/git/WojciechGw/cc65/asminc/errno.inc:7
 ___randomize (randomize.o):
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:20
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:20
 ___seterrno (_seterrno.o):
     _directerrno.o            /home/wojciech/git/WojciechGw/cc65/asminc/errno.inc:9
     fwrite.o                  /home/wojciech/git/WojciechGw/cc65/asminc/errno.inc:9
@@ -363,26 +363,26 @@ __printf (_printf.o):
     vsnprintf.o               common/vsnprintf.s:10
     vfprintf.o                common/vfprintf.s:10
 _close (close.o):
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:23
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:23
 _fwrite (fwrite.o):
     vfprintf.o                common/vfprintf.s:10
 _lseek (lseek.o):
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:24
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:24
 _ltoa (ltoa.o):
     _printf.o                 common/_printf.s:12
-_main (ext-ss-charnoise.c.16728.0.o):
+_main (ext-ss-charnoise.c.32120.0.o):
     callmain.o                runtime/callmain.s:11
-    crt0_cmd.s.16728.1.o      crt0_cmd.s:2
+    crt0_cmd.s.32120.1.o      crt0_cmd.s:2
 _memcpy (memcpy.o):
     vsnprintf.o               common/vsnprintf.s:10
 _open (open.o):
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:22
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:22
 _printf (printf.o):
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:17
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:17
 _rand (rand.o):
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:19
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:19
 _read_xram (read_xram.o):
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:16
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:16
 _ria_attr_get (ria_attr.o):
     randomize.o               ../libwrk/rp6502/randomize.s:17
 _ria_call_int (ria.o):
@@ -406,7 +406,7 @@ _ria_set_ax (ria.o):
     lseek.o                   ../libwrk/rp6502/lseek.s:18
     close.o                   ../libwrk/rp6502/close.s:17
 _sprintf (sprintf.o):
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:18
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:18
 _srand (rand.o):
     randomize.o               ../libwrk/rp6502/randomize.s:18
 _stdout (_file.o):
@@ -422,14 +422,14 @@ _vfprintf (vfprintf.o):
     printf.o                  common/printf.s:8
 _vsprintf (vsprintf.o):
     sprintf.o                 common/sprintf.s:8
-_write (write_stub.c.16728.2.o):
+_write (write_stub.c.32120.2.o):
     fwrite.o                  common/fwrite.s:10
 _xreg (xreg.o):
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:15
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:15
 addeq0sp (addeqsp.o):
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:1000
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:1000
 addeqysp (addeqsp.o):
-    write_stub.c.16728.2.o    write_stub.c.16728.2.s:64
+    write_stub.c.32120.2.o    write_stub.c.32120.2.s:64
 addysp (addysp.o):
     leave.o                   runtime/leave.s:14
     incsp6.o                  runtime/incsp6.s:8
@@ -440,7 +440,7 @@ addysp (addysp.o):
     printf.o                  common/printf.s:8
     incsp8.o                  runtime/incsp8.s:8
     incsp4.o                  runtime/incsp4.s:8
-    write_stub.c.16728.2.o    write_stub.c.16728.2.s:64
+    write_stub.c.32120.2.o    write_stub.c.32120.2.s:64
 axlong (axlong.o):
     _printf.o                 common/_printf.s:11
 axulong (axlong.o):
@@ -477,8 +477,8 @@ c_sp (zeropage.o):
     crt0.o                    /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:11
     addysp.o                  runtime/addysp.s:8
     addeqsp.o                 runtime/addeqsp.s:8
-    write_stub.c.16728.2.o    write_stub.c.16728.2.s:10
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:10
+    write_stub.c.32120.2.o    write_stub.c.32120.2.s:10
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:10
 callmain (callmain.o):
     crt0.o                    rp6502/crt0.s:7
 copydata (copydata.o):
@@ -488,38 +488,38 @@ ctypemaskdirect (ctypemask.o):
 decax1 (decax1.o):
     open.o                    ../libwrk/rp6502/open.s:105
 decsp2 (decsp2.o):
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:1000
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:1000
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:1000
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:1000
 decsp3 (decsp3.o):
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:1000
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:1000
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:1000
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:1000
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:1000
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:1000
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:1000
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:1000
 decsp4 (decsp4.o):
     lpush.o                   runtime/lpush.s:12
     sprintf.o                 common/sprintf.s:8
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:1000
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:1000
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:1000
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:1000
 decsp6 (decsp6.o):
     _printf.o                 common/_printf.s:11
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:1000
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:1000
 donelib (condes.o):
     crt0.o                    rp6502/crt0.s:12
-    crt0_cmd.s.16728.1.o      crt0_cmd.s:2
+    crt0_cmd.s.32120.1.o      crt0_cmd.s:2
 enter (enter.o):
     open.o                    ../libwrk/rp6502/open.s:105
 incsp1 (incsp1.o):
     ria_attr.o                ../libwrk/rp6502/ria_attr.s:80
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:1000
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:1000
 incsp2 (incsp2.o):
     vsnprintf.o               common/vsnprintf.s:9
     popptr1.o                 runtime/popptr1.s:8
     close.o                   ../libwrk/rp6502/close.s:47
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:1000
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:1000
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:1000
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:1000
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:1000
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:1000
 incsp4 (incsp4.o):
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:1000
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:1000
 incsp5 (incsp5.o):
     ria_attr.o                ../libwrk/rp6502/ria_attr.s:80
 incsp6 (incsp6.o):
@@ -529,12 +529,12 @@ incsp6 (incsp6.o):
     read_xram.o               ../libwrk/rp6502/read_xram.s:57
 incsp8 (incsp8.o):
     lseek.o                   ../libwrk/rp6502/lseek.s:58
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:1000
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:1000
 initlib (condes.o):
     crt0.o                    rp6502/crt0.s:12
-    crt0_cmd.s.16728.1.o      crt0_cmd.s:2
-initmainargs (initmainargs.s.16728.3.o):
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:14
+    crt0_cmd.s.32120.1.o      crt0_cmd.s:2
+initmainargs (initmainargs.s.32120.3.o):
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:14
 ldax0sp (ldaxsp.o):
     read_xram.o               ../libwrk/rp6502/read_xram.s:57
     open.o                    ../libwrk/rp6502/open.s:105
@@ -595,8 +595,8 @@ ptr1 (zeropage.o):
     popptr1.o                 runtime/popptr1.s:9
     open.o                    ../libwrk/rp6502/open.s:11
     mul8.o                    runtime/mul8.s:10
-    write_stub.c.16728.2.o    write_stub.c.16728.2.s:11
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:11
+    write_stub.c.32120.2.o    write_stub.c.32120.2.s:11
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:11
 ptr2 (zeropage.o):
     memcpy.o                  common/memcpy.s:15
     strlower.o                common/strlower.s:13
@@ -613,24 +613,24 @@ ptr4 (zeropage.o):
     shelp.o                   runtime/shelp.s:12
     mul8.o                    runtime/mul8.s:10
 push0 (pushax.o):
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:1000
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:1000
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:1000
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:1000
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:1000
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:1000
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:1000
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:1000
 push1 (push1.o):
     _printf.o                 common/_printf.s:11
     vfprintf.o                common/vfprintf.s:9
 pusha (pusha.o):
     ria_attr.o                ../libwrk/rp6502/ria_attr.s:80
     ria_attr.o                ../libwrk/rp6502/ria_attr.s:80
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:1000
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:1000
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:1000
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:1000
 pusha0 (pushax.o):
     push1.o                   runtime/push1.s:8
     fwrite.o                  common/fwrite.s:11
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:1000
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:1000
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:1000
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:1000
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:1000
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:1000
 pushax (pushax.o):
     fwrite.o                  common/fwrite.s:11
     callmain.o                runtime/callmain.s:11
@@ -640,12 +640,12 @@ pushax (pushax.o):
     open.o                    ../libwrk/rp6502/open.s:105
     lseek.o                   ../libwrk/rp6502/lseek.s:58
     close.o                   ../libwrk/rp6502/close.s:47
-    write_stub.c.16728.2.o    write_stub.c.16728.2.s:64
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:1000
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:1000
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:1000
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:1000
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:1000
+    write_stub.c.32120.2.o    write_stub.c.32120.2.s:64
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:1000
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:1000
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:1000
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:1000
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:1000
 pusheax (lpush.o):
     _printf.o                 common/_printf.s:11
 pushw0sp (pushwsp.o):
@@ -653,14 +653,14 @@ pushw0sp (pushwsp.o):
 pushwysp (pushwsp.o):
     fwrite.o                  common/fwrite.s:11
     vfprintf.o                common/vfprintf.s:9
-    write_stub.c.16728.2.o    write_stub.c.16728.2.s:64
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:1000
+    write_stub.c.32120.2.o    write_stub.c.32120.2.s:64
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:1000
 regbank (zeropage.o):
     _printf.o                 /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:14
 shlax3 (aslax3.o):
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:1000
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:1000
 shlax4 (aslax4.o):
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:1000
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:1000
 sreg (zeropage.o):
     lneg.o                    runtime/lneg.s:11
     ltoa.o                    common/ltoa.s:11
@@ -672,14 +672,14 @@ sreg (zeropage.o):
     ria.o                     rp6502/ria.s:13
     mod.o                     runtime/mod.s:12
 stax0sp (staxsp.o):
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:1000
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:1000
 staxysp (staxsp.o):
     vsprintf.o                common/vsprintf.s:8
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:1000
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:1000
 subeq0sp (subeqsp.o):
     open.o                    ../libwrk/rp6502/open.s:105
-    write_stub.c.16728.2.o    write_stub.c.16728.2.s:64
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:1000
+    write_stub.c.32120.2.o    write_stub.c.32120.2.s:64
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:1000
 tmp1 (zeropage.o):
     mul.o                     runtime/mul.s:10
     ltoa.o                    common/ltoa.s:11
@@ -689,16 +689,16 @@ tmp1 (zeropage.o):
     mod.o                     runtime/mod.s:12
     aslax4.o                  runtime/aslax4.s:8
     aslax3.o                  runtime/aslax3.s:8
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:11
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:11
 tmp2 (zeropage.o):
     shelp.o                   runtime/shelp.s:12
 tosmoda0 (mod.o):
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:1000
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:1000
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:1000
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:1000
 tosudivax (udiv.o):
     fwrite.o                  common/fwrite.s:12
 tosumula0 (mul8.o):
-    ext-ss-charnoise.c.16728.0.o ext-ss-charnoise.c.16728.0.s:1000
+    ext-ss-charnoise.c.32120.0.o ext-ss-charnoise.c.32120.0.s:1000
 tosumulax (mul.o):
     fwrite.o                  common/fwrite.s:12
 udiv16 (udiv.o):

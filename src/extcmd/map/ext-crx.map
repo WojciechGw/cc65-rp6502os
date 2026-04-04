@@ -1,15 +1,15 @@
 Modules list:
 -------------
-ext-crx.c.27216.0.o:
+ext-crx.c.18812.0.o:
     CODE              Offs=000000  Size=001175  Align=00001  Fill=0000
     RODATA            Offs=000000  Size=000160  Align=00001  Fill=0000
     BSS               Offs=000000  Size=000061  Align=00001  Fill=0000
     DATA              Offs=000000  Size=00001E  Align=00001  Fill=0000
-crt0_cmd.s.27216.1.o:
+crt0_cmd.s.18812.1.o:
     STARTUP           Offs=000000  Size=00001B  Align=00001  Fill=0000
-write_stub.c.27216.2.o:
+write_stub.c.18812.2.o:
     CODE              Offs=001175  Size=00004C  Align=00001  Fill=0000
-initmainargs.s.27216.3.o:
+initmainargs.s.18812.3.o:
     STARTUP           Offs=00001B  Size=000001  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(_directerrno.o):
     CODE              Offs=0011C1  Size=000009  Align=00001  Fill=0000
@@ -195,84 +195,84 @@ Segment list:
 Name                   Start     End    Size  Align
 ----------------------------------------------------
 ZEROPAGE              000000  000019  00001A  00001
-STARTUP               007800  007846  000047  00001
-ONCE                  007847  007854  00000E  00001
-CODE                  007855  0096F7  001EA3  00001
-RODATA                0096F8  0098FE  000207  00001
-DATA                  0098FF  009950  000052  00001
-BSS                   009951  0099DE  00008E  00001
+STARTUP               007900  007946  000047  00001
+ONCE                  007947  007954  00000E  00001
+CODE                  007955  0097F7  001EA3  00001
+RODATA                0097F8  0099FE  000207  00001
+DATA                  0099FF  009A50  000052  00001
+BSS                   009A51  009ADE  00008E  00001
 
 
 Exports list by name:
 ---------------------
-__BSS_RUN__               009951 RLA    __BSS_SIZE__              00008E REA    
-__CONSTRUCTOR_COUNT__     000001 REA    __CONSTRUCTOR_TABLE__     007853 RLA    
-__DATA_LOAD__             0098FF RLA    __DATA_RUN__              0098FF RLA    
+__BSS_RUN__               009A51 RLA    __BSS_SIZE__              00008E REA    
+__CONSTRUCTOR_COUNT__     000001 REA    __CONSTRUCTOR_TABLE__     007953 RLA    
+__DATA_LOAD__             0099FF RLA    __DATA_RUN__              0099FF RLA    
 __DATA_SIZE__             000052 REA    __DESTRUCTOR_COUNT__      000000 REA    
-__DESTRUCTOR_TABLE__      0098FF RLA    __RAM_SIZE__              008500 REA    
-__RAM_START__             007800 RLA    __STACKSIZE__             000200 REA    
-__STARTADDR__             007800 REA    __STARTUP__               000001 REA    
-___directerrno            008A16 RLA    ___errno                  00FFED RLA    
-___oserror                0099B2 RLA    ___seterrno               008DC0 RLA    
-__ctype                   009874 RLA    __ctypeidx                00987F RLA    
-__hextab                  009858 RLA    __longminstr              009868 RLA    
-__printf                  008B10 RLA    _clock                    008E0C RLA    
-_close                    008E11 RLA    _errno_opt_constructor    008EED  LAI   
-_ltoa                     009192 RLA    _main                     008178 RLA    
-_memcpy                   0092D7 RLA    _open                     009370 RLA    
-_ria_call_int             009477 RLA    _ria_call_long            00947D RLA    
-_ria_push_int             00944A RLA    _ria_set_ax               009470 RLA    
-_sprintf                  0094BA RLA    _strlen                   009505 RLA    
-_strlower                 00951B RLA    _ultoa                    0091D1 RLA    
-_vsprintf                 00968D RLA    _write_xram               00969F RLA    
-_xreg                     0096C0 RLA    addeq0sp                  008DC9 RLA    
-addeqysp                  008DCB RLA    addysp                    008DDB RLA    
-addysp1                   008DDA RLA    axlong                    008DE8 RLA    
-axulong                   008DEE RLA    booleq                    0092B1 RLA    
-boolge                    0092C2 RLA    boolne                    0092AB RLA    
-booluge                   0092D2 RLA    c_sp                      000000 RLZ    
-callmain                  008DF5 RLA    copydata                  008E2E RLA    
-ctypemaskdirect           008E5F RLA    decax1                    008E79 RLA    
-decsp1                    008E80 RLA    decsp2                    008E89 RLA    
-decsp3                    008E96 RLA    decsp4                    008EA3 RLA    
-decsp5                    008EB0 RLA    decsp6                    008EBD RLA    
-donelib                   008E22 RLA    enter                     008EDF RLA    
-getlop                    00921C RLA    incsp1                    008EFC RLA    
-incsp2                    008F0A RLA    incsp3                    008F18 RLA    
-incsp4                    008F1D RLA    incsp5                    008F22 RLA    
-incsp6                    008F27 RLA    initlib                   007847 RLA    
-initmainargs              00781B REA    laddeq1                   008F2C RLA    
-laddeqa                   008F2E RLA    ldax0sp                   008FA0 RLA    
-ldaxi                     008F93 RLA    ldaxysp                   008FA2 RLA    
-ldeax0sp                  008FA9 RLA    ldeaxysp                  008FAB RLA    
-leaa0sp                   008FD8 RLA    leavey                    008FEE RLA    
-negax                     009362 RLA    negeax                    00906A RLA    
-popax                     008F03 RLA    popeax                    0090A9 RLA    
-poplsargs                 0090DB RLA    popptr1                   0093E1 RLA    
-popsargsudiv16            00948E RLA    ptr1                      000008 RLZ    
+__DESTRUCTOR_TABLE__      0099FF RLA    __RAM_SIZE__              008400 REA    
+__RAM_START__             007900 RLA    __STACKSIZE__             000200 REA    
+__STARTADDR__             007900 REA    __STARTUP__               000001 REA    
+___directerrno            008B16 RLA    ___errno                  00FFED RLA    
+___oserror                009AB2 RLA    ___seterrno               008EC0 RLA    
+__ctype                   009974 RLA    __ctypeidx                00997F RLA    
+__hextab                  009958 RLA    __longminstr              009968 RLA    
+__printf                  008C10 RLA    _clock                    008F0C RLA    
+_close                    008F11 RLA    _errno_opt_constructor    008FED  LAI   
+_ltoa                     009292 RLA    _main                     008278 RLA    
+_memcpy                   0093D7 RLA    _open                     009470 RLA    
+_ria_call_int             009577 RLA    _ria_call_long            00957D RLA    
+_ria_push_int             00954A RLA    _ria_set_ax               009570 RLA    
+_sprintf                  0095BA RLA    _strlen                   009605 RLA    
+_strlower                 00961B RLA    _ultoa                    0092D1 RLA    
+_vsprintf                 00978D RLA    _write_xram               00979F RLA    
+_xreg                     0097C0 RLA    addeq0sp                  008EC9 RLA    
+addeqysp                  008ECB RLA    addysp                    008EDB RLA    
+addysp1                   008EDA RLA    axlong                    008EE8 RLA    
+axulong                   008EEE RLA    booleq                    0093B1 RLA    
+boolge                    0093C2 RLA    boolne                    0093AB RLA    
+booluge                   0093D2 RLA    c_sp                      000000 RLZ    
+callmain                  008EF5 RLA    copydata                  008F2E RLA    
+ctypemaskdirect           008F5F RLA    decax1                    008F79 RLA    
+decsp1                    008F80 RLA    decsp2                    008F89 RLA    
+decsp3                    008F96 RLA    decsp4                    008FA3 RLA    
+decsp5                    008FB0 RLA    decsp6                    008FBD RLA    
+donelib                   008F22 RLA    enter                     008FDF RLA    
+getlop                    00931C RLA    incsp1                    008FFC RLA    
+incsp2                    00900A RLA    incsp3                    009018 RLA    
+incsp4                    00901D RLA    incsp5                    009022 RLA    
+incsp6                    009027 RLA    initlib                   007947 RLA    
+initmainargs              00791B REA    laddeq1                   00902C RLA    
+laddeqa                   00902E RLA    ldax0sp                   0090A0 RLA    
+ldaxi                     009093 RLA    ldaxysp                   0090A2 RLA    
+ldeax0sp                  0090A9 RLA    ldeaxysp                  0090AB RLA    
+leaa0sp                   0090D8 RLA    leavey                    0090EE RLA    
+negax                     009462 RLA    negeax                    00916A RLA    
+popax                     009003 RLA    popeax                    0091A9 RLA    
+poplsargs                 0091DB RLA    popptr1                   0094E1 RLA    
+popsargsudiv16            00958E RLA    ptr1                      000008 RLZ    
 ptr2                      00000A RLZ    ptr3                      00000C RLZ    
-ptr4                      00000E RLZ    push0                     00940A RLA    
-push0ax                   0090C0 RLA    push1                     0093EF RLA    
-pusha                     0093F8 RLA    pusha0                    00940C RLA    
-pushax                    00940E RLA    pusheax                   0090C4 RLA    
-pushw0sp                  009424 RLA    pushwysp                  009426 RLA    
-regbank                   000014 RLZ    shreax1                   0094AE RLA    
-sreg                      000002 RLZ    staxysp                   0094E7 RLA    
-steax0sp                  0094F0 RLA    steaxysp                  0094F2 RLA    
-subeq0sp                  009542 RLA    subysp                    009557 RLA    
+ptr4                      00000E RLZ    push0                     00950A RLA    
+push0ax                   0091C0 RLA    push1                     0094EF RLA    
+pusha                     0094F8 RLA    pusha0                    00950C RLA    
+pushax                    00950E RLA    pusheax                   0091C4 RLA    
+pushw0sp                  009524 RLA    pushwysp                  009526 RLA    
+regbank                   000014 RLZ    shreax1                   0095AE RLA    
+sreg                      000002 RLZ    staxysp                   0095E7 RLA    
+steax0sp                  0095F0 RLA    steaxysp                  0095F2 RLA    
+subeq0sp                  009642 RLA    subysp                    009657 RLA    
 tmp1                      000010 RLZ    tmp2                      000011 RLZ    
 tmp3                      000012 RLZ    tmp4                      000013 RLZ    
-tosdiva0                  008ECA RLA    tosdiveax                 008FC2 RLA    
-toseqeax                  008FFF RLA    tosgeeax                  009005 RLA    
-toslcmp                   008F58 RLA    tosmoda0                  009313 RLA    
-tosmul0ax                 00900B RLA    tosneeax                  009064 RLA    
-tosoreax                  00908C RLA    tosshleax                 00912D RLA    
-tossubeax                 00914B RLA    tosudiveax                009211 RLA    
-tosugeeax                 009284 RLA    tosumul0ax                00900B RLA    
-tosumula0                 009324 RLA    tosxor0ax                 00928A RLA    
-tosxoreax                 00928E RLA    udiv16                    009575 RLA    
-udiv32                    00923F RLA    utsteax                   00916B RLA    
-vsnprintf                 0095B6 RLA    zerobss                   0096D5 RLA    
+tosdiva0                  008FCA RLA    tosdiveax                 0090C2 RLA    
+toseqeax                  0090FF RLA    tosgeeax                  009105 RLA    
+toslcmp                   009058 RLA    tosmoda0                  009413 RLA    
+tosmul0ax                 00910B RLA    tosneeax                  009164 RLA    
+tosoreax                  00918C RLA    tosshleax                 00922D RLA    
+tossubeax                 00924B RLA    tosudiveax                009311 RLA    
+tosugeeax                 009384 RLA    tosumul0ax                00910B RLA    
+tosumula0                 009424 RLA    tosxor0ax                 00938A RLA    
+tosxoreax                 00938E RLA    udiv16                    009675 RLA    
+udiv32                    00933F RLA    utsteax                   00926B RLA    
+vsnprintf                 0096B6 RLA    zerobss                   0097D5 RLA    
 
 
 
@@ -286,66 +286,66 @@ ptr4                      00000E RLZ    tmp1                      000010 RLZ
 tmp2                      000011 RLZ    tmp3                      000012 RLZ    
 tmp4                      000013 RLZ    regbank                   000014 RLZ    
 __DATA_SIZE__             000052 REA    __BSS_SIZE__              00008E REA    
-__STACKSIZE__             000200 REA    __STARTADDR__             007800 REA    
-__RAM_START__             007800 RLA    initmainargs              00781B REA    
-initlib                   007847 RLA    __CONSTRUCTOR_TABLE__     007853 RLA    
-_main                     008178 RLA    __RAM_SIZE__              008500 REA    
-___directerrno            008A16 RLA    __printf                  008B10 RLA    
-___seterrno               008DC0 RLA    addeq0sp                  008DC9 RLA    
-addeqysp                  008DCB RLA    addysp1                   008DDA RLA    
-addysp                    008DDB RLA    axlong                    008DE8 RLA    
-axulong                   008DEE RLA    callmain                  008DF5 RLA    
-_clock                    008E0C RLA    _close                    008E11 RLA    
-donelib                   008E22 RLA    copydata                  008E2E RLA    
-ctypemaskdirect           008E5F RLA    decax1                    008E79 RLA    
-decsp1                    008E80 RLA    decsp2                    008E89 RLA    
-decsp3                    008E96 RLA    decsp4                    008EA3 RLA    
-decsp5                    008EB0 RLA    decsp6                    008EBD RLA    
-tosdiva0                  008ECA RLA    enter                     008EDF RLA    
-_errno_opt_constructor    008EED  LAI   incsp1                    008EFC RLA    
-popax                     008F03 RLA    incsp2                    008F0A RLA    
-incsp3                    008F18 RLA    incsp4                    008F1D RLA    
-incsp5                    008F22 RLA    incsp6                    008F27 RLA    
-laddeq1                   008F2C RLA    laddeqa                   008F2E RLA    
-toslcmp                   008F58 RLA    ldaxi                     008F93 RLA    
-ldax0sp                   008FA0 RLA    ldaxysp                   008FA2 RLA    
-ldeax0sp                  008FA9 RLA    ldeaxysp                  008FAB RLA    
-tosdiveax                 008FC2 RLA    leaa0sp                   008FD8 RLA    
-leavey                    008FEE RLA    toseqeax                  008FFF RLA    
-tosgeeax                  009005 RLA    tosumul0ax                00900B RLA    
-tosmul0ax                 00900B RLA    tosneeax                  009064 RLA    
-negeax                    00906A RLA    tosoreax                  00908C RLA    
-popeax                    0090A9 RLA    push0ax                   0090C0 RLA    
-pusheax                   0090C4 RLA    poplsargs                 0090DB RLA    
-tosshleax                 00912D RLA    tossubeax                 00914B RLA    
-utsteax                   00916B RLA    _ltoa                     009192 RLA    
-_ultoa                    0091D1 RLA    tosudiveax                009211 RLA    
-getlop                    00921C RLA    udiv32                    00923F RLA    
-tosugeeax                 009284 RLA    tosxor0ax                 00928A RLA    
-tosxoreax                 00928E RLA    boolne                    0092AB RLA    
-booleq                    0092B1 RLA    boolge                    0092C2 RLA    
-booluge                   0092D2 RLA    _memcpy                   0092D7 RLA    
-tosmoda0                  009313 RLA    tosumula0                 009324 RLA    
-negax                     009362 RLA    _open                     009370 RLA    
-popptr1                   0093E1 RLA    push1                     0093EF RLA    
-pusha                     0093F8 RLA    push0                     00940A RLA    
-pusha0                    00940C RLA    pushax                    00940E RLA    
-pushw0sp                  009424 RLA    pushwysp                  009426 RLA    
-_ria_push_int             00944A RLA    _ria_set_ax               009470 RLA    
-_ria_call_int             009477 RLA    _ria_call_long            00947D RLA    
-popsargsudiv16            00948E RLA    shreax1                   0094AE RLA    
-_sprintf                  0094BA RLA    staxysp                   0094E7 RLA    
-steax0sp                  0094F0 RLA    steaxysp                  0094F2 RLA    
-_strlen                   009505 RLA    _strlower                 00951B RLA    
-subeq0sp                  009542 RLA    subysp                    009557 RLA    
-udiv16                    009575 RLA    vsnprintf                 0095B6 RLA    
-_vsprintf                 00968D RLA    _write_xram               00969F RLA    
-_xreg                     0096C0 RLA    zerobss                   0096D5 RLA    
-__hextab                  009858 RLA    __longminstr              009868 RLA    
-__ctype                   009874 RLA    __ctypeidx                00987F RLA    
-__DESTRUCTOR_TABLE__      0098FF RLA    __DATA_LOAD__             0098FF RLA    
-__DATA_RUN__              0098FF RLA    __BSS_RUN__               009951 RLA    
-___oserror                0099B2 RLA    ___errno                  00FFED RLA    
+__STACKSIZE__             000200 REA    __STARTADDR__             007900 REA    
+__RAM_START__             007900 RLA    initmainargs              00791B REA    
+initlib                   007947 RLA    __CONSTRUCTOR_TABLE__     007953 RLA    
+_main                     008278 RLA    __RAM_SIZE__              008400 REA    
+___directerrno            008B16 RLA    __printf                  008C10 RLA    
+___seterrno               008EC0 RLA    addeq0sp                  008EC9 RLA    
+addeqysp                  008ECB RLA    addysp1                   008EDA RLA    
+addysp                    008EDB RLA    axlong                    008EE8 RLA    
+axulong                   008EEE RLA    callmain                  008EF5 RLA    
+_clock                    008F0C RLA    _close                    008F11 RLA    
+donelib                   008F22 RLA    copydata                  008F2E RLA    
+ctypemaskdirect           008F5F RLA    decax1                    008F79 RLA    
+decsp1                    008F80 RLA    decsp2                    008F89 RLA    
+decsp3                    008F96 RLA    decsp4                    008FA3 RLA    
+decsp5                    008FB0 RLA    decsp6                    008FBD RLA    
+tosdiva0                  008FCA RLA    enter                     008FDF RLA    
+_errno_opt_constructor    008FED  LAI   incsp1                    008FFC RLA    
+popax                     009003 RLA    incsp2                    00900A RLA    
+incsp3                    009018 RLA    incsp4                    00901D RLA    
+incsp5                    009022 RLA    incsp6                    009027 RLA    
+laddeq1                   00902C RLA    laddeqa                   00902E RLA    
+toslcmp                   009058 RLA    ldaxi                     009093 RLA    
+ldax0sp                   0090A0 RLA    ldaxysp                   0090A2 RLA    
+ldeax0sp                  0090A9 RLA    ldeaxysp                  0090AB RLA    
+tosdiveax                 0090C2 RLA    leaa0sp                   0090D8 RLA    
+leavey                    0090EE RLA    toseqeax                  0090FF RLA    
+tosgeeax                  009105 RLA    tosumul0ax                00910B RLA    
+tosmul0ax                 00910B RLA    tosneeax                  009164 RLA    
+negeax                    00916A RLA    tosoreax                  00918C RLA    
+popeax                    0091A9 RLA    push0ax                   0091C0 RLA    
+pusheax                   0091C4 RLA    poplsargs                 0091DB RLA    
+tosshleax                 00922D RLA    tossubeax                 00924B RLA    
+utsteax                   00926B RLA    _ltoa                     009292 RLA    
+_ultoa                    0092D1 RLA    tosudiveax                009311 RLA    
+getlop                    00931C RLA    udiv32                    00933F RLA    
+tosugeeax                 009384 RLA    tosxor0ax                 00938A RLA    
+tosxoreax                 00938E RLA    boolne                    0093AB RLA    
+booleq                    0093B1 RLA    boolge                    0093C2 RLA    
+booluge                   0093D2 RLA    _memcpy                   0093D7 RLA    
+tosmoda0                  009413 RLA    tosumula0                 009424 RLA    
+negax                     009462 RLA    _open                     009470 RLA    
+popptr1                   0094E1 RLA    push1                     0094EF RLA    
+pusha                     0094F8 RLA    push0                     00950A RLA    
+pusha0                    00950C RLA    pushax                    00950E RLA    
+pushw0sp                  009524 RLA    pushwysp                  009526 RLA    
+_ria_push_int             00954A RLA    _ria_set_ax               009570 RLA    
+_ria_call_int             009577 RLA    _ria_call_long            00957D RLA    
+popsargsudiv16            00958E RLA    shreax1                   0095AE RLA    
+_sprintf                  0095BA RLA    staxysp                   0095E7 RLA    
+steax0sp                  0095F0 RLA    steaxysp                  0095F2 RLA    
+_strlen                   009605 RLA    _strlower                 00961B RLA    
+subeq0sp                  009642 RLA    subysp                    009657 RLA    
+udiv16                    009675 RLA    vsnprintf                 0096B6 RLA    
+_vsprintf                 00978D RLA    _write_xram               00979F RLA    
+_xreg                     0097C0 RLA    zerobss                   0097D5 RLA    
+__hextab                  009958 RLA    __longminstr              009968 RLA    
+__ctype                   009974 RLA    __ctypeidx                00997F RLA    
+__DESTRUCTOR_TABLE__      0099FF RLA    __DATA_LOAD__             0099FF RLA    
+__DATA_RUN__              0099FF RLA    __BSS_RUN__               009A51 RLA    
+___oserror                009AB2 RLA    ___errno                  00FFED RLA    
 
 
 
@@ -374,13 +374,13 @@ __RAM_SIZE__ ([linker generated]):
 __RAM_START__ ([linker generated]):
     crt0.o                    rp6502/crt0.s:10
 __STACKSIZE__ ([linker generated]):
-    [linker generated]        cfg/ext0x7800.cfg:9
+    [linker generated]        cfg/ext0x7900.cfg:9
 __STARTADDR__ ([linker generated]):
-    [linker generated]        cfg/ext0x7800.cfg:9
-    [linker generated]        cfg/ext0x7800.cfg:9
+    [linker generated]        cfg/ext0x7900.cfg:9
+    [linker generated]        cfg/ext0x7900.cfg:9
 __STARTUP__ (crt0.o):
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:13
-    [linker generated]        cfg/ext0x7800.cfg:3
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:13
+    [linker generated]        cfg/ext0x7900.cfg:3
 ___directerrno (_directerrno.o):
     vsnprintf.o               /home/wojciech/git/WojciechGw/cc65/asminc/errno.inc:10
 ___errno (errno.o):
@@ -401,18 +401,18 @@ __longminstr (_longminstr.o):
 __printf (_printf.o):
     vsnprintf.o               common/vsnprintf.s:10
 _clock (clock.o):
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:18
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:18
 _close (close.o):
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:22
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:22
 _ltoa (ltoa.o):
     _printf.o                 common/_printf.s:12
-_main (ext-crx.c.27216.0.o):
+_main (ext-crx.c.18812.0.o):
     callmain.o                runtime/callmain.s:11
-    crt0_cmd.s.27216.1.o      crt0_cmd.s:2
+    crt0_cmd.s.18812.1.o      crt0_cmd.s:2
 _memcpy (memcpy.o):
     vsnprintf.o               common/vsnprintf.s:10
 _open (open.o):
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:21
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:21
 _ria_call_int (ria.o):
     errno.o                   rp6502/errno.s:12
     xreg.o                    rp6502/xreg.s:9
@@ -428,7 +428,7 @@ _ria_set_ax (ria.o):
     open.o                    ../libwrk/rp6502/open.s:20
     close.o                   ../libwrk/rp6502/close.s:17
 _sprintf (sprintf.o):
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:17
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:17
 _strlen (strlen.o):
     _printf.o                 common/_printf.s:13
     open.o                    ../libwrk/rp6502/open.s:23
@@ -439,16 +439,16 @@ _ultoa (ltoa.o):
 _vsprintf (vsprintf.o):
     sprintf.o                 common/sprintf.s:8
 _write_xram (write_xram.o):
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:16
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:16
 _xreg (xreg.o):
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:15
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:15
 addeq0sp (addeqsp.o):
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
 addeqysp (addeqsp.o):
-    write_stub.c.27216.2.o    write_stub.c.27216.2.s:64
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
+    write_stub.c.18812.2.o    write_stub.c.18812.2.s:64
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
 addysp (addysp.o):
     leave.o                   runtime/leave.s:14
     xreg.o                    rp6502/xreg.s:9
@@ -457,9 +457,9 @@ addysp (addysp.o):
     incsp5.o                  runtime/incsp5.s:8
     incsp4.o                  runtime/incsp4.s:8
     incsp3.o                  runtime/incsp3.s:8
-    write_stub.c.27216.2.o    write_stub.c.27216.2.s:64
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
+    write_stub.c.18812.2.o    write_stub.c.18812.2.s:64
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
 addysp1 (addysp.o):
     lxor.o                    runtime/lxor.s:9
     ludiv.o                   runtime/ludiv.s:9
@@ -517,8 +517,8 @@ c_sp (zeropage.o):
     crt0.o                    /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:11
     addysp.o                  runtime/addysp.s:8
     addeqsp.o                 runtime/addeqsp.s:8
-    write_stub.c.27216.2.o    write_stub.c.27216.2.s:10
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:10
+    write_stub.c.18812.2.o    write_stub.c.18812.2.s:10
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:10
 callmain (callmain.o):
     crt0.o                    rp6502/crt0.s:7
 copydata (copydata.o):
@@ -528,71 +528,71 @@ ctypemaskdirect (ctypemask.o):
 decax1 (decax1.o):
     open.o                    ../libwrk/rp6502/open.s:105
 decsp1 (decsp1.o):
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
 decsp2 (decsp2.o):
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
 decsp3 (decsp3.o):
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
 decsp4 (decsp4.o):
     sprintf.o                 common/sprintf.s:8
     lpush.o                   runtime/lpush.s:12
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
 decsp5 (decsp5.o):
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
 decsp6 (decsp6.o):
     _printf.o                 common/_printf.s:11
 donelib (condes.o):
     crt0.o                    rp6502/crt0.s:12
-    crt0_cmd.s.27216.1.o      crt0_cmd.s:2
+    crt0_cmd.s.18812.1.o      crt0_cmd.s:2
 enter (enter.o):
     open.o                    ../libwrk/rp6502/open.s:105
 getlop (ludiv.o):
     lshelp.o                  runtime/lshelp.s:11
 incsp1 (incsp1.o):
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
 incsp2 (incsp2.o):
     vsnprintf.o               common/vsnprintf.s:9
     popptr1.o                 runtime/popptr1.s:8
     close.o                   ../libwrk/rp6502/close.s:47
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
 incsp3 (incsp3.o):
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
 incsp4 (incsp4.o):
     lpop.o                    runtime/lpop.s:9
     lcmp.o                    runtime/lcmp.s:9
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
 incsp5 (incsp5.o):
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
 incsp6 (incsp6.o):
     vsnprintf.o               common/vsnprintf.s:9
     write_xram.o              ../libwrk/rp6502/write_xram.s:57
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
 initlib (condes.o):
     crt0.o                    rp6502/crt0.s:12
-    crt0_cmd.s.27216.1.o      crt0_cmd.s:2
-initmainargs (initmainargs.s.27216.3.o):
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:14
+    crt0_cmd.s.18812.1.o      crt0_cmd.s:2
+initmainargs (initmainargs.s.18812.3.o):
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:14
 laddeq1 (laddeq.o):
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
 laddeqa (laddeq.o):
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
 ldax0sp (ldaxsp.o):
     write_xram.o              ../libwrk/rp6502/write_xram.s:57
     open.o                    ../libwrk/rp6502/open.s:105
@@ -603,11 +603,11 @@ ldaxysp (ldaxsp.o):
     vsnprintf.o               common/vsnprintf.s:9
     write_xram.o              ../libwrk/rp6502/write_xram.s:57
 ldeax0sp (ldeaxysp.o):
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
 ldeaxysp (ldeaxysp.o):
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
 leaa0sp (leaaxsp.o):
     open.o                    ../libwrk/rp6502/open.s:105
 leavey (leave.o):
@@ -659,8 +659,8 @@ ptr1 (zeropage.o):
     ldiv.o                    runtime/ldiv.s:12
     laddeq.o                  runtime/laddeq.s:12
     div.o                     runtime/div.s:12
-    write_stub.c.27216.2.o    write_stub.c.27216.2.s:11
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:11
+    write_stub.c.18812.2.o    write_stub.c.18812.2.s:11
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:11
 ptr2 (zeropage.o):
     strlower.o                common/strlower.s:13
     memcpy.o                  common/memcpy.s:15
@@ -683,54 +683,54 @@ ptr4 (zeropage.o):
     lshelp.o                  runtime/lshelp.s:12
     lmul.o                    runtime/lmul.s:10
 push0 (pushax.o):
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
 push0ax (lpush.o):
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
 push1 (push1.o):
     _printf.o                 common/_printf.s:11
 pusha (pusha.o):
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
 pusha0 (pushax.o):
     push1.o                   runtime/push1.s:8
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
 pushax (pushax.o):
     _printf.o                 common/_printf.s:11
     callmain.o                runtime/callmain.s:11
     write_xram.o              ../libwrk/rp6502/write_xram.s:57
     open.o                    ../libwrk/rp6502/open.s:105
     close.o                   ../libwrk/rp6502/close.s:47
-    write_stub.c.27216.2.o    write_stub.c.27216.2.s:64
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
+    write_stub.c.18812.2.o    write_stub.c.18812.2.s:64
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
 pusheax (lpush.o):
     _printf.o                 common/_printf.s:11
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
 pushw0sp (pushwsp.o):
     vsprintf.o                common/vsprintf.s:8
 pushwysp (pushwsp.o):
-    write_stub.c.27216.2.o    write_stub.c.27216.2.s:64
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
+    write_stub.c.18812.2.o    write_stub.c.18812.2.s:64
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
 regbank (zeropage.o):
     _printf.o                 /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:14
 shreax1 (shreax1.o):
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
 sreg (zeropage.o):
     ltoa.o                    common/ltoa.s:11
     axlong.o                  runtime/axlong.s:9
@@ -755,23 +755,23 @@ sreg (zeropage.o):
     ldiv.o                    runtime/ldiv.s:12
     ldeaxysp.o                runtime/ldeaxysp.s:12
     laddeq.o                  runtime/laddeq.s:12
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:10
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:10
 staxysp (staxsp.o):
     vsprintf.o                common/vsprintf.s:8
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
 steax0sp (steaxsp.o):
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
 steaxysp (steaxsp.o):
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
 subeq0sp (subeqsp.o):
     open.o                    ../libwrk/rp6502/open.s:105
-    write_stub.c.27216.2.o    write_stub.c.27216.2.s:64
+    write_stub.c.18812.2.o    write_stub.c.18812.2.s:64
 subysp (subysp.o):
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
 tmp1 (zeropage.o):
     ltoa.o                    common/ltoa.s:11
     _printf.o                 /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:13
@@ -786,7 +786,7 @@ tmp1 (zeropage.o):
     lor.o                     runtime/lor.s:10
     ldiv.o                    runtime/ldiv.s:12
     div.o                     runtime/div.s:12
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:11
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:11
 tmp2 (zeropage.o):
     shelp.o                   runtime/shelp.s:12
     lshelp.o                  runtime/lshelp.s:12
@@ -800,49 +800,49 @@ tmp4 (zeropage.o):
     ludiv.o                   runtime/ludiv.s:10
     lmul.o                    runtime/lmul.s:10
 tosdiva0 (div.o):
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
 tosdiveax (ldiv.o):
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
 toseqeax (leq.o):
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
 tosgeeax (lge.o):
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
 toslcmp (lcmp.o):
     luge.o                    runtime/luge.s:8
     lne.o                     runtime/lne.s:8
     lge.o                     runtime/lge.s:8
     leq.o                     runtime/leq.s:8
 tosmoda0 (mod.o):
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
 tosmul0ax (lmul.o):
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
 tosneeax (lne.o):
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
 tosoreax (lor.o):
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
 tosshleax (lshl.o):
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
 tossubeax (lsub.o):
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
 tosudiveax (ludiv.o):
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
 tosugeeax (luge.o):
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
 tosumul0ax (lmul.o):
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
 tosumula0 (mul8.o):
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
 tosxor0ax (lxor.o):
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
 tosxoreax (lxor.o):
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
 udiv16 (udiv.o):
     shelp.o                   runtime/shelp.s:11
 udiv32 (ludiv.o):
     ldiv.o                    runtime/ldiv.s:11
 utsteax (ltest.o):
-    ext-crx.c.27216.0.o       ext-crx.c.27216.0.s:2425
+    ext-crx.c.18812.0.o       ext-crx.c.18812.0.s:2425
 vsnprintf (vsnprintf.o):
     vsprintf.o                common/vsprintf.s:9
 zerobss (zerobss.o):

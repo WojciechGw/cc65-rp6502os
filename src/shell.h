@@ -15,6 +15,7 @@
 
 #define CODE_LAUNCH
 #define CODE_CART
+#define CODE_PHI2
 
 extern struct _timezone _tz;
 
@@ -22,7 +23,7 @@ extern struct _timezone _tz;
     #define __STACKSIZE__ 0x0200
 #endif
 #define MEMTOP (0xFF00-__STACKSIZE__)
-#define COM_LOAD_ADDR 0x7800  // lowest ram address where to load the external command code (binary shell extensions - .com files)
+#define COM_LOAD_ADDR 0x7900  // lowest ram address where to load the external command code (binary shell extensions - .com files)
 
 #define SHELLDIRDEFAULT "ROM:"
 #define SHELLPROMPT "> "
@@ -144,12 +145,14 @@ int cmd_mem(int, char **);
 int cmd_hex(int, char **);
 int cmd_mkdir(int, char **);
 int cmd_peek(int, char **);
-int cmd_phi2(int, char **);
 int cmd_rename(int, char **);
 int cmd_rm(int, char **);
 int cmd_run(int, char **);
 int cmd_stat(int, char **);
 int cmd_time(int, char **);
+#ifdef CODE_PHI2
+    int cmd_phi2(int, char **);
+#endif
 #ifdef CODE_LAUNCH
     int cmd_launcher(int, char **); 
 #endif
@@ -176,12 +179,14 @@ static const cmd_t commands[] = {
     { "hex",    "", "", cmd_hex },
     { "mkdir",  "", "", cmd_mkdir},
     { "peek",   "", "", cmd_peek},
-    { "phi2",   "", "", cmd_phi2},
     { "rename", "", "", cmd_rename},
     { "rm",     "", "", cmd_rm},
     { "run",    "", "", cmd_run},
     { "stat",   "", "", cmd_stat},
     { "time",   "", "", cmd_time },
+#ifdef CODE_PHI2
+    { "phi2",   "", "", cmd_phi2},
+#endif
 #ifdef CODE_LAUNCH
     { "launcher",   "", "", cmd_launcher },
 #endif
@@ -239,12 +244,14 @@ int cmd_list(int argc, char **argv);
 int cmd_mem(int argc, char **argv);
 int cmd_mkdir(int argc, char **argv);
 int cmd_peek(int argc, char **argv);
-int cmd_phi2(int argc, char **argv);
 int cmd_rename(int argc, char **argv);
 int cmd_rm(int argc, char **argv);
 int cmd_run(int argc, char **argv);
 int cmd_stat(int argc, char **argv);
 int cmd_time(int argc, char **argv);
+#ifdef CODE_PHI2
+    int cmd_phi2(int argc, char **argv);
+#endif
 #ifdef CODE_LAUNCH
    int cmd_launcher(int argc, char **argv);
 #endif

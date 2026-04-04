@@ -41,3 +41,5 @@ uint32_t ticks = 0; // for PAUSE(millis)
 #define PC_FB_HEIGHT        480u
 #define PC_FB_STRIDE        80u
 #define PC_FB_SIZE_BYTES    38400u
+
+#define EXCLAMATION "[!] "
