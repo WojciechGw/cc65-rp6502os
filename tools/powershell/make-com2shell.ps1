@@ -44,14 +44,14 @@ function Send-LineAndWait([System.IO.Ports.SerialPort]$port, [string]$text, [str
 }
 
 $appver  = (Get-Date).ToString('yyyyMMdd.HHmm')
-$srcFile = Join-Path $PSScriptRoot "..\src\ext-$shellextcmdname.c"
+$srcFile = Join-Path $PSScriptRoot "..\..\src\ext-$shellextcmdname.c"
 if (Test-Path $srcFile) {
     (Get-Content $srcFile -Raw) `
         -replace '#define APPVER "[^"]*"', "#define APPVER `"$appver`"" |
         Set-Content $srcFile -NoNewline
 }
 
-Push-Location "$PSScriptRoot/..//src/extcmd"
+Push-Location "$PSScriptRoot/../../src/extcmd"
 try {
     make CMD=${shellextcmdname} START=${shellextstart}
 }
@@ -69,7 +69,7 @@ try {
     $serialPort.RtsEnable = $true
     try {
         $serialPort.Open()
-        Start-Sleep -Milliseconds 500
+        Start-Sleep -Milliseconds 600
         Send-LineAndWait -port $serialPort -text "exit" -label "exit" -prompt "]"
         Start-Sleep -Milliseconds 400
         Send-LineAndWait -port $serialPort -text "0:" -label "0:" -prompt "]"
@@ -87,7 +87,7 @@ try {
         }
     }
 
-    python3 rp6502.py -c ..\.rp6502 upload ..\src\extcmd\build\${shellextcmdname}.com
+    python3 ..\rp6502.py -c ..\..\.rp6502 upload ..\..\src\extcmd\build\${shellextcmdname}.com
 
     try {
         $serialPort.Open()

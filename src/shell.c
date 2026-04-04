@@ -16,7 +16,7 @@
 
 #include "shell.h"
 
-#define APPVER "20260404.0927"
+#define APPVER "20260404.1658"
 #define APPNAME "razemOS"
 #define APP_MSG_START ANSI_DARK_GRAY CSI "[12;35H" APPNAME
 #define APP_HOURGLASS CSI "[14;34H" ANSI_DARK_GRAY ".........." CSI "[10D" ANSI_RESET
@@ -1305,17 +1305,17 @@ int cmd_cp(int argc, char **argv) {
         tx_string(cpm_dstfile);
         tx_string(NEWLINE);
 
-        cpm_args[0] = "copy";
-        cpm_args[1] = cpm_srcfile;
-        cpm_args[2] = cpm_dstfile;
-        rc = cmd_copy(3, cpm_args);
-        if(rc < 0) break;
+        if(!mv_mode){
+            cpm_args[0] = "copy";
+            cpm_args[1] = cpm_srcfile;
+            cpm_args[2] = cpm_dstfile;
+            rc = cmd_copy(3, cpm_args);
+            if(rc < 0) {tx_string(ANSI_RED EXCLAMATION "copying error" ANSI_RESET); break;}
+        }
+
         if(mv_mode) {
-            if(unlink(cpm_srcfile) < 0) {
-                tx_string(EXCLAMATION "cleanup failed" NEWLINE);
-                rc = -1;
-                break;
-            }
+            rc = rename(cpm_srcfile, cpm_dstfile);
+            if(rc < 0) {tx_string(ANSI_RED EXCLAMATION "moving error" ANSI_RESET); break;}
         }
     }
 

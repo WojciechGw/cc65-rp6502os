@@ -1,15 +1,15 @@
 Modules list:
 -------------
-ext-dir.c.7940.0.o:
+ext-dir.c.7296.0.o:
     CODE              Offs=000000  Size=000F1B  Align=00001  Fill=0000
     RODATA            Offs=000000  Size=00018D  Align=00001  Fill=0000
     BSS               Offs=000000  Size=000D96  Align=00001  Fill=0000
     DATA              Offs=000000  Size=000004  Align=00001  Fill=0000
-crt0_cmd.s.7940.1.o:
+crt0_cmd.s.7296.1.o:
     STARTUP           Offs=000000  Size=00001B  Align=00001  Fill=0000
-write_stub.c.7940.2.o:
+write_stub.c.7296.2.o:
     CODE              Offs=000F1B  Size=00004C  Align=00001  Fill=0000
-initmainargs.s.7940.3.o:
+initmainargs.s.7296.3.o:
     STARTUP           Offs=00001B  Size=000001  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(_file.o):
     DATA              Offs=000004  Size=00001E  Align=00001  Fill=0000
@@ -352,7 +352,7 @@ __STARTADDR__ ([linker generated]):
     [linker generated]        cfg/ext0x7900.cfg:9
     [linker generated]        cfg/ext0x7900.cfg:9
 __STARTUP__ (crt0.o):
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:13
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:13
     [linker generated]        cfg/ext0x7900.cfg:3
 ___errno (errno.o):
     _seterrno.o               /home/wojciech/git/WojciechGw/cc65/asminc/errno.inc:7
@@ -372,26 +372,26 @@ __longminstr (_longminstr.o):
 __printf (_printf.o):
     vfprintf.o                common/vfprintf.s:10
 _f_chdrive (f_chdrive.o):
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:18
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:18
 _f_closedir (f_closedir.o):
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:17
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:17
 _f_getcwd (f_getcwd.o):
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:19
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:19
 _f_opendir (f_opendir.o):
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:15
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:15
 _f_readdir (f_readdir.o):
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:16
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:16
 _fwrite (fwrite.o):
     vfprintf.o                common/vfprintf.s:10
 _ltoa (ltoa.o):
     _printf.o                 common/_printf.s:12
-_main (ext-dir.c.7940.0.o):
+_main (ext-dir.c.7296.0.o):
     callmain.o                runtime/callmain.s:11
-    crt0_cmd.s.7940.1.o       crt0_cmd.s:2
+    crt0_cmd.s.7296.1.o       crt0_cmd.s:2
 _memcpy (memcpy.o):
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
 _printf (printf.o):
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:20
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:20
 _ria_call_int (ria.o):
     errno.o                   rp6502/errno.s:12
     f_readdir.o               ../libwrk/rp6502/f_readdir.s:17
@@ -405,43 +405,43 @@ _ria_set_ax (ria.o):
 _stdout (_file.o):
     printf.o                  common/printf.s:8
 _strcmp (strcmp.o):
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:21
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:21
 _strcpy (strcpy.o):
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:22
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:22
 _strlen (strlen.o):
     _printf.o                 common/_printf.s:13
     f_opendir.o               ../libwrk/rp6502/f_opendir.s:22
     f_chdrive.o               ../libwrk/rp6502/f_chdrive.s:22
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:23
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:23
 _strlower (strlower.o):
     _printf.o                 common/_printf.s:13
 _ultoa (ltoa.o):
     _printf.o                 common/_printf.s:12
 _vfprintf (vfprintf.o):
     printf.o                  common/printf.s:8
-_write (write_stub.c.7940.2.o):
+_write (write_stub.c.7296.2.o):
     fwrite.o                  common/fwrite.s:10
 addeq0sp (addeqsp.o):
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
 addeqysp (addeqsp.o):
     f_readdir.o               ../libwrk/rp6502/f_readdir.s:86
     f_getcwd.o                ../libwrk/rp6502/f_getcwd.s:103
-    write_stub.c.7940.2.o     write_stub.c.7940.2.s:64
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
+    write_stub.c.7296.2.o     write_stub.c.7296.2.s:64
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
 addysp (addysp.o):
     incsp6.o                  runtime/incsp6.s:8
     fwrite.o                  common/fwrite.s:11
     printf.o                  common/printf.s:8
     incsp8.o                  runtime/incsp8.s:8
     incsp4.o                  runtime/incsp4.s:8
-    write_stub.c.7940.2.o     write_stub.c.7940.2.s:64
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
+    write_stub.c.7296.2.o     write_stub.c.7296.2.s:64
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
 addysp1 (addysp.o):
     ludiv.o                   runtime/ludiv.s:9
     lor.o                     runtime/lor.s:9
@@ -450,10 +450,10 @@ axlong (axlong.o):
 axulong (axlong.o):
     _printf.o                 common/_printf.s:11
 bnegax (bneg.o):
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
 booleq (makebool.o):
     leq.o                     runtime/leq.s:8
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
 boolugt (makebool.o):
     lugt.o                    runtime/lugt.s:8
 boolult (makebool.o):
@@ -493,8 +493,8 @@ c_sp (zeropage.o):
     crt0.o                    /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:11
     addysp.o                  runtime/addysp.s:8
     addeqsp.o                 runtime/addeqsp.s:8
-    write_stub.c.7940.2.o     write_stub.c.7940.2.s:10
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:10
+    write_stub.c.7296.2.o     write_stub.c.7296.2.s:10
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:10
 callmain (callmain.o):
     crt0.o                    rp6502/crt0.s:7
 copydata (copydata.o):
@@ -502,9 +502,9 @@ copydata (copydata.o):
 ctypemaskdirect (ctypemask.o):
     strlower.o                common/strlower.s:14
 decsp2 (decsp2.o):
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
 decsp3 (decsp3.o):
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
 decsp4 (decsp4.o):
     lpush.o                   runtime/lpush.s:12
     f_readdir.o               ../libwrk/rp6502/f_readdir.s:86
@@ -513,39 +513,39 @@ decsp6 (decsp6.o):
     _printf.o                 common/_printf.s:11
 donelib (condes.o):
     crt0.o                    rp6502/crt0.s:12
-    crt0_cmd.s.7940.1.o       crt0_cmd.s:2
+    crt0_cmd.s.7296.1.o       crt0_cmd.s:2
 getlop (ludiv.o):
     lumod.o                   runtime/lumod.s:9
 inceaxy (linc.o):
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
 incsp1 (incsp1.o):
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
 incsp2 (incsp2.o):
     staspidx.o                runtime/staspidx.s:8
     popptr1.o                 runtime/popptr1.s:8
     f_closedir.o              ../libwrk/rp6502/f_closedir.s:46
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
 incsp4 (incsp4.o):
     lcmp.o                    runtime/lcmp.s:9
     f_opendir.o               ../libwrk/rp6502/f_opendir.s:83
     f_chdrive.o               ../libwrk/rp6502/f_chdrive.s:83
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
 incsp6 (incsp6.o):
     fwrite.o                  common/fwrite.s:11
     vfprintf.o                common/vfprintf.s:9
 incsp8 (incsp8.o):
     f_readdir.o               ../libwrk/rp6502/f_readdir.s:86
     f_getcwd.o                ../libwrk/rp6502/f_getcwd.s:103
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
 initlib (condes.o):
     crt0.o                    rp6502/crt0.s:12
-    crt0_cmd.s.7940.1.o       crt0_cmd.s:2
-initmainargs (initmainargs.s.7940.3.o):
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:14
+    crt0_cmd.s.7296.1.o       crt0_cmd.s:2
+initmainargs (initmainargs.s.7296.3.o):
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:14
 laddeqysp (laddeqsp.o):
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
 ldax0sp (ldaxsp.o):
     f_readdir.o               ../libwrk/rp6502/f_readdir.s:86
     f_opendir.o               ../libwrk/rp6502/f_opendir.s:83
@@ -557,10 +557,10 @@ ldaxysp (ldaxsp.o):
     f_readdir.o               ../libwrk/rp6502/f_readdir.s:86
     f_getcwd.o                ../libwrk/rp6502/f_getcwd.s:103
 ldeaxidx (ldeaxi.o):
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
 ldeaxysp (ldeaxysp.o):
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
 mul8x16 (mul8.o):
     mul.o                     runtime/mul.s:8
 mul8x16a (mul8.o):
@@ -606,8 +606,8 @@ ptr1 (zeropage.o):
     f_opendir.o               ../libwrk/rp6502/f_opendir.s:11
     f_getcwd.o                ../libwrk/rp6502/f_getcwd.s:11
     f_chdrive.o               ../libwrk/rp6502/f_chdrive.s:11
-    write_stub.c.7940.2.o     write_stub.c.7940.2.s:11
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:11
+    write_stub.c.7296.2.o     write_stub.c.7296.2.s:11
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:11
 ptr2 (zeropage.o):
     strlower.o                common/strlower.s:13
     ltoa.o                    common/ltoa.s:11
@@ -631,19 +631,19 @@ ptr4 (zeropage.o):
     ludiv.o                   runtime/ludiv.s:10
     linc.o                    runtime/linc.s:8
 push0 (pushax.o):
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
 push1 (push1.o):
     _printf.o                 common/_printf.s:11
     vfprintf.o                common/vfprintf.s:9
 pusha (pusha.o):
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
 pusha0 (pushax.o):
     push1.o                   runtime/push1.s:8
     fwrite.o                  common/fwrite.s:11
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
 pushax (pushax.o):
     fwrite.o                  common/fwrite.s:11
     callmain.o                runtime/callmain.s:11
@@ -654,33 +654,33 @@ pushax (pushax.o):
     f_getcwd.o                ../libwrk/rp6502/f_getcwd.s:103
     f_closedir.o              ../libwrk/rp6502/f_closedir.s:46
     f_chdrive.o               ../libwrk/rp6502/f_chdrive.s:83
-    write_stub.c.7940.2.o     write_stub.c.7940.2.s:64
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
+    write_stub.c.7296.2.o     write_stub.c.7296.2.s:64
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
 pusheax (lpush.o):
     _printf.o                 common/_printf.s:11
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
 pushl0 (lpush.o):
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
 pushw0sp (pushwsp.o):
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
 pushwysp (pushwsp.o):
     fwrite.o                  common/fwrite.s:11
     vfprintf.o                common/vfprintf.s:9
-    write_stub.c.7940.2.o     write_stub.c.7940.2.s:64
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
+    write_stub.c.7296.2.o     write_stub.c.7296.2.s:64
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
 regbank (zeropage.o):
     _printf.o                 /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:14
 shrax1 (shrax1.o):
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
 shrax4 (shrax4.o):
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
 sreg (zeropage.o):
     lneg.o                    runtime/lneg.s:11
     ltoa.o                    common/ltoa.s:11
@@ -702,35 +702,35 @@ sreg (zeropage.o):
     ldeaxi.o                  runtime/ldeaxi.s:8
     laddeqsp.o                runtime/laddeqsp.s:8
     icmp.o                    runtime/icmp.s:9
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:10
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:10
 staspidx (staspidx.o):
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
 stax0sp (staxsp.o):
     f_readdir.o               ../libwrk/rp6502/f_readdir.s:86
     f_getcwd.o                ../libwrk/rp6502/f_getcwd.s:103
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
 staxysp (staxsp.o):
     f_readdir.o               ../libwrk/rp6502/f_readdir.s:86
     f_getcwd.o                ../libwrk/rp6502/f_getcwd.s:103
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
 steax0sp (steaxsp.o):
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
 steaxspidx (steaxspi.o):
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
 steaxysp (steaxsp.o):
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
 subeq0sp (subeqsp.o):
     f_opendir.o               ../libwrk/rp6502/f_opendir.s:83
     f_chdrive.o               ../libwrk/rp6502/f_chdrive.s:83
-    write_stub.c.7940.2.o     write_stub.c.7940.2.s:64
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
+    write_stub.c.7296.2.o     write_stub.c.7296.2.s:64
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
 subeqysp (subeqsp.o):
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
 subysp (subysp.o):
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
 tmp1 (zeropage.o):
     mul.o                     runtime/mul.s:10
     ltoa.o                    common/ltoa.s:11
@@ -742,7 +742,7 @@ tmp1 (zeropage.o):
     shrax1.o                  runtime/shrax1.s:8
     ltest.o                   runtime/ltest.s:8
     lor.o                     runtime/lor.s:10
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:11
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:11
 tmp2 (zeropage.o):
     steaxspi.o                runtime/steaxspi.s:10
 tmp3 (zeropage.o):
@@ -753,7 +753,7 @@ tmp4 (zeropage.o):
     lumod.o                   runtime/lumod.s:10
     ludiv.o                   runtime/ludiv.s:10
 toseqeax (leq.o):
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
 tosicmp (icmp.o):
     f_getcwd.o                ../libwrk/rp6502/f_getcwd.s:103
 toslcmp (lcmp.o):
@@ -761,24 +761,24 @@ toslcmp (lcmp.o):
     lugt.o                    runtime/lugt.s:8
     leq.o                     runtime/leq.s:8
 tosmula0 (mul8.o):
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
 tosor0ax (lor.o):
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
 tosudiv0ax (ludiv.o):
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
 tosudiva0 (udiv.o):
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
 tosudivax (udiv.o):
     fwrite.o                  common/fwrite.s:12
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
 tosugteax (lugt.o):
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
 tosulteax (lult.o):
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
 tosumod0ax (lumod.o):
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
 tosumoda0 (umod.o):
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
 tosumulax (mul.o):
     fwrite.o                  common/fwrite.s:12
 udiv16 (udiv.o):
@@ -786,7 +786,7 @@ udiv16 (udiv.o):
 udiv32 (ludiv.o):
     lumod.o                   runtime/lumod.s:9
 utsteax (ltest.o):
-    ext-dir.c.7940.0.o        ext-dir.c.7940.0.s:2133
+    ext-dir.c.7296.0.o        ext-dir.c.7296.0.s:2133
 zerobss (zerobss.o):
     crt0.o                    rp6502/crt0.s:12
 

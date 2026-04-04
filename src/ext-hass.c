@@ -10,7 +10,7 @@
 #include "commons.h"
 #include "ext-hass-opcodes.h"
 
-#define APPVER "20260404.1535"
+#define APPVER "20260404.1657"
 
 #define APPDIRDEFAULT "MSC0:/"
 #define APP_MSG_TITLE CSI_RESET "\x1b[2;1H\x1b" HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " Handy ASSembler WDC65C02S" ANSI_DARK_GRAY "\x1b[2;60Hversion " APPVER ANSI_RESET
@@ -36,8 +36,8 @@
 static int   nlines = 0;
 
 /* --- default .org address (if .org not defined in source) --- */
-static uint16_t org = 0x7B00;
-static uint16_t pc  = 0x7B00;
+static uint16_t org = 0x8000;
+static uint16_t pc  = 0x8000;
 
 /* common work buffers */
 static char g_buf[MAXLEN];
