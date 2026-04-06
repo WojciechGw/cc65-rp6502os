@@ -26,45 +26,43 @@
 
 void *__fastcall__ argv_mem(size_t size) { return malloc(size); }
 
+// argv[0] saved here before any sub-program call can corrupt the heap argv buffer
+static char shell_prog[FNAMELEN];
+
 int main(int argc, char *argv[]){
-    
-    (void)argc;
-    (void)argv;
-    /*
+
+    int stage;
+#ifdef DEBUG
     int i;
     printf("argc = %d\n", argc);
     for (i = 0; i < argc; i++)
         printf("argv[%d] = %s\n", i, argv[i]);
+#endif
+
+    strncpy(shell_prog, argv[0], sizeof(shell_prog) - 1);
+    shell_prog[sizeof(shell_prog) - 1] = '\0';
+
+    stage = (argc == 1) ? 0
+          : (argc == 2 && !strcmp(argv[1], "BOOT"))  ? 1
+          : (argc == 2 && !strcmp(argv[1], "START")) ? 2
+          : -1;
 
     // init stage -> self call with argument BOOT
-    if (argc == 1){
-        {
-            char arg[] = "BOOT";
-            ria_execl(argv[0], arg, NULL);
-        }
-    }
-    
-    // 1st stage - BOOT
-    if (argc == 2 && !strcmp(argv[1],"BOOT"))
-    {
-    */
-        // set as a launcher
+    if (stage == 0) {
+        char arg[] = "BOOT";
         ria_attr_set(1, RIA_ATTR_LAUNCHER);
+        ria_execl(shell_prog, arg, NULL);
+    } else if (stage == 1) {
+        char arg[] = "START";
         startstage_boot();
+        ria_execl(shell_prog, arg, NULL);
+    } else if (stage == 2) {
         startstage_shell();
-        // free(argv);
-        /*
-        if(!startstage_boot()){
-            free(argv);
-            // 2nd stage - START
-            startstage_shell();
-        } else {
-            printf(EXCLAMATION "boot error" NEWLINE NEWLINE);
-        }
-        */
-    //}
+    } else {
+        printf(EXCLAMATION "boot error" NEWLINE NEWLINE);
+    }
 
-    return 0;
+    return -1;
 
 }
 
@@ -73,40 +71,46 @@ static int startstage_boot(){
     int i = 0;
     struct tm *tmnow = get_time();
 
-    // start screen
-    strncpy(shelldir, default_shelldir, sizeof(shelldir));
-    shelldir[sizeof(shelldir) - 1] = '\0';
-    execute_cmd(&cmdline, "view /xw");
-    cmdline.bytes = 0;
-    cmdline.buffer[0] = 0;
+    // boot screen
+    xreg(1, 0, 0, GFX_CANVAS_640x480);
+    xram0_struct_set(GFX_STRUCT, vga_mode3_config_t, x_wrap, false);
+    xram0_struct_set(GFX_STRUCT, vga_mode3_config_t, y_wrap, false);
+    xram0_struct_set(GFX_STRUCT, vga_mode3_config_t, x_pos_px, 0);
+    xram0_struct_set(GFX_STRUCT, vga_mode3_config_t, y_pos_px, 0);
+    xram0_struct_set(GFX_STRUCT, vga_mode3_config_t, width_px, 640);
+    xram0_struct_set(GFX_STRUCT, vga_mode3_config_t, height_px, 480);
+    xram0_struct_set(GFX_STRUCT, vga_mode3_config_t, xram_data_ptr, 0x2000);
+    xram0_struct_set(GFX_STRUCT, vga_mode3_config_t, xram_palette_ptr, 0xFFFF);
+    xreg(1, 0, 1, GFX_MODE_BITMAP, GFX_BITMAP_bpp1, GFX_STRUCT, GFX_PLANE_0, 1, 440);
+    PAUSE(200);
+    xreg(1, 0, 1, GFX_MODE_CONSOLE, GFX_PLANE_2);
 
-    tx_string(CSI_CLS CSI_CURSOR_HIDE);
-    // tx_string(APP_MSG_START);
+    printf(CSI_CURSOR_HIDE CSI_CLS);
+    // printf(APP_MSG_START);
 
     if(!(appflags & APPFLAG_RTC)){
-        tx_string(APP_HOURGLASS);
+        printf(APP_HOURGLASS);
         i = 0;
         while (1){
             ++i;
-            tx_char('.');
+            printf(".");
             PAUSE(50);
             if(i % 10){
-                tx_string(CSI "[1m");
+                printf(CSI "[1m");
                 tmnow = get_time();
                 if(appflags & APPFLAG_RTC) break;
             } else {
-                tx_string(CSI "[10D" ANSI_DARK_GRAY ".........." CSI "[10D" ANSI_WHITE);
+                printf(CSI "[10D" ANSI_DARK_GRAY ".........." CSI "[10D" ANSI_WHITE);
             }
             if (i > 60){
-                if(!(appflags & APPFLAG_RTC)) tx_string(NEWLINE "RTC is not set.");
+                if(!(appflags & APPFLAG_RTC)) printf(NEWLINE "RTC is not set.");
                 // set_time();
                 break;
             }
         }
     } else {
-        PAUSE(25);
-        tx_string(CSI_RESET);
-        tx_string(CSI_CURSOR_SHOW ANSI_RESET);
+        printf(CSI_RESET);
+        printf(CSI_CURSOR_SHOW ANSI_RESET);
     }
     return 0;
 }
