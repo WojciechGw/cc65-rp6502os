@@ -1,15 +1,15 @@
 Modules list:
 -------------
-ext-drives.c.12604.0.o:
+ext-drives.c.4012.0.o:
     CODE              Offs=000000  Size=00038A  Align=00001  Fill=0000
     RODATA            Offs=000000  Size=0000B9  Align=00001  Fill=0000
     BSS               Offs=000000  Size=000090  Align=00001  Fill=0000
     DATA              Offs=000000  Size=000004  Align=00001  Fill=0000
-crt0_cmd.s.12604.1.o:
+crt0_cmd.s.4012.1.o:
     STARTUP           Offs=000000  Size=00001B  Align=00001  Fill=0000
-write_stub.c.12604.2.o:
+write_stub.c.4012.2.o:
     CODE              Offs=00038A  Size=00004C  Align=00001  Fill=0000
-initmainargs.s.12604.3.o:
+initmainargs.s.4012.3.o:
     STARTUP           Offs=00001B  Size=000001  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(_file.o):
     DATA              Offs=000004  Size=00001E  Align=00001  Fill=0000
@@ -161,73 +161,73 @@ Segment list:
 Name                   Start     End    Size  Align
 ----------------------------------------------------
 ZEROPAGE              000000  000019  00001A  00001
-STARTUP               007900  007946  000047  00001
-ONCE                  007947  007954  00000E  00001
-CODE                  007955  008A02  0010AE  00001
-RODATA                008A03  008B62  000160  00001
-DATA                  008B63  008BB8  000056  00001
-BSS                   008BB9  008C76  0000BE  00001
+STARTUP               007B00  007B46  000047  00001
+ONCE                  007B47  007B54  00000E  00001
+CODE                  007B55  008C02  0010AE  00001
+RODATA                008C03  008D62  000160  00001
+DATA                  008D63  008DB8  000056  00001
+BSS                   008DB9  008E76  0000BE  00001
 
 
 Exports list by name:
 ---------------------
-__BSS_RUN__               008BB9 RLA    __BSS_SIZE__              0000BE REA    
-__CONSTRUCTOR_COUNT__     000001 REA    __CONSTRUCTOR_TABLE__     007953 RLA    
-__DATA_LOAD__             008B63 RLA    __DATA_RUN__              008B63 RLA    
+__BSS_RUN__               008DB9 RLA    __BSS_SIZE__              0000BE REA    
+__CONSTRUCTOR_COUNT__     000001 REA    __CONSTRUCTOR_TABLE__     007B53 RLA    
+__DATA_LOAD__             008D63 RLA    __DATA_RUN__              008D63 RLA    
 __DATA_SIZE__             000056 REA    __DESTRUCTOR_COUNT__      000000 REA    
-__DESTRUCTOR_TABLE__      008B63 RLA    __RAM_SIZE__              008400 REA    
-__RAM_START__             007900 RLA    __STACKSIZE__             000200 REA    
-__STARTADDR__             007900 REA    __STARTUP__               000001 REA    
-___errno                  00FFED RLA    ___seterrno               0080CC RLA    
-__ctype                   008AD8 RLA    __ctypeidx                008AE3 RLA    
-__hextab                  008ABC RLA    __longminstr              008ACC RLA    
-__printf                  007E1C RLA    __syschdir                0088E7 RLA    
-_chdir                    0088E7 REA    _errno_opt_constructor    0081A3  LAI   
-_f_chdrive                0081B2 RLA    _f_getcwd                 0081FC RLA    
-_f_getfree                00826C RLA    _f_getlabel               0082E3 RLA    
-_fwrite                   008377 RLA    _ltoa                     008582 RLA    
-_main                     007A78 RLA    _printf                   008744 RLA    
-_ria_call_int             0087FF RLA    _ria_pop_long             0087D9 RLA    
-_stdout                   008B81 RLA    _strlen                   008888 RLA    
-_strlower                 00889E RLA    _ultoa                    0085C1 RLA    
-_vfprintf                 0089B7 RLA    _write                    007CDF RLA    
-addeq0sp                  0080D5 RLA    addeqysp                  0080D7 RLA    
-addysp                    0080E7 RLA    addysp1                   0080E6 RLA    
-axlong                    0080F4 RLA    axulong                   0080FA RLA    
-bnegeax                   008447 RLA    booleq                    008691 RLA    
-c_sp                      000000 RLZ    callmain                  008101 RLA    
-copydata                  008124 RLA    ctypemaskdirect           008155 RLA    
-decsp2                    00816F RLA    decsp4                    00817C RLA    
-decsp5                    008189 RLA    decsp6                    008196 RLA    
-donelib                   008118 RLA    getlop                    00860C RLA    
-inceaxy                   0084B5 RLA    incsp1                    00841C RLA    
-incsp2                    00842A RLA    incsp4                    008438 RLA    
-incsp6                    00843D RLA    incsp8                    008442 RLA    
-initlib                   007947 RLA    initmainargs              00791B REA    
-ldax0sp                   008493 RLA    ldaxysp                   008495 RLA    
-ldeax0sp                  00849C RLA    ldeaxysp                  00849E RLA    
-mul8x16                   0086FE RLA    mul8x16a                  008708 RLA    
-negeax                    00851F RLA    popax                     008423 RLA    
-popptr1                   008736 RLA    ptr1                      000008 RLZ    
+__DESTRUCTOR_TABLE__      008D63 RLA    __RAM_SIZE__              008200 REA    
+__RAM_START__             007B00 RLA    __STACKSIZE__             000200 REA    
+__STARTADDR__             007B00 REA    __STARTUP__               000001 REA    
+___errno                  00FFED RLA    ___seterrno               0082CC RLA    
+__ctype                   008CD8 RLA    __ctypeidx                008CE3 RLA    
+__hextab                  008CBC RLA    __longminstr              008CCC RLA    
+__printf                  00801C RLA    __syschdir                008AE7 RLA    
+_chdir                    008AE7 REA    _errno_opt_constructor    0083A3  LAI   
+_f_chdrive                0083B2 RLA    _f_getcwd                 0083FC RLA    
+_f_getfree                00846C RLA    _f_getlabel               0084E3 RLA    
+_fwrite                   008577 RLA    _ltoa                     008782 RLA    
+_main                     007C78 RLA    _printf                   008944 RLA    
+_ria_call_int             0089FF RLA    _ria_pop_long             0089D9 RLA    
+_stdout                   008D81 RLA    _strlen                   008A88 RLA    
+_strlower                 008A9E RLA    _ultoa                    0087C1 RLA    
+_vfprintf                 008BB7 RLA    _write                    007EDF RLA    
+addeq0sp                  0082D5 RLA    addeqysp                  0082D7 RLA    
+addysp                    0082E7 RLA    addysp1                   0082E6 RLA    
+axlong                    0082F4 RLA    axulong                   0082FA RLA    
+bnegeax                   008647 RLA    booleq                    008891 RLA    
+c_sp                      000000 RLZ    callmain                  008301 RLA    
+copydata                  008324 RLA    ctypemaskdirect           008355 RLA    
+decsp2                    00836F RLA    decsp4                    00837C RLA    
+decsp5                    008389 RLA    decsp6                    008396 RLA    
+donelib                   008318 RLA    getlop                    00880C RLA    
+inceaxy                   0086B5 RLA    incsp1                    00861C RLA    
+incsp2                    00862A RLA    incsp4                    008638 RLA    
+incsp6                    00863D RLA    incsp8                    008642 RLA    
+initlib                   007B47 RLA    initmainargs              007B1B REA    
+ldax0sp                   008693 RLA    ldaxysp                   008695 RLA    
+ldeax0sp                  00869C RLA    ldeaxysp                  00869E RLA    
+mul8x16                   0088FE RLA    mul8x16a                  008908 RLA    
+negeax                    00871F RLA    popax                     008623 RLA    
+popptr1                   008936 RLA    ptr1                      000008 RLZ    
 ptr2                      00000A RLZ    ptr3                      00000C RLZ    
-ptr4                      00000E RLZ    push1                     008777 RLA    
-pusha                     008780 RLA    pusha0                    008794 RLA    
-pushax                    008796 RLA    pusheax                   008544 RLA    
-pushl0                    00853D RLA    pushwysp                  0087AE RLA    
-regbank                   000014 RLZ    shreax3                   008816 RLA    
-sreg                      000002 RLZ    staspidx                  008830 RLA    
-stax0sp                   008846 RLA    staxysp                   008848 RLA    
-steaxspidx                008866 RLA    steaxysp                  008853 RLA    
-subeq0sp                  0088C5 RLA    subeqysp                  0088C7 RLA    
-subysp                    0088DA RLA    tmp1                      000010 RLZ    
+ptr4                      00000E RLZ    push1                     008977 RLA    
+pusha                     008980 RLA    pusha0                    008994 RLA    
+pushax                    008996 RLA    pusheax                   008744 RLA    
+pushl0                    00873D RLA    pushwysp                  0089AE RLA    
+regbank                   000014 RLZ    shreax3                   008A16 RLA    
+sreg                      000002 RLZ    staspidx                  008A30 RLA    
+stax0sp                   008A46 RLA    staxysp                   008A48 RLA    
+steaxspidx                008A66 RLA    steaxysp                  008A53 RLA    
+subeq0sp                  008AC5 RLA    subeqysp                  008AC7 RLA    
+subysp                    008ADA RLA    tmp1                      000010 RLZ    
 tmp2                      000011 RLZ    tmp3                      000012 RLZ    
-tmp4                      000013 RLZ    toseqeax                  0084AF RLA    
-tosicmp                   0083F0 RLA    toslcmp                   008458 RLA    
-tosudiv0ax                0085FD RLA    tosudivax                 008933 RLA    
-tosudiveax                008601 RLA    tosumod0ax                008674 RLA    
-tosumul0ax                0084C6 RLA    tosumulax                 0086B7 RLA    
-udiv32                    00862F RLA    utsteax                   00855B RLA    
-zerobss                   0089E0 RLA    
+tmp4                      000013 RLZ    toseqeax                  0086AF RLA    
+tosicmp                   0085F0 RLA    toslcmp                   008658 RLA    
+tosudiv0ax                0087FD RLA    tosudivax                 008B33 RLA    
+tosudiveax                008801 RLA    tosumod0ax                008874 RLA    
+tosumul0ax                0086C6 RLA    tosumulax                 0088B7 RLA    
+udiv32                    00882F RLA    utsteax                   00875B RLA    
+zerobss                   008BE0 RLA    
 
 
 Exports list by value:
@@ -240,54 +240,54 @@ ptr4                      00000E RLZ    tmp1                      000010 RLZ
 tmp2                      000011 RLZ    tmp3                      000012 RLZ    
 tmp4                      000013 RLZ    regbank                   000014 RLZ    
 __DATA_SIZE__             000056 REA    __BSS_SIZE__              0000BE REA    
-__STACKSIZE__             000200 REA    __RAM_START__             007900 RLA    
-__STARTADDR__             007900 REA    initmainargs              00791B REA    
-initlib                   007947 RLA    __CONSTRUCTOR_TABLE__     007953 RLA    
-_main                     007A78 RLA    _write                    007CDF RLA    
-__printf                  007E1C RLA    ___seterrno               0080CC RLA    
-addeq0sp                  0080D5 RLA    addeqysp                  0080D7 RLA    
-addysp1                   0080E6 RLA    addysp                    0080E7 RLA    
-axlong                    0080F4 RLA    axulong                   0080FA RLA    
-callmain                  008101 RLA    donelib                   008118 RLA    
-copydata                  008124 RLA    ctypemaskdirect           008155 RLA    
-decsp2                    00816F RLA    decsp4                    00817C RLA    
-decsp5                    008189 RLA    decsp6                    008196 RLA    
-_errno_opt_constructor    0081A3  LAI   _f_chdrive                0081B2 RLA    
-_f_getcwd                 0081FC RLA    _f_getfree                00826C RLA    
-_f_getlabel               0082E3 RLA    _fwrite                   008377 RLA    
-tosicmp                   0083F0 RLA    __RAM_SIZE__              008400 REA    
-incsp1                    00841C RLA    popax                     008423 RLA    
-incsp2                    00842A RLA    incsp4                    008438 RLA    
-incsp6                    00843D RLA    incsp8                    008442 RLA    
-bnegeax                   008447 RLA    toslcmp                   008458 RLA    
-ldax0sp                   008493 RLA    ldaxysp                   008495 RLA    
-ldeax0sp                  00849C RLA    ldeaxysp                  00849E RLA    
-toseqeax                  0084AF RLA    inceaxy                   0084B5 RLA    
-tosumul0ax                0084C6 RLA    negeax                    00851F RLA    
-pushl0                    00853D RLA    pusheax                   008544 RLA    
-utsteax                   00855B RLA    _ltoa                     008582 RLA    
-_ultoa                    0085C1 RLA    tosudiv0ax                0085FD RLA    
-tosudiveax                008601 RLA    getlop                    00860C RLA    
-udiv32                    00862F RLA    tosumod0ax                008674 RLA    
-booleq                    008691 RLA    tosumulax                 0086B7 RLA    
-mul8x16                   0086FE RLA    mul8x16a                  008708 RLA    
-popptr1                   008736 RLA    _printf                   008744 RLA    
-push1                     008777 RLA    pusha                     008780 RLA    
-pusha0                    008794 RLA    pushax                    008796 RLA    
-pushwysp                  0087AE RLA    _ria_pop_long             0087D9 RLA    
-_ria_call_int             0087FF RLA    shreax3                   008816 RLA    
-staspidx                  008830 RLA    stax0sp                   008846 RLA    
-staxysp                   008848 RLA    steaxysp                  008853 RLA    
-steaxspidx                008866 RLA    _strlen                   008888 RLA    
-_strlower                 00889E RLA    subeq0sp                  0088C5 RLA    
-subeqysp                  0088C7 RLA    subysp                    0088DA RLA    
-_chdir                    0088E7 REA    __syschdir                0088E7 RLA    
-tosudivax                 008933 RLA    _vfprintf                 0089B7 RLA    
-zerobss                   0089E0 RLA    __hextab                  008ABC RLA    
-__longminstr              008ACC RLA    __ctype                   008AD8 RLA    
-__ctypeidx                008AE3 RLA    __DATA_LOAD__             008B63 RLA    
-__DATA_RUN__              008B63 RLA    __DESTRUCTOR_TABLE__      008B63 RLA    
-_stdout                   008B81 RLA    __BSS_RUN__               008BB9 RLA    
+__STACKSIZE__             000200 REA    __STARTADDR__             007B00 REA    
+__RAM_START__             007B00 RLA    initmainargs              007B1B REA    
+initlib                   007B47 RLA    __CONSTRUCTOR_TABLE__     007B53 RLA    
+_main                     007C78 RLA    _write                    007EDF RLA    
+__printf                  00801C RLA    __RAM_SIZE__              008200 REA    
+___seterrno               0082CC RLA    addeq0sp                  0082D5 RLA    
+addeqysp                  0082D7 RLA    addysp1                   0082E6 RLA    
+addysp                    0082E7 RLA    axlong                    0082F4 RLA    
+axulong                   0082FA RLA    callmain                  008301 RLA    
+donelib                   008318 RLA    copydata                  008324 RLA    
+ctypemaskdirect           008355 RLA    decsp2                    00836F RLA    
+decsp4                    00837C RLA    decsp5                    008389 RLA    
+decsp6                    008396 RLA    _errno_opt_constructor    0083A3  LAI   
+_f_chdrive                0083B2 RLA    _f_getcwd                 0083FC RLA    
+_f_getfree                00846C RLA    _f_getlabel               0084E3 RLA    
+_fwrite                   008577 RLA    tosicmp                   0085F0 RLA    
+incsp1                    00861C RLA    popax                     008623 RLA    
+incsp2                    00862A RLA    incsp4                    008638 RLA    
+incsp6                    00863D RLA    incsp8                    008642 RLA    
+bnegeax                   008647 RLA    toslcmp                   008658 RLA    
+ldax0sp                   008693 RLA    ldaxysp                   008695 RLA    
+ldeax0sp                  00869C RLA    ldeaxysp                  00869E RLA    
+toseqeax                  0086AF RLA    inceaxy                   0086B5 RLA    
+tosumul0ax                0086C6 RLA    negeax                    00871F RLA    
+pushl0                    00873D RLA    pusheax                   008744 RLA    
+utsteax                   00875B RLA    _ltoa                     008782 RLA    
+_ultoa                    0087C1 RLA    tosudiv0ax                0087FD RLA    
+tosudiveax                008801 RLA    getlop                    00880C RLA    
+udiv32                    00882F RLA    tosumod0ax                008874 RLA    
+booleq                    008891 RLA    tosumulax                 0088B7 RLA    
+mul8x16                   0088FE RLA    mul8x16a                  008908 RLA    
+popptr1                   008936 RLA    _printf                   008944 RLA    
+push1                     008977 RLA    pusha                     008980 RLA    
+pusha0                    008994 RLA    pushax                    008996 RLA    
+pushwysp                  0089AE RLA    _ria_pop_long             0089D9 RLA    
+_ria_call_int             0089FF RLA    shreax3                   008A16 RLA    
+staspidx                  008A30 RLA    stax0sp                   008A46 RLA    
+staxysp                   008A48 RLA    steaxysp                  008A53 RLA    
+steaxspidx                008A66 RLA    _strlen                   008A88 RLA    
+_strlower                 008A9E RLA    subeq0sp                  008AC5 RLA    
+subeqysp                  008AC7 RLA    subysp                    008ADA RLA    
+_chdir                    008AE7 REA    __syschdir                008AE7 RLA    
+tosudivax                 008B33 RLA    _vfprintf                 008BB7 RLA    
+zerobss                   008BE0 RLA    __hextab                  008CBC RLA    
+__longminstr              008CCC RLA    __ctype                   008CD8 RLA    
+__ctypeidx                008CE3 RLA    __DATA_LOAD__             008D63 RLA    
+__DATA_RUN__              008D63 RLA    __DESTRUCTOR_TABLE__      008D63 RLA    
+_stdout                   008D81 RLA    __BSS_RUN__               008DB9 RLA    
 ___errno                  00FFED RLA    
 
 
@@ -316,22 +316,22 @@ __RAM_SIZE__ ([linker generated]):
 __RAM_START__ ([linker generated]):
     crt0.o                    rp6502/crt0.s:10
 __STACKSIZE__ ([linker generated]):
-    [linker generated]        cfg/ext0x7900.cfg:9
+    [linker generated]        cfg/ext0x7B00.cfg:9
 __STARTADDR__ ([linker generated]):
-    [linker generated]        cfg/ext0x7900.cfg:9
-    [linker generated]        cfg/ext0x7900.cfg:9
+    [linker generated]        cfg/ext0x7B00.cfg:9
+    [linker generated]        cfg/ext0x7B00.cfg:9
 __STARTUP__ (crt0.o):
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:13
-    [linker generated]        cfg/ext0x7900.cfg:3
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:13
+    [linker generated]        cfg/ext0x7B00.cfg:3
 ___errno (errno.o):
-    _seterrno.o               /home/wojciech/git/WojciechGw/cc65/asminc/errno.inc:7
+    _seterrno.o               /home/wojciech/git/cc65/asminc/errno.inc:7
     syschdir.o                ../libwrk/rp6502/syschdir.s:20
     f_getlabel.o              ../libwrk/rp6502/f_getlabel.s:21
     f_getfree.o               ../libwrk/rp6502/f_getfree.s:22
     f_getcwd.o                ../libwrk/rp6502/f_getcwd.s:21
     f_chdrive.o               ../libwrk/rp6502/f_chdrive.s:21
 ___seterrno (_seterrno.o):
-    fwrite.o                  /home/wojciech/git/WojciechGw/cc65/asminc/errno.inc:9
+    fwrite.o                  /home/wojciech/git/cc65/asminc/errno.inc:9
 __ctype (ctype.o):
     ctypemask.o               common/ctypemask.s:23
 __ctypeidx (ctype.o):
@@ -345,24 +345,24 @@ __printf (_printf.o):
 __syschdir (syschdir.o):
     chdir.o                   rp6502/chdir.s:9
 _chdir (chdir.o):
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:22
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:22
 _f_chdrive (f_chdrive.o):
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:15
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:15
 _f_getcwd (f_getcwd.o):
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:16
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:16
 _f_getfree (f_getfree.o):
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:18
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:18
 _f_getlabel (f_getlabel.o):
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:17
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:17
 _fwrite (fwrite.o):
     vfprintf.o                common/vfprintf.s:10
 _ltoa (ltoa.o):
     _printf.o                 common/_printf.s:12
-_main (ext-drives.c.12604.0.o):
+_main (ext-drives.c.4012.0.o):
     callmain.o                runtime/callmain.s:11
-    crt0_cmd.s.12604.1.o      crt0_cmd.s:2
+    crt0_cmd.s.4012.1.o       crt0_cmd.s:2
 _printf (printf.o):
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:19
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:19
 _ria_call_int (ria.o):
     errno.o                   rp6502/errno.s:12
     syschdir.o                ../libwrk/rp6502/syschdir.s:19
@@ -386,17 +386,17 @@ _ultoa (ltoa.o):
     _printf.o                 common/_printf.s:12
 _vfprintf (vfprintf.o):
     printf.o                  common/printf.s:8
-_write (write_stub.c.12604.2.o):
+_write (write_stub.c.4012.2.o):
     fwrite.o                  common/fwrite.s:10
 addeq0sp (addeqsp.o):
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:571
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:571
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:571
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:571
 addeqysp (addeqsp.o):
     f_getlabel.o              ../libwrk/rp6502/f_getlabel.s:127
     f_getcwd.o                ../libwrk/rp6502/f_getcwd.s:103
-    write_stub.c.12604.2.o    write_stub.c.12604.2.s:64
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:571
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:571
+    write_stub.c.4012.2.o     write_stub.c.4012.2.s:64
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:571
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:571
 addysp (addysp.o):
     incsp6.o                  runtime/incsp6.s:8
     fwrite.o                  common/fwrite.s:11
@@ -405,8 +405,8 @@ addysp (addysp.o):
     incsp4.o                  runtime/incsp4.s:8
     f_getlabel.o              ../libwrk/rp6502/f_getlabel.s:127
     f_getfree.o               ../libwrk/rp6502/f_getfree.s:110
-    write_stub.c.12604.2.o    write_stub.c.12604.2.s:64
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:571
+    write_stub.c.4012.2.o     write_stub.c.4012.2.s:64
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:571
 addysp1 (addysp.o):
     ludiv.o                   runtime/ludiv.s:9
     lmul.o                    runtime/lmul.s:9
@@ -415,14 +415,14 @@ axlong (axlong.o):
 axulong (axlong.o):
     _printf.o                 common/_printf.s:11
 bnegeax (lbneg.o):
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:571
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:571
 booleq (makebool.o):
     leq.o                     runtime/leq.s:8
 c_sp (zeropage.o):
     popptr1.o                 runtime/popptr1.s:9
     lcmp.o                    runtime/lcmp.s:10
     decsp6.o                  runtime/decsp6.s:8
-    _printf.o                 /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:11
+    _printf.o                 /home/wojciech/git/cc65/asminc/zeropage.inc:11
     vfprintf.o                common/vfprintf.s:11
     syschdir.o                ../libwrk/rp6502/syschdir.s:10
     subysp.o                  runtime/subysp.s:9
@@ -449,11 +449,11 @@ c_sp (zeropage.o):
     decsp5.o                  runtime/decsp5.s:8
     decsp4.o                  runtime/decsp4.s:8
     decsp2.o                  runtime/decsp2.s:8
-    crt0.o                    /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:11
+    crt0.o                    /home/wojciech/git/cc65/asminc/zeropage.inc:11
     addysp.o                  runtime/addysp.s:8
     addeqsp.o                 runtime/addeqsp.s:8
-    write_stub.c.12604.2.o    write_stub.c.12604.2.s:10
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:10
+    write_stub.c.4012.2.o     write_stub.c.4012.2.s:10
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:10
 callmain (callmain.o):
     crt0.o                    rp6502/crt0.s:7
 copydata (copydata.o):
@@ -462,36 +462,36 @@ ctypemaskdirect (ctypemask.o):
     strlower.o                common/strlower.s:14
 decsp2 (decsp2.o):
     f_getfree.o               ../libwrk/rp6502/f_getfree.s:110
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:571
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:571
 decsp4 (decsp4.o):
     lpush.o                   runtime/lpush.s:12
     f_getlabel.o              ../libwrk/rp6502/f_getlabel.s:127
     f_getcwd.o                ../libwrk/rp6502/f_getcwd.s:103
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:571
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:571
 decsp5 (decsp5.o):
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:571
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:571
 decsp6 (decsp6.o):
     _printf.o                 common/_printf.s:11
 donelib (condes.o):
     crt0.o                    rp6502/crt0.s:12
-    crt0_cmd.s.12604.1.o      crt0_cmd.s:2
+    crt0_cmd.s.4012.1.o       crt0_cmd.s:2
 getlop (ludiv.o):
     lumod.o                   runtime/lumod.s:9
 inceaxy (linc.o):
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:571
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:571
 incsp1 (incsp1.o):
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:571
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:571
 incsp2 (incsp2.o):
     popptr1.o                 runtime/popptr1.s:8
     staspidx.o                runtime/staspidx.s:8
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:571
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:571
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:571
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:571
 incsp4 (incsp4.o):
     lcmp.o                    runtime/lcmp.s:9
     syschdir.o                ../libwrk/rp6502/syschdir.s:83
     f_chdrive.o               ../libwrk/rp6502/f_chdrive.s:83
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:571
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:571
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:571
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:571
 incsp6 (incsp6.o):
     fwrite.o                  common/fwrite.s:11
     vfprintf.o                common/vfprintf.s:9
@@ -499,9 +499,9 @@ incsp8 (incsp8.o):
     f_getcwd.o                ../libwrk/rp6502/f_getcwd.s:103
 initlib (condes.o):
     crt0.o                    rp6502/crt0.s:12
-    crt0_cmd.s.12604.1.o      crt0_cmd.s:2
-initmainargs (initmainargs.s.12604.3.o):
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:14
+    crt0_cmd.s.4012.1.o       crt0_cmd.s:2
+initmainargs (initmainargs.s.4012.3.o):
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:14
 ldax0sp (ldaxsp.o):
     syschdir.o                ../libwrk/rp6502/syschdir.s:83
     f_getlabel.o              ../libwrk/rp6502/f_getlabel.s:127
@@ -514,10 +514,10 @@ ldaxysp (ldaxsp.o):
     f_getfree.o               ../libwrk/rp6502/f_getfree.s:110
     f_getcwd.o                ../libwrk/rp6502/f_getcwd.s:103
 ldeax0sp (ldeaxysp.o):
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:571
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:571
 ldeaxysp (ldeaxysp.o):
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:571
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:571
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:571
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:571
 mul8x16 (mul8.o):
     mul.o                     runtime/mul.s:8
 mul8x16a (mul8.o):
@@ -543,7 +543,7 @@ ptr1 (zeropage.o):
     lcmp.o                    runtime/lcmp.s:10
     fwrite.o                  common/fwrite.s:14
     copydata.o                common/copydata.s:9
-    _printf.o                 /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:12
+    _printf.o                 /home/wojciech/git/cc65/asminc/zeropage.inc:12
     zerobss.o                 common/zerobss.s:9
     vfprintf.o                common/vfprintf.s:11
     syschdir.o                ../libwrk/rp6502/syschdir.s:11
@@ -556,13 +556,13 @@ ptr1 (zeropage.o):
     f_getfree.o               ../libwrk/rp6502/f_getfree.s:11
     f_getcwd.o                ../libwrk/rp6502/f_getcwd.s:11
     f_chdrive.o               ../libwrk/rp6502/f_chdrive.s:11
-    write_stub.c.12604.2.o    write_stub.c.12604.2.s:11
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:11
+    write_stub.c.4012.2.o     write_stub.c.4012.2.s:11
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:11
 ptr2 (zeropage.o):
     strlower.o                common/strlower.s:13
     ltoa.o                    common/ltoa.s:11
     copydata.o                common/copydata.s:9
-    _printf.o                 /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:12
+    _printf.o                 /home/wojciech/git/cc65/asminc/zeropage.inc:12
     lumod.o                   runtime/lumod.s:10
     ludiv.o                   runtime/ludiv.s:10
 ptr3 (zeropage.o):
@@ -581,13 +581,13 @@ push1 (push1.o):
     _printf.o                 common/_printf.s:11
     vfprintf.o                common/vfprintf.s:9
 pusha (pusha.o):
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:571
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:571
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:571
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:571
 pusha0 (pushax.o):
     push1.o                   runtime/push1.s:8
     fwrite.o                  common/fwrite.s:11
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:571
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:571
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:571
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:571
 pushax (pushax.o):
     fwrite.o                  common/fwrite.s:11
     callmain.o                runtime/callmain.s:11
@@ -598,33 +598,33 @@ pushax (pushax.o):
     f_getfree.o               ../libwrk/rp6502/f_getfree.s:110
     f_getcwd.o                ../libwrk/rp6502/f_getcwd.s:103
     f_chdrive.o               ../libwrk/rp6502/f_chdrive.s:83
-    write_stub.c.12604.2.o    write_stub.c.12604.2.s:64
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:571
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:571
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:571
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:571
+    write_stub.c.4012.2.o     write_stub.c.4012.2.s:64
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:571
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:571
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:571
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:571
 pusheax (lpush.o):
     _printf.o                 common/_printf.s:11
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:571
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:571
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:571
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:571
 pushl0 (lpush.o):
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:571
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:571
 pushwysp (pushwsp.o):
     fwrite.o                  common/fwrite.s:11
     vfprintf.o                common/vfprintf.s:9
     f_getfree.o               ../libwrk/rp6502/f_getfree.s:110
-    write_stub.c.12604.2.o    write_stub.c.12604.2.s:64
+    write_stub.c.4012.2.o     write_stub.c.4012.2.s:64
 regbank (zeropage.o):
-    _printf.o                 /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:14
+    _printf.o                 /home/wojciech/git/cc65/asminc/zeropage.inc:14
 shreax3 (shreax3.o):
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:571
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:571
 sreg (zeropage.o):
     lneg.o                    runtime/lneg.s:11
     udiv.o                    runtime/udiv.s:10
     ltoa.o                    common/ltoa.s:11
     lcmp.o                    runtime/lcmp.s:10
     axlong.o                  runtime/axlong.s:9
-    _printf.o                 /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:11
+    _printf.o                 /home/wojciech/git/cc65/asminc/zeropage.inc:11
     steaxspi.o                runtime/steaxspi.s:10
     steaxsp.o                 runtime/steaxsp.s:8
     shreax3.o                 runtime/shreax3.s:8
@@ -638,37 +638,37 @@ sreg (zeropage.o):
     ldeaxysp.o                runtime/ldeaxysp.s:12
     lbneg.o                   runtime/lbneg.s:8
     icmp.o                    runtime/icmp.s:9
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:10
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:10
 staspidx (staspidx.o):
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:571
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:571
 stax0sp (staxsp.o):
     f_getcwd.o                ../libwrk/rp6502/f_getcwd.s:103
 staxysp (staxsp.o):
     f_getlabel.o              ../libwrk/rp6502/f_getlabel.s:127
     f_getfree.o               ../libwrk/rp6502/f_getfree.s:110
     f_getcwd.o                ../libwrk/rp6502/f_getcwd.s:103
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:571
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:571
 steaxspidx (steaxspi.o):
     f_getfree.o               ../libwrk/rp6502/f_getfree.s:110
 steaxysp (steaxsp.o):
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:571
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:571
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:571
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:571
 subeq0sp (subeqsp.o):
     syschdir.o                ../libwrk/rp6502/syschdir.s:83
     f_getlabel.o              ../libwrk/rp6502/f_getlabel.s:127
     f_getfree.o               ../libwrk/rp6502/f_getfree.s:110
     f_chdrive.o               ../libwrk/rp6502/f_chdrive.s:83
-    write_stub.c.12604.2.o    write_stub.c.12604.2.s:64
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:571
+    write_stub.c.4012.2.o     write_stub.c.4012.2.s:64
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:571
 subeqysp (subeqsp.o):
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:571
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:571
 subysp (subysp.o):
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:571
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:571
 tmp1 (zeropage.o):
     mul.o                     runtime/mul.s:10
     ltoa.o                    common/ltoa.s:11
     copydata.o                common/copydata.s:9
-    _printf.o                 /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:13
+    _printf.o                 /home/wojciech/git/cc65/asminc/zeropage.inc:13
     steaxspi.o                runtime/steaxspi.s:10
     staspidx.o                runtime/staspidx.s:9
     shreax3.o                 runtime/shreax3.s:8
@@ -687,27 +687,27 @@ tmp4 (zeropage.o):
     ludiv.o                   runtime/ludiv.s:10
     lmul.o                    runtime/lmul.s:10
 toseqeax (leq.o):
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:571
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:571
 tosicmp (icmp.o):
     f_getcwd.o                ../libwrk/rp6502/f_getcwd.s:103
 toslcmp (lcmp.o):
     leq.o                     runtime/leq.s:8
 tosudiv0ax (ludiv.o):
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:571
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:571
 tosudivax (udiv.o):
     fwrite.o                  common/fwrite.s:12
 tosudiveax (ludiv.o):
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:571
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:571
 tosumod0ax (lumod.o):
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:571
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:571
 tosumul0ax (lmul.o):
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:571
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:571
 tosumulax (mul.o):
     fwrite.o                  common/fwrite.s:12
 udiv32 (ludiv.o):
     lumod.o                   runtime/lumod.s:9
 utsteax (ltest.o):
-    ext-drives.c.12604.0.o    ext-drives.c.12604.0.s:571
+    ext-drives.c.4012.0.o     ext-drives.c.4012.0.s:571
 zerobss (zerobss.o):
     crt0.o                    rp6502/crt0.s:12
 

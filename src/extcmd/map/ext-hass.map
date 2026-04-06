@@ -1,15 +1,15 @@
 Modules list:
 -------------
-ext-hass.c.27424.0.o:
+ext-hass.c.25772.0.o:
     CODE              Offs=000000  Size=0051BC  Align=00001  Fill=0000
     RODATA            Offs=000000  Size=0014B8  Align=00001  Fill=0000
     BSS               Offs=000000  Size=000340  Align=00001  Fill=0000
     DATA              Offs=000000  Size=000114  Align=00001  Fill=0000
-crt0_cmd.s.27424.1.o:
+crt0_cmd.s.25772.1.o:
     STARTUP           Offs=000000  Size=00001B  Align=00001  Fill=0000
-write_stub.c.27424.2.o:
+write_stub.c.25772.2.o:
     CODE              Offs=0051BC  Size=00004C  Align=00001  Fill=0000
-initmainargs.s.27424.3.o:
+initmainargs.s.25772.3.o:
     STARTUP           Offs=00001B  Size=000001  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(_directerrno.o):
     CODE              Offs=005208  Size=000009  Align=00001  Fill=0000
@@ -263,103 +263,103 @@ Segment list:
 Name                   Start     End    Size  Align
 ----------------------------------------------------
 ZEROPAGE              000000  000019  00001A  00001
-STARTUP               007900  007946  000047  00001
-ONCE                  007947  007954  00000E  00001
-CODE                  007955  00DFD9  006685  00001
-RODATA                00DFDA  00F538  00155F  00001
-DATA                  00F539  00F6A6  00016E  00001
-BSS                   00F6A7  00FA1F  000379  00001
+STARTUP               007B00  007B46  000047  00001
+ONCE                  007B47  007B54  00000E  00001
+CODE                  007B55  00E1D9  006685  00001
+RODATA                00E1DA  00F738  00155F  00001
+DATA                  00F739  00F8A6  00016E  00001
+BSS                   00F8A7  00FC1F  000379  00001
 
 
 Exports list by name:
 ---------------------
-__BSS_RUN__               00F6A7 RLA    __BSS_SIZE__              000379 REA    
-__CONSTRUCTOR_COUNT__     000001 REA    __CONSTRUCTOR_TABLE__     007953 RLA    
-__DATA_LOAD__             00F539 RLA    __DATA_RUN__              00F539 RLA    
+__BSS_RUN__               00F8A7 RLA    __BSS_SIZE__              000379 REA    
+__CONSTRUCTOR_COUNT__     000001 REA    __CONSTRUCTOR_TABLE__     007B53 RLA    
+__DATA_LOAD__             00F739 RLA    __DATA_RUN__              00F739 RLA    
 __DATA_SIZE__             00016E REA    __DESTRUCTOR_COUNT__      000000 REA    
-__DESTRUCTOR_TABLE__      00F539 RLA    __RAM_SIZE__              008400 REA    
-__RAM_START__             007900 RLA    __STACKSIZE__             000200 REA    
-__STARTADDR__             007900 REA    __STARTUP__               000001 REA    
-___directerrno            00CB5D RLA    ___errno                  00FFED RLA    
-___oserror                00F9E9 RLA    ___seterrno               00CF9F RLA    
-__ctype                   00F4AE RLA    __ctypeidx                00F4B9 RLA    
-__fdesc                   00CB66 RLA    __filetab                 00F64D RLA    
-__fopen                   00CB83 RLA    __hextab                  00F492 RLA    
-__longminstr              00F4A2 RLA    __printf                  00CCEF RLA    
-_atoi                     00CFED RLA    _close                    00D0BC RLA    
-_errno_opt_constructor    00D199  LAI   _exit                     007934 RLA    
-_fclose                   00D1A8 RLA    _fgetc                    00D1C6 RLA    
-_fgets                    00D229 RLA    _fopen                    00D2A2 RLA    
-_fwrite                   00D2BA RLA    _isalnum                  00D399 RLA    
-_isalpha                  00D3A1 RLA    _isdigit                  00D3A9 RLA    
-_islower                  00D3B1 RLA    _isspace                  00D3B9 RLA    
-_isupper                  00D3C1 RLA    _ltoa                     00D563 RLA    
-_main                     00B93D RLA    _memcpy                   00D69E RLA    
-_memmove                  00D6DA RLA    _open                     00D7D6 RLA    
-_printf                   00D855 RLA    _read                     00D8E0 RLA    
-_read_xstack              00D969 RLA    _ria_call_int             00DA0A RLA    
-_ria_push_int             00D9DD RLA    _ria_set_ax               00DA03 RLA    
-_sprintf                  00DA21 RLA    _stdin                    00F665 RLA    
-_stdout                   00F667 RLA    _strchr                   00DA9C RLA    
-_strcmp                   00DAC1 RLA    _strlen                   00DAE2 RLA    
-_strlower                 00DAF8 RLA    _strncpy                  00DB1F RLA    
-_strrchr                  00DB61 RLA    _strtoul                  00DB85 RLA    
-_toupper                  00DDE9 RLA    _ultoa                    00D5A2 RLA    
-_vfprintf                 00DE81 RLA    _vsprintf                 00DF84 RLA    
-_write                    00CB11 RLA    _write_xram               00DF96 RLA    
-addeq0sp                  00CFA8 RLA    addeqysp                  00CFAA RLA    
-addysp                    00CFBA RLA    addysp1                   00CFB9 RLA    
-asrax1                    00CFE3 RLA    axlong                    00D07E RLA    
-axulong                   00D084 RLA    bnegax                    00D08B RLA    
-booleq                    00D678 RLA    boolugt                   00D697 RLA    
-boolult                   00D691 RLA    c_sp                      000000 RLZ    
-callmain                  00D099 RLA    checkferror               00D0B0 RLA    
-copydata                  00D0D9 RLA    ctypemask                 00D106 RLA    
-ctypemaskdirect           00D10A RLA    decax1                    00D124 RLA    
-decaxy                    00D12B RLA    decsp1                    00D134 RLA    
-decsp2                    00D13D RLA    decsp3                    00D14A RLA    
-decsp4                    00D157 RLA    decsp6                    00D164 RLA    
-decsp7                    00D171 RLA    decsp8                    00D17E RLA    
-donelib                   00D0CD RLA    enter                     00D18B RLA    
-getlop                    00D5ED RLA    incsp1                    00D35F RLA    
-incsp2                    00D36D RLA    incsp3                    00D37B RLA    
-incsp4                    00D380 RLA    incsp5                    00D385 RLA    
-incsp6                    00D38A RLA    incsp7                    00D38F RLA    
-incsp8                    00D394 RLA    initlib                   007947 RLA    
-initmainargs              00791B REA    laddeqa                   00D3EF RLA    
-ldax0sp                   00D461 RLA    ldaxi                     00D454 RLA    
-ldaxysp                   00D463 RLA    ldeaxysp                  00D46C RLA    
-ldptr1ysp                 00D47F RLA    leaa0sp                   00D489 RLA    
-leavey                    00D49F RLA    memcpy_getparams          00D6C7 RLA    
-memcpy_upwards            00D6A1 RLA    mul8x16                   00D771 RLA    
-mul8x16a                  00D77B RLA    mulax10                   00D7A9 RLA    
-mulax5                    00D7C2 RLA    negeax                    00D50F RLA    
-popax                     00D366 RLA    popptr1                   00D847 RLA    
+__DESTRUCTOR_TABLE__      00F739 RLA    __RAM_SIZE__              008200 REA    
+__RAM_START__             007B00 RLA    __STACKSIZE__             000200 REA    
+__STARTADDR__             007B00 REA    __STARTUP__               000001 REA    
+___directerrno            00CD5D RLA    ___errno                  00FFED RLA    
+___oserror                00FBE9 RLA    ___seterrno               00D19F RLA    
+__ctype                   00F6AE RLA    __ctypeidx                00F6B9 RLA    
+__fdesc                   00CD66 RLA    __filetab                 00F84D RLA    
+__fopen                   00CD83 RLA    __hextab                  00F692 RLA    
+__longminstr              00F6A2 RLA    __printf                  00CEEF RLA    
+_atoi                     00D1ED RLA    _close                    00D2BC RLA    
+_errno_opt_constructor    00D399  LAI   _exit                     007B34 RLA    
+_fclose                   00D3A8 RLA    _fgetc                    00D3C6 RLA    
+_fgets                    00D429 RLA    _fopen                    00D4A2 RLA    
+_fwrite                   00D4BA RLA    _isalnum                  00D599 RLA    
+_isalpha                  00D5A1 RLA    _isdigit                  00D5A9 RLA    
+_islower                  00D5B1 RLA    _isspace                  00D5B9 RLA    
+_isupper                  00D5C1 RLA    _ltoa                     00D763 RLA    
+_main                     00BB3D RLA    _memcpy                   00D89E RLA    
+_memmove                  00D8DA RLA    _open                     00D9D6 RLA    
+_printf                   00DA55 RLA    _read                     00DAE0 RLA    
+_read_xstack              00DB69 RLA    _ria_call_int             00DC0A RLA    
+_ria_push_int             00DBDD RLA    _ria_set_ax               00DC03 RLA    
+_sprintf                  00DC21 RLA    _stdin                    00F865 RLA    
+_stdout                   00F867 RLA    _strchr                   00DC9C RLA    
+_strcmp                   00DCC1 RLA    _strlen                   00DCE2 RLA    
+_strlower                 00DCF8 RLA    _strncpy                  00DD1F RLA    
+_strrchr                  00DD61 RLA    _strtoul                  00DD85 RLA    
+_toupper                  00DFE9 RLA    _ultoa                    00D7A2 RLA    
+_vfprintf                 00E081 RLA    _vsprintf                 00E184 RLA    
+_write                    00CD11 RLA    _write_xram               00E196 RLA    
+addeq0sp                  00D1A8 RLA    addeqysp                  00D1AA RLA    
+addysp                    00D1BA RLA    addysp1                   00D1B9 RLA    
+asrax1                    00D1E3 RLA    axlong                    00D27E RLA    
+axulong                   00D284 RLA    bnegax                    00D28B RLA    
+booleq                    00D878 RLA    boolugt                   00D897 RLA    
+boolult                   00D891 RLA    c_sp                      000000 RLZ    
+callmain                  00D299 RLA    checkferror               00D2B0 RLA    
+copydata                  00D2D9 RLA    ctypemask                 00D306 RLA    
+ctypemaskdirect           00D30A RLA    decax1                    00D324 RLA    
+decaxy                    00D32B RLA    decsp1                    00D334 RLA    
+decsp2                    00D33D RLA    decsp3                    00D34A RLA    
+decsp4                    00D357 RLA    decsp6                    00D364 RLA    
+decsp7                    00D371 RLA    decsp8                    00D37E RLA    
+donelib                   00D2CD RLA    enter                     00D38B RLA    
+getlop                    00D7ED RLA    incsp1                    00D55F RLA    
+incsp2                    00D56D RLA    incsp3                    00D57B RLA    
+incsp4                    00D580 RLA    incsp5                    00D585 RLA    
+incsp6                    00D58A RLA    incsp7                    00D58F RLA    
+incsp8                    00D594 RLA    initlib                   007B47 RLA    
+initmainargs              007B1B REA    laddeqa                   00D5EF RLA    
+ldax0sp                   00D661 RLA    ldaxi                     00D654 RLA    
+ldaxysp                   00D663 RLA    ldeaxysp                  00D66C RLA    
+ldptr1ysp                 00D67F RLA    leaa0sp                   00D689 RLA    
+leavey                    00D69F RLA    memcpy_getparams          00D8C7 RLA    
+memcpy_upwards            00D8A1 RLA    mul8x16                   00D971 RLA    
+mul8x16a                  00D97B RLA    mulax10                   00D9A9 RLA    
+mulax5                    00D9C2 RLA    negeax                    00D70F RLA    
+popax                     00D566 RLA    popptr1                   00DA47 RLA    
 ptr1                      000008 RLZ    ptr2                      00000A RLZ    
 ptr3                      00000C RLZ    ptr4                      00000E RLZ    
-push0                     00D8A3 RLA    push1                     00D888 RLA    
-pusha                     00D891 RLA    pusha0                    00D8A5 RLA    
-pushax                    00D8A7 RLA    pusheax                   00D534 RLA    
-pushl0                    00D52D RLA    pushptr1                  00D8BD RLA    
-pushw0sp                  00D8C4 RLA    pushwysp                  00D8C6 RLA    
+push0                     00DAA3 RLA    push1                     00DA88 RLA    
+pusha                     00DA91 RLA    pusha0                    00DAA5 RLA    
+pushax                    00DAA7 RLA    pusheax                   00D734 RLA    
+pushl0                    00D72D RLA    pushptr1                  00DABD RLA    
+pushw0sp                  00DAC4 RLA    pushwysp                  00DAC6 RLA    
 regbank                   000014 RLZ    regsave                   000004 RLZ    
-return0                   00D9CB RLA    returnFFFF                00D9CF RLA    
-shlax2                    00CFC7 RLA    shlax4                    00CFD2 RLA    
-sreg                      000002 RLZ    staspidx                  00DA4C RLA    
-stax0sp                   00DA62 RLA    staxspidx                 00DA6D RLA    
-staxysp                   00DA64 RLA    steax0sp                  00DA87 RLA    
-steaxysp                  00DA89 RLA    subeq0sp                  00DDC7 RLA    
-subeqysp                  00DDC9 RLA    subysp                    00DDDC RLA    
+return0                   00DBCB RLA    returnFFFF                00DBCF RLA    
+shlax2                    00D1C7 RLA    shlax4                    00D1D2 RLA    
+sreg                      000002 RLZ    staspidx                  00DC4C RLA    
+stax0sp                   00DC62 RLA    staxspidx                 00DC6D RLA    
+staxysp                   00DC64 RLA    steax0sp                  00DC87 RLA    
+steaxysp                  00DC89 RLA    subeq0sp                  00DFC7 RLA    
+subeqysp                  00DFC9 RLA    subysp                    00DFDC RLA    
 tmp1                      000010 RLZ    tmp2                      000011 RLZ    
 tmp3                      000012 RLZ    tmp4                      000013 RLZ    
-tosaddeax                 00D3CF RLA    toseqeax                  00D4B0 RLA    
-tosicmp                   00D333 RLA    tosicmp0                  00D331 RLA    
-toslcmp                   00D419 RLA    tossubax                  00DDB5 RLA    
-tosudivax                 00DDFD RLA    tosudiveax                00D5E2 RLA    
-tosugteax                 00D655 RLA    tosumodeax                00D65F RLA    
-tosumula0                 00D76F RLA    tosumulax                 00D72A RLA    
-tosumuleax                00D4BA RLA    udiv32                    00D610 RLA    
-vsnprintf                 00DEAD RLA    zerobss                   00DFB7 RLA    
+tosaddeax                 00D5CF RLA    toseqeax                  00D6B0 RLA    
+tosicmp                   00D533 RLA    tosicmp0                  00D531 RLA    
+toslcmp                   00D619 RLA    tossubax                  00DFB5 RLA    
+tosudivax                 00DFFD RLA    tosudiveax                00D7E2 RLA    
+tosugteax                 00D855 RLA    tosumodeax                00D85F RLA    
+tosumula0                 00D96F RLA    tosumulax                 00D92A RLA    
+tosumuleax                00D6BA RLA    udiv32                    00D810 RLA    
+vsnprintf                 00E0AD RLA    zerobss                   00E1B7 RLA    
 
 
 
@@ -374,84 +374,84 @@ tmp1                      000010 RLZ    tmp2                      000011 RLZ
 tmp3                      000012 RLZ    tmp4                      000013 RLZ    
 regbank                   000014 RLZ    __DATA_SIZE__             00016E REA    
 __STACKSIZE__             000200 REA    __BSS_SIZE__              000379 REA    
-__RAM_START__             007900 RLA    __STARTADDR__             007900 REA    
-initmainargs              00791B REA    _exit                     007934 RLA    
-initlib                   007947 RLA    __CONSTRUCTOR_TABLE__     007953 RLA    
-__RAM_SIZE__              008400 REA    _main                     00B93D RLA    
-_write                    00CB11 RLA    ___directerrno            00CB5D RLA    
-__fdesc                   00CB66 RLA    __fopen                   00CB83 RLA    
-__printf                  00CCEF RLA    ___seterrno               00CF9F RLA    
-addeq0sp                  00CFA8 RLA    addeqysp                  00CFAA RLA    
-addysp1                   00CFB9 RLA    addysp                    00CFBA RLA    
-shlax2                    00CFC7 RLA    shlax4                    00CFD2 RLA    
-asrax1                    00CFE3 RLA    _atoi                     00CFED RLA    
-axlong                    00D07E RLA    axulong                   00D084 RLA    
-bnegax                    00D08B RLA    callmain                  00D099 RLA    
-checkferror               00D0B0 RLA    _close                    00D0BC RLA    
-donelib                   00D0CD RLA    copydata                  00D0D9 RLA    
-ctypemask                 00D106 RLA    ctypemaskdirect           00D10A RLA    
-decax1                    00D124 RLA    decaxy                    00D12B RLA    
-decsp1                    00D134 RLA    decsp2                    00D13D RLA    
-decsp3                    00D14A RLA    decsp4                    00D157 RLA    
-decsp6                    00D164 RLA    decsp7                    00D171 RLA    
-decsp8                    00D17E RLA    enter                     00D18B RLA    
-_errno_opt_constructor    00D199  LAI   _fclose                   00D1A8 RLA    
-_fgetc                    00D1C6 RLA    _fgets                    00D229 RLA    
-_fopen                    00D2A2 RLA    _fwrite                   00D2BA RLA    
-tosicmp0                  00D331 RLA    tosicmp                   00D333 RLA    
-incsp1                    00D35F RLA    popax                     00D366 RLA    
-incsp2                    00D36D RLA    incsp3                    00D37B RLA    
-incsp4                    00D380 RLA    incsp5                    00D385 RLA    
-incsp6                    00D38A RLA    incsp7                    00D38F RLA    
-incsp8                    00D394 RLA    _isalnum                  00D399 RLA    
-_isalpha                  00D3A1 RLA    _isdigit                  00D3A9 RLA    
-_islower                  00D3B1 RLA    _isspace                  00D3B9 RLA    
-_isupper                  00D3C1 RLA    tosaddeax                 00D3CF RLA    
-laddeqa                   00D3EF RLA    toslcmp                   00D419 RLA    
-ldaxi                     00D454 RLA    ldax0sp                   00D461 RLA    
-ldaxysp                   00D463 RLA    ldeaxysp                  00D46C RLA    
-ldptr1ysp                 00D47F RLA    leaa0sp                   00D489 RLA    
-leavey                    00D49F RLA    toseqeax                  00D4B0 RLA    
-tosumuleax                00D4BA RLA    negeax                    00D50F RLA    
-pushl0                    00D52D RLA    pusheax                   00D534 RLA    
-_ltoa                     00D563 RLA    _ultoa                    00D5A2 RLA    
-tosudiveax                00D5E2 RLA    getlop                    00D5ED RLA    
-udiv32                    00D610 RLA    tosugteax                 00D655 RLA    
-tosumodeax                00D65F RLA    booleq                    00D678 RLA    
-boolult                   00D691 RLA    boolugt                   00D697 RLA    
-_memcpy                   00D69E RLA    memcpy_upwards            00D6A1 RLA    
-memcpy_getparams          00D6C7 RLA    _memmove                  00D6DA RLA    
-tosumulax                 00D72A RLA    tosumula0                 00D76F RLA    
-mul8x16                   00D771 RLA    mul8x16a                  00D77B RLA    
-mulax10                   00D7A9 RLA    mulax5                    00D7C2 RLA    
-_open                     00D7D6 RLA    popptr1                   00D847 RLA    
-_printf                   00D855 RLA    push1                     00D888 RLA    
-pusha                     00D891 RLA    push0                     00D8A3 RLA    
-pusha0                    00D8A5 RLA    pushax                    00D8A7 RLA    
-pushptr1                  00D8BD RLA    pushw0sp                  00D8C4 RLA    
-pushwysp                  00D8C6 RLA    _read                     00D8E0 RLA    
-_read_xstack              00D969 RLA    return0                   00D9CB RLA    
-returnFFFF                00D9CF RLA    _ria_push_int             00D9DD RLA    
-_ria_set_ax               00DA03 RLA    _ria_call_int             00DA0A RLA    
-_sprintf                  00DA21 RLA    staspidx                  00DA4C RLA    
-stax0sp                   00DA62 RLA    staxysp                   00DA64 RLA    
-staxspidx                 00DA6D RLA    steax0sp                  00DA87 RLA    
-steaxysp                  00DA89 RLA    _strchr                   00DA9C RLA    
-_strcmp                   00DAC1 RLA    _strlen                   00DAE2 RLA    
-_strlower                 00DAF8 RLA    _strncpy                  00DB1F RLA    
-_strrchr                  00DB61 RLA    _strtoul                  00DB85 RLA    
-tossubax                  00DDB5 RLA    subeq0sp                  00DDC7 RLA    
-subeqysp                  00DDC9 RLA    subysp                    00DDDC RLA    
-_toupper                  00DDE9 RLA    tosudivax                 00DDFD RLA    
-_vfprintf                 00DE81 RLA    vsnprintf                 00DEAD RLA    
-_vsprintf                 00DF84 RLA    _write_xram               00DF96 RLA    
-zerobss                   00DFB7 RLA    __hextab                  00F492 RLA    
-__longminstr              00F4A2 RLA    __ctype                   00F4AE RLA    
-__ctypeidx                00F4B9 RLA    __DATA_RUN__              00F539 RLA    
-__DESTRUCTOR_TABLE__      00F539 RLA    __DATA_LOAD__             00F539 RLA    
-__filetab                 00F64D RLA    _stdin                    00F665 RLA    
-_stdout                   00F667 RLA    __BSS_RUN__               00F6A7 RLA    
-___oserror                00F9E9 RLA    ___errno                  00FFED RLA    
+__RAM_START__             007B00 RLA    __STARTADDR__             007B00 REA    
+initmainargs              007B1B REA    _exit                     007B34 RLA    
+initlib                   007B47 RLA    __CONSTRUCTOR_TABLE__     007B53 RLA    
+__RAM_SIZE__              008200 REA    _main                     00BB3D RLA    
+_write                    00CD11 RLA    ___directerrno            00CD5D RLA    
+__fdesc                   00CD66 RLA    __fopen                   00CD83 RLA    
+__printf                  00CEEF RLA    ___seterrno               00D19F RLA    
+addeq0sp                  00D1A8 RLA    addeqysp                  00D1AA RLA    
+addysp1                   00D1B9 RLA    addysp                    00D1BA RLA    
+shlax2                    00D1C7 RLA    shlax4                    00D1D2 RLA    
+asrax1                    00D1E3 RLA    _atoi                     00D1ED RLA    
+axlong                    00D27E RLA    axulong                   00D284 RLA    
+bnegax                    00D28B RLA    callmain                  00D299 RLA    
+checkferror               00D2B0 RLA    _close                    00D2BC RLA    
+donelib                   00D2CD RLA    copydata                  00D2D9 RLA    
+ctypemask                 00D306 RLA    ctypemaskdirect           00D30A RLA    
+decax1                    00D324 RLA    decaxy                    00D32B RLA    
+decsp1                    00D334 RLA    decsp2                    00D33D RLA    
+decsp3                    00D34A RLA    decsp4                    00D357 RLA    
+decsp6                    00D364 RLA    decsp7                    00D371 RLA    
+decsp8                    00D37E RLA    enter                     00D38B RLA    
+_errno_opt_constructor    00D399  LAI   _fclose                   00D3A8 RLA    
+_fgetc                    00D3C6 RLA    _fgets                    00D429 RLA    
+_fopen                    00D4A2 RLA    _fwrite                   00D4BA RLA    
+tosicmp0                  00D531 RLA    tosicmp                   00D533 RLA    
+incsp1                    00D55F RLA    popax                     00D566 RLA    
+incsp2                    00D56D RLA    incsp3                    00D57B RLA    
+incsp4                    00D580 RLA    incsp5                    00D585 RLA    
+incsp6                    00D58A RLA    incsp7                    00D58F RLA    
+incsp8                    00D594 RLA    _isalnum                  00D599 RLA    
+_isalpha                  00D5A1 RLA    _isdigit                  00D5A9 RLA    
+_islower                  00D5B1 RLA    _isspace                  00D5B9 RLA    
+_isupper                  00D5C1 RLA    tosaddeax                 00D5CF RLA    
+laddeqa                   00D5EF RLA    toslcmp                   00D619 RLA    
+ldaxi                     00D654 RLA    ldax0sp                   00D661 RLA    
+ldaxysp                   00D663 RLA    ldeaxysp                  00D66C RLA    
+ldptr1ysp                 00D67F RLA    leaa0sp                   00D689 RLA    
+leavey                    00D69F RLA    toseqeax                  00D6B0 RLA    
+tosumuleax                00D6BA RLA    negeax                    00D70F RLA    
+pushl0                    00D72D RLA    pusheax                   00D734 RLA    
+_ltoa                     00D763 RLA    _ultoa                    00D7A2 RLA    
+tosudiveax                00D7E2 RLA    getlop                    00D7ED RLA    
+udiv32                    00D810 RLA    tosugteax                 00D855 RLA    
+tosumodeax                00D85F RLA    booleq                    00D878 RLA    
+boolult                   00D891 RLA    boolugt                   00D897 RLA    
+_memcpy                   00D89E RLA    memcpy_upwards            00D8A1 RLA    
+memcpy_getparams          00D8C7 RLA    _memmove                  00D8DA RLA    
+tosumulax                 00D92A RLA    tosumula0                 00D96F RLA    
+mul8x16                   00D971 RLA    mul8x16a                  00D97B RLA    
+mulax10                   00D9A9 RLA    mulax5                    00D9C2 RLA    
+_open                     00D9D6 RLA    popptr1                   00DA47 RLA    
+_printf                   00DA55 RLA    push1                     00DA88 RLA    
+pusha                     00DA91 RLA    push0                     00DAA3 RLA    
+pusha0                    00DAA5 RLA    pushax                    00DAA7 RLA    
+pushptr1                  00DABD RLA    pushw0sp                  00DAC4 RLA    
+pushwysp                  00DAC6 RLA    _read                     00DAE0 RLA    
+_read_xstack              00DB69 RLA    return0                   00DBCB RLA    
+returnFFFF                00DBCF RLA    _ria_push_int             00DBDD RLA    
+_ria_set_ax               00DC03 RLA    _ria_call_int             00DC0A RLA    
+_sprintf                  00DC21 RLA    staspidx                  00DC4C RLA    
+stax0sp                   00DC62 RLA    staxysp                   00DC64 RLA    
+staxspidx                 00DC6D RLA    steax0sp                  00DC87 RLA    
+steaxysp                  00DC89 RLA    _strchr                   00DC9C RLA    
+_strcmp                   00DCC1 RLA    _strlen                   00DCE2 RLA    
+_strlower                 00DCF8 RLA    _strncpy                  00DD1F RLA    
+_strrchr                  00DD61 RLA    _strtoul                  00DD85 RLA    
+tossubax                  00DFB5 RLA    subeq0sp                  00DFC7 RLA    
+subeqysp                  00DFC9 RLA    subysp                    00DFDC RLA    
+_toupper                  00DFE9 RLA    tosudivax                 00DFFD RLA    
+_vfprintf                 00E081 RLA    vsnprintf                 00E0AD RLA    
+_vsprintf                 00E184 RLA    _write_xram               00E196 RLA    
+zerobss                   00E1B7 RLA    __hextab                  00F692 RLA    
+__longminstr              00F6A2 RLA    __ctype                   00F6AE RLA    
+__ctypeidx                00F6B9 RLA    __DATA_RUN__              00F739 RLA    
+__DESTRUCTOR_TABLE__      00F739 RLA    __DATA_LOAD__             00F739 RLA    
+__filetab                 00F84D RLA    _stdin                    00F865 RLA    
+_stdout                   00F867 RLA    __BSS_RUN__               00F8A7 RLA    
+___oserror                00FBE9 RLA    ___errno                  00FFED RLA    
 
 
 
@@ -480,28 +480,28 @@ __RAM_SIZE__ ([linker generated]):
 __RAM_START__ ([linker generated]):
     crt0.o                    rp6502/crt0.s:10
 __STACKSIZE__ ([linker generated]):
-    [linker generated]        cfg/ext0x7900.cfg:9
+    [linker generated]        cfg/ext0x7B00.cfg:9
 __STARTADDR__ ([linker generated]):
-    [linker generated]        cfg/ext0x7900.cfg:9
-    [linker generated]        cfg/ext0x7900.cfg:9
+    [linker generated]        cfg/ext0x7B00.cfg:9
+    [linker generated]        cfg/ext0x7B00.cfg:9
 __STARTUP__ (crt0.o):
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:13
-    [linker generated]        cfg/ext0x7900.cfg:3
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:13
+    [linker generated]        cfg/ext0x7B00.cfg:3
 ___directerrno (_directerrno.o):
-    vsnprintf.o               /home/wojciech/git/WojciechGw/cc65/asminc/errno.inc:10
+    vsnprintf.o               /home/wojciech/git/cc65/asminc/errno.inc:10
     fclose.o                  common/fclose.s:10
 ___errno (errno.o):
-    _seterrno.o               /home/wojciech/git/WojciechGw/cc65/asminc/errno.inc:7
+    _seterrno.o               /home/wojciech/git/cc65/asminc/errno.inc:7
     open.o                    ../libwrk/rp6502/open.s:22
     fgets.o                   common/fgets.s:8
 ___oserror (_oserror.o):
-    _directerrno.o            /home/wojciech/git/WojciechGw/cc65/asminc/errno.inc:7
+    _directerrno.o            /home/wojciech/git/cc65/asminc/errno.inc:7
 ___seterrno (_seterrno.o):
-    fwrite.o                  /home/wojciech/git/WojciechGw/cc65/asminc/errno.inc:9
-    _fopen.o                  /home/wojciech/git/WojciechGw/cc65/asminc/errno.inc:9
-    _directerrno.o            /home/wojciech/git/WojciechGw/cc65/asminc/errno.inc:9
+    fwrite.o                  /home/wojciech/git/cc65/asminc/errno.inc:9
+    _fopen.o                  /home/wojciech/git/cc65/asminc/errno.inc:9
+    _directerrno.o            /home/wojciech/git/cc65/asminc/errno.inc:9
     strtoul.o                 ../libwrk/rp6502/strtoul.s:22
-    fopen.o                   /home/wojciech/git/WojciechGw/cc65/asminc/errno.inc:9
+    fopen.o                   /home/wojciech/git/cc65/asminc/errno.inc:9
 __ctype (ctype.o):
     ctypemask.o               common/ctypemask.s:23
 __ctypeidx (ctype.o):
@@ -509,7 +509,7 @@ __ctypeidx (ctype.o):
 __fdesc (_fdesc.o):
     fopen.o                   common/fopen.s:10
 __filetab (_file.o):
-    _fdesc.o                  /home/wojciech/git/WojciechGw/cc65/asminc/_file.inc:25
+    _fdesc.o                  /home/wojciech/git/cc65/asminc/_file.inc:25
 __fopen (_fopen.o):
     fopen.o                   common/fopen.s:10
 __hextab (_hextab.o):
@@ -520,51 +520,51 @@ __printf (_printf.o):
     vsnprintf.o               common/vsnprintf.s:10
     vfprintf.o                common/vfprintf.s:10
 _atoi (atoi.o):
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:22
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:22
 _close (close.o):
     fclose.o                  common/fclose.s:10
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:39
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:39
 _exit (crt0.o):
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:23
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:23
 _fclose (fclose.o):
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:17
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:17
 _fgetc (fgetc.o):
     fgets.o                   common/fgets.s:8
 _fgets (fgets.o):
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:18
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:18
 _fopen (fopen.o):
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:19
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:19
 _fwrite (fwrite.o):
     vfprintf.o                common/vfprintf.s:10
 _isalnum (isalnum.o):
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:25
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:25
 _isalpha (isalpha.o):
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:26
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:26
 _isdigit (isdigit.o):
     strtoul.o                 ../libwrk/rp6502/strtoul.s:18
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:27
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:27
 _islower (islower.o):
     strtoul.o                 ../libwrk/rp6502/strtoul.s:19
 _isspace (isspace.o):
     strtoul.o                 ../libwrk/rp6502/strtoul.s:20
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:28
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:28
 _isupper (isupper.o):
     strtoul.o                 ../libwrk/rp6502/strtoul.s:21
 _ltoa (ltoa.o):
     _printf.o                 common/_printf.s:12
-_main (ext-hass.c.27424.0.o):
+_main (ext-hass.c.25772.0.o):
     callmain.o                runtime/callmain.s:11
-    crt0_cmd.s.27424.1.o      crt0_cmd.s:2
+    crt0_cmd.s.25772.1.o      crt0_cmd.s:2
 _memcpy (memcpy.o):
     vsnprintf.o               common/vsnprintf.s:10
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:35
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:35
 _memmove (memmove.o):
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:36
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:36
 _open (open.o):
     _fopen.o                  common/_fopen.s:10
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:38
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:38
 _printf (printf.o):
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:20
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:20
 _read (read.o):
     fgetc.o                   common/fgetc.s:8
 _read_xstack (read_xstack.o):
@@ -584,67 +584,67 @@ _ria_set_ax (ria.o):
     open.o                    ../libwrk/rp6502/open.s:20
     close.o                   ../libwrk/rp6502/close.s:17
 _sprintf (sprintf.o):
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:21
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:21
 _stdin (_file.o):
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:16
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:16
 _stdout (_file.o):
     printf.o                  common/printf.s:8
 _strchr (strchr.o):
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:30
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:30
 _strcmp (strcmp.o):
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:31
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:31
 _strlen (strlen.o):
     _printf.o                 common/_printf.s:13
     open.o                    ../libwrk/rp6502/open.s:23
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:32
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:32
 _strlower (strlower.o):
     _printf.o                 common/_printf.s:13
 _strncpy (strncpy.o):
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:33
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:33
 _strrchr (strrchr.o):
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:34
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:34
 _strtoul (strtoul.o):
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:24
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:24
 _toupper (toupper.o):
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:29
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:29
 _ultoa (ltoa.o):
     _printf.o                 common/_printf.s:12
 _vfprintf (vfprintf.o):
     printf.o                  common/printf.s:8
 _vsprintf (vsprintf.o):
     sprintf.o                 common/sprintf.s:8
-_write (write_stub.c.27424.2.o):
+_write (write_stub.c.25772.2.o):
     fwrite.o                  common/fwrite.s:10
 _write_xram (write_xram.o):
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:15
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:15
 addeq0sp (addeqsp.o):
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
 addeqysp (addeqsp.o):
     read_xstack.o             ../libwrk/rp6502/read_xstack.s:94
     read.o                    ../libwrk/rp6502/read.s:116
     strtoul.o                 ../libwrk/rp6502/strtoul.s:369
-    write_stub.c.27424.2.o    write_stub.c.27424.2.s:64
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
+    write_stub.c.25772.2.o    write_stub.c.25772.2.s:64
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
 addysp (addysp.o):
     read_xstack.o             ../libwrk/rp6502/read_xstack.s:94
     read.o                    ../libwrk/rp6502/read.s:116
@@ -659,28 +659,28 @@ addysp (addysp.o):
     incsp5.o                  runtime/incsp5.s:8
     incsp4.o                  runtime/incsp4.s:8
     incsp3.o                  runtime/incsp3.s:8
-    write_stub.c.27424.2.o    write_stub.c.27424.2.s:64
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
+    write_stub.c.25772.2.o    write_stub.c.25772.2.s:64
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
 addysp1 (addysp.o):
     ludiv.o                   runtime/ludiv.s:9
     lmul.o                    runtime/lmul.s:9
     ladd.o                    runtime/ladd.s:8
     sub.o                     runtime/sub.s:8
 asrax1 (asrax1.o):
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
 axlong (axlong.o):
     _printf.o                 common/_printf.s:11
     strtoul.o                 ../libwrk/rp6502/strtoul.s:369
@@ -688,15 +688,15 @@ axulong (axlong.o):
     _printf.o                 common/_printf.s:11
     strtoul.o                 ../libwrk/rp6502/strtoul.s:369
 bnegax (bneg.o):
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
 booleq (makebool.o):
     leq.o                     runtime/leq.s:8
 boolugt (makebool.o):
     lugt.o                    runtime/lugt.s:8
 boolult (makebool.o):
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
 c_sp (zeropage.o):
     lcmp.o                    runtime/lcmp.s:10
     vsnprintf.o               common/vsnprintf.s:11
@@ -710,7 +710,7 @@ c_sp (zeropage.o):
     ldeaxysp.o                runtime/ldeaxysp.s:12
     ladd.o                    runtime/ladd.s:9
     enter.o                   runtime/enter.s:8
-    _printf.o                 /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:11
+    _printf.o                 /home/wojciech/git/cc65/asminc/zeropage.inc:11
     _fopen.o                  common/_fopen.s:12
     vfprintf.o                common/vfprintf.s:11
     subysp.o                  runtime/subysp.s:9
@@ -741,11 +741,11 @@ c_sp (zeropage.o):
     decsp3.o                  runtime/decsp3.s:8
     decsp2.o                  runtime/decsp2.s:8
     decsp1.o                  runtime/decsp1.s:8
-    crt0.o                    /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:11
+    crt0.o                    /home/wojciech/git/cc65/asminc/zeropage.inc:11
     addysp.o                  runtime/addysp.s:8
     addeqsp.o                 runtime/addeqsp.s:8
-    write_stub.c.27424.2.o    write_stub.c.27424.2.s:10
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:10
+    write_stub.c.25772.2.o    write_stub.c.25772.2.s:10
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:10
 callmain (callmain.o):
     crt0.o                    rp6502/crt0.s:7
 checkferror (checkferror.o):
@@ -768,71 +768,71 @@ decax1 (decax1.o):
 decaxy (decaxy.o):
     strtoul.o                 ../libwrk/rp6502/strtoul.s:369
 decsp1 (decsp1.o):
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
 decsp2 (decsp2.o):
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
 decsp3 (decsp3.o):
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
 decsp4 (decsp4.o):
     read_xstack.o             ../libwrk/rp6502/read_xstack.s:94
     sprintf.o                 common/sprintf.s:8
     lpush.o                   runtime/lpush.s:12
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
 decsp6 (decsp6.o):
     _printf.o                 common/_printf.s:11
     strtoul.o                 ../libwrk/rp6502/strtoul.s:369
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
 decsp7 (decsp7.o):
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
 decsp8 (decsp8.o):
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
 donelib (condes.o):
     crt0.o                    rp6502/crt0.s:12
-    crt0_cmd.s.27424.1.o      crt0_cmd.s:2
+    crt0_cmd.s.25772.1.o      crt0_cmd.s:2
 enter (enter.o):
     open.o                    ../libwrk/rp6502/open.s:105
 getlop (ludiv.o):
     lumod.o                   runtime/lumod.s:9
 incsp1 (incsp1.o):
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
 incsp2 (incsp2.o):
     vsnprintf.o               common/vsnprintf.s:9
     fgetc.o                   common/fgetc.s:9
@@ -840,75 +840,75 @@ incsp2 (incsp2.o):
     staspidx.o                runtime/staspidx.s:8
     popptr1.o                 runtime/popptr1.s:8
     close.o                   ../libwrk/rp6502/close.s:47
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
 incsp3 (incsp3.o):
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
 incsp4 (incsp4.o):
     lcmp.o                    runtime/lcmp.s:9
     read.o                    ../libwrk/rp6502/read.s:116
     _fopen.o                  common/_fopen.s:11
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
 incsp5 (incsp5.o):
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
 incsp6 (incsp6.o):
     vsnprintf.o               common/vsnprintf.s:9
     fwrite.o                  common/fwrite.s:11
     write_xram.o              ../libwrk/rp6502/write_xram.s:57
     vfprintf.o                common/vfprintf.s:9
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
 incsp7 (incsp7.o):
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
 incsp8 (incsp8.o):
     read.o                    ../libwrk/rp6502/read.s:116
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
 initlib (condes.o):
     crt0.o                    rp6502/crt0.s:12
-    crt0_cmd.s.27424.1.o      crt0_cmd.s:2
-initmainargs (initmainargs.s.27424.3.o):
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:14
+    crt0_cmd.s.25772.1.o      crt0_cmd.s:2
+initmainargs (initmainargs.s.25772.3.o):
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:14
 laddeqa (laddeq.o):
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
 ldax0sp (ldaxsp.o):
     read_xstack.o             ../libwrk/rp6502/read_xstack.s:94
     read.o                    ../libwrk/rp6502/read.s:116
@@ -941,9 +941,9 @@ mul8x16 (mul8.o):
 mul8x16a (mul8.o):
     mul.o                     runtime/mul.s:8
 mulax10 (mulax10.o):
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
 mulax5 (mulax5.o):
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
 negeax (lneg.o):
     ltoa.o                    common/ltoa.s:9
     strtoul.o                 ../libwrk/rp6502/strtoul.s:369
@@ -984,7 +984,7 @@ ptr1 (zeropage.o):
     fwrite.o                  common/fwrite.s:14
     fgetc.o                   common/fgetc.s:10
     copydata.o                common/copydata.s:9
-    _printf.o                 /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:12
+    _printf.o                 /home/wojciech/git/cc65/asminc/zeropage.inc:12
     _fopen.o                  common/_fopen.s:12
     zerobss.o                 common/zerobss.s:9
     vfprintf.o                common/vfprintf.s:11
@@ -1009,15 +1009,15 @@ ptr1 (zeropage.o):
     fgets.o                   common/fgets.s:9
     fclose.o                  common/fclose.s:11
     atoi.o                    common/atoi.s:10
-    write_stub.c.27424.2.o    write_stub.c.27424.2.s:11
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:11
+    write_stub.c.25772.2.o    write_stub.c.25772.2.s:11
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:11
 ptr2 (zeropage.o):
     strlower.o                common/strlower.s:13
     lumod.o                   runtime/lumod.s:10
     ludiv.o                   runtime/ludiv.s:10
     ltoa.o                    common/ltoa.s:11
     copydata.o                common/copydata.s:9
-    _printf.o                 /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:12
+    _printf.o                 /home/wojciech/git/cc65/asminc/zeropage.inc:12
     strncpy.o                 common/strncpy.s:9
     strcmp.o                  common/strcmp.s:9
     memmove.o                 common/memmove.s:13
@@ -1040,36 +1040,36 @@ ptr4 (zeropage.o):
 push0 (pushax.o):
     read.o                    ../libwrk/rp6502/read.s:116
     strtoul.o                 ../libwrk/rp6502/strtoul.s:369
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
 push1 (push1.o):
     _printf.o                 common/_printf.s:11
     vfprintf.o                common/vfprintf.s:9
 pusha (pusha.o):
     strtoul.o                 ../libwrk/rp6502/strtoul.s:369
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
 pusha0 (pushax.o):
     push1.o                   runtime/push1.s:8
     fwrite.o                  common/fwrite.s:11
     fgetc.o                   common/fgetc.s:9
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
 pushax (pushax.o):
     read_xstack.o             ../libwrk/rp6502/read_xstack.s:94
     read.o                    ../libwrk/rp6502/read.s:116
@@ -1084,100 +1084,100 @@ pushax (pushax.o):
     open.o                    ../libwrk/rp6502/open.s:105
     fopen.o                   common/fopen.s:11
     close.o                   ../libwrk/rp6502/close.s:47
-    write_stub.c.27424.2.o    write_stub.c.27424.2.s:64
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
+    write_stub.c.25772.2.o    write_stub.c.25772.2.s:64
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
 pusheax (lpush.o):
     _printf.o                 common/_printf.s:11
     strtoul.o                 ../libwrk/rp6502/strtoul.s:369
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
 pushl0 (lpush.o):
     strtoul.o                 ../libwrk/rp6502/strtoul.s:369
 pushptr1 (pushptr1.o):
     fgets.o                   common/fgets.s:8
 pushw0sp (pushwsp.o):
     vsprintf.o                common/vsprintf.s:8
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
 pushwysp (pushwsp.o):
     read.o                    ../libwrk/rp6502/read.s:116
     fwrite.o                  common/fwrite.s:11
     vfprintf.o                common/vfprintf.s:9
-    write_stub.c.27424.2.o    write_stub.c.27424.2.s:64
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
+    write_stub.c.25772.2.o    write_stub.c.25772.2.s:64
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
 regbank (zeropage.o):
-    _printf.o                 /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:14
+    _printf.o                 /home/wojciech/git/cc65/asminc/zeropage.inc:14
     strtoul.o                 ../libwrk/rp6502/strtoul.s:10
 regsave (zeropage.o):
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:10
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:10
 return0 (return0.o):
     _fopen.o                  common/_fopen.s:11
     _fdesc.o                  common/_fdesc.s:9
@@ -1185,9 +1185,9 @@ return0 (return0.o):
 returnFFFF (returnFFFF.o):
     fgetc.o                   common/fgetc.s:9
 shlax2 (aslax2.o):
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
 shlax4 (aslax4.o):
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
 sreg (zeropage.o):
     lcmp.o                    runtime/lcmp.s:10
     udiv.o                    runtime/udiv.s:10
@@ -1198,7 +1198,7 @@ sreg (zeropage.o):
     ldeaxysp.o                runtime/ldeaxysp.s:12
     ladd.o                    runtime/ladd.s:9
     axlong.o                  runtime/axlong.s:9
-    _printf.o                 /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:11
+    _printf.o                 /home/wojciech/git/cc65/asminc/zeropage.inc:11
     strtoul.o                 ../libwrk/rp6502/strtoul.s:10
     steaxsp.o                 runtime/steaxsp.s:8
     ria.o                     rp6502/ria.s:13
@@ -1207,74 +1207,74 @@ sreg (zeropage.o):
     laddeq.o                  runtime/laddeq.s:12
     icmp.o                    runtime/icmp.s:9
     atoi.o                    common/atoi.s:10
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:10
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:10
 staspidx (staspidx.o):
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
 stax0sp (staxsp.o):
     read_xstack.o             ../libwrk/rp6502/read_xstack.s:94
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
 staxspidx (staxspi.o):
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
 staxysp (staxsp.o):
     read_xstack.o             ../libwrk/rp6502/read_xstack.s:94
     vsprintf.o                common/vsprintf.s:8
     strtoul.o                 ../libwrk/rp6502/strtoul.s:369
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
 steax0sp (steaxsp.o):
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
 steaxysp (steaxsp.o):
     strtoul.o                 ../libwrk/rp6502/strtoul.s:369
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
 subeq0sp (subeqsp.o):
     open.o                    ../libwrk/rp6502/open.s:105
-    write_stub.c.27424.2.o    write_stub.c.27424.2.s:64
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
+    write_stub.c.25772.2.o    write_stub.c.25772.2.s:64
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
 subeqysp (subeqsp.o):
     read.o                    ../libwrk/rp6502/read.s:116
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
 subysp (subysp.o):
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
 tmp1 (zeropage.o):
     mul.o                     runtime/mul.s:10
     ltoa.o                    common/ltoa.s:11
     ladd.o                    runtime/ladd.s:9
     decaxy.o                  runtime/decaxy.s:8
     copydata.o                common/copydata.s:9
-    _printf.o                 /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:13
+    _printf.o                 /home/wojciech/git/cc65/asminc/zeropage.inc:13
     strtoul.o                 ../libwrk/rp6502/strtoul.s:11
     strrchr.o                 common/strrchr.s:10
     strncpy.o                 common/strncpy.s:9
@@ -1285,7 +1285,7 @@ tmp1 (zeropage.o):
     asrax1.o                  runtime/asrax1.s:8
     aslax4.o                  runtime/aslax4.s:8
     aslax2.o                  runtime/aslax2.s:8
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:11
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:11
 tmp2 (zeropage.o):
     lmul.o                    runtime/lmul.s:10
     strrchr.o                 common/strrchr.s:10
@@ -1304,24 +1304,24 @@ tosaddeax (ladd.o):
 toseqeax (leq.o):
     strtoul.o                 ../libwrk/rp6502/strtoul.s:369
 tosicmp (icmp.o):
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
 tosicmp0 (icmp.o):
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
 toslcmp (lcmp.o):
     lugt.o                    runtime/lugt.s:8
     leq.o                     runtime/leq.s:8
 tossubax (sub.o):
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
 tosudivax (udiv.o):
     fwrite.o                  common/fwrite.s:12
 tosudiveax (ludiv.o):
@@ -1331,7 +1331,7 @@ tosugteax (lugt.o):
 tosumodeax (lumod.o):
     strtoul.o                 ../libwrk/rp6502/strtoul.s:369
 tosumula0 (mul8.o):
-    ext-hass.c.27424.0.o      ext-hass.c.27424.0.s:12731
+    ext-hass.c.25772.0.o      ext-hass.c.25772.0.s:12731
 tosumulax (mul.o):
     fwrite.o                  common/fwrite.s:12
 tosumuleax (lmul.o):

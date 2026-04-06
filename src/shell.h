@@ -22,12 +22,16 @@ extern struct _timezone _tz;
 #ifndef __STACKSIZE__
     #define __STACKSIZE__ 0x0200
 #endif
-#define MEMTOP (0xFF00-__STACKSIZE__)
-#define COM_LOAD_ADDR 0x7900  // lowest ram address where to load the external command code (binary shell extensions - .com files)
+#define MEMTOP (0xFF00-__STACKSIZE__-1)
+#define COM_LOAD_ADDR 0x7B00  // lowest ram address where to load the external command code (binary shell extensions - .com files)
 
 #define SHELLDIRDEFAULT "ROM:"
 #define SHELLPROMPT "> "
-#define SHELLPROMPT_1ST "> " ANSI_GREEN "[F1] help" ANSI_RESET " > "
+
+#ifdef FIRSTTIMEMSG
+    #define SHELLPROMPT_1ST " > " ANSI_GREEN "[F1] help" ANSI_RESET " > "
+#endif
+
 #define SHELLWALLPAPER "ROM:wallpaper.bin"
 
 #define CMD_BUF_MAX 80
@@ -101,6 +105,7 @@ typedef struct {
     unsigned ftime;
 } dir_list_entry_t;
 
+static cmdline_t cmdline = {0};
 static char dir_cwd[FNAMELEN];
 static f_stat_t dir_ent;
 static char dir_dt_buf[20];
@@ -197,6 +202,8 @@ static const cmd_t commands[] = {
 
 // static void load_asset2xram(const char *path, unsigned xram_addr);
 // static void load_setup(void);
+static int startstage_boot();
+static int startstage_shell();
 inline void tx_char(char c);
 void tx_chars(const char *buf, int ct);
 void tx_string(const char *buf);

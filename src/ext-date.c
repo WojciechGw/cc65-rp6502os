@@ -1,6 +1,6 @@
 #include "commons.h"
 
-#define APPVER "20260404.1657"
+#define APPVER "20260406.1223"
 
 struct Month {
     const char* name;
@@ -30,8 +30,6 @@ int getFirstDayOfMonth(int year, int month);
 const char* getMonthName(int month);
 int daysInMonth(int year, int month);
 
-#define NEWLINE "\r\n"
-
 #define SHOW_CURRENTMONTH     0
 #define SHOW_YEAR             1
 #define SHOW_QUARTER          2
@@ -60,7 +58,7 @@ int main(int argc, char **argv) {
     // tm->tm_isdst;
 
     if(year == 1970){
-        printf(NEWLINE ANSI_RED "[Time: ERROR] Real Time Clock is not set." ANSI_RESET NEWLINE NEWLINE);
+        printf(NEWLINE ANSI_RED EXCLAMATION "Real Time Clock is not set." ANSI_RESET NEWLINE);
         return 0;
     } 
 
@@ -76,17 +74,8 @@ int main(int argc, char **argv) {
         } else if (strcmp(argv[0], "/c") == 0  && strcmp(argv[1], "/p") == 0) {
             action = SHOW_PARTICULAR;
         } else if (strcmp(argv[0], "/?") == 0){
-            printf (NEWLINE "Time" NEWLINE NEWLINE
-                    "shows current time and/or calendar in various ways" NEWLINE NEWLINE
-                    "Usage:" NEWLINE
-                    "time                        - current time and date" NEWLINE
-                    "time /s yyyy-mm-dd hh:mm:ss - set RTC to given date & time " NEWLINE
-                    "time /a                     - current time, date and calendar of current month" NEWLINE
-                    "time /c                     - calendar of current month" NEWLINE
-                    "time /c /p yyyy mm          - calendar of particular month" NEWLINE
-                    "time /c /n                  - calendar of current and neighbouring months" NEWLINE
-                    "time /c /q                  - calendar of current quarter" NEWLINE
-                    "time /c /y                  - calendar of current year" NEWLINE
+            printf (NEWLINE "Command: Date" NEWLINE NEWLINE
+                    "shows current time and/or calendar in various ways" NEWLINE
                     NEWLINE);
             return 0;
         } else if (strcmp(argv[0], "/a") == 0 ) {
@@ -162,7 +151,6 @@ int main(int argc, char **argv) {
                    year, month, day, hour, minute, second);
             print_calendar(year, month, day);
     }
-    printf(NEWLINE);
     return 0;
 }
 
@@ -209,7 +197,7 @@ void print_calendar(int year, int month, int today) {
     day = 1;
     start_day = day_in_week;
 
-    printf("\r\n %d%16s\r\n", year, getMonthName(month));
+    printf("\r\n %d%16s" NEWLINE, year, getMonthName(month));
 
     printf("\r\n Mo Tu We Th Fr Sa  S\r\n -- -- -- -- -- -- --\r\n ");
     for (i = 0; i < (day_in_week-1); i++) {
@@ -231,7 +219,7 @@ void print_calendar(int year, int month, int today) {
         start_day++;
         day++;
     }
-    printf("\r\n");
+    printf(NEWLINE);
 
 }
 
@@ -250,7 +238,7 @@ void print_calendar_quarter(int year, int start_month, int today_month, int toda
         current_day[idx] = 1;
     }
     
-    printf("\r\n");
+    printf(NEWLINE);
 
     for (idx = 0; idx < 3; idx++) {
         m = start_month + idx;
@@ -258,17 +246,17 @@ void print_calendar_quarter(int year, int start_month, int today_month, int toda
         printf("%-23s", title);
     }
 
-    printf("\r\n\r\n");
+    printf(NEWLINE NEWLINE);
 
     for (idx = 0; idx < 3; idx++) {
         printf(" Mo Tu We Th Fr Sa  S  ");
     }
-    printf("\r\n");
+    printf(NEWLINE);
 
     for (idx = 0; idx < 3; idx++) {
         printf(" -- -- -- -- -- -- --  ");
     }
-    printf("\r\n");
+    printf(NEWLINE);
 
     /* Linie kalendarza (max 6 tygodni) */
     for (week = 0; week < 6; week++) {
@@ -291,7 +279,7 @@ void print_calendar_quarter(int year, int start_month, int today_month, int toda
             }
             printf("  ");
         }
-        printf("\r\n");
+        printf(NEWLINE);
     }
 }
 
@@ -326,24 +314,24 @@ void print_calendar_neighbours(int year, int month, int today_day) {
         current_day[idx] = 1;
     }
     
-    printf("\r\n");
+    printf(NEWLINE);
 
     for (idx = 0; idx < 3; idx++) {
         sprintf(title, " %4d%16s", year_val[idx],getMonthName(month_val[idx]));
         printf("%-23s", title);
     }
 
-    printf("\r\n\r\n");
+    printf(NEWLINE NEWLINE);
 
     for (idx = 0; idx < 3; idx++) {
         printf(" Mo Tu We Th Fr Sa  S  ");
     }
-    printf("\r\n");
+    printf(NEWLINE);
 
     for (idx = 0; idx < 3; idx++) {
         printf(" -- -- -- -- -- -- --  ");
     }
-    printf("\r\n");
+    printf(NEWLINE);
 
     for (week = 0; week < 6; week++) {
         printf(" ");
@@ -365,7 +353,7 @@ void print_calendar_neighbours(int year, int month, int today_day) {
             }
             printf("  ");
         }
-        printf("\r\n");
+        printf(NEWLINE);
     }
 }
 
@@ -389,7 +377,7 @@ void print_calendar_year(int year, int today_month, int today_day) {
             current_day[idx] = 1;
         }
 
-        printf("\r\n");
+        printf("" NEWLINE);
 
         for (idx = 0; idx < 3; idx++) {
             m = m1 + idx;
@@ -397,17 +385,17 @@ void print_calendar_year(int year, int today_month, int today_day) {
             printf("%-23s", title);
         }
 
-        printf("\r\n\r\n");
+        printf(NEWLINE NEWLINE);
 
         for (idx = 0; idx < 3; idx++) {
             printf(" Mo Tu We Th Fr Sa  S  ");
         }
-        printf("\r\n");
+        printf(NEWLINE);
 
         for (idx = 0; idx < 3; idx++) {
             printf(" -- -- -- -- -- -- --  ");
         }
-        printf("\r\n");
+        printf(NEWLINE);
 
         /* Linie kalendarza (max 6 tygodni) */
         for (week = 0; week < 6; week++) {
@@ -430,7 +418,7 @@ void print_calendar_year(int year, int today_month, int today_day) {
                 }
                 printf("  ");
             }
-            printf("\r\n");
+            printf(NEWLINE);
         }
     }
 }

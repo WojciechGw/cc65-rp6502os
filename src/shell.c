@@ -16,7 +16,7 @@
 
 #include "shell.h"
 
-#define APPVER "20260404.1658"
+#define APPVER "20260404.1815"
 #define APPNAME "razemOS"
 #define APP_MSG_START ANSI_DARK_GRAY CSI "[12;35H" APPNAME
 #define APP_HOURGLASS CSI "[14;34H" ANSI_DARK_GRAY ".........." CSI "[10D" ANSI_RESET
@@ -24,12 +24,53 @@
 #define APP_STARTPROMPTPOS CSI "[4;1H"
 #define APP_MSG_EXIT CSI_RESET
 
-int main(void) {
+void *__fastcall__ argv_mem(size_t size) { return malloc(size); }
+
+int main(int argc, char *argv[]){
+    
+    (void)argc;
+    (void)argv;
+    /*
+    int i;
+    printf("argc = %d\n", argc);
+    for (i = 0; i < argc; i++)
+        printf("argv[%d] = %s\n", i, argv[i]);
+
+    // init stage -> self call with argument BOOT
+    if (argc == 1){
+        {
+            char arg[] = "BOOT";
+            ria_execl(argv[0], arg, NULL);
+        }
+    }
+    
+    // 1st stage - BOOT
+    if (argc == 2 && !strcmp(argv[1],"BOOT"))
+    {
+    */
+        // set as a launcher
+        ria_attr_set(1, RIA_ATTR_LAUNCHER);
+        startstage_boot();
+        startstage_shell();
+        // free(argv);
+        /*
+        if(!startstage_boot()){
+            free(argv);
+            // 2nd stage - START
+            startstage_shell();
+        } else {
+            printf(EXCLAMATION "boot error" NEWLINE NEWLINE);
+        }
+        */
+    //}
+
+    return 0;
+
+}
+
+static int startstage_boot(){
+
     int i = 0;
-    int v = 0;
-    char last_rx = 0;
-    char ext_rx = 0;
-    static cmdline_t cmdline = {0};
     struct tm *tmnow = get_time();
 
     // start screen
@@ -50,11 +91,11 @@ int main(void) {
             tx_char('.');
             PAUSE(50);
             if(i % 10){
-                tx_string("\x1b[1m");
+                tx_string(CSI "[1m");
                 tmnow = get_time();
                 if(appflags & APPFLAG_RTC) break;
             } else {
-                tx_string("\x1b[10D" ANSI_DARK_GRAY ".........." "\x1b[10D" ANSI_WHITE);
+                tx_string(CSI "[10D" ANSI_DARK_GRAY ".........." CSI "[10D" ANSI_WHITE);
             }
             if (i > 60){
                 if(!(appflags & APPFLAG_RTC)) tx_string(NEWLINE "RTC is not set.");
@@ -64,10 +105,20 @@ int main(void) {
         }
     } else {
         PAUSE(25);
+        tx_string(CSI_RESET);
+        tx_string(CSI_CURSOR_SHOW ANSI_RESET);
     }
+    return 0;
+}
 
-    tx_string(CSI_RESET);
-    tx_string(CSI_CURSOR_SHOW ANSI_RESET);
+static int startstage_shell(){
+
+    int i = 0;
+    int v = 0;
+    char last_rx = 0;
+    char ext_rx = 0;
+
+    // struct tm *tmnow = get_time();
 
     f_chdrive("0:");
     current_drive = '0';
@@ -79,7 +130,6 @@ int main(void) {
 
     cls();
     prompt(true);
-    ria_attr_set(1, RIA_ATTR_LAUNCHER);
 
     while (1)
     {
@@ -151,9 +201,11 @@ int main(void) {
                 }
                 if(rx == CHAR_F3 || rx == 'R') {
                     ext_rx = 0;
+                    tx_string(NEWLINE);
                     execute_cmd(&cmdline, "date /a");
                     cmdline.bytes = 0;
                     cmdline.buffer[0] = 0;
+                    tx_string(NEWLINE);
                     prompt(false);
                     continue;
                 }
@@ -175,6 +227,8 @@ int main(void) {
             } else if(rx == '\x01') {
                 ext_rx = 0;
                 execute_cmd(&cmdline, "crx /auto");
+                cmdline.bytes = 0;
+                cmdline.buffer[0] = 0;
                 tx_string(NEWLINE NEWLINE);
                 prompt(false);
                 continue;
@@ -210,7 +264,6 @@ int main(void) {
                     execute(&cmdline);
                     cmdline.bytes = 0;
                     cmdline.buffer[0] = 0;
-                    tx_string(NEWLINE);
                     prompt(false);
                 }
             } else {
@@ -219,6 +272,7 @@ int main(void) {
             last_rx = rx; // Last line in RX_READY
         }
     }
+    return 0;
 }
 
 void cls(){ // clear screen
@@ -227,14 +281,14 @@ void cls(){ // clear screen
 }
 
 void prompt(bool first_time) {
-    if(f_getcwd(dir_cwd, sizeof(dir_cwd)) >= 0) {
-        if(dir_cwd[1] == ':') current_drive = dir_cwd[0];
-        tx_string(dir_cwd);
-    } else {
-        tx_char(current_drive);
-        tx_string(":");
-    }
-    tx_string(first_time ? SHELLPROMPT_1ST : SHELLPROMPT);
+    tx_string(NEWLINE);
+    tx_string(dir_cwd);
+    #ifdef FIRSTTIMEMSG
+        tx_string(first_time ? SHELLPROMPT_1ST : SHELLPROMPT);
+    #else
+        first_time = false;
+        tx_string(SHELLPROMPT);
+    #endif
     return;
 }
 
@@ -621,31 +675,30 @@ static int execute(cmdline_t *cl) {
         for(j = 1; j < tokens && (j + 1) < (CMD_TOKEN_MAX + 1); j++)
             com_argv[j + 1] = tokenList[j];
 
-        /* probe MSC0:/SHELL/ first */
-        prefix_len = (unsigned)(sizeof(msc_prefix) - 1u);
-        if(prefix_len + name_len + 5 <= sizeof(com_fname)) {
-            memcpy(com_fname, msc_prefix, prefix_len);
-            memcpy(com_fname + prefix_len, tokenList[0], name_len);
-            memcpy(com_fname + prefix_len + name_len, ".com", 5);
-            probe_fd = open(com_fname, O_RDONLY);
-            if(probe_fd >= 0) {
-                close(probe_fd);
-                com_argv[1] = com_fname;
-                return cmd_com(com_argc, com_argv);
-            }
-        }
+        /* probe MSC0:/SHELL/ then shelldir (ROM: by default) */
+        {
+            const char *prefixes[2];
+            unsigned prefix_lens[2];
+            int k;
 
-        /* probe shelldir (ROM: by default) */
-        prefix_len = (unsigned)strlen(shelldir);
-        if(prefix_len + name_len + 5 <= sizeof(com_fname)) {
-            memcpy(com_fname, shelldir, prefix_len);
-            memcpy(com_fname + prefix_len, tokenList[0], name_len);
-            memcpy(com_fname + prefix_len + name_len, ".com", 5);
-            probe_fd = open(com_fname, O_RDONLY);
-            if(probe_fd >= 0) {
-                close(probe_fd);
-                com_argv[1] = com_fname;
-                return cmd_com(com_argc, com_argv);
+            prefixes[0] = msc_prefix;
+            prefix_lens[0] = (unsigned)(sizeof(msc_prefix) - 1u);
+            prefixes[1] = shelldir;
+            prefix_lens[1] = (unsigned)strlen(shelldir);
+
+            for(k = 0; k < 2; k++) {
+                prefix_len = prefix_lens[k];
+                if(prefix_len + name_len + 5 <= sizeof(com_fname)) {
+                    memcpy(com_fname, prefixes[k], prefix_len);
+                    memcpy(com_fname + prefix_len, tokenList[0], name_len);
+                    memcpy(com_fname + prefix_len + name_len, ".com", 5);
+                    probe_fd = open(com_fname, O_RDONLY);
+                    if(probe_fd >= 0) {
+                        close(probe_fd);
+                        com_argv[1] = com_fname;
+                        return cmd_com(com_argc, com_argv);
+                    }
+                }
             }
         }
     }
@@ -1550,7 +1603,6 @@ int cmd_ls(int argc, char **argv){
         tx_string(EXCLAMATION "closedir failed" NEWLINE);
         rc = -1;
     }
-    tx_string(NEWLINE);
     return rc;
 }
 
@@ -1590,10 +1642,9 @@ int cmd_cart(int argc, char **argv){
         cf = open(fname, O_RDONLY);
         if(cf >= 0){
             close(cf);
-            tx_string(NEWLINE "please wait ..." NEWLINE);
-            ria_execl(fname);
-            PAUSE(500);
-            ria_execl(fname);
+            PAUSE(25);
+            // ria_execl(fname);
+            ria_execl(fname, "TEST", NULL);
         } else {
             tx_string(NEWLINE EXCLAMATION "file not found" NEWLINE);
         }
