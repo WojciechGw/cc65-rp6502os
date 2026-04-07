@@ -19,7 +19,7 @@
 #define APPVER "20260404.1815"
 #define APPNAME "razemOS"
 #define APP_MSG_START ANSI_DARK_GRAY CSI "[12;35H" APPNAME
-#define APP_HOURGLASS CSI "[14;34H" ANSI_DARK_GRAY ".........." CSI "[10D" ANSI_RESET
+#define APP_HOURGLASS CSI "[14;36H" ANSI_DARK_GRAY ".........." CSI "[10D" ANSI_RESET
 #define APP_MSG_TITLE CSI "[2;1H" CSI HIGHLIGHT_COLOR " " APPNAME " > " ANSI_RESET " for Picocomputer 6502" ANSI_DARK_GRAY CSI "[2;60Hversion " APPVER ANSI_RESET
 #define APP_STARTPROMPTPOS CSI "[4;1H"
 #define APP_MSG_EXIT CSI_RESET
@@ -81,11 +81,11 @@ static int startstage_boot(){
     xram0_struct_set(GFX_STRUCT, vga_mode3_config_t, height_px, 480);
     xram0_struct_set(GFX_STRUCT, vga_mode3_config_t, xram_data_ptr, 0x2000);
     xram0_struct_set(GFX_STRUCT, vga_mode3_config_t, xram_palette_ptr, 0xFFFF);
-    xreg(1, 0, 1, GFX_MODE_BITMAP, GFX_BITMAP_bpp1, GFX_STRUCT, GFX_PLANE_0, 1, 440);
-    PAUSE(200);
-    xreg(1, 0, 1, GFX_MODE_CONSOLE, GFX_PLANE_2);
 
-    printf(CSI_CURSOR_HIDE CSI_CLS);
+    xreg(1, 0, 1, GFX_MODE_BITMAP, GFX_BITMAP_bpp1, GFX_STRUCT, GFX_PLANE_0, 1, 440);
+    PAUSE(150);
+    xreg(1, 0, 1, GFX_MODE_CONSOLE, GFX_PLANE_2);
+    printf(CSI_CLS CSI_CURSOR_HIDE);
     // printf(APP_MSG_START);
 
     if(!(appflags & APPFLAG_RTC)){
