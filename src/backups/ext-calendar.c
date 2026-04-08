@@ -1,4 +1,4 @@
-#define APPVER "20260406.1749"
+#define APPVER "20260407.1859"
 
 #include "commons.h"
 
@@ -89,7 +89,7 @@ int main(int argc, char **argv) {
     switch(action){
         case SHOW_YEAR:
             if (argc > 1){
-                year = atoi(argv[1]);
+                year = atoi(argv[2]);
                 month = 0;
                 day = 0;
             }
@@ -97,8 +97,8 @@ int main(int argc, char **argv) {
             break;
         case SHOW_QUARTER:
             if (argc > 1){
-                year = atoi(argv[1]);
-                month = atoi(argv[2]);
+                year = atoi(argv[2]);
+                month = atoi(argv[3]);
                 day = 0;
             }
             quarter_start = ((month - 1) / 3) * 3 + 1;

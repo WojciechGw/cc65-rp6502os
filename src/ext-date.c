@@ -1,6 +1,8 @@
 #include "commons.h"
 
-#define APPVER "20260406.1749"
+#define APPVER "20260408.1245"
+
+// #define DEBUG
 
 struct Month {
     const char* name;
@@ -57,6 +59,16 @@ int main(int argc, char **argv) {
     wday = tm->tm_wday;
     // tm->tm_isdst;
 
+    #ifdef DEBUG
+    {
+        int i;
+        printf(NEWLINE "--------------" NEWLINE "argc=%d" NEWLINE, argc);
+        for(i = 0; i < argc; i++) {
+            printf("argv[%d]=\"%s\"" NEWLINE, i, argv[i]);
+        }
+    }
+    #endif
+
     if(year == 1970){
         printf(NEWLINE ANSI_RED EXCLAMATION "Real Time Clock is not set." ANSI_RESET NEWLINE);
         return 0;
@@ -64,35 +76,25 @@ int main(int argc, char **argv) {
 
     if(argc == 0) {
         action = SHOW_DATETIME;
-    } else if(argc > 0){
-        if (strcmp(argv[0], "/c") == 0  && strcmp(argv[1], "/y") == 0 ) {
+    } else {
+        if (argc >= 2 && !strcmp(argv[0], "/c") && !strcmp(argv[1], "/y")) {
             action = SHOW_YEAR;
-        } else if (strcmp(argv[0], "/c") == 0  && strcmp(argv[1], "/q") == 0 ) {
+        } else if (argc >= 2 && !strcmp(argv[0], "/c") && !strcmp(argv[1], "/q")) {
             action = SHOW_QUARTER;
-        } else if (strcmp(argv[0], "/c") == 0  && strcmp(argv[1], "/n") == 0) {
+        } else if (argc >= 2 && !strcmp(argv[0], "/c") && !strcmp(argv[1], "/n")) {
             action = SHOW_NEIGHBOURS;
-        } else if (strcmp(argv[0], "/c") == 0  && strcmp(argv[1], "/p") == 0) {
+        } else if (argc >= 2 && !strcmp(argv[0], "/c") && !strcmp(argv[1], "/p")) {
             action = SHOW_PARTICULAR;
-        } else if (strcmp(argv[0], "/?") == 0){
-            printf (NEWLINE "Command: Date" NEWLINE NEWLINE
-                    "shows current time and/or calendar in various ways" NEWLINE
-                    NEWLINE);
+        } else if (!strcmp(argv[0], "/?")) {
+            printf(NEWLINE "Command: Date" NEWLINE NEWLINE
+                    "shows current time and/or calendar in various ways" NEWLINE);
             return 0;
-        } else if (strcmp(argv[0], "/a") == 0 ) {
+        } else if (!strcmp(argv[0], "/a")) {
             action = SHOW_DATETIMECALENDAR;
-        } else if (strcmp(argv[0], "/c") == 0 ) {
+        } else if (!strcmp(argv[0], "/c")) {
             action = SHOW_CURRENTMONTH;
-        } else if (strcmp(argv[0], "/s") == 0 ) {
+        } else if (!strcmp(argv[0], "/s")) {
             action = SET_DATETIME;
-        } else if (strcmp(argv[0], "/debug") == 0){
-            {
-                int i;
-                printf(NEWLINE "--------------" NEWLINE "argc=%d" NEWLINE, argc);
-                for(i = 0; i < argc; i++) {
-                    printf("argv[%d]=\"%s\"" NEWLINE, i, argv[i]);
-                }
-            }
-            return 0;
         }
     }
     
@@ -114,17 +116,17 @@ int main(int argc, char **argv) {
             printf("Setting date & time procedure isn't implemented. yet ...");
             break;
         case SHOW_YEAR:
-            if (argc > 1){
-                year = atoi(argv[1]);
+            if (argc > 2){
+                year = atoi(argv[2]);
                 month = 0;
                 day = 0;
             }
             print_calendar_year(year, month, day);
             break;
         case SHOW_QUARTER:
-            if (argc > 1){
-                year = atoi(argv[1]);
-                month = atoi(argv[2]);
+            if (argc > 2){
+                year = atoi(argv[2]);
+                month = atoi(argv[3]);
                 day = 0;
             }
             quarter_start = ((month - 1) / 3) * 3 + 1;
@@ -132,15 +134,15 @@ int main(int argc, char **argv) {
             break;
         case SHOW_NEIGHBOURS:
             if (argc > 2){
-                year = atoi(argv[1]);
-                month = atoi(argv[2]);
+                year = atoi(argv[2]);
+                month = atoi(argv[3]);
                 day = 0;
             }
             print_calendar_neighbours(year, month, day);
             break;
         case SHOW_PARTICULAR:
-            year = atoi(argv[1]);
-            month = atoi(argv[2]);
+            year = atoi(argv[2]);
+            month = atoi(argv[3]);
             print_calendar(year, month, 0);
             break;
         case SHOW_CURRENTMONTH:

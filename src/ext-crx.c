@@ -7,9 +7,7 @@
 #include "commons.h"
 #include "commons/courier-gfx.h"
 
-#define NEWLINE "\r\n"
-
-#define APPVER "20260406.1749"
+#define APPVER "20260408.1245"
 
 /* ---- RIA UART access ---------------------------------------------------- */
 
@@ -279,6 +277,9 @@ int main(int argc, char **argv)
         /* --- auto mode: SOT was consumed by shell, proceed directly --- */
         DrawText(4, 0, "Receiving...", DARK_GRAY, BLACK);
     }
+
+    /* Signal PC: crx is running and ready to receive header */
+    ria_tx_byte('\x00');
 
     /* --- receive header: SOH + name + EOH + 4B size + STX --- */
     if (receive_header() < 0) {

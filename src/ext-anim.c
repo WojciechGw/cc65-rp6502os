@@ -5,13 +5,13 @@
 
 #include "commons.h"
 
-#define APPVER "20260406.1749"
+#define APPVER "20260408.1245"
 
 #define APPNAME "Test anim for BMP files 640x480x1bpp"
 #define APPDIRDEFAULT "" // view in current directory if empty
-#define APP_MSG_TITLE CSI_RESET CSI "[2;1H" CSI HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " " APPNAME ANSI_DARK_GRAY CSI "[2;60H" "version " APPVER ANSI_RESET
-#define APP_MSG_START ANSI_DARK_GRAY CSI "[4;1H" "Show BMP file in 640x480xbpp1 format" ANSI_RESET
-#define APP_WORKBENCH_POS CSI "[6;1H"
+#define APP_MSG_TITLE CSI_RESET CSI "2;1H" CSI HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " " APPNAME ANSI_DARK_GRAY CSI "2;60H" "version " APPVER ANSI_RESET
+#define APP_MSG_START ANSI_DARK_GRAY CSI "4;1H" "Show BMP file in 640x480xbpp1 format" ANSI_RESET
+#define APP_WORKBENCH_POS CSI "6;1H"
 
 /* KEYBOARD input subsystem */
 #define KEYBORD_INPUT 0xFFE0

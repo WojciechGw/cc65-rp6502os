@@ -1,6 +1,6 @@
 #include "commons.h"
 
-#define APPVER "20260406.1749"
+#define APPVER "20260408.1245"
 
 #define APPDIRDEFAULT_A "MSC0:/"
 #define APPDIRDEFAULT_B "MSC1:/"

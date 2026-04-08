@@ -1,6 +1,6 @@
 #include "commons.h"
 
-#define APPVER "20260406.1749"
+#define APPVER "20260408.1245"
 
 static char dev_label[16];
 static char saved_cwd[128];

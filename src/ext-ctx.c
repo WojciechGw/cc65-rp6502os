@@ -8,9 +8,9 @@
 
 #define NEWLINE "\r\n"
 
-#define APPVER "20260406.1749"
+#define APPVER "20260408.1245"
 
-#define HDR_NAME_MAX 31   /* max filename chars in header (+ null = 32 B) */
+#define HDR_NAME_MAX 31  /* max filename chars in header (+ null = 32 B) */
 
 #define RX_READY (RIA.ready & RIA_READY_RX_BIT)
 #define TX_READY (RIA.ready & RIA_READY_TX_BIT)

@@ -95,6 +95,12 @@ def send_intel_hex(port: str, baud: int, filepath: str, chunk_size: int = 16,
 
         # --- naglowek ---
         ser.write(SOT)
+        ser.flush()
+
+        # --- czekaj az crx.com zaladuje sie i zasygnalizuje gotowos na odbiór naglówka ---
+        if not wait_for(ser, ACK, ack_timeout, "crx ready"):
+            return
+
         ser.write(SOH)
         ser.write(filename.encode("ascii"))
         ser.write(EOH)
@@ -105,8 +111,8 @@ def send_intel_hex(port: str, baud: int, filepath: str, chunk_size: int = 16,
         ser.write(STX)
         ser.flush()
 
-        # --- czekaj na READY '>' — plik otwarty po stronie Picocomputera ---
-        if not wait_for(ser, READY, ack_timeout, "READY '>'"):
+        # --- czekaj na READY — plik otwarty po stronie Picocomputera ---
+        if not wait_for(ser, READY, ack_timeout, "READY"):
             return
 
         # --- dane IntelHEX z ACK flow control ---

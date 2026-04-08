@@ -8,10 +8,10 @@
 
 #include "commons.h"
 
-#define APPVER "20260406.1749"
+#define APPVER "20260408.1245"
 
-#define APP_HEADER CSI "[2;1H" CSI HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " Keyboard Visualiser                           " ANSI_DARK_GRAY "version " APPVER ANSI_RESET
-#define APP_FOOTER ANSI_DARK_GRAY CSI "[11;1H________________________________________________________________________________" NEWLINE "press and hold both Shift keys to exit                     last keycode :       " ANSI_RESET
+#define APP_HEADER CSI "2;1H" CSI HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " Keyboard Visualiser                           " ANSI_DARK_GRAY "version " APPVER ANSI_RESET
+#define APP_FOOTER ANSI_DARK_GRAY CSI "11;1H________________________________________________________________________________" NEWLINE "press and hold both Shift keys to exit                     last keycode :       " ANSI_RESET
 
 // Keyboard related
 //
@@ -33,8 +33,8 @@ uint8_t keystates[KEYBOARD_BYTES] = {0};
 #define FONT_CHAR_UP "\x1e"
 #define FONT_CHAR_DOWN "\x1f"
 
-#define POS_KEYBOARD  "[4;1H"
-#define POS_KEYPRESS  "[12;75H"
+#define POS_KEYBOARD  "4;1H"
+#define POS_KEYPRESS  "12;75H"
 
 #define RX_READY (RIA.ready & RIA_READY_RX_BIT)
 
@@ -210,7 +210,7 @@ static void render_keyboard_view(void) {
         draw_key_on_canvas(&keyboard_shapes[i], key(keyboard_shapes[i].code));
     }
 
-    printf("\x1b" POS_KEYBOARD);
+    printf(CSI POS_KEYBOARD);
     // without highlighting
     // for (i = 0; i < KB_VIEW_ROWS; i++) printf("%s\r\n", keyboard_canvas[i]);
     // for (i = 0; i < KEYBOARD_BYTES; i++) last_rendered_states[i] = keystates[i];
@@ -220,12 +220,12 @@ static void render_keyboard_view(void) {
         for (c = 0; c < KB_VIEW_COLS; c++) {
             bool want = keyboard_pressed[i][c];
             if (want != highlight) {
-                printf(want ? "\x1b" HIGHLIGHT_COLOR : "\x1b[0m");
+                printf(want ? CSI HIGHLIGHT_COLOR : ANSI_RESET);
                 highlight = want;
             }
             putchar(keyboard_canvas[i][c]);
         }
-        printf("\x1b[0m\r\n");
+        printf(ANSI_RESET NEWLINE);
     }
 
     for (i = 0; i < KEYBOARD_BYTES; i++) last_rendered_states[i] = keystates[i];
@@ -244,7 +244,7 @@ int main(int argc, char **argv) {
     if(argc == 1 && strcmp(argv[0], "/?") == 0) {
         // notice lack of filename extension
         printf (NEWLINE 
-                "\x1b[2;1HOS Shell > Keyboard Visualiser " NEWLINE
+                CSI APP_HEADER NEWLINE
                 NEWLINE
                 "EXIT - press and hold both Shift keys" NEWLINE
                 NEWLINE
@@ -284,7 +284,7 @@ int main(int argc, char **argv) {
                 uint8_t code = (i << 3) + j;
                 new_key = (new_keys & (1<<j));
                 if ((code > 3) && (new_key != (keystates[i] & (1<<j)))) {
-                    printf("\x1b" POS_KEYPRESS "0x%02X %s", code, (new_key ?  FONT_CHAR_DOWN : FONT_CHAR_UP));
+                    printf(CSI POS_KEYPRESS "0x%02X %s", code, (new_key ?  FONT_CHAR_DOWN : FONT_CHAR_UP));
                 }
             }
             keystates[i] = new_keys;

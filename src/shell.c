@@ -18,10 +18,10 @@
 
 #define APPVER "20260404.1815"
 #define APPNAME "razemOS"
-#define APP_MSG_START ANSI_DARK_GRAY CSI "[12;35H" APPNAME
-#define APP_HOURGLASS CSI "[14;36H" ANSI_DARK_GRAY ".........." CSI "[10D" ANSI_RESET
-#define APP_MSG_TITLE CSI "[2;1H" CSI HIGHLIGHT_COLOR " " APPNAME " > " ANSI_RESET " for Picocomputer 6502" ANSI_DARK_GRAY CSI "[2;60Hversion " APPVER ANSI_RESET
-#define APP_STARTPROMPTPOS CSI "[4;1H"
+#define APP_MSG_START ANSI_DARK_GRAY CSI "12;35H" APPNAME
+#define APP_HOURGLASS CSI "14;36H" ANSI_DARK_GRAY ".........." CSI "10D" ANSI_RESET
+#define APP_MSG_TITLE CSI "2;1H" CSI HIGHLIGHT_COLOR " " APPNAME " > " ANSI_RESET " for Picocomputer 6502" ANSI_DARK_GRAY CSI "2;60Hversion " APPVER ANSI_RESET
+#define APP_STARTPROMPTPOS CSI "4;1H"
 #define APP_MSG_EXIT CSI_RESET
 
 void *__fastcall__ argv_mem(size_t size) { return malloc(size); }
@@ -71,6 +71,8 @@ static int startstage_boot(){
     int i = 0;
     struct tm *tmnow = get_time();
 
+    printf(CSI_RESET CSI_CURSOR_HIDE);
+
     // boot screen
     xreg(1, 0, 0, GFX_CANVAS_640x480);
     xram0_struct_set(GFX_STRUCT, vga_mode3_config_t, x_wrap, false);
@@ -85,7 +87,7 @@ static int startstage_boot(){
     xreg(1, 0, 1, GFX_MODE_BITMAP, GFX_BITMAP_bpp1, GFX_STRUCT, GFX_PLANE_0, 1, 440);
     PAUSE(150);
     xreg(1, 0, 1, GFX_MODE_CONSOLE, GFX_PLANE_2);
-    printf(CSI_CLS CSI_CURSOR_HIDE);
+
     // printf(APP_MSG_START);
 
     if(!(appflags & APPFLAG_RTC)){
@@ -96,11 +98,11 @@ static int startstage_boot(){
             printf(".");
             PAUSE(50);
             if(i % 10){
-                printf(CSI "[1m");
+                printf(CSI "1m");
                 tmnow = get_time();
                 if(appflags & APPFLAG_RTC) break;
             } else {
-                printf(CSI "[10D" ANSI_DARK_GRAY ".........." CSI "[10D" ANSI_WHITE);
+                printf(CSI "10D" ANSI_DARK_GRAY ".........." CSI "10D" ANSI_WHITE);
             }
             if (i > 60){
                 if(!(appflags & APPFLAG_RTC)) printf(NEWLINE "RTC is not set.");
@@ -109,8 +111,7 @@ static int startstage_boot(){
             }
         }
     } else {
-        printf(CSI_RESET);
-        printf(CSI_CURSOR_SHOW ANSI_RESET);
+        printf(CSI_CLS ANSI_RESET CSI_CURSOR_SHOW);
     }
     return 0;
 }
@@ -132,8 +133,9 @@ static int startstage_shell(){
     strncpy(shelldir, default_shelldir, sizeof(shelldir));
     shelldir[sizeof(shelldir) - 1] = '\0';
 
-    cls();
-    prompt(true);
+    printf(APP_MSG_TITLE APP_STARTPROMPTPOS);
+
+    prompt(PROMPT_FIRST);
 
     while (1)
     {
@@ -155,7 +157,7 @@ static int startstage_shell(){
             } else if(ext_rx == 2){
                 if(rx == CHAR_UP){
                     ext_rx = 0;
-                    tx_string("\r\x1b[K");
+                    tx_string("\r" CSI "K" CSI "1A");
                     prompt(false);
                     cmdline.bytes = cmdline.lastbytes;
                     memcpy(cmdline.buffer, cmdline.lastbuffer, cmdline.lastbytes);
@@ -177,12 +179,9 @@ static int startstage_shell(){
             } else if(ext_rx == 6) {
                 ext_rx = 0;
                 if(rx == CHAR_F1 || rx == 'P') {
-                    char path[FNAMELEN];
                     int com_argc = 2;
-                    strcpy(path, shelldir);
-                    strcat(path, "help.com");
                     com_argv[0] = (char *)"com";
-                    com_argv[1] = path;
+                    com_argv[1] = (char *)"help.com";
                     /* Pass current input line as argument if present */
                     if(cmdline.bytes > 0) {
                         cmdline.buffer[cmdline.bytes] = 0; /* ensure NUL */
@@ -192,7 +191,7 @@ static int startstage_shell(){
                     cmd_com(com_argc, com_argv);
                     cmdline.bytes = 0;
                     cmdline.buffer[0] = 0;
-                    prompt(false);
+                    prompt(PROMPT);
                     continue;
                 }
                 if(rx == CHAR_F2 || rx == 'Q') {
@@ -200,7 +199,7 @@ static int startstage_shell(){
                     execute_cmd(&cmdline, "keyboard");
                     cmdline.bytes = 0;
                     cmdline.buffer[0] = 0;
-                    prompt(false);
+                    prompt(PROMPT_CLS);
                     continue;
                 }
                 if(rx == CHAR_F3 || rx == 'R') {
@@ -209,8 +208,7 @@ static int startstage_shell(){
                     execute_cmd(&cmdline, "date /a");
                     cmdline.bytes = 0;
                     cmdline.buffer[0] = 0;
-                    tx_string(NEWLINE);
-                    prompt(false);
+                    prompt(PROMPT);
                     continue;
                 }
                 if(rx == CHAR_F4 || rx == 'S') {
@@ -223,7 +221,7 @@ static int startstage_shell(){
                         cmd_ls(1, args);
                         cmdline.bytes = 0;
                         cmdline.buffer[0] = 0;
-                        prompt(false);
+                        prompt(PROMPT);
                     }
                     continue;
                 }
@@ -233,8 +231,7 @@ static int startstage_shell(){
                 execute_cmd(&cmdline, "crx /auto");
                 cmdline.bytes = 0;
                 cmdline.buffer[0] = 0;
-                tx_string(NEWLINE NEWLINE);
-                prompt(false);
+                prompt(PROMPT_CLS);
                 continue;
             // Normal character (ASCII printable or extended 8-bit, exclude DEL), just put it on the pile.
             } else if(((unsigned char)rx >= 32) && (rx != 127)) {
@@ -263,12 +260,12 @@ static int startstage_shell(){
                 ext_rx = 0;
                 if(rx == CHAR_LF && last_rx == CHAR_CR) continue; // Ignore CRLF
                 if(cmdline.bytes){
-                    tx_string(NEWLINE);
+                    // tx_string(NEWLINE);
                     // cmdline.lastbytes = cmdline.bytes;
                     execute(&cmdline);
                     cmdline.bytes = 0;
                     cmdline.buffer[0] = 0;
-                    prompt(false);
+                    prompt(PROMPT);
                 }
             } else {
                 ext_rx = 0;
@@ -284,15 +281,9 @@ void cls(){ // clear screen
     return;
 }
 
-void prompt(bool first_time) {
-    tx_string(NEWLINE);
-    tx_string(dir_cwd);
-    #ifdef FIRSTTIMEMSG
-        tx_string(first_time ? SHELLPROMPT_1ST : SHELLPROMPT);
-    #else
-        first_time = false;
-        tx_string(SHELLPROMPT);
-    #endif
+void prompt(uint8_t mode) {
+    if(mode==PROMPT_CLS) cls();    
+    printf("%s%s%s", (mode == PROMPT_FIRST ? "" : NEWLINE), dir_cwd, (mode == PROMPT_FIRST ? SHELLPROMPT_1ST : SHELLPROMPT));
     return;
 }
 
@@ -1166,12 +1157,50 @@ int cmd_com(int argc, char **argv) { // run external command
     void (*fn)(void);
     int user_argc;
     char **user_argv;
+    static char path_buf[FNAMELEN];
+    const char *resolved;
+    unsigned name_len, prefix_len;
 
     if(argc < 2) {
         tx_string("Usage: com <file.com> [args...]" NEWLINE);
         return 0;
     }
-    fd = open(argv[1], O_RDONLY);
+
+    resolved = argv[1];
+    fd = -1;
+
+    if(!strchr(argv[1], ':') && !strchr(argv[1], '/')) {
+        name_len = (unsigned)strlen(argv[1]);
+
+        /* 1. current directory */
+        fd = open(argv[1], O_RDONLY);
+
+        /* 2. SHELLDRIVEDIRDEFAULT */
+        if(fd < 0) {
+            prefix_len = sizeof(SHELLDRIVEDIRDEFAULT) - 1;
+            if(prefix_len + name_len < sizeof(path_buf)) {
+                memcpy(path_buf, SHELLDRIVEDIRDEFAULT, prefix_len);
+                memcpy(path_buf + prefix_len, argv[1], name_len + 1);
+                fd = open(path_buf, O_RDONLY);
+                if(fd >= 0) resolved = path_buf;
+            }
+        }
+
+        /* 3. shelldir (defaults to SHELLDIRDEFAULT) */
+        if(fd < 0) {
+            prefix_len = (unsigned)strlen(shelldir);
+            if(prefix_len + name_len < sizeof(path_buf)) {
+                memcpy(path_buf, shelldir, prefix_len);
+                memcpy(path_buf + prefix_len, argv[1], name_len + 1);
+                fd = open(path_buf, O_RDONLY);
+                if(fd >= 0) resolved = path_buf;
+            }
+        }
+    } else {
+        fd = open(argv[1], O_RDONLY);
+    }
+
+    // printf("%s", resolved);
     if(fd < 0) {
         tx_string(EXCLAMATION "isn't an internal or external command" NEWLINE);
         return -1;
@@ -1194,7 +1223,6 @@ int cmd_com(int argc, char **argv) { // run external command
     user_argv = argv + 2;
     build_run_args(user_argc, user_argv);
 
-    // clearterminal();
     fn = (void (*)(void))COM_LOAD_ADDR;
     fn();
     memcpy((void *)RUN_ARGS_BASE, run_args_backup, RUN_ARGS_BLOCK_SIZE);
