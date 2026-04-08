@@ -1,6 +1,6 @@
 #include "commons.h"
 
-#define APPVER "20260408.1245"
+#define APPVER "20260408.1610"
 
 #define VERSION APPVER
 #define FNAMELEN 64
@@ -141,10 +141,11 @@ int main(int argc, char **argv) {
     unsigned dir_i = 0, dir_j = 0;
 
     if(argc == 1 && strcmp(argv[0],"/?") == 0) {
-        printf( "Command : dir" NEWLINE NEWLINE "show active drive directory, wildcards allowed" NEWLINE NEWLINE
+        printf( NEWLINE 
+                "Command : dir" NEWLINE NEWLINE "show active drive directory, wildcards allowed" NEWLINE NEWLINE
                 "Usage:" NEWLINE
                 "dir *.rp6502 (.rp6502 files only)" NEWLINE
-                "dir /da (sorted by date ascending)" NEWLINE NEWLINE);
+                "dir /da (sorted by date ascending)" NEWLINE);
         return -1;
     }
 
@@ -157,7 +158,7 @@ int main(int argc, char **argv) {
             // Handle drive prefix like "0:" or "A:"
             if(dir_arg[1] == ':') {
                 if(dir_arg[0] < '0' || dir_arg[0] > '7') {
-                    tx_string("Invalid drive" NEWLINE);
+                    tx_string(NEWLINE EXCLAMATION "Invalid drive" NEWLINE);
                     rc = -1;
                     goto cleanup;
                 }
@@ -165,7 +166,7 @@ int main(int argc, char **argv) {
                 dir_drive[1] = ':';
                 dir_drive[2] = 0;
                 if(f_chdrive(dir_drive) < 0) {
-                    tx_string("Invalid drive" NEWLINE);
+                    tx_string(NEWLINE EXCLAMATION "Invalid drive" NEWLINE);
                     rc = -1;
                     goto cleanup;
                 }
@@ -199,8 +200,8 @@ int main(int argc, char **argv) {
     /* Parse optional flags /da /dd /sa /sd */
     for(i = 0; i < argc; i++) {
         if(argv[i][0] == '/') {
-            if(!strcmp(argv[i], "/da")) sort_mode = 1;
-            else if(!strcmp(argv[i], "/dd")) sort_mode = 2;
+            if(!strcmp(argv[i], "/dd"))      sort_mode = 1;
+            else if(!strcmp(argv[i], "/da")) sort_mode = 2;
             else if(!strcmp(argv[i], "/sa")) sort_mode = 3;
             else if(!strcmp(argv[i], "/sd")) sort_mode = 4;
         }
@@ -211,7 +212,7 @@ int main(int argc, char **argv) {
     strcpy(dir_mask_buf, mask);
 
     if(f_getcwd(dir_cwd, sizeof(dir_cwd)) < 0) {
-        tx_string("getcwd failed" NEWLINE);
+        tx_string(NEWLINE EXCLAMATION "getcwd failed" NEWLINE);
         rc = -1;
         goto cleanup;
     }
@@ -222,7 +223,7 @@ int main(int argc, char **argv) {
 
     dirdes = f_opendir(dir_path_buf[0] ? dir_path_buf : ".");
     if(dirdes < 0) {
-        tx_string("opendir failed" NEWLINE);
+        tx_string(NEWLINE EXCLAMATION "opendir failed" NEWLINE);
         rc = -1;
         goto cleanup;
     }
@@ -231,12 +232,12 @@ int main(int argc, char **argv) {
     while(1) {
         rc = f_readdir(&dir_ent, dirdes);
         if(rc < 0) {
-            tx_string("readdir failed" NEWLINE);
+            tx_string(NEWLINE EXCLAMATION "readdir failed" NEWLINE);
             break;
         }
         if(!dir_ent.fname[0]) break; // No more entries
         if(dir_entries_count == DIR_LIST_MAX) {
-            tx_string("Directory listing truncated, too many entries, use wildcards to narrow results" NEWLINE);
+            tx_string(NEWLINE EXCLAMATION "Directory listing truncated, too many entries, use wildcards to narrow results" NEWLINE NEWLINE);
             break;
         }
 
@@ -254,7 +255,7 @@ int main(int argc, char **argv) {
     }
 
     if(f_closedir(dirdes) < 0 && rc >= 0) {
-        tx_string("closedir failed" NEWLINE);
+        tx_string(NEWLINE EXCLAMATION "closedir failed" NEWLINE);
         rc = -1;
     }
     dirdes = -1;
@@ -345,7 +346,7 @@ int main(int argc, char **argv) {
     tx_dec32(dirs_count);
     tx_string("  Bytes: ");
     tx_dec32(total_bytes);
-    tx_string(NEWLINE NEWLINE);
+    tx_string(NEWLINE);
 
 cleanup:
     if(dirdes >= 0) f_closedir(dirdes);

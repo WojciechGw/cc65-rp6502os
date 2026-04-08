@@ -16,7 +16,7 @@
 
 #include "shell.h"
 
-#define APPVER "20260404.1815"
+#define APPVER "20260408.1305"
 #define APPNAME "razemOS"
 #define APP_MSG_START ANSI_DARK_GRAY CSI "12;35H" APPNAME
 #define APP_HOURGLASS CSI "14;36H" ANSI_DARK_GRAY ".........." CSI "10D" ANSI_RESET
@@ -155,10 +155,10 @@ static int startstage_shell(){
                 }
                 ext_rx = 0;
             } else if(ext_rx == 2){
-                if(rx == CHAR_UP){
+                if(rx == CHAR_UP && (cmdline.lastbytes > 0)){
                     ext_rx = 0;
-                    tx_string("\r" CSI "K" CSI "1A");
-                    prompt(false);
+                    tx_string(CSI "K" CSI "1A");
+                    prompt(PROMPT);
                     cmdline.bytes = cmdline.lastbytes;
                     memcpy(cmdline.buffer, cmdline.lastbuffer, cmdline.lastbytes);
                     cmdline.buffer[cmdline.bytes] = 0;
@@ -260,8 +260,8 @@ static int startstage_shell(){
                 ext_rx = 0;
                 if(rx == CHAR_LF && last_rx == CHAR_CR) continue; // Ignore CRLF
                 if(cmdline.bytes){
-                    // tx_string(NEWLINE);
-                    // cmdline.lastbytes = cmdline.bytes;
+                    tx_string(NEWLINE);
+                    cmdline.lastbytes = cmdline.bytes;
                     execute(&cmdline);
                     cmdline.bytes = 0;
                     cmdline.buffer[0] = 0;
@@ -273,16 +273,15 @@ static int startstage_shell(){
             last_rx = rx; // Last line in RX_READY
         }
     }
-    return 0;
 }
 
 void cls(){ // clear screen
-    tx_string(CSI_CLS CSI_CURSOR_SHOW APP_MSG_TITLE APP_STARTPROMPTPOS);
+    tx_string(CSI_RESET CSI_CURSOR_SHOW APP_MSG_TITLE APP_STARTPROMPTPOS);
     return;
 }
 
 void prompt(uint8_t mode) {
-    if(mode==PROMPT_CLS) cls();    
+    if(mode == PROMPT_CLS) cls();    
     printf("%s%s%s", (mode == PROMPT_FIRST ? "" : NEWLINE), dir_cwd, (mode == PROMPT_FIRST ? SHELLPROMPT_1ST : SHELLPROMPT));
     return;
 }
@@ -697,7 +696,7 @@ static int execute(cmdline_t *cl) {
             }
         }
     }
-    tx_string("Unknown command" NEWLINE);
+    tx_string(EXCLAMATION "Unknown command" NEWLINE);
     return -1;
 }
 

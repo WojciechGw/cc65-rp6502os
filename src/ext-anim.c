@@ -5,7 +5,7 @@
 
 #include "commons.h"
 
-#define APPVER "20260408.1245"
+#define APPVER "20260408.1556"
 
 #define APPNAME "Test anim for BMP files 640x480x1bpp"
 #define APPDIRDEFAULT "" // view in current directory if empty
