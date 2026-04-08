@@ -26,7 +26,7 @@ static const cmd_t commands[] = {
                 "cd <directory>"},
     { "chmod",  "set file attributes",
                 "chmod file.bin A+"},
-    { "cls",    "reset terminal", 
+    { "cls",    "clear screen", 
                 "cls" },
     { "com",    "load .com binary and run", 
                 "com hello.com A000 (load and run file hello.com at address 0xA000)"},
@@ -41,10 +41,10 @@ static const cmd_t commands[] = {
                 "exit"},
     { "hex",    "dump file contents to screen", 
                 "hex <filename> 0x0600 512 (show 512 bytes of a file start from offset 0x0600)" },
-    { "launcher", "register/deregister OS as a launcher", 
-                "launcher /status - status info" NEWLINE
-                "launcher /s      - register" NEWLINE
-                "launcher /r      - deregister" NEWLINE},
+//    { "launcher", "register/deregister OS as a launcher", 
+//                "launcher /status - status info" NEWLINE
+//                "launcher /s      - register" NEWLINE
+//                "launcher /r      - deregister" NEWLINE},
     { "list",   "show a file content",
                 "list <filename>"},
     { "ls",     "list active directory",
@@ -56,8 +56,8 @@ static const cmd_t commands[] = {
     { "peek",   "memory viewer",
                 "peek 0xA000 128 (show 128 bytes of base RAM start from address 0xA000)" NEWLINE
                 "peek 0xF000 256 /X (show 256 bytes of XRAM start from address 0xF000)" },
-    { "phi2",   "show CPU clock frequency", 
-                "phi2"},
+//    { "phi2",   "show CPU clock frequency", 
+//                "phi2"},
     { "rename", "rename/move file or directory",
                 "rename <oldname> <newname>"},
     { "rm",     "remove file/files (wildcards allowed)",
@@ -66,8 +66,8 @@ static const cmd_t commands[] = {
                 "run A000 (run code at 0xA000)"},
     { "stat",   "show file/directory info", 
                 "stat <filename>"},
-    { "time",   "show local date and time", 
-                "time" },
+//    { "time",   "show local date and time", 
+//                "time" },
 };
 
 static const cmd_t commands_rom[] = {

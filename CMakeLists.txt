@@ -29,6 +29,15 @@ rp6502_executable(shell DATA 0x0200 RESET 0x0200)
 target_sources(shell PRIVATE src/shell.c)
 target_link_options(shell PRIVATE -C ${CMAKE_SOURCE_DIR}/src/shell.cfg)
 
+add_executable(hass)
+rp6502_asset(hass help src/hass.hlp)
+# ROM: commands
+rp6502_asset(hass manual[en].txt docs/hass-manual-en.txt)
+rp6502_asset(hass manual[pl].txt docs/hass-manual-pl.txt)
+rp6502_executable(hass DATA 0x0200 RESET 0x0200)
+target_sources(hass PRIVATE src/hass.c)
+target_link_options(hass PRIVATE -C ${CMAKE_SOURCE_DIR}/src/hass.cfg)
+
 #add_executable(shellboot)
 #rp6502_asset(shellboot 0x12000 assets/bin/wallpaper.bin)
 #rp6502_executable(shellboot DATA 0x0200 RESET 0x0200)

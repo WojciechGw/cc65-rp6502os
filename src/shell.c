@@ -16,12 +16,12 @@
 
 #include "shell.h"
 
-#define APPVER "20260408.1305"
+#define APPVER "20260408.1652"
 #define APPNAME "razemOS"
 #define APP_MSG_START ANSI_DARK_GRAY CSI "12;35H" APPNAME
 #define APP_HOURGLASS CSI "14;36H" ANSI_DARK_GRAY ".........." CSI "10D" ANSI_RESET
 #define APP_MSG_TITLE CSI "2;1H" CSI HIGHLIGHT_COLOR " " APPNAME " > " ANSI_RESET " for Picocomputer 6502" ANSI_DARK_GRAY CSI "2;60Hversion " APPVER ANSI_RESET
-#define APP_STARTPROMPTPOS CSI "4;1H"
+#define APP_STARTPROMPTPOS CSI "3;1H"
 #define APP_MSG_EXIT CSI_RESET
 
 void *__fastcall__ argv_mem(size_t size) { return malloc(size); }
@@ -133,9 +133,9 @@ static int startstage_shell(){
     strncpy(shelldir, default_shelldir, sizeof(shelldir));
     shelldir[sizeof(shelldir) - 1] = '\0';
 
-    printf(APP_MSG_TITLE APP_STARTPROMPTPOS);
-
-    prompt(PROMPT_FIRST);
+    prompt(PROMPT_CLS);
+    // printf(APP_MSG_TITLE APP_STARTPROMPTPOS);
+    // prompt(PROMPT_FIRST);
 
     while (1)
     {
@@ -276,7 +276,7 @@ static int startstage_shell(){
 }
 
 void cls(){ // clear screen
-    tx_string(CSI_RESET CSI_CURSOR_SHOW APP_MSG_TITLE APP_STARTPROMPTPOS);
+    printf(CSI_CLS APP_MSG_TITLE APP_STARTPROMPTPOS CSI_CURSOR_SHOW);
     return;
 }
 
@@ -1439,11 +1439,13 @@ int cmd_peek(int argc, char **argv) {
     return 0;
 }
 
+#ifdef CODE_TIME
 int cmd_time(int argc, char **argv) {
     (void)argc; (void)argv;
     show_time();
     return 0;
 }
+#endif
 
 #ifdef CODE_PHI2
 int cmd_phi2(int argc, char **argv) {
@@ -1675,7 +1677,7 @@ int cmd_cart(int argc, char **argv){
             close(cf);
             PAUSE(25);
             // ria_execl(fname);
-            ria_execl(fname, "TEST", NULL);
+            ria_execl(fname, NULL);
         } else {
             tx_string(NEWLINE EXCLAMATION "file not found" NEWLINE);
         }

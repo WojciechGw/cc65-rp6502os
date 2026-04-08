@@ -49,22 +49,22 @@ z rozszerzeniami WDC (SMBx, RMBx, BBRx, BBSx, WAI, STP).
 
   @SAVE nazwa_pliku
     Zapisuje wszystkie linie kodu z bufora do pliku tekstowego.
-    Nie konczy sesji — wpisywanie kodu trwa dalej.
+    Nie konczy sesji - wpisywanie kodu trwa dalej.
     Przyklad:  @SAVE MSC0:/moj_program.asm
 
   @LOAD nazwa_pliku
     Czysci bufor i tablice symboli, nastepnie wczytuje plik zrodlowy do
     bufora. Obsluguje dyrektywe .INCLUDE i usuwa znacznik BOM.
-    Nie konczy sesji — wpisywanie kodu trwa dalej.
+    Nie konczy sesji - wpisywanie kodu trwa dalej.
     Przyklad:  @LOAD MSC0:/biblioteka.asm
 
   @APPEND nazwa_pliku [linia]
     Dolacza lub wstawia zawartosc pliku do bufora.
     Bez parametru linia: caly plik jest dopisywany na koniec bufora.
     Z parametrem linia: zawartosc pliku jest WSTAWIANA przed linia o podanym
-    numerze (numeracja od 1), przesuwajac istniejace linie w dol — istniejacy
+    numerze (numeracja od 1), przesuwajac istniejace linie w dol - istniejacy
     kod nigdy nie jest nadpisywany.
-    Nie konczy sesji — wpisywanie kodu trwa dalej.
+    Nie konczy sesji - wpisywanie kodu trwa dalej.
     Przyklady:
       @APPEND MSC0:/extra.asm       <- dopisz caly plik na koniec bufora
       @APPEND MSC0:/extra.asm 5    <- wstaw plik przed linia 5
@@ -78,15 +78,15 @@ z rozszerzeniami WDC (SMBx, RMBx, BBRx, BBSx, WAI, STP).
     Uruchamia pelna asemblacje (przebieg 1 + przebieg 2) na zawartosci bufora
     i zapisuje wynik binarny. Jesli podano nazwe pliku, nadpisuje sciezke
     wyjsciowa (odpowiednik opcji -o). Domyslnie: out.bin.
-    Nie konczy sesji — wpisywanie kodu trwa dalej.
+    Nie konczy sesji - wpisywanie kodu trwa dalej.
     Przyklady:
       @MAKE
       @MAKE MSC0:/moj_program.bin
 
   @LIST [od [do]]
     Wyswietla linie bufora z numerami (numeracja od 1).
-    Bez argumentow pokazuje wszystkie linie. Jeden argument — jedna linia.
-    Dwa argumenty — zakres wlacznie od..do.
+    Bez argumentow pokazuje wszystkie linie. Jeden argument - jedna linia.
+    Dwa argumenty - zakres wlacznie od..do.
     Przyklady:
       @LIST
       @LIST 5
@@ -109,7 +109,7 @@ z rozszerzeniami WDC (SMBx, RMBx, BBRx, BBSx, WAI, STP).
   @SYMBOLS
     Wyswietla wszystkie symbole (etykiety i stale) aktualnie w tablicy symboli
     wraz z ich wartosciami szesnastkowymi. Tablica jest wypelniana przez @MAKE
-    lub @CYCLES — uruchom jedna z tych komend jako pierwsza. @LOAD i @NEW
+    lub @CYCLES - uruchom jedna z tych komend jako pierwsza. @LOAD i @NEW
     czyszcza tablice symboli.
     Przyklad:
       @SYMBOLS
@@ -131,6 +131,29 @@ z rozszerzeniami WDC (SMBx, RMBx, BBRx, BBSx, WAI, STP).
     (abs,X  abs,Y  (zp),Y) dodaja +1 cykl przy przekroczeniu granicy strony.
     Te kary zaleza od wartosci rejestrow i flag w czasie wykonania programu
     i nie moga byc obliczone na etapie asemblacji.
+
+  @CD [sciezka]
+    Zmienia biezacy katalog roboczy na podana sciezke. Bez argumentu pokazuje
+    biezacy katalog.
+    Przyklady:
+      @CD MSC0:/SHELL
+      @CD
+
+  @DIR [sciezka]
+    Listuje pliki w biezacym katalogu lub w podanej sciezce. Katalogi
+    wyswietlane sa jako pierwsze, nastepnie pliki. Kazdy plik pokazany jest
+    z rozmiarem w bajtach i nazwa.
+    Przyklady:
+      @DIR
+      @DIR MSC0:/SHELL
+
+  @MANUAL [en|pl]
+    Wyswietla ten podrecznik strona po stronie (28 linii na strone). Enter
+    kontynuuje, q przerywa. Opcjonalny argument wybiera jezyk; domyslnie
+    angielski (en). Dostepne jezyki: en, pl.
+    Przyklady:
+      @MANUAL
+      @MANUAL pl
 
   @EXIT
     Konczy sesje interaktywna. Bufor jest automatycznie zapisywany do pliku

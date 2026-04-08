@@ -13,9 +13,10 @@
 
 #include "commons.h"
 
-#define CODE_LAUNCH
+// #define CODE_LAUNCH
 #define CODE_CART
-#define CODE_PHI2
+// #define CODE_PHI2
+#define CODE_TIME
 
 extern struct _timezone _tz;
 
@@ -156,7 +157,9 @@ int cmd_rename(int, char **);
 int cmd_rm(int, char **);
 int cmd_run(int, char **);
 int cmd_stat(int, char **);
-int cmd_time(int, char **);
+#ifdef CODE_TIME
+    int cmd_time(int, char **);
+#endif
 #ifdef CODE_PHI2
     int cmd_phi2(int, char **);
 #endif
@@ -190,7 +193,9 @@ static const cmd_t commands[] = {
     { "rm",     "", "", cmd_rm},
     { "run",    "", "", cmd_run},
     { "stat",   "", "", cmd_stat},
+#ifdef CODE_TIME
     { "time",   "", "", cmd_time },
+#endif
 #ifdef CODE_PHI2
     { "phi2",   "", "", cmd_phi2},
 #endif
@@ -229,7 +234,7 @@ void show_time(void);
 int hexstr(char *str, uint8_t val);
 void hexdump(uint16_t addr, uint16_t bytes, char_stream_func_t streamer, read_data_func_t reader);
 void cls();
-void prompt(bool first_time);
+void prompt(uint8_t mode);
 static int tokenize(char *buf, int maxBuf, char **tokenList, int maxTokens);
 static int execute(cmdline_t *cl);
 static int execute_cmd(cmdline_t *cl, const char *cmd);
@@ -257,7 +262,9 @@ int cmd_rename(int argc, char **argv);
 int cmd_rm(int argc, char **argv);
 int cmd_run(int argc, char **argv);
 int cmd_stat(int argc, char **argv);
-int cmd_time(int argc, char **argv);
+#ifdef CODE_TIME
+    int cmd_time(int argc, char **argv);
+#endif
 #ifdef CODE_PHI2
     int cmd_phi2(int argc, char **argv);
 #endif
