@@ -14,27 +14,25 @@ All you need to test this project is in 'release/latest' folder.
 ## Preparing
 
 * The shell.rp6502 file can be installed as boot ROM
-* The startup screen appears while waiting for a Wi-Fi connection and has a timeout set; without an active Wi-Fi connection or a manually set time, the 'time' and 'calendar' commands display data according to the current RP6502 system time
+* The startup screen appears while waiting for a Wi-Fi connection and has a timeout set; without an active Wi-Fi connection or a manually set time, the 'time' and 'date' commands display data according to the current RP6502 system time
 
 ## Memory
-Memory area available for user programs running under OS Shell environment is $7B00-$FD00 (33280 bytes).</br>
-User can create .exe programs with external OS shell command 'hass' (Handy ASSembler WDC65C02S).
+Memory area available for user programs running under razemOS environment is $8000-$FD00.</br>
+User can create .exe programs with external application 'hass.rp6502' (Handy ASSembler for 65C02).
 
 ## OS Files
-* shell.rp6502
+* razemos.rp6502
+* hass.rp6502
 * hello.asm - test source for hass
-* font.asm - test source for hass
-* sendfile.py - send file from PC to RP6502 as Intel HEX over serial, run crx.com on OS Shell to receive
-* receivefile.py - send file from RP6502 to PC as Intel HEX over serial, run ctx.com on OS Shell to send
+* ctx.py - send file from PC to RP6502 as Intel HEX over serial, run crx.com on OS Shell to receive
+* crx.py - send file from RP6502 to PC as Intel HEX over serial, run ctx.com on OS Shell to send
 
 ## Keyboard shortcuts
 * F1 - help informations
 * F2 - keyboard visualiser
 * F3 - current date/time and calendar
-* LEFT - change active drive to previous if available
-* RIGHT - change active drive to next if available
+* F4 - a directory of active drive/catalog
 * UP - recall last command
-* DOWN - a directory of active drive/catalog
 
 ## OS commands
 
@@ -47,17 +45,13 @@ internal commands are case sensitive
 * chmod  - set file attributes
 * cls    - reset terminal
 * com    - load .com binary and run
-* cp     - copy file
-* cpm    - copy/move multiple files, wildcards allowed
+* cp     - copy/move files (wildcards allowed)
 * drive  - set active drive
 * exit   - exit to the system monitor
-* hex    - dump file contents to screen
 * list   - show a file content
 * ls     - list active directory
 * mem    - show memory informations : lowest and highest RAM address and size
 * mkdir  - create directory
-* mv     - move/rename a file or directory
-* peek   - memory viewer
 * phi2   - show CPU clock frequency
 * rename - rename a file or directory
 * rm     - remove a file/files, wildcards allowed
@@ -69,25 +63,28 @@ internal commands are case sensitive
 internal ROM commands are *.com files in shell.rp6502 ROM: (RP6502 BIGROM)</br>
 There's no need to include the .com extension - ie. just type 'dir' instead of 'dir.com' (case insensitive)</br>
 
-* calendar - calendar application
+* date     - date, time and calendar application
 * crx      - download file transfer (PC => RP6502)
 * ctx      - upload file transfer (RP6502 => PC)
 * dir      - show active drive directory, wildcards allowed
 * drives   - show available drives
 * help     - show help informations (same as F1 key)
+* hex    - dump file contents to screen
 * keyboard - keyboard state visualiser
 * label    - show or set active drive's volume label
+* peek   - memory viewer
 
 ### External commands
 this kind of external commands are *.com files in MSC0:/SHELL directory</br>
-There's no need to include the .com extension - ie. just type 'hass' instead of 'hass.com' (case insensitive)</br>
-
-* hass     - Handy ASSembler for 65C02S
-
+There's no need to include the .com extension - ie. just type 'roms' instead of 'roms.com' (case insensitive)</br>
 NOTE:
 These commands take precedence over commands in “ROM:”.</br>
 If the same command is also present in “ROM:”, the one in the “MSC0:/SHELL” directory will be executed.</br>
 This allows you to update the command code and place it in “ROM:” once the changes are complete or simply overwrite the "ROM:" commands with your own version on the USB drive.</br>
+
+### Standalone applications
+
+* hass     - Handy ASSembler for 65C02S
 
 Enjoy !
 
