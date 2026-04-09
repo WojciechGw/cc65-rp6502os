@@ -1,15 +1,15 @@
 Modules list:
 -------------
-ext-drives.c.28500.0.o:
+ext-drives.c.5896.0.o:
     CODE              Offs=000000  Size=00038A  Align=00001  Fill=0000
     RODATA            Offs=000000  Size=0000B9  Align=00001  Fill=0000
     BSS               Offs=000000  Size=000090  Align=00001  Fill=0000
     DATA              Offs=000000  Size=000004  Align=00001  Fill=0000
-crt0_cmd.s.28500.1.o:
+crt0_cmd.s.5896.1.o:
     STARTUP           Offs=000000  Size=00001E  Align=00001  Fill=0000
-write_stub.c.28500.2.o:
+write_stub.c.5896.2.o:
     CODE              Offs=00038A  Size=00004C  Align=00001  Fill=0000
-initmainargs.s.28500.3.o:
+initmainargs.s.5896.3.o:
     STARTUP           Offs=00001E  Size=000001  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(_file.o):
     DATA              Offs=000004  Size=00001E  Align=00001  Fill=0000
@@ -321,7 +321,7 @@ __STARTADDR__ ([linker generated]):
     [linker generated]        cfg/ext0xA000.cfg:9
     [linker generated]        cfg/ext0xA000.cfg:9
 __STARTUP__ (crt0.o):
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:13
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:13
     [linker generated]        cfg/ext0xA000.cfg:3
 ___errno (errno.o):
     _seterrno.o               /home/wojciech/git/cc65/asminc/errno.inc:7
@@ -345,24 +345,24 @@ __printf (_printf.o):
 __syschdir (syschdir.o):
     chdir.o                   rp6502/chdir.s:9
 _chdir (chdir.o):
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:22
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:22
 _f_chdrive (f_chdrive.o):
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:15
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:15
 _f_getcwd (f_getcwd.o):
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:16
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:16
 _f_getfree (f_getfree.o):
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:18
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:18
 _f_getlabel (f_getlabel.o):
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:17
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:17
 _fwrite (fwrite.o):
     vfprintf.o                common/vfprintf.s:10
 _ltoa (ltoa.o):
     _printf.o                 common/_printf.s:12
-_main (ext-drives.c.28500.0.o):
+_main (ext-drives.c.5896.0.o):
     callmain.o                runtime/callmain.s:11
-    crt0_cmd.s.28500.1.o      crt0_cmd.s:2
+    crt0_cmd.s.5896.1.o       crt0_cmd.s:2
 _printf (printf.o):
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:19
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:19
 _ria_call_int (ria.o):
     errno.o                   rp6502/errno.s:12
     syschdir.o                ../libwrk/rp6502/syschdir.s:19
@@ -386,17 +386,17 @@ _ultoa (ltoa.o):
     _printf.o                 common/_printf.s:12
 _vfprintf (vfprintf.o):
     printf.o                  common/printf.s:8
-_write (write_stub.c.28500.2.o):
+_write (write_stub.c.5896.2.o):
     fwrite.o                  common/fwrite.s:10
 addeq0sp (addeqsp.o):
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:571
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:571
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:571
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:571
 addeqysp (addeqsp.o):
     f_getlabel.o              ../libwrk/rp6502/f_getlabel.s:127
     f_getcwd.o                ../libwrk/rp6502/f_getcwd.s:103
-    write_stub.c.28500.2.o    write_stub.c.28500.2.s:64
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:571
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:571
+    write_stub.c.5896.2.o     write_stub.c.5896.2.s:64
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:571
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:571
 addysp (addysp.o):
     incsp6.o                  runtime/incsp6.s:8
     fwrite.o                  common/fwrite.s:11
@@ -405,8 +405,8 @@ addysp (addysp.o):
     incsp4.o                  runtime/incsp4.s:8
     f_getlabel.o              ../libwrk/rp6502/f_getlabel.s:127
     f_getfree.o               ../libwrk/rp6502/f_getfree.s:110
-    write_stub.c.28500.2.o    write_stub.c.28500.2.s:64
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:571
+    write_stub.c.5896.2.o     write_stub.c.5896.2.s:64
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:571
 addysp1 (addysp.o):
     ludiv.o                   runtime/ludiv.s:9
     lmul.o                    runtime/lmul.s:9
@@ -415,7 +415,7 @@ axlong (axlong.o):
 axulong (axlong.o):
     _printf.o                 common/_printf.s:11
 bnegeax (lbneg.o):
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:571
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:571
 booleq (makebool.o):
     leq.o                     runtime/leq.s:8
 c_sp (zeropage.o):
@@ -452,8 +452,8 @@ c_sp (zeropage.o):
     crt0.o                    /home/wojciech/git/cc65/asminc/zeropage.inc:11
     addysp.o                  runtime/addysp.s:8
     addeqsp.o                 runtime/addeqsp.s:8
-    write_stub.c.28500.2.o    write_stub.c.28500.2.s:10
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:10
+    write_stub.c.5896.2.o     write_stub.c.5896.2.s:10
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:10
 callmain (callmain.o):
     crt0.o                    rp6502/crt0.s:7
 copydata (copydata.o):
@@ -462,36 +462,36 @@ ctypemaskdirect (ctypemask.o):
     strlower.o                common/strlower.s:14
 decsp2 (decsp2.o):
     f_getfree.o               ../libwrk/rp6502/f_getfree.s:110
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:571
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:571
 decsp4 (decsp4.o):
     lpush.o                   runtime/lpush.s:12
     f_getlabel.o              ../libwrk/rp6502/f_getlabel.s:127
     f_getcwd.o                ../libwrk/rp6502/f_getcwd.s:103
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:571
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:571
 decsp5 (decsp5.o):
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:571
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:571
 decsp6 (decsp6.o):
     _printf.o                 common/_printf.s:11
 donelib (condes.o):
     crt0.o                    rp6502/crt0.s:12
-    crt0_cmd.s.28500.1.o      crt0_cmd.s:2
+    crt0_cmd.s.5896.1.o       crt0_cmd.s:2
 getlop (ludiv.o):
     lumod.o                   runtime/lumod.s:9
 inceaxy (linc.o):
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:571
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:571
 incsp1 (incsp1.o):
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:571
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:571
 incsp2 (incsp2.o):
     popptr1.o                 runtime/popptr1.s:8
     staspidx.o                runtime/staspidx.s:8
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:571
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:571
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:571
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:571
 incsp4 (incsp4.o):
     lcmp.o                    runtime/lcmp.s:9
     syschdir.o                ../libwrk/rp6502/syschdir.s:83
     f_chdrive.o               ../libwrk/rp6502/f_chdrive.s:83
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:571
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:571
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:571
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:571
 incsp6 (incsp6.o):
     fwrite.o                  common/fwrite.s:11
     vfprintf.o                common/vfprintf.s:9
@@ -499,9 +499,9 @@ incsp8 (incsp8.o):
     f_getcwd.o                ../libwrk/rp6502/f_getcwd.s:103
 initlib (condes.o):
     crt0.o                    rp6502/crt0.s:12
-    crt0_cmd.s.28500.1.o      crt0_cmd.s:2
-initmainargs (initmainargs.s.28500.3.o):
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:14
+    crt0_cmd.s.5896.1.o       crt0_cmd.s:2
+initmainargs (initmainargs.s.5896.3.o):
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:14
 ldax0sp (ldaxsp.o):
     syschdir.o                ../libwrk/rp6502/syschdir.s:83
     f_getlabel.o              ../libwrk/rp6502/f_getlabel.s:127
@@ -514,10 +514,10 @@ ldaxysp (ldaxsp.o):
     f_getfree.o               ../libwrk/rp6502/f_getfree.s:110
     f_getcwd.o                ../libwrk/rp6502/f_getcwd.s:103
 ldeax0sp (ldeaxysp.o):
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:571
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:571
 ldeaxysp (ldeaxysp.o):
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:571
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:571
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:571
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:571
 mul8x16 (mul8.o):
     mul.o                     runtime/mul.s:8
 mul8x16a (mul8.o):
@@ -556,8 +556,8 @@ ptr1 (zeropage.o):
     f_getfree.o               ../libwrk/rp6502/f_getfree.s:11
     f_getcwd.o                ../libwrk/rp6502/f_getcwd.s:11
     f_chdrive.o               ../libwrk/rp6502/f_chdrive.s:11
-    write_stub.c.28500.2.o    write_stub.c.28500.2.s:11
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:11
+    write_stub.c.5896.2.o     write_stub.c.5896.2.s:11
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:11
 ptr2 (zeropage.o):
     strlower.o                common/strlower.s:13
     ltoa.o                    common/ltoa.s:11
@@ -581,13 +581,13 @@ push1 (push1.o):
     _printf.o                 common/_printf.s:11
     vfprintf.o                common/vfprintf.s:9
 pusha (pusha.o):
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:571
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:571
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:571
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:571
 pusha0 (pushax.o):
     push1.o                   runtime/push1.s:8
     fwrite.o                  common/fwrite.s:11
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:571
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:571
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:571
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:571
 pushax (pushax.o):
     fwrite.o                  common/fwrite.s:11
     callmain.o                runtime/callmain.s:11
@@ -598,27 +598,27 @@ pushax (pushax.o):
     f_getfree.o               ../libwrk/rp6502/f_getfree.s:110
     f_getcwd.o                ../libwrk/rp6502/f_getcwd.s:103
     f_chdrive.o               ../libwrk/rp6502/f_chdrive.s:83
-    write_stub.c.28500.2.o    write_stub.c.28500.2.s:64
-    crt0_cmd.s.28500.1.o      crt0_cmd.s:2
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:571
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:571
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:571
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:571
+    write_stub.c.5896.2.o     write_stub.c.5896.2.s:64
+    crt0_cmd.s.5896.1.o       crt0_cmd.s:2
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:571
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:571
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:571
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:571
 pusheax (lpush.o):
     _printf.o                 common/_printf.s:11
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:571
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:571
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:571
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:571
 pushl0 (lpush.o):
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:571
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:571
 pushwysp (pushwsp.o):
     fwrite.o                  common/fwrite.s:11
     vfprintf.o                common/vfprintf.s:9
     f_getfree.o               ../libwrk/rp6502/f_getfree.s:110
-    write_stub.c.28500.2.o    write_stub.c.28500.2.s:64
+    write_stub.c.5896.2.o     write_stub.c.5896.2.s:64
 regbank (zeropage.o):
     _printf.o                 /home/wojciech/git/cc65/asminc/zeropage.inc:14
 shreax3 (shreax3.o):
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:571
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:571
 sreg (zeropage.o):
     lneg.o                    runtime/lneg.s:11
     udiv.o                    runtime/udiv.s:10
@@ -639,32 +639,32 @@ sreg (zeropage.o):
     ldeaxysp.o                runtime/ldeaxysp.s:12
     lbneg.o                   runtime/lbneg.s:8
     icmp.o                    runtime/icmp.s:9
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:10
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:10
 staspidx (staspidx.o):
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:571
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:571
 stax0sp (staxsp.o):
     f_getcwd.o                ../libwrk/rp6502/f_getcwd.s:103
 staxysp (staxsp.o):
     f_getlabel.o              ../libwrk/rp6502/f_getlabel.s:127
     f_getfree.o               ../libwrk/rp6502/f_getfree.s:110
     f_getcwd.o                ../libwrk/rp6502/f_getcwd.s:103
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:571
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:571
 steaxspidx (steaxspi.o):
     f_getfree.o               ../libwrk/rp6502/f_getfree.s:110
 steaxysp (steaxsp.o):
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:571
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:571
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:571
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:571
 subeq0sp (subeqsp.o):
     syschdir.o                ../libwrk/rp6502/syschdir.s:83
     f_getlabel.o              ../libwrk/rp6502/f_getlabel.s:127
     f_getfree.o               ../libwrk/rp6502/f_getfree.s:110
     f_chdrive.o               ../libwrk/rp6502/f_chdrive.s:83
-    write_stub.c.28500.2.o    write_stub.c.28500.2.s:64
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:571
+    write_stub.c.5896.2.o     write_stub.c.5896.2.s:64
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:571
 subeqysp (subeqsp.o):
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:571
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:571
 subysp (subysp.o):
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:571
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:571
 tmp1 (zeropage.o):
     mul.o                     runtime/mul.s:10
     ltoa.o                    common/ltoa.s:11
@@ -688,27 +688,27 @@ tmp4 (zeropage.o):
     ludiv.o                   runtime/ludiv.s:10
     lmul.o                    runtime/lmul.s:10
 toseqeax (leq.o):
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:571
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:571
 tosicmp (icmp.o):
     f_getcwd.o                ../libwrk/rp6502/f_getcwd.s:103
 toslcmp (lcmp.o):
     leq.o                     runtime/leq.s:8
 tosudiv0ax (ludiv.o):
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:571
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:571
 tosudivax (udiv.o):
     fwrite.o                  common/fwrite.s:12
 tosudiveax (ludiv.o):
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:571
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:571
 tosumod0ax (lumod.o):
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:571
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:571
 tosumul0ax (lmul.o):
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:571
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:571
 tosumulax (mul.o):
     fwrite.o                  common/fwrite.s:12
 udiv32 (ludiv.o):
     lumod.o                   runtime/lumod.s:9
 utsteax (ltest.o):
-    ext-drives.c.28500.0.o    ext-drives.c.28500.0.s:571
+    ext-drives.c.5896.0.o     ext-drives.c.5896.0.s:571
 zerobss (zerobss.o):
     crt0.o                    rp6502/crt0.s:12
 

@@ -5,7 +5,7 @@
 
 #include "commons.h"
 
-#define APPVER "20260408.1934"
+#define APPVER "20260409.0650"
 
 #define APPNAME "Test anim for BMP files 640x480x1bpp"
 #define APPDIRDEFAULT "" // view in current directory if empty
@@ -185,7 +185,7 @@ int main(int argc, char **argv) {
          break;
       case 99:
          xreg(1, 0, 1, GFX_MODE_CONSOLE);
-         printf(CSI_CLS);
+         printf(CSI_RESET CSI_CLS);
          return 0;
       default:
          break;

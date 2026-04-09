@@ -3,8 +3,6 @@ __pycache__
 /.github
 /.rp6502
 /build
-/src/trash
-/src/extcmd/build
-/src/extcmd/map
-/tools/obsolete
-.rp6502
+/src/extcmd/build/*.*
+/src/extcmd/map/*.*
+/tools/obsolete/*.*
