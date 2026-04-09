@@ -20,7 +20,7 @@ text:
 .ascii  "I'm back!"
 .asciiz "\r\n"
 
-;for OS Shell .exe
+;for razemOS .exe
 shellrun:
 .word  start
 ; -- end of file --
