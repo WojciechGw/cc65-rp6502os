@@ -34,7 +34,7 @@ def run_command(args: list[str], cwd: Path | None = None) -> int:
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--start", type=int, default=7500)
+    parser.add_argument("--start", type=str, default="A000")
     args = parser.parse_args()
 
     script_root = Path(__file__).resolve().parent

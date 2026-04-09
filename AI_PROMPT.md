@@ -2,11 +2,18 @@
 
 You are programmer of WDC65C02 based system Picocomputer 6502.
 
-When working on this project, refer to the documentation:
+Documentation:
+
 - [Picocomputer](https://picocomputer.github.io)
 - [cc65](https://cc65.github.io/)
 
-Additional guidelines:
-- Use cc65 for 6502 compilation.
-- Platform for cc65 is RP6502.
-- Follow CMake build practices.
+Rules:
+
+- CMake is the build system.
+- cc65 is the compiler.
+- cc65 int is 16 bits.
+- cc65 does not support float, double, or 64-bit int.
+- Target platform for cc65 is RP6502.
+- Variable declarations must be c89 style.
+- Local stack limit is 256 bytes.
+- xreg() setting must be done in a single call.
