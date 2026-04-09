@@ -7,13 +7,15 @@
 #include "./commons/courier-gfx.h"
 
 #define APPVER         "20260408.1800"
+#define APP_FOOTER "________________________________________________________________________________"
+
 #define MAXROMS        64
 #define ROM_DNAME_LEN  18   /* display name chars per tile (TILE_W - 2 padding) */
 #define ROM_PATH_LEN   64   /* full path stored for ria_execl */
 #define TILE_COLS      4
 #define TILE_W         20   /* chars per tile = ROM_DNAME_LEN + 2 */
-#define HDR_ROWS       2    /* rows 0-1 reserved for header */
-#define FTR_ROWS       2    /* rows 28-29 reserved for status */
+#define HDR_ROWS       4    /* rows 0-3 reserved for header */
+#define FTR_ROWS       3    /* rows 27-29 reserved for status */
 #define CONTENT_ROWS   (CGX_ROWS - HDR_ROWS - FTR_ROWS)  /* 26 */
 
 #ifndef AM_DIR
@@ -96,7 +98,8 @@ static void draw_status(int sel)
     for (p = rom_dname[sel]; *p && i < CGX_COLS; ) sbuf[i++] = *p++;
     while (i < CGX_COLS) sbuf[i++] = ' ';
     sbuf[CGX_COLS] = 0;
-    DrawText((uint8_t)(CGX_ROWS - 1), 0, sbuf, CYAN, BLACK);
+    DrawText((uint8_t)(CGX_ROWS - 2), 0, APP_FOOTER, LIGHT_GRAY, BLACK);
+    DrawText((uint8_t)(CGX_ROWS - 1), 0, sbuf, LIGHT_GRAY, BLACK);
 }
 
 static void redraw_all(int sel, int top_row)
@@ -113,12 +116,12 @@ static void redraw_all(int sel, int top_row)
 
 static void draw_header(void)
 {
-    ClearLine(0, WHITE, DARK_GREEN);
-    DrawText(0,  1, "ROMS",             YELLOW, DARK_GREEN);
-    DrawText(0,  8, "arrows:navigate",  WHITE,  DARK_GREEN);
-    DrawText(0, 27, "Enter:launch",     WHITE,  DARK_GREEN);
-    DrawText(0, 42, "Esc:exit",         WHITE,  DARK_GREEN);
-    ClearLine(1, DARK_GRAY, BLACK);
+    ClearLine(1, WHITE, BLACK);
+    DrawText(1,  0, " razemOS > "    ,     WHITE, DARK_GREEN);
+    DrawText(1, 12, "ROMS launcher"  ,     WHITE,      BLACK);
+    DrawText(1, 59, "version " APPVER, DARK_GRAY,      BLACK);
+    ClearLine(2, DARK_GRAY, BLACK);
+    DrawText(2,  12, "navigate by arrows, press [ENTER] to launch, press [Esc] to exit", DARK_GRAY, BLACK);
 }
 
 /* ------------------------------------------------------------------ */

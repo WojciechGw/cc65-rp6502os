@@ -1,9 +1,9 @@
 #include "commons.h"
 
-#define APPVER "20260409.0641"
+#define APPVER "20260409.0705"
 
 #define APP_HEADER CSI_CLS CSI "2;1H" CSI HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " Help information                              " ANSI_DARK_GRAY "version " APPVER ANSI_RESET
-#define APP_FOOTER ANSI_DARK_GRAY  "________________________________________________________________________________" NEWLINE NEWLINE ANSI_RESET
+#define APP_FOOTER ANSI_DARK_GRAY  "________________________________________________________________________________" ANSI_RESET NEWLINE
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
 #define NEWLINE "\r\n"
@@ -22,6 +22,8 @@ static const cmd_t commands[] = {
                 "bsave picture.bin 0000 8192 /x (save 8192 bytes start from XRAM address 0x0000)"},
     { "brun",   "load binary file to RAM and run",
                 "brun hello.bin A300 (load and run binary file hello.bin at address 0xA300)"},
+    { "cart",   "launch ROM (filename without extension)", 
+                "cart [path]romfilename"},
     { "cd",     "change active directory", 
                 "cd <directory>"},
     { "chmod",  "set file attributes",
@@ -41,23 +43,23 @@ static const cmd_t commands[] = {
                 "exit"},
     { "hex",    "dump file contents to screen", 
                 "hex <filename> 0x0600 512 (show 512 bytes of a file start from offset 0x0600)" },
-//    { "launcher", "register/deregister OS as a launcher", 
-//                "launcher /status - status info" NEWLINE
-//                "launcher /s      - register" NEWLINE
-//                "launcher /r      - deregister" NEWLINE},
+    { "launcher", "register/deregister OS as a launcher", 
+                "launcher /status - status info" NEWLINE
+                "launcher /s      - register" NEWLINE
+                "launcher /r      - deregister" NEWLINE},
     { "list",   "show a file content",
                 "list <filename>"},
     { "ls",     "list active directory",
                 "ls"},
-    { "mem",    "show OS Shell RAM informations" NEWLINE "lowest and highest RAM address and size available for user program",
+    { "mem",    "show memory informations" NEWLINE "lowest and highest RAM address and size available for user program",
                 "mem"},
     { "mkdir",  "create directory", 
                 "mkdir <directory>"},
     { "peek",   "memory viewer",
                 "peek 0xA000 128 (show 128 bytes of base RAM start from address 0xA000)" NEWLINE
                 "peek 0xF000 256 /X (show 256 bytes of XRAM start from address 0xF000)" },
-//    { "phi2",   "show CPU clock frequency", 
-//                "phi2"},
+    { "phi2",   "show CPU clock frequency", 
+                "phi2"},
     { "rename", "rename/move file or directory",
                 "rename <oldname> <newname>"},
     { "rm",     "remove file/files (wildcards allowed)",
@@ -66,8 +68,8 @@ static const cmd_t commands[] = {
                 "run A000 (run code at 0xA000)"},
     { "stat",   "show file/directory info", 
                 "stat <filename>"},
-//    { "time",   "show local date and time", 
-//                "time" },
+    { "time",   "show local date and time", 
+                "time" },
 };
 
 static const cmd_t commands_rom[] = {
@@ -80,8 +82,6 @@ static const cmd_t commands_rom[] = {
                     "time /c /n                  - calendar of current and neighbouring months" NEWLINE
                     "time /c /q                  - calendar of current quarter" NEWLINE
                     "time /c /y                  - calendar of current year" NEWLINE},
-    { "cart",       "launch ROM (filename without extension)", 
-                    "cart romfilename"},
     { "crx",        "file transfer application - receiver (UART)", 
                     "crx" },
     { "ctx",        "file transfer application - sender (UART)", 
@@ -103,15 +103,16 @@ static const cmd_t commands_rom[] = {
                     "label          - show label of active drive" NEWLINE
                     "label NEWLABEL - set active drive label to NEWLABEL" },
     { "view",       "show BMP 640x480xbpp1", 
-                    "view filename.bmp"}
-
+                    "view filename.bmp" NEWLINE
+                    "view /x 0x2000 - view XRAM from 0x2000 as a bitmap 640x480xbpp1" NEWLINE
+                    "view filename.bmp /d - load and show filename.bmp and dump XRAM to filename.bin"}
 };
 
 static const cmd_t commands_ext[] = {
     { "hass",       "Handy ASSembler for 65C02S list hass-manual-en.txt for more informations",
-                    "hass                            - interactive code entry and assembly" NEWLINE
-                    "hass <source>                   - <source> file, out.bin as a result" NEWLINE
-                    "hass <source> -o <destination>  - <source> file, <destination> as a result"},
+                    "cart hass                            - interactive code entry and assembly" NEWLINE
+                    "cart hass <source>                   - <source> file, out.bin as a result" NEWLINE
+                    "cart hass <source> -o <destination>  - <source> file, <destination> as a result"},
 };
 
 int main(int argc, char **argv) {
@@ -177,7 +178,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    printf(NEWLINE NEWLINE "INTERNAL IN ROM: (case insensitive):" NEWLINE);
+    printf(NEWLINE NEWLINE "INTERNAL IN ROM: or MSC0:/SHELL (case insensitive):" NEWLINE);
     for(i = 0; i < ARRAY_SIZE(commands_rom); i++) {
         printf("%-10s", commands_rom[i].cmd);
         if((i & 7) == 7) {
@@ -185,7 +186,8 @@ int main(int argc, char **argv) {
         }
     }
 
-    printf(NEWLINE NEWLINE "EXTERNAL IN MSC0:/SHELL directory (case insensitive):" NEWLINE);
+    printf(NEWLINE NEWLINE "EXTERNAL .rp6502 IN MSC0:/ROMS directory (case insensitive):" NEWLINE
+                           "run by cart romname" NEWLINE);
     for(i = 0; i < ARRAY_SIZE(commands_ext); i++) {
         printf("%-10s", commands_ext[i].cmd);
         if((i & 7) == 7) {
