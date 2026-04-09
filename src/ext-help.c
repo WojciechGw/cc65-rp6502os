@@ -1,6 +1,6 @@
 #include "commons.h"
 
-#define APPVER "20260409.2210"
+#define APPVER "20260410.0007"
 
 #define APP_HEADER CSI_CLS CSI "2;1H" CSI HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " Help information                              " ANSI_DARK_GRAY "version " APPVER ANSI_RESET
 #define APP_FOOTER ANSI_DARK_GRAY  "________________________________________________________________________________" ANSI_RESET NEWLINE
@@ -103,14 +103,20 @@ static const cmd_t commands_rom[] = {
     { "peek",       "memory viewer",
                     "peek 0xA000 128 (show 128 bytes of base RAM start from address 0xA000)" NEWLINE
                     "peek 0xF000 256 /X (show 256 bytes of XRAM start from address 0xF000)" },
+    { "roms",       "launchpad for .rp6502 - list & could launch .rp6502s in active directory",
+                    "roms"},
     { "view",       "show BMP 640x480xbpp1", 
                     "view filename.bmp" NEWLINE
                     "view /x 0x2000 - view XRAM from 0x2000 as a bitmap 640x480xbpp1" NEWLINE
-                    "view filename.bmp /d - load and show filename.bmp and dump XRAM to filename.bin"}
+                    "view filename.bmp /d - load and show filename.bmp and dump XRAM to filename.bin"},
+    { "ss-matrix",  "screensaver - Matrix Rain",
+                    "ss-matrix (ESC to exit)"},
+    { "ss-noise",   "screensaver - whole screen chars noise",
+                    "ss-noise (ESC to exit)"},
 };
 
 static const cmd_t commands_ext[] = {
-    { "hass",       "Handy ASSembler for 65C02S list hass-manual-en.txt for more informations",
+    { "hass",       "Handy ASSembler for 65C02S ROM:hass-manual-en.txt for more informations",
                     "cart hass                            - interactive code entry and assembly" NEWLINE
                     "cart hass <source>                   - <source> file, out.bin as a result" NEWLINE
                     "cart hass <source> -o <destination>  - <source> file, <destination> as a result"},
@@ -187,7 +193,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    printf(NEWLINE NEWLINE "EXTERNAL .rp6502 run by command 'cart'  (case insensitive):" NEWLINE);
+    printf(NEWLINE NEWLINE "EXTERNAL standalone .rp6502 run by command 'cart'  (case insensitive):" NEWLINE);
     for(i = 0; i < ARRAY_SIZE(commands_ext); i++) {
         printf("%-10s", commands_ext[i].cmd);
         if((i & 7) == 7) {
