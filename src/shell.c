@@ -337,7 +337,7 @@ void tx_dec32(unsigned long val) { // Print an unsigned long in decimal.
     }
     tx_chars(&out[i], 10 - i);
 }
-
+#ifdef CODE_HEXDUMP
 int hexstr(char *str, uint8_t val) { // Assumes str points to at least two bytes.
     str[0] = hexdigits[val >> 4];
     str[1] = hexdigits[val & 0xF];
@@ -387,6 +387,7 @@ void hexdump(uint16_t addr, uint16_t bytes, char_stream_func_t streamer, read_da
     }
     return;
 }
+#endif
 
 // things related to : disk operations
 
@@ -472,12 +473,14 @@ void xram_writer(const uint8_t *buf, uint16_t addr, uint16_t size) {
     for(; size; size--) RIA.rw0 = *buf++;
 }
 
+#ifdef CODE_PEEK
 static void file_reader(uint8_t *buf, uint16_t addr, uint16_t size) {
     off_t pos = (off_t)filehex_base + (off_t)addr;
     if(filehex_fd < 0) return;
     if(lseek(filehex_fd, pos, SEEK_SET) < 0) return;
     read(filehex_fd, buf, size);
 }
+#endif
 
 // things related to memory
 
@@ -1407,6 +1410,7 @@ int cmd_cp(int argc, char **argv) {
     return (rc < 0) ? -1 : 0;
 }
 
+#ifdef CODE_PEEK
 int cmd_peek(int argc, char **argv) {
     uint16_t addr = 0;
     uint16_t size = 16;
@@ -1438,6 +1442,7 @@ int cmd_peek(int argc, char **argv) {
     tx_string(NEWLINE);
     return 0;
 }
+#endif
 
 #ifdef CODE_TIME
 int cmd_time(int argc, char **argv) {
@@ -1475,6 +1480,7 @@ int cmd_mem(int argc, char **argv) {
     return 0;
 }
 
+#ifdef CODE_HEXDUMP
 int cmd_hex(int argc, char **argv) {
     uint32_t offset = 0;
     uint32_t bytes;
@@ -1516,7 +1522,7 @@ int cmd_hex(int argc, char **argv) {
     tx_string(NEWLINE);
     return 0;
 }
-
+#endif
 int cmd_stat(int argc, char **argv) {
     if(argc < 2) {
         tx_string("Usage: stat <path>" NEWLINE);

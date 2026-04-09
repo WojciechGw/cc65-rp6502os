@@ -17,6 +17,8 @@
 #define CODE_CART
 #define CODE_PHI2
 #define CODE_TIME
+// #define CODE_HEXDUMP
+// #define CODE_PEEK
 
 extern struct _timezone _tz;
 
@@ -24,7 +26,7 @@ extern struct _timezone _tz;
     #define __STACKSIZE__ 0x0200
 #endif
 #define MEMTOP (0xFF00-__STACKSIZE__-1)
-#define COM_LOAD_ADDR 0xA000  // lowest ram address where to load the external command code (binary shell extensions - .com files)
+#define COM_LOAD_ADDR 0x8000  // lowest ram address where to load the external command code (binary shell extensions - .com files)
 
 #define SHELLDRIVEDIRDEFAULT "MSC0:/SHELL/"
 #define SHELLDIRDEFAULT "ROM:"
@@ -97,8 +99,10 @@ typedef struct {
     int (*func)(int argc, char **argv);
 } cmd_t;
 
-typedef void (*char_stream_func_t)(const char *buf, int size);
-typedef void (*read_data_func_t)(uint8_t *buf, uint16_t addr, uint16_t size);
+#ifdef CODE_HEXDUMP
+    typedef void (*char_stream_func_t)(const char *buf, int size);
+    typedef void (*read_data_func_t)(uint8_t *buf, uint16_t addr, uint16_t size);
+#endif
 
 typedef struct {
     char name[FNAMELEN];
@@ -129,9 +133,10 @@ static char *exe_argv[CMD_TOKEN_MAX+1];
 static unsigned char run_args_backup[RUN_ARGS_BLOCK_SIZE];
 static char drv_args_buf[4] = {0};
 static char *drv_args[2] = { (char *)"drive", drv_args_buf };
+#ifdef CODE_HEXDUMP
 static int filehex_fd = -1;
 static uint32_t filehex_base = 0;
-
+#endif
 static void refresh_current_drive(void);
 static void build_run_args(int user_argc, char **user_argv);
 
@@ -150,13 +155,17 @@ int cmd_drive(int, char **);
 int cmd_exit(int, char **);
 int cmd_list(int, char **);
 int cmd_mem(int, char **);
-int cmd_hex(int, char **);
 int cmd_mkdir(int, char **);
-int cmd_peek(int, char **);
+#ifdef CODE_PEEK
+    int cmd_peek(int, char **);
+#endif
 int cmd_rename(int, char **);
 int cmd_rm(int, char **);
 int cmd_run(int, char **);
 int cmd_stat(int, char **);
+#ifdef CODE_HEXDUMPC
+    int cmd_hex(int, char **);
+#endif
 #ifdef CODE_TIME
     int cmd_time(int, char **);
 #endif
@@ -186,13 +195,17 @@ static const cmd_t commands[] = {
     { "exit",   "", "", cmd_exit},
     { "list",   "", "", cmd_list},
     { "mem",    "", "", cmd_mem},
-    { "hex",    "", "", cmd_hex },
     { "mkdir",  "", "", cmd_mkdir},
+#ifdef CODE_PEEK
     { "peek",   "", "", cmd_peek},
+#endif
     { "rename", "", "", cmd_rename},
     { "rm",     "", "", cmd_rm},
     { "run",    "", "", cmd_run},
     { "stat",   "", "", cmd_stat},
+#ifdef CODE_HEXDUMPC
+    { "hex",    "", "", cmd_hex },
+#endif
 #ifdef CODE_TIME
     { "time",   "", "", cmd_time },
 #endif
@@ -232,7 +245,9 @@ struct tm *get_time(void);
 // int set_time(void);
 void show_time(void);
 int hexstr(char *str, uint8_t val);
-void hexdump(uint16_t addr, uint16_t bytes, char_stream_func_t streamer, read_data_func_t reader);
+#ifdef CODE_HEXDUMPC
+    void hexdump(uint16_t addr, uint16_t bytes, char_stream_func_t streamer, read_data_func_t reader);
+#endif
 void cls();
 void prompt(uint8_t mode);
 static int tokenize(char *buf, int maxBuf, char **tokenList, int maxTokens);
@@ -257,7 +272,9 @@ int cmd_exit(int status, char **);
 int cmd_list(int argc, char **argv);
 int cmd_mem(int argc, char **argv);
 int cmd_mkdir(int argc, char **argv);
-int cmd_peek(int argc, char **argv);
+#ifdef CODE_PEEK
+    int cmd_peek(int argc, char **argv);
+#endif
 int cmd_rename(int argc, char **argv);
 int cmd_rm(int argc, char **argv);
 int cmd_run(int argc, char **argv);

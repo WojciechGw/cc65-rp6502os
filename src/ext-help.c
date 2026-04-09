@@ -1,6 +1,6 @@
 #include "commons.h"
 
-#define APPVER "20260409.0705"
+#define APPVER "20260409.2210"
 
 #define APP_HEADER CSI_CLS CSI "2;1H" CSI HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " Help information                              " ANSI_DARK_GRAY "version " APPVER ANSI_RESET
 #define APP_FOOTER ANSI_DARK_GRAY  "________________________________________________________________________________" ANSI_RESET NEWLINE
@@ -41,8 +41,6 @@ static const cmd_t commands[] = {
                 "drive 0:"},
     { "exit",   "exit to the monitor", 
                 "exit"},
-    { "hex",    "dump file contents to screen", 
-                "hex <filename> 0x0600 512 (show 512 bytes of a file start from offset 0x0600)" },
     { "launcher", "register/deregister OS as a launcher", 
                 "launcher /status - status info" NEWLINE
                 "launcher /s      - register" NEWLINE
@@ -55,9 +53,6 @@ static const cmd_t commands[] = {
                 "mem"},
     { "mkdir",  "create directory", 
                 "mkdir <directory>"},
-    { "peek",   "memory viewer",
-                "peek 0xA000 128 (show 128 bytes of base RAM start from address 0xA000)" NEWLINE
-                "peek 0xF000 256 /X (show 256 bytes of XRAM start from address 0xF000)" },
     { "phi2",   "show CPU clock frequency", 
                 "phi2"},
     { "rename", "rename/move file or directory",
@@ -95,6 +90,9 @@ static const cmd_t commands_rom[] = {
                     "help" NEWLINE
                     "help mkdir" NEWLINE
                     "user can also write a command and press <F1> key to get help information" },
+    { "hex",        "dump file contents to screen", 
+                    "hex filename.ext [offset [bytes]]" NEWLINE
+                    "hex filename.ext 0x0600 512 (show 512 bytes of a file start from offset 0x0600)" },
     { "keyboard",   "keyboard visualiser", 
                     "keyboard" NEWLINE
                     "for exit press both Shift keys" NEWLINE
@@ -102,6 +100,9 @@ static const cmd_t commands_rom[] = {
     { "label",      "show or set volume label of active drive", 
                     "label          - show label of active drive" NEWLINE
                     "label NEWLABEL - set active drive label to NEWLABEL" },
+    { "peek",       "memory viewer",
+                    "peek 0xA000 128 (show 128 bytes of base RAM start from address 0xA000)" NEWLINE
+                    "peek 0xF000 256 /X (show 256 bytes of XRAM start from address 0xF000)" },
     { "view",       "show BMP 640x480xbpp1", 
                     "view filename.bmp" NEWLINE
                     "view /x 0x2000 - view XRAM from 0x2000 as a bitmap 640x480xbpp1" NEWLINE
@@ -186,8 +187,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    printf(NEWLINE NEWLINE "EXTERNAL .rp6502 IN MSC0:/ROMS directory (case insensitive):" NEWLINE
-                           "run by cart romname" NEWLINE);
+    printf(NEWLINE NEWLINE "EXTERNAL .rp6502 run by command 'cart'  (case insensitive):" NEWLINE);
     for(i = 0; i < ARRAY_SIZE(commands_ext); i++) {
         printf("%-10s", commands_ext[i].cmd);
         if((i & 7) == 7) {
