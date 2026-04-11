@@ -117,9 +117,12 @@ def main() -> int:
     update_appver(src_file, appver)
 
     extcmd_dir = (script_root / ".." / "src" / "extcmd").resolve()
-    rp6502_dir = script_root.resolve()
-    rp6502_py = (script_root / "rp6502.py").resolve()
-    rp6502_cfg = (script_root / ".." / ".rp6502").resolve()
+    # rp6502_dir = script_root.resolve()
+    # rp6502_py = (script_root / "rp6502.py").resolve()
+    # rp6502_cfg = (script_root / ".." / ".rp6502").resolve()
+
+    rp6502_ctx_dir = script_root.resolve()
+    rp6502_ctx_py = (script_root / "ctx.py").resolve()
     com_file = (script_root / ".." / "src" / "extcmd" / "build" / f"{args.cmd}.com").resolve()
 
     make_exe = make_command()
@@ -137,13 +140,8 @@ def main() -> int:
         serial_port = open_serial_port()
         try:
             serial_available = True
-            time.sleep(0.6)
-            send_line_and_wait(serial_port, "exit", "exit", "]")
-            time.sleep(0.4)
-            send_line_and_wait(serial_port, "0:", "0:", "]")
-            time.sleep(0.4)
-            send_line_and_wait(serial_port, "cd /SHELL", "cd /SHELL", "]")
-            time.sleep(0.4)
+            time.sleep(0.2)
+            send_line_and_wait(serial_port, "cd MSC0:/SHELL", "cd MSC0:/SHELL", ">")
         finally:
             serial_port.close()
             serial_port.dispose = getattr(serial_port, "close", None)
@@ -153,13 +151,17 @@ def main() -> int:
     rc = run_command(
         [
             sys.executable,
-            str(rp6502_py),
-            "-c",
-            str(rp6502_cfg),
-            "upload",
+            str(rp6502_ctx_py),
             str(com_file),
+
+            #str(rp6502_py),
+            #"-c",
+            #str(rp6502_cfg),
+            #"upload",
+            #str(com_file),
         ],
-        cwd=rp6502_dir,
+        #cwd=rp6502_dir,
+        cwd=rp6502_ctx_dir,
     )
     if rc != 0:
         return rc
@@ -168,10 +170,8 @@ def main() -> int:
         try:
             serial_port = open_serial_port()
             try:
-                time.sleep(0.4)
-                send_line_and_wait(serial_port, "cd /", "cd /", "]")
-                time.sleep(0.4)
-                send_line_and_wait(serial_port, "shell", "shell", ">")
+                time.sleep(0.2)
+                send_line_and_wait(serial_port, "cls", "cls", ">")
             finally:
                 serial_port.close()
                 serial_port.dispose = getattr(serial_port, "close", None)

@@ -38,7 +38,7 @@
 #define CGX_MODE_CHAR   1          // GFX_MODE_CHARACTER
 #define CGX_PLANE       0          // GFX_PLANE_0
 #define CGX_BPP_OPT     CGX_FONT8x16 | CGX_FONT_BPP4
-#define CGX_BAR_WIDTH   70         // progress bar fill characters
+#define CGX_BAR_WIDTH   59         // progress bar fill characters
 
 // ----- primitives --------------------------------------------------------
 
@@ -82,7 +82,7 @@ static void DrawBar(uint8_t row, long done, long total)
         pct = 0; filled = 0;
     }
 
-    col = 0;
+    col = 13;
     DrawChar(row, col++, '[', LIGHT_GRAY,  BLACK);
     for (i = 0;      i < filled;          i++)
         DrawChar(row, col++, '\xdb', GREEN,     BLACK);
@@ -129,6 +129,7 @@ static void cgx_restore(void)
 {
     xreg_vga_canvas(CGX_CANVAS);
     xreg(1, 0, 1, CGX_MODE_CONSOLE);
+    printf(CSI_CLS CSI_CURSOR_SHOW CSI_CURSOR_HOME);
 }
 
 #endif /* COURIER_GFX_H */

@@ -8,7 +8,7 @@
 
 #define NEWLINE "\r\n"
 
-#define APPVER "20260411.1420"
+#define APPVER "20260411.1647"
 
 #define HDR_NAME_MAX 31  /* max filename chars in header (+ null = 32 B) */
 
@@ -305,12 +305,7 @@ int main(int argc, char **argv)
         DrawText((uint8_t)(CGX_ROWS - 2), 0, "Press any key...", DARK_GRAY, BLACK);
     }
 
-    RX_READY_SPIN;
-    (void)RIA.rx;
-
     cgx_restore();
-
-    printf(CSI_RESET NEWLINE CSI_CURSOR_SHOW);
 
     return 0;
 }

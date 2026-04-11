@@ -7,7 +7,7 @@
 #include "commons.h"
 #include "commons/courier-gfx.h"
 
-#define APPVER "20260411.1420"
+#define APPVER "20260411.1716"
 
 /* ---- RIA UART access ---------------------------------------------------- */
 
@@ -234,7 +234,7 @@ static void draw_title(void)
 {
     ClearLine(0, WHITE, BLACK);
     DrawText(1,  0, " razemOS > ",    WHITE,     DARK_GREEN);
-    DrawText(1, 12, " Courier RX",      WHITE,     BLACK);
+    DrawText(1, 13, "Courier RX",      WHITE,     BLACK);
     DrawText(1, 59, "version " APPVER, DARK_GRAY, BLACK);
 }
 
@@ -256,7 +256,7 @@ int main(int argc, char **argv)
 
     if (!auto_mode) {
         /* --- interactive: wait for SOT or Esc --- */
-        DrawText(3, 0, "Waiting for incoming data or [Esc] to exit", DARK_GRAY, BLACK);
+        DrawText(3, 13, "Waiting for incoming data or [Esc] to exit", DARK_GRAY, BLACK);
         for (;;) {
             if (RX_READY()) {
                 c = RRIA.RX;
@@ -266,7 +266,7 @@ int main(int argc, char **argv)
         }
     } else {
         /* --- auto mode: SOT was consumed by shell, proceed directly --- */
-        DrawText(4, 0, "Receiving...", DARK_GRAY, BLACK);
+        DrawText(3, 13, "Receiving...", DARK_GRAY, BLACK);
     }
 
     /* Signal PC: crx is running and ready to receive header */
@@ -282,32 +282,32 @@ int main(int argc, char **argv)
     build_rx_outpath();
     fd_out = open(rx_outpath, O_WRONLY | O_CREAT | O_TRUNC, 0666);
     if (fd_out < 0) {
-        ClearLine(2, WHITE, BLACK);
-        DrawText(2, 0, "ERROR: cannot create output file", RED, BLACK);
-        DrawText(4, 0, rx_outpath, WHITE, BLACK);
+        ClearLine(3, WHITE, BLACK);
+        ClearLine(4, WHITE, BLACK);
+        DrawText(3, 13, EXCLAMATION "Cannot create output file", RED, BLACK);
+        DrawText(4, 13, rx_outpath, WHITE, BLACK);
         action = 0;
         goto done_pre;
     }
 
-    /* show "Receiving: filename (N B, CRC32: XXXXXXXX)" */
     {
         char     sb[12];
         char     sb_crc[12];
         uint8_t  col;
         sprintf(sb, "%lu", rx_filesize);
         sprintf(sb_crc, "%08lX", rx_checksum_exp);
-        ClearLine(2, WHITE, BLACK);
-        DrawText(5,  0, "Receiving: ",  DARK_GRAY, BLACK);
-        DrawText(5, 11, rx_outpath,     WHITE,     BLACK);
-        col = (uint8_t)(11 + strlen(rx_outpath));
-        DrawText(5, col, "  (", DARK_GRAY, BLACK); col += 3;
-        DrawText(5, col, sb,    WHITE,     BLACK);  col += (uint8_t)strlen(sb);
-        DrawText(5, col, " B, CRC32: ", DARK_GRAY, BLACK); col += 11;
-        DrawText(5, col, sb_crc, WHITE,  BLACK);    col += 8;
-        DrawText(5, col, ")", DARK_GRAY, BLACK);
+        ClearLine(3, WHITE, BLACK);
+        DrawText(3, 13, "Receiving: ",  DARK_GRAY, BLACK);
+        DrawText(3, 24, rx_outpath,     WHITE,     BLACK);
+        col = (uint8_t)(24 + strlen(rx_outpath));
+        DrawText(3, col, "  (", DARK_GRAY, BLACK); col += 3;
+        DrawText(3, col, sb,    WHITE,     BLACK);  col += (uint8_t)strlen(sb);
+        DrawText(3, col, " B, CRC32: ", DARK_GRAY, BLACK); col += 11;
+        DrawText(3, col, sb_crc, WHITE,  BLACK);    col += 8;
+        DrawText(3, col, ")", DARK_GRAY, BLACK);
     }
 
-    DrawBar(6, 0L, (long)rx_filesize);
+    DrawBar(5, 12L, (long)rx_filesize);
 
     ria_tx_byte('\x00');  /* READY — file open, ready for data */
 
@@ -352,7 +352,7 @@ int main(int argc, char **argv)
                                     ? (int)(rx_decoded * 100UL / rx_filesize) : 0;
                         if (cur_pct != prev_pct) {
                             prev_pct = cur_pct;
-                            DrawBar(6, (long)rx_decoded, (long)rx_filesize);
+                            DrawBar(5, (long)rx_decoded, (long)rx_filesize);
                         }
                     }
                     ria_tx_byte('\x00');  /* ACK — allow sender to send next line */
@@ -379,46 +379,54 @@ int main(int argc, char **argv)
     }
 
     close(fd_out);
-
-    /* --- result screen --- */
-    switch (action) {
-    case 0:
-        DrawText(6, 0, "ERROR: transmission or write error.", RED, BLACK);
-        break;
-    case 1:
-        {
-            char sb[12];
-            uint32_t crc32_final = rx_checksum_calc ^ 0xFFFFFFFFUL;
-            uint8_t ck_ok = (crc32_final == rx_checksum_exp);
-            DrawText(7, 0, "Saved: ", DARK_GRAY, BLACK);
-            DrawText(7, 7, rx_outpath, WHITE, BLACK);
-            sprintf(sb, "%lu", rx_decoded);
-            DrawText(8, 0, "Transfer complete.", GREEN, BLACK);
-            DrawText(8, 19, sb, WHITE, BLACK);
-            DrawText(8, (uint8_t)(19 + strlen(sb)), " bytes received", GREEN, BLACK);
-            {
-                char sb2[24];
-                sprintf(sb2, " Checksum [%08lX] ", crc32_final);
-                if (ck_ok) {
-                    DrawText(10, 0, sb2, WHITE, DARK_GREEN);
-                } else {
-                    DrawText(10, 0, sb2, WHITE, DARK_RED);
-                }
-            }
+    if (!auto_mode) {
+        /* --- result screen --- */
+        switch (action) {
+        case 0:
+            ClearLine(5, WHITE, BLACK);
+            DrawText(5, 13, EXCLAMATION "Transmission or write error", RED, BLACK);
             break;
+        case 1:
+            {
+                char sb[12];
+                uint32_t crc32_final = rx_checksum_calc ^ 0xFFFFFFFFUL;
+                uint8_t ck_ok = (crc32_final == rx_checksum_exp);
+                ClearLine(5, WHITE, BLACK);
+                DrawText(5, 13, "Saved: ", DARK_GRAY, BLACK);
+                DrawText(5, 20, rx_outpath, WHITE, BLACK);
+                sprintf(sb, "%lu", rx_decoded);
+                DrawText(6, 13, "Transfer complete.", GREEN, BLACK);
+                DrawText(6, 32, sb, WHITE, BLACK);
+                DrawText(6, (uint8_t)(32 + strlen(sb)), " bytes received", GREEN, BLACK);
+                {
+                    char sb2[24];
+                    sprintf(sb2, " Checksum [%08lX] ", crc32_final);
+                    if (ck_ok) {
+                        DrawText(7, 13, sb2, WHITE, DARK_GREEN);
+                    } else {
+                        DrawText(7, 13, sb2, WHITE, DARK_RED);
+                    }
+                }
+                break;
+            }
         }
     }
+    
     cgx_restore();
     
     return 0;
 
 done_pre:
+
+    ClearLine(3,WHITE,BLACK);
+    ClearLine(4,WHITE,BLACK);
+    ClearLine(5,WHITE,BLACK);
     switch (action) {
     case -1:
-        DrawText(8, 0, "Cancelled.",  YELLOW, BLACK);
+        DrawText(3, 13, "Cancelled",  YELLOW, BLACK);
         break;
     case 0:
-        DrawText(8, 0, EXCLAMATION "Cannot open output file.", RED, BLACK);
+        DrawText(3, 13, EXCLAMATION "Cannot open output file", RED, BLACK);
         break;
     }
     

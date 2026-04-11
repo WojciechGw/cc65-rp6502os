@@ -5,20 +5,13 @@
 
 #include "commons.h"
 
-#define APPVER "20260411.1420"
+#define APPVER "20260411.1752"
 
 #define APPNAME "Viewer for BMP files 640x480x1bpp"
 #define APPDIRDEFAULT "" // view in current directory if empty
 #define APP_MSG_TITLE CSI_RESET CSI "2;1H" CSI HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " " APPNAME ANSI_DARK_GRAY CSI "2;60H" "version " APPVER ANSI_RESET
 #define APP_MSG_START ANSI_DARK_GRAY CSI "4;1H" "Show BMP file in 640x480xbpp1 format" ANSI_RESET
 #define APP_WORKBENCH_POS CSI "6;1H"
-
-/* KEYBOARD input subsystem */
-#define KEYBORD_INPUT 0xFFE0
-#define KEYBOARD_BYTES 32
-uint8_t keystates[KEYBOARD_BYTES] = {0};
-bool handled_key = false;
-#define key(code) (keystates[(code) >> 3] & (1 << ((code) & 7)))
 
 void pc_fb_clear(unsigned char value, uint16_t address) {
     unsigned int i;
@@ -164,16 +157,16 @@ int DumpBIN(const char *path, uint16_t addr) {
 
 int main(int argc, char **argv) {
     char filename[64] = "";
-    unsigned char i, j, v, action;
-    uint8_t new_key, new_keys, keylast, showtime;
+    uint8_t action;
     uint16_t xaddress;
+    uint32_t showtime;
 
     #ifdef SHOWAPPNAME
     printf(CSI_CLS APP_MSG_TITLE APP_MSG_START APP_WORKBENCH_POS);
     #endif
 
     action   = 0;
-    showtime = 30;
+    showtime = 300; // 3 seconds default
     xaddress = GFX_DATA;
 
     if (argc > 0) {
@@ -232,8 +225,9 @@ int main(int argc, char **argv) {
             if (argc > 2) showtime = (uint16_t)strtoul(argv[2], NULL, 0);
             PAUSE(showtime);
             xreg(1, 0, 1, GFX_MODE_CONSOLE);
-            printf(CSI_RESET);
             return 0;
+        } else {
+            PAUSE(showtime);
         }
 
     } else {
@@ -244,81 +238,7 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    xreg_ria_keyboard(KEYBORD_INPUT);
-
-    v = RIA.vsync;
-    while (1)
-    {
-      // wait for VSYNC
-      if (RIA.vsync == v) continue;
-      v = RIA.vsync;
-
-      RIA.addr1 = KEYBORD_INPUT;
-      RIA.step1 = 0;
-      // fill the keystates bitmask array
-      for (i = 0; i < KEYBOARD_BYTES; i++) {
-         RIA.addr1 = KEYBORD_INPUT + i;
-         new_keys = RIA.rw1;
-         // check for change in any and all keys
-         for (j = 0; j < 8; j++) {
-               new_key = (new_keys & (1<<j));
-               if ((((i<<3)+j)>3) && (new_key != (keystates[i] & (1<<j)))) {
-                  keylast = ((i<<3)+j);
-                  // printf( "key %d %s\n", keylast, (new_key ? "pressed" : "released"));
-               }
-         }
-         keystates[i] = new_keys;
-      }
-      if (!(keystates[0] & 1) && !new_key) {
-         if (!handled_key) { // handle only once per single keypress
-               // handle the keystrokes
-               if (key(KEY_LEFT)) {
-                  action = 1;
-               }
-               if (key(KEY_RIGHT)) {
-                  action = 2;
-               }
-               if (key(KEY_UP)) {
-                  action = 3;
-               }
-               if (key(KEY_DOWN)) {
-                  action = 4;
-               }
-               if (key(KEY_SPACE)) {
-                  action = 5;
-               }
-               if (key(KEY_ESC)) {
-                  action = 99;
-            }
-            handled_key = true;
-         }
-      } else { // no keys down
-         action = 0;
-         handled_key = false;
-      }
-
-      switch(action){
-      case 1:
-         printf("LEFT\n\n");
-         break;
-      case 2:
-         printf("RIGHT\n\n");
-         break;
-      case 3:
-         printf("UP\n\n");
-         break;
-      case 4:
-         printf("DOWN\n\n");
-         break;
-      case 5:
-         printf("SPACE\n\n");
-         break;
-      case 99:
-         xreg(1, 0, 1, GFX_MODE_CONSOLE);
-         return 0;
-      default:
-         break;
-      }
-   }
+    xreg(1, 0, 1, GFX_MODE_CONSOLE);
+    return 0;
 
 }
