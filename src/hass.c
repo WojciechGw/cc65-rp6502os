@@ -28,9 +28,11 @@
 #define HASS_DEFAULT_OUT_BIN_FILE "hass-out.bin\0"
 #define HASS_DEFAULT_OUT_LST_FILE "hass-out.lst\0"
 
-#define prn_err(m)  printf(ANSI_RED    m ANSI_RESET NEWLINE NEWLINE)
-#define prn_ok(m)   printf(ANSI_GREEN  m ANSI_RESET NEWLINE NEWLINE)
-#define prn_warn(m) printf(ANSI_YELLOW m ANSI_RESET NEWLINE NEWLINE)
+#define ANSI_RESETNEWLINEx2 ANSI_RESET NEWLINE NEWLINE
+#define prn_err(text)  printf(NEWLINE ANSI_RED EXCLAMATION text ANSI_RESETNEWLINEx2)
+#define prn_ok(text)   printf(NEWLINE ANSI_GREEN  text ANSI_RESETNEWLINEx2)
+#define prn_warn(text) printf(NEWLINE ANSI_YELLOW text ANSI_RESETNEWLINEx2)
+#define prn_inf(text)  printf(NEWLINE ANSI_CYAN text ANSI_RESETNEWLINEx2)
 
 void *__fastcall__ argv_mem(size_t size) { return malloc(size); }
 
@@ -45,7 +47,7 @@ static uint16_t pc  = 0x8000;
 static char g_buf[MAXLEN];
 static char g_buf2[MAXLEN];
 static char g_buf3[MAXLEN];
-static char outfilebuffer[80];
+static char outfilebuffer[128];
 static char g_tok[80];
 static char g_incpath[256];
 static char g_symtmp[48];
@@ -73,7 +75,7 @@ static uint16_t g_cycle_to    = 0xFFFFu; /* last line (0xFFFF = all)     */
 #define XRAM_OUT_BASE   0x6400u
 #define XRAM_OUT_SIZE   0x4000u  /* 16384 bytes */
 #define XRAM_LST_BASE   0xA400u
-#define XRAM_LST_SIZE   0x50u
+#define XRAM_LST_SIZE   0x80u
 
 #if (MAXLINES * MAXLEN) > XRAM_LINES_SIZE
 #error "MAXLINES*MAXLEN exceeds XRAM source area"
@@ -109,7 +111,7 @@ static int      nsym = 0;
 static char     sym_first[MAXSYM]; /* first-char cache for fast find_sym */
 
 /* symbol table stored in XRAM */
-#define XRAM_SYM_BASE   0xA450u  /* after LST: 0xA400+0x50; 128*64=8192 bytes -> 0xC450 */
+#define XRAM_SYM_BASE   0xA480u  /* after LST: 0xA400+0x80; 128*64=8192 bytes -> 0xC480 */
 #define XRAM_SYM_STRIDE 64u
 #define XRAM_SYM_SIZE   ((unsigned)MAXSYM * (unsigned)XRAM_SYM_STRIDE)
 
@@ -120,7 +122,8 @@ static unsigned xram_sym_addr(unsigned idx){
 static void xram1_fill(unsigned addr, uint8_t value, unsigned len); /* forward */
 
 static void xram_sym_clear_all(void){
-    xram1_fill(XRAM_SYM_BASE, 0x00, XRAM_SYM_SIZE);
+    /* XRAM zeroing not needed: find_sym() gates on sym_first[] (CPU RAM).
+       After nsym=0 + memset, pass1 always writes before any read. */
     memset(sym_first, 0, sizeof(sym_first));
 }
 
@@ -195,6 +198,7 @@ typedef struct {
     uint16_t  num;
     asm_vop_t op;
     unsigned  force_zp;
+    int       addend;    /* arithmetic offset: label+N or label-N */
 } asm_value_t;
 
 /* --- modes i opcodes --- */
@@ -228,11 +232,13 @@ static void strip_utf8_bom(char* s){
 // split_token defined below; prototype for C89
 static int split_token(char* s, char** a, char** b);
 
+/*
 static void xram1_read_bytes(unsigned addr, uint8_t* dst, unsigned len){
     RIA.addr1 = addr;
     RIA.step1 = 1;
     while(len--) *dst++ = RIA.rw1;
 }
+*/
 
 static void xram1_fill(unsigned addr, uint8_t value, unsigned len){
     RIA.addr1 = addr;
@@ -263,13 +269,17 @@ static void xram_line_write(unsigned li, const char* text){
 
 static void xram_line_read(unsigned li, char* dst){
     unsigned addr = xram_line_addr(li);
-    unsigned i;
+    uint8_t i;
+    uint8_t ch;
     if(!dst) return;
-    xram1_read_bytes(addr, (uint8_t*)dst, (unsigned)MAXLEN);
-    dst[MAXLEN-1] = 0;
-    for(i=0;i<(unsigned)(MAXLEN-1);++i){
-        if(dst[i]==0) break;
+    RIA.addr1 = addr;
+    RIA.step1 = 1;
+    for(i = 0; i < (uint8_t)MAXLEN; i++){
+        ch = RIA.rw1;
+        dst[i] = (char)ch;
+        if(ch == 0) break;
     }
+    dst[MAXLEN-1] = 0;
 }
 
 static void xram_out_write_byte(uint16_t off, uint8_t b){
@@ -352,7 +362,7 @@ static int find_sym(const char* name){
 }
 static int add_or_update_sym(const char* name, uint16_t value, unsigned defined){
     int i;
-    if(nsym>=MAXSYM){ printf("Too many symbols" NEWLINE); exit(1); }
+    if(nsym>=MAXSYM){ prn_warn("Too many symbols"); exit(1); }
     i = find_sym(name);
     if(i>=0){
         if(defined) xram_sym_set_value_defined((unsigned)i, value, 1);
@@ -365,7 +375,7 @@ static int add_or_update_sym(const char* name, uint16_t value, unsigned defined)
 }
 
 static void add_line(const char* text){
-    if(nlines >= MAXLINES){ printf("Too many rows" NEWLINE); exit(1); }
+    if(nlines >= MAXLINES){ prn_warn("Too many rows"); exit(1); }
     xram_line_write((unsigned)nlines, text);
     nlines++;
 }
@@ -416,16 +426,21 @@ static int parse_number(const char* s, uint16_t* v){
 }
 
 static void init_val_num(asm_value_t* r, uint16_t n, asm_vop_t op){
-    r->is_label=0; r->label[0]=0; r->num=n; r->op=op; r->force_zp=0;
+    r->is_label=0; r->label[0]=0; r->num=n; r->op=op; r->force_zp=0; r->addend=0;
 }
 
 static void init_val_lab(asm_value_t* r, const char* name, asm_vop_t op){
     size_t L = strlen(name); if(L>47) L=47;
-    r->is_label=1; strncpy(r->label,name,L); r->label[L]=0; r->num=0; r->op=op; r->force_zp=0;
+    r->is_label=1; strncpy(r->label,name,L); r->label[L]=0; r->num=0; r->op=op; r->force_zp=0; r->addend=0;
 }
 static void parse_value_out(const char* tok, asm_value_t* out){
     asm_vop_t op;
     uint16_t v;
+    uint16_t av;
+    const char* p;
+    const char* op_ptr;
+    char base_buf[48];
+    size_t base_len;
     out->force_zp = 0;
     if(!tok || !*tok){ init_val_num(out, 0, V_NORMAL); return; }
     if(*tok=='*'){
@@ -436,8 +451,26 @@ static void parse_value_out(const char* tok, asm_value_t* out){
     }
     op = V_NORMAL;
     if(tok[0]=='<' || tok[0]=='>'){ op = (tok[0]=='<')?V_LOW:V_HIGH; tok++; }
-    if(parse_number(tok,&v)){ init_val_num(out, v, op); return; }
-    init_val_lab(out, tok, op);
+    /* look for arithmetic operator after first character (label+N or label-N) */
+    op_ptr = NULL;
+    p = tok + 1;
+    while(*p){ if(*p=='+' || *p=='-'){ op_ptr = p; break; } ++p; }
+    if(op_ptr){
+        base_len = (size_t)(op_ptr - tok);
+        if(base_len > 47) base_len = 47;
+        strncpy(base_buf, tok, base_len);
+        base_buf[base_len] = 0;
+        if(parse_number(base_buf, &v)) init_val_num(out, v, op);
+        else init_val_lab(out, base_buf, op);
+        av = 0;
+        if(parse_number(op_ptr + 1, &av))
+            out->addend = (*op_ptr == '-') ? -(int)av : (int)av;
+        else
+            out->addend = 0;
+    } else {
+        if(parse_number(tok,&v)){ init_val_num(out, v, op); return; }
+        init_val_lab(out, tok, op);
+    }
 }
 static uint16_t apply_vop(uint16_t v, asm_vop_t op){
     if(op==V_LOW)  return (uint16_t)(v & 0xFF);
@@ -455,6 +488,7 @@ static int value_fits_zp(const asm_value_t* a){
     }else{
         v = a->num;
     }
+    v = (uint16_t)((int)v + a->addend);
     v = apply_vop(v, a->op);
     return v <= 0xFFu;
 }
@@ -464,9 +498,10 @@ static uint16_t resolve_value(const asm_value_t* a){
     if(!a->is_label) base = a->num;
     else{
         idx = find_sym(a->label);
-        if(idx < 0 || !xram_sym_is_defined((unsigned)idx)){ printf("Unidentified label: %s\n", a->label); base=0; }
+        if(idx < 0 || !xram_sym_is_defined((unsigned)idx)){ printf(NEWLINE ANSI_RED EXCLAMATION "Unidentified label: %s" ANSI_RESETNEWLINEx2, a->label); base=0; }
         else base = xram_sym_get_value((unsigned)idx);
     }
+    base = (uint16_t)((int)base + a->addend);
     return apply_vop(base, a->op);
 }
 
@@ -573,9 +608,9 @@ static int read_file_into_lines(const char* path, int depth, int from_line){
     char* s; char *dir,*rest; const char* q;
     int line_idx;
 
-    if(depth > MAXINCDEPTH){ printf("Too deep .include" NEWLINE); return 0; }
+    if(depth > MAXINCDEPTH){ prn_err("Too deep .include"); return 0; }
     f = fopen(path,"rb");
-    if(!f){ printf("Can't open: %s" NEWLINE, path); return 0; }
+    if(!f){ printf(NEWLINE ANSI_RED EXCLAMATION "Can't open: %s" ANSI_RESETNEWLINEx2, path); return 0; }
 
     line_idx = 0;
     while(fgets(g_buf,sizeof(g_buf),f)){
@@ -639,7 +674,7 @@ static void pass1(void){
                 int idx = find_sym(g_val.label);
                 if(idx<0 || !xram_sym_is_defined((unsigned)idx)){
                     assembly_status |= STAT_PASS1_ERROR;
-                    printf("PASS1: ERROR .equ unknown symbol %s" NEWLINE, g_val.label);
+                    printf(NEWLINE ANSI_RED EXCLAMATION "PASS1 .equ unknown symbol %s" ANSI_RESETNEWLINEx2, g_val.label);
                 } else { 
                     add_or_update_sym(eq_name, apply_vop(xram_sym_get_value((unsigned)idx), g_val.op), 1);
                 }
@@ -657,7 +692,7 @@ static void pass1(void){
                 parse_value_out(g_rest, &g_val);
                 if(g_val.is_label){ 
                     assembly_status |= STAT_PASS1_ERROR;
-                    printf("PASS1: ERROR Label at .org unattended" NEWLINE);
+                    prn_err("PASS1 label at .org unattended");
                     continue;
                 }
                 pc = g_val.num; if(org==0xFFFF) org=pc;
@@ -689,7 +724,7 @@ static void pass1(void){
                 if(org==0xFFFF) org=pc;
                 if(!parse_ascii_bytes(g_rest, (uint8_t*)g_tok, (int)sizeof(g_tok), &nbytes)){
                     assembly_status |= STAT_PASS1_ERROR;
-                    printf("PASS1: ERROR syntax .ascii: .ascii \"text\"" NEWLINE);
+                    prn_err("PASS1 syntax .ascii: .ascii \"text\"");
                 } else {
                     pc = (uint16_t)(pc + (uint16_t)nbytes);
                 }
@@ -699,7 +734,7 @@ static void pass1(void){
                 if(org==0xFFFF) org=pc;
                 if(!parse_ascii_bytes(g_rest, (uint8_t*)g_tok, (int)sizeof(g_tok), &nbytes)){
                     assembly_status |= STAT_PASS1_ERROR;
-                    printf("PASS1: ERROR syntax .asciz: .asciz \"text\"" NEWLINE);
+                    prn_err("PASS1 syntax .asciz: .asciz \"text\"");
                 } else {
                     pc = (uint16_t)(pc + (uint16_t)nbytes + 1u);
                 }
@@ -712,7 +747,7 @@ static void pass1(void){
                         int idx = find_sym(g_val.label);
                         if(idx<0 || !xram_sym_is_defined((unsigned)idx)){
                             assembly_status |= STAT_PASS1_ERROR;
-                            printf("PASS1: ERROR .EQU unknown symbol %s" NEWLINE, g_val.label);
+                            printf(NEWLINE ANSI_RED EXCLAMATION "PASS1 .EQU unknown symbol %s" ANSI_RESETNEWLINEx2, g_val.label);
                         } else {
                             add_or_update_sym(t1, apply_vop(xram_sym_get_value((unsigned)idx), g_val.op), 1);
                         }
@@ -720,7 +755,7 @@ static void pass1(void){
                         add_or_update_sym(t1, apply_vop(g_val.num, g_val.op), 1);
                     }
                 } else {
-                    printf("PASS1: INFO Syntax .EQU: NAME .EQU value" NEWLINE);
+                    prn_ok("PASS1 Syntax .EQU: NAME .EQU value");
                 }
             }
             continue;
@@ -731,7 +766,7 @@ static void pass1(void){
         g_def = find_op(g_MN);
         if(!g_def){
             assembly_status |= STAT_PASS1_ERROR;
-            printf("PASS1: ERROR unknown mnemonic at line %d: %s" NEWLINE, li+1, g_MN); continue; 
+            printf(NEWLINE ANSI_RED EXCLAMATION "PASS1 unknown mnemonic at line %d: %s" ANSI_RESETNEWLINEx2, li+1, g_MN); continue; 
         }
 
         if(opdef_is_branch(g_def)){
@@ -750,7 +785,7 @@ static void pass1(void){
             }
             if(opc < 0){ 
                 assembly_status |= STAT_PASS1_ERROR;
-                printf("PASS1: ERROR unattended mode %s at line %i" NEWLINE, g_MN, li);
+                printf(NEWLINE ANSI_RED EXCLAMATION "PASS1 unattended mode %s at line %i" ANSI_RESETNEWLINEx2, g_MN, li);
                 continue; 
             }
         }
@@ -789,8 +824,12 @@ static void pass2(void){ // also write listing to .lst file
         return;
     }
 
-    // clean out buffer
-    xram1_fill(XRAM_OUT_BASE, 0x00, (unsigned)MAXOUT);
+    // clean out buffer — only the range [org..pc) computed by pass1
+    {
+        unsigned out_size = (pc > org) ? (unsigned)(pc - org) : 0u;
+        if(out_size > (unsigned)MAXOUT) out_size = (unsigned)MAXOUT;
+        if(out_size > 0u) xram1_fill(XRAM_OUT_BASE, 0x00, out_size);
+    }
     g_cycle_count = 0u;
 
     pc = org;
@@ -825,8 +864,8 @@ static void pass2(void){ // also write listing to .lst file
             }
         }
 
-        // omit constants definitions: "NAME .equ value"
-        if(parse_named_equ_line(g_s, &eq_name, &eq_val)) goto list_line;
+        // omit constants definitions: "NAME .equ value" — quick dot pre-check
+        if(strchr(g_s, '.') && parse_named_equ_line(g_s, &eq_name, &eq_val)) goto list_line;
 
         if(*g_s=='.'){
             if(split_token(g_s,&g_dir,&g_rest)){
@@ -949,35 +988,32 @@ static void pass2(void){ // also write listing to .lst file
 list_line:
         line_pc_after = pc;
 
-        // list pc
-        n = sprintf(outfilebuffer, NEWLINE "%04X ", line_pc_before);
-        if(n < 0) continue;
-        if(n >= (int)sizeof(outfilebuffer)) n = (int)sizeof(outfilebuffer) - 1;
-        xram_write_lst_line(outfilebuffer, (unsigned)n, fd);
-
-        // list machine codes — set up portal once for sequential reads
-        if(line_pc_after > line_pc_before){
-            RIA.addr1 = (unsigned)(XRAM_OUT_BASE + (unsigned)(line_pc_before - org));
-            RIA.step1 = 1;
-        }
-        for(a = line_pc_before; a < (line_pc_before + 10); ++a)
+        // build full listing line in one buffer, then one write_xram call
         {
-            if(a < line_pc_after){
-                uint8_t byte = RIA.rw1; /* sequential read; portal already set up */
-                n = sprintf(outfilebuffer, "%02X ", byte);
-            } else {
-                n = sprintf(outfilebuffer, "%s", "   ");
+            int pos;
+            uint8_t lstb;
+            /* prefix: newline + 4-digit PC + space */
+            n = sprintf(outfilebuffer, NEWLINE "%04X ", line_pc_before);
+            pos = (n > 0) ? n : 0;
+            /* machine code columns — set up portal once for sequential reads */
+            if(line_pc_after > line_pc_before){
+                RIA.addr1 = (unsigned)(XRAM_OUT_BASE + (unsigned)(line_pc_before - org));
+                RIA.step1 = 1;
             }
-            if(n < 0) continue;
-            if(n >= (int)sizeof(outfilebuffer)) n = (int)sizeof(outfilebuffer) - 1;
-            xram_write_lst_line(outfilebuffer, (unsigned)n, fd);
+            for(a = line_pc_before; a < (line_pc_before + 10); ++a){
+                if(a < line_pc_after){
+                    lstb = RIA.rw1;
+                    n = sprintf(outfilebuffer + pos, "%02X ", lstb);
+                } else {
+                    n = sprintf(outfilebuffer + pos, "   ");
+                }
+                if(n > 0) pos += n;
+            }
+            /* source line */
+            n = sprintf(outfilebuffer + pos, "| %s", g_buf2);
+            if(n > 0) pos += n;
+            xram_write_lst_line(outfilebuffer, (unsigned)pos, fd);
         }
-
-        // list source line for current pc
-        n = sprintf(outfilebuffer, "| %s", g_buf2);
-        if(n < 0) continue;
-        if(n >= (int)sizeof(outfilebuffer)) n = (int)sizeof(outfilebuffer) - 1;
-        xram_write_lst_line(outfilebuffer, (unsigned)n, fd);
     }
     close(fd);
 }
@@ -990,17 +1026,17 @@ static void save_bin(void){
     if(len > 0 && !assembly_status){
         int fd = open(g_outpath, O_WRONLY | O_CREAT | O_TRUNC, 0666);
         if(fd < 0){
-            printf("Writing error (open %s)" NEWLINE, g_outpath);
+            prn_err("@MAKE Writing error (can't open a file).");
             return;
         }
         if(write_xram((unsigned)XRAM_OUT_BASE, len, fd) < 0){
-            printf("Writing error (write_xram)" NEWLINE);
+            prn_err("@MAKE Writing error (write_xram).");
         }else{
-            printf(NEWLINE "Save in %s" NEWLINE, g_outpath);
+            printf(NEWLINE ANSI_GREEN "@MAKE File %s saved." ANSI_RESETNEWLINEx2, g_outpath);
         }
         close(fd);
     } else {
-        printf(NEWLINE "There are nothing to save." NEWLINE);
+        prn_warn("@MAKE There are nothing to save.");
     }
 }
 
@@ -1041,7 +1077,7 @@ static void cmd_list(const char *args){
             if(pause_buf[0]=='q' || pause_buf[0]=='Q') break;
         }
     }
-    if(nlines == 0) prn_warn("(buffer is empty)");
+    if(nlines == 0) prn_warn("@LIST (buffer is empty)");
 }
 
 /* --- @EDIT N text --- */
@@ -1049,13 +1085,13 @@ static void cmd_edit(const char *args){
     int n;
     const char *text;
     if(!args || !parse_line_number(args, &n, &text)){
-        printf("@EDIT: usage: @EDIT N new text" NEWLINE NEWLINE); return;
+        prn_inf("@EDIT usage: @EDIT N new text"); return;
     }
     if(n < 1 || n > nlines){
-        printf(ANSI_RED "@EDIT: line %d out of range (1..%d)" ANSI_RESET NEWLINE NEWLINE, n, nlines); return;
+        printf(NEWLINE ANSI_RED EXCLAMATION "@EDIT line %d out of range (1..%d)" ANSI_RESETNEWLINEx2, n, nlines); return;
     }
     xram_line_write((unsigned)(n-1), text);
-    printf(ANSI_GREEN "@EDIT: line %d replaced" ANSI_RESET NEWLINE NEWLINE, n);
+    printf(NEWLINE ANSI_GREEN "@EDIT line %d replaced" ANSI_RESETNEWLINEx2, n);
 }
 
 /* --- @DEL N [M] --- */
@@ -1063,12 +1099,12 @@ static void cmd_del(const char *args){
     int from, to, count, i;
     const char *r;
     if(!args || !parse_line_number(args, &from, &r)){
-        printf("@DEL: usage: @DEL N [M]" NEWLINE); return;
+        prn_inf("@DEL usage: @DEL N [M]"); return;
     }
     if(!parse_line_number(r, &to, &r)) to = from;
     if(from > to){ int tmp = from; from = to; to = tmp; }
     if(from < 1 || to > nlines){
-        printf("@DEL: range %d..%d out of range (1..%d)" NEWLINE, from, to, nlines); return;
+        printf(NEWLINE ANSI_RED EXCLAMATION "@DEL range %d..%d out of range (1..%d)" ANSI_RESETNEWLINEx2, from, to, nlines); return;
     }
     count = to - from + 1;
     for(i = from - 1; i < nlines - count; i++){
@@ -1078,9 +1114,9 @@ static void cmd_del(const char *args){
     for(i = nlines - count; i < nlines; i++) xram_line_write((unsigned)i, "");
     nlines -= count;
     if(count == 1)
-        printf("@DEL: line %d deleted, %d lines remain" NEWLINE, from, nlines);
+        printf(NEWLINE ANSI_GREEN "@DEL line %d deleted, %d lines remain" ANSI_RESETNEWLINEx2, from, nlines);
     else
-        printf("@DEL: lines %d..%d deleted (%d lines), %d lines remain" NEWLINE, from, to, count, nlines);
+        printf(NEWLINE ANSI_GREEN "@DEL lines %d..%d deleted (%d lines), %d lines remain" ANSI_RESETNEWLINEx2, from, to, count, nlines);
 }
 
 /* --- @INS N text --- */
@@ -1089,13 +1125,13 @@ static void cmd_ins(const char *args){
     const char *text;
     char text_save[MAXLEN];
     if(!args || !parse_line_number(args, &n, &text)){
-        printf("@INS: usage: @INS N text" NEWLINE); return;
+        prn_inf("@INS usage: @INS N text"); return;
     }
     if(n < 1 || n > nlines+1){
-        printf("@INS: line %d out of range (1..%d)" NEWLINE, n, nlines+1); return;
+        printf(NEWLINE ANSI_RED EXCLAMATION "@INS line %d out of range (1..%d)" ANSI_RESETNEWLINEx2, n, nlines+1); return;
     }
     if(nlines >= MAXLINES){
-        printf("@INS: buffer full (%d lines)" NEWLINE, MAXLINES); return;
+        printf(NEWLINE ANSI_RED EXCLAMATION "@INS buffer full (%d lines)" ANSI_RESETNEWLINEx2, MAXLINES); return;
     }
     strncpy(text_save, text ? text : "", MAXLEN-1);
     text_save[MAXLEN-1] = 0;
@@ -1105,7 +1141,7 @@ static void cmd_ins(const char *args){
     }
     xram_line_write((unsigned)(n-1), text_save);
     nlines++;
-    printf("@INS: inserted at line %d, %d lines total" NEWLINE, n, nlines);
+    printf(NEWLINE ANSI_GREEN "@INS inserted at line %d, %d lines total" ANSI_RESETNEWLINEx2, n, nlines);
 }
 
 /* --- save entered source lines to a text file --- */
@@ -1114,26 +1150,605 @@ static void save_source_lines(const char *filename) {
     unsigned len;
     uint8_t j;
 
-    if (!filename || !filename[0]) {
-        printf("@SAVE: missing filename" NEWLINE);
+    if(nlines == 0) {
+        prn_warn("@SAVE There are nothing to save (buffer is empty)");
+    } else {
+
+        if (!filename || !filename[0]) {
+            prn_warn("@SAVE missing filename");
+            return;
+        }
+
+        fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+        if (fd < 0) {
+            printf(NEWLINE ANSI_RED EXCLAMATION "@SAVE cannot create %s" ANSI_RESETNEWLINEx2, filename);
+            return;
+        }
+        for (i = 0; i < nlines; i++) {
+            xram_line_read((unsigned)i, g_buf);
+            len = (unsigned)strlen(g_buf);
+            RIA.addr0 = XRAM_LST_BASE;
+            RIA.step0 = 1;
+            for (j = 0u; j < (uint8_t)len; j++) RIA.rw0 = (uint8_t)g_buf[j];
+            RIA.rw0 = (uint8_t)'\n';
+            write_xram(XRAM_LST_BASE, len + 1u, fd);
+        }
+        close(fd);
+        printf(NEWLINE ANSI_GREEN "@SAVE %d lines -> %s" ANSI_RESETNEWLINEx2, nlines, filename);
+    }
+}
+
+/* ================================================================
+ * 65C02 SOFTWARE TRACER (@TRACE)
+ * Memory: ZP + stack in CPU RAM; code from XRAM_OUT_BASE (read-only)
+ * ================================================================ */
+static uint8_t  vm_zp[256];
+static uint8_t  vm_stk[256];
+static uint8_t  vm_a, vm_x, vm_y, vm_sp, vm_p;
+static uint16_t vm_pc;
+static uint16_t vm_code_start;
+static uint16_t vm_code_end;
+
+#define VM_N (vm_p & 0x80u)
+#define VM_V (vm_p & 0x40u)
+#define VM_D (vm_p & 0x08u)
+#define VM_C (vm_p & 0x01u)
+
+/* set/clear flag fl based on cond */
+#define VM_SF(fl,cond) do { if(cond) vm_p|=(uint8_t)(fl); else vm_p&=(uint8_t)~(uint8_t)(fl); } while(0)
+/* update N and Z flags from byte value v */
+#define VM_NZ(v) do { uint8_t _v=(uint8_t)(v); VM_SF(0x80u,_v&0x80u); VM_SF(0x02u,!_v); } while(0)
+
+static uint8_t vm_read(uint16_t addr){
+    if(addr < 0x0100u) return vm_zp[(uint8_t)addr];
+    if(addr < 0x0200u) return vm_stk[(uint8_t)addr];
+    if(addr >= vm_code_start && addr < vm_code_end){
+        RIA.addr1 = (unsigned)(XRAM_OUT_BASE + (unsigned)(addr - vm_code_start));
+        return RIA.rw1;
+    }
+    return 0xFFu;
+}
+static void vm_write(uint16_t addr, uint8_t val){
+    if(addr < 0x0100u) vm_zp[(uint8_t)addr] = val;
+    else if(addr < 0x0200u) vm_stk[(uint8_t)addr] = val;
+    else if(addr >= vm_code_start && addr < vm_code_end){
+        RIA.addr1 = (unsigned)(XRAM_OUT_BASE + (unsigned)(addr - vm_code_start));
+        RIA.rw1 = val;
+    }
+}
+
+/* stack */
+static void    vm_push  (uint8_t v)  { vm_stk[vm_sp--] = v; }
+static uint8_t vm_pop   (void)       { return vm_stk[++vm_sp]; }
+static void    vm_push16(uint16_t v) { vm_push((uint8_t)(v>>8)); vm_push((uint8_t)v); }
+static uint16_t vm_pop16(void)       { uint8_t lo=vm_pop(); return (uint16_t)lo|(uint16_t)((uint16_t)vm_pop()<<8); }
+
+/* addressing mode effective address helpers — advance vm_pc */
+static uint8_t  vm_imm    (void){ return vm_read(vm_pc++); }
+static uint16_t vm_ea_zp  (void){ return (uint16_t)vm_read(vm_pc++); }
+static uint16_t vm_ea_zpx (void){ return (uint16_t)(uint8_t)(vm_read(vm_pc++)+vm_x); }
+static uint16_t vm_ea_zpy (void){ return (uint16_t)(uint8_t)(vm_read(vm_pc++)+vm_y); }
+static uint16_t vm_ea_abs (void){ uint16_t lo=vm_read(vm_pc++); return lo|(uint16_t)((uint16_t)vm_read(vm_pc++)<<8); }
+static uint16_t vm_ea_absx(void){ return (uint16_t)(vm_ea_abs()+(uint16_t)vm_x); }
+static uint16_t vm_ea_absy(void){ return (uint16_t)(vm_ea_abs()+(uint16_t)vm_y); }
+static uint16_t vm_ea_zpindx(void){
+    uint8_t zp=(uint8_t)(vm_read(vm_pc++)+vm_x);
+    return (uint16_t)vm_zp[zp]|(uint16_t)((uint16_t)vm_zp[(uint8_t)(zp+1u)]<<8);
+}
+static uint16_t vm_ea_zpindy(void){
+    uint8_t zp=vm_read(vm_pc++);
+    uint16_t base=(uint16_t)vm_zp[zp]|(uint16_t)((uint16_t)vm_zp[(uint8_t)(zp+1u)]<<8);
+    return (uint16_t)(base+(uint16_t)vm_y);
+}
+static uint16_t vm_ea_zpind(void){
+    uint8_t zp=vm_read(vm_pc++);
+    return (uint16_t)vm_zp[zp]|(uint16_t)((uint16_t)vm_zp[(uint8_t)(zp+1u)]<<8);
+}
+
+/* arithmetic helpers */
+static void vm_adc(uint8_t op){
+    uint8_t c=VM_C?1u:0u;
+    if(VM_D){
+        uint8_t lo=(uint8_t)((vm_a&0x0Fu)+(op&0x0Fu)+c);
+        uint8_t hi=(uint8_t)((vm_a>>4)+(op>>4));
+        if(lo>9u){lo=(uint8_t)(lo-10u);hi++;}
+        if(hi>9u){hi=(uint8_t)(hi-10u);vm_p|=0x01u;}else vm_p&=(uint8_t)~0x01u;
+        vm_a=(uint8_t)((hi<<4)|(lo&0x0Fu)); VM_NZ(vm_a); vm_p&=(uint8_t)~0x40u;
+    } else {
+        uint16_t r=(uint16_t)vm_a+(uint16_t)op+(uint16_t)c;
+        uint8_t res=(uint8_t)r;
+        VM_SF(0x40u,!((vm_a^op)&0x80u)&&((vm_a^res)&0x80u));
+        VM_SF(0x01u,r>0xFFu); vm_a=res; VM_NZ(vm_a);
+    }
+}
+static void vm_sbc(uint8_t op){
+    if(VM_D){
+        uint8_t borrow=VM_C?0u:1u;
+        int lo=(int)(vm_a&0x0Fu)-(int)(op&0x0Fu)-(int)borrow;
+        int hi=(int)(vm_a>>4)-(int)(op>>4);
+        if(lo<0){lo+=10;hi--;}
+        if(hi<0){hi+=10;vm_p&=(uint8_t)~0x01u;}else vm_p|=0x01u;
+        vm_a=(uint8_t)(((uint8_t)hi<<4)|((uint8_t)lo&0x0Fu)); VM_NZ(vm_a); vm_p&=(uint8_t)~0x40u;
+    } else { vm_adc((uint8_t)~op); }
+}
+static void vm_cmp_op(uint8_t reg, uint8_t op){
+    uint16_t r=(uint16_t)reg-(uint16_t)op;
+    VM_SF(0x80u,r&0x80u); VM_SF(0x02u,!(uint8_t)r); VM_SF(0x01u,reg>=op);
+}
+static uint8_t vm_asl(uint8_t v){ VM_SF(0x01u,v&0x80u); v=(uint8_t)(v<<1); VM_NZ(v); return v; }
+static uint8_t vm_lsr(uint8_t v){ VM_SF(0x01u,v&0x01u); v>>=1; VM_NZ(v); return v; }
+static uint8_t vm_rol(uint8_t v){ uint8_t c=VM_C?1u:0u; VM_SF(0x01u,v&0x80u); v=(uint8_t)((v<<1)|c); VM_NZ(v); return v; }
+static uint8_t vm_ror(uint8_t v){ uint8_t c=VM_C?0x80u:0u; VM_SF(0x01u,v&0x01u); v=(uint8_t)((v>>1)|c); VM_NZ(v); return v; }
+static uint8_t vm_inc(uint8_t v){ v++; VM_NZ(v); return v; }
+static uint8_t vm_dec(uint8_t v){ v--; VM_NZ(v); return v; }
+static void    vm_bit(uint8_t v, uint8_t imm){ VM_SF(0x02u,!(v&vm_a)); if(!imm){ VM_SF(0x80u,v&0x80u); VM_SF(0x40u,v&0x40u); } }
+static uint8_t vm_trb(uint8_t v){ VM_SF(0x02u,!(v&vm_a)); return (uint8_t)(v&~vm_a); }
+static uint8_t vm_tsb(uint8_t v){ VM_SF(0x02u,!(v&vm_a)); return (uint8_t)(v|vm_a); }
+
+/* execute one instruction; returns 0=ok 1=halt 2=illegal */
+static int vm_step(void){
+    uint8_t  opc, zp;
+    uint16_t ea;
+    int8_t   rel;
+    opc=vm_read(vm_pc++);
+    switch(opc){
+    /* ADC */
+    case 0x69: vm_adc(vm_imm()); break;
+    case 0x65: vm_adc(vm_read(vm_ea_zp())); break;
+    case 0x75: vm_adc(vm_read(vm_ea_zpx())); break;
+    case 0x6D: vm_adc(vm_read(vm_ea_abs())); break;
+    case 0x7D: vm_adc(vm_read(vm_ea_absx())); break;
+    case 0x79: vm_adc(vm_read(vm_ea_absy())); break;
+    case 0x61: vm_adc(vm_read(vm_ea_zpindx())); break;
+    case 0x71: vm_adc(vm_read(vm_ea_zpindy())); break;
+    case 0x72: vm_adc(vm_read(vm_ea_zpind())); break;
+    /* AND */
+    case 0x29: vm_a&=vm_imm(); VM_NZ(vm_a); break;
+    case 0x25: vm_a&=vm_read(vm_ea_zp()); VM_NZ(vm_a); break;
+    case 0x35: vm_a&=vm_read(vm_ea_zpx()); VM_NZ(vm_a); break;
+    case 0x2D: vm_a&=vm_read(vm_ea_abs()); VM_NZ(vm_a); break;
+    case 0x3D: vm_a&=vm_read(vm_ea_absx()); VM_NZ(vm_a); break;
+    case 0x39: vm_a&=vm_read(vm_ea_absy()); VM_NZ(vm_a); break;
+    case 0x21: vm_a&=vm_read(vm_ea_zpindx()); VM_NZ(vm_a); break;
+    case 0x31: vm_a&=vm_read(vm_ea_zpindy()); VM_NZ(vm_a); break;
+    case 0x32: vm_a&=vm_read(vm_ea_zpind()); VM_NZ(vm_a); break;
+    /* ASL */
+    case 0x0A: vm_a=vm_asl(vm_a); break;
+    case 0x06: ea=vm_ea_zp();   vm_write(ea,vm_asl(vm_read(ea))); break;
+    case 0x16: ea=vm_ea_zpx();  vm_write(ea,vm_asl(vm_read(ea))); break;
+    case 0x0E: ea=vm_ea_abs();  vm_write(ea,vm_asl(vm_read(ea))); break;
+    case 0x1E: ea=vm_ea_absx(); vm_write(ea,vm_asl(vm_read(ea))); break;
+    /* BBR0-7 (3-byte: opcode zp rel) */
+    case 0x0F: zp=vm_read(vm_pc++); rel=(int8_t)vm_read(vm_pc++); if(!(vm_zp[zp]&0x01u)) vm_pc=(uint16_t)(vm_pc+rel); break;
+    case 0x1F: zp=vm_read(vm_pc++); rel=(int8_t)vm_read(vm_pc++); if(!(vm_zp[zp]&0x02u)) vm_pc=(uint16_t)(vm_pc+rel); break;
+    case 0x2F: zp=vm_read(vm_pc++); rel=(int8_t)vm_read(vm_pc++); if(!(vm_zp[zp]&0x04u)) vm_pc=(uint16_t)(vm_pc+rel); break;
+    case 0x3F: zp=vm_read(vm_pc++); rel=(int8_t)vm_read(vm_pc++); if(!(vm_zp[zp]&0x08u)) vm_pc=(uint16_t)(vm_pc+rel); break;
+    case 0x4F: zp=vm_read(vm_pc++); rel=(int8_t)vm_read(vm_pc++); if(!(vm_zp[zp]&0x10u)) vm_pc=(uint16_t)(vm_pc+rel); break;
+    case 0x5F: zp=vm_read(vm_pc++); rel=(int8_t)vm_read(vm_pc++); if(!(vm_zp[zp]&0x20u)) vm_pc=(uint16_t)(vm_pc+rel); break;
+    case 0x6F: zp=vm_read(vm_pc++); rel=(int8_t)vm_read(vm_pc++); if(!(vm_zp[zp]&0x40u)) vm_pc=(uint16_t)(vm_pc+rel); break;
+    case 0x7F: zp=vm_read(vm_pc++); rel=(int8_t)vm_read(vm_pc++); if(!(vm_zp[zp]&0x80u)) vm_pc=(uint16_t)(vm_pc+rel); break;
+    /* BBS0-7 */
+    case 0x8F: zp=vm_read(vm_pc++); rel=(int8_t)vm_read(vm_pc++); if(vm_zp[zp]&0x01u) vm_pc=(uint16_t)(vm_pc+rel); break;
+    case 0x9F: zp=vm_read(vm_pc++); rel=(int8_t)vm_read(vm_pc++); if(vm_zp[zp]&0x02u) vm_pc=(uint16_t)(vm_pc+rel); break;
+    case 0xAF: zp=vm_read(vm_pc++); rel=(int8_t)vm_read(vm_pc++); if(vm_zp[zp]&0x04u) vm_pc=(uint16_t)(vm_pc+rel); break;
+    case 0xBF: zp=vm_read(vm_pc++); rel=(int8_t)vm_read(vm_pc++); if(vm_zp[zp]&0x08u) vm_pc=(uint16_t)(vm_pc+rel); break;
+    case 0xCF: zp=vm_read(vm_pc++); rel=(int8_t)vm_read(vm_pc++); if(vm_zp[zp]&0x10u) vm_pc=(uint16_t)(vm_pc+rel); break;
+    case 0xDF: zp=vm_read(vm_pc++); rel=(int8_t)vm_read(vm_pc++); if(vm_zp[zp]&0x20u) vm_pc=(uint16_t)(vm_pc+rel); break;
+    case 0xEF: zp=vm_read(vm_pc++); rel=(int8_t)vm_read(vm_pc++); if(vm_zp[zp]&0x40u) vm_pc=(uint16_t)(vm_pc+rel); break;
+    case 0xFF: zp=vm_read(vm_pc++); rel=(int8_t)vm_read(vm_pc++); if(vm_zp[zp]&0x80u) vm_pc=(uint16_t)(vm_pc+rel); break;
+    /* branches */
+    case 0x90: rel=(int8_t)vm_read(vm_pc++); if(!VM_C) vm_pc=(uint16_t)(vm_pc+rel); break; /* BCC */
+    case 0xB0: rel=(int8_t)vm_read(vm_pc++); if(VM_C)  vm_pc=(uint16_t)(vm_pc+rel); break; /* BCS */
+    case 0xF0: rel=(int8_t)vm_read(vm_pc++); if(vm_p&0x02u) vm_pc=(uint16_t)(vm_pc+rel); break; /* BEQ */
+    case 0x30: rel=(int8_t)vm_read(vm_pc++); if(VM_N)  vm_pc=(uint16_t)(vm_pc+rel); break; /* BMI */
+    case 0xD0: rel=(int8_t)vm_read(vm_pc++); if(!(vm_p&0x02u)) vm_pc=(uint16_t)(vm_pc+rel); break; /* BNE */
+    case 0x10: rel=(int8_t)vm_read(vm_pc++); if(!VM_N) vm_pc=(uint16_t)(vm_pc+rel); break; /* BPL */
+    case 0x80: rel=(int8_t)vm_read(vm_pc++); vm_pc=(uint16_t)(vm_pc+rel); break;            /* BRA */
+    case 0x50: rel=(int8_t)vm_read(vm_pc++); if(!VM_V) vm_pc=(uint16_t)(vm_pc+rel); break; /* BVC */
+    case 0x70: rel=(int8_t)vm_read(vm_pc++); if(VM_V)  vm_pc=(uint16_t)(vm_pc+rel); break; /* BVS */
+    /* BIT */
+    case 0x89: vm_bit(vm_imm(),1); break;
+    case 0x24: vm_bit(vm_read(vm_ea_zp()),0); break;
+    case 0x34: vm_bit(vm_read(vm_ea_zpx()),0); break;
+    case 0x2C: vm_bit(vm_read(vm_ea_abs()),0); break;
+    case 0x3C: vm_bit(vm_read(vm_ea_absx()),0); break;
+    /* BRK */
+    case 0x00: return 1;
+    /* flags */
+    case 0x18: vm_p&=(uint8_t)~0x01u; break; /* CLC */
+    case 0xD8: vm_p&=(uint8_t)~0x08u; break; /* CLD */
+    case 0x58: vm_p&=(uint8_t)~0x04u; break; /* CLI */
+    case 0xB8: vm_p&=(uint8_t)~0x40u; break; /* CLV */
+    case 0x38: vm_p|=0x01u; break; /* SEC */
+    case 0xF8: vm_p|=0x08u; break; /* SED */
+    case 0x78: vm_p|=0x04u; break; /* SEI */
+    /* CMP */
+    case 0xC9: vm_cmp_op(vm_a,vm_imm()); break;
+    case 0xC5: vm_cmp_op(vm_a,vm_read(vm_ea_zp())); break;
+    case 0xD5: vm_cmp_op(vm_a,vm_read(vm_ea_zpx())); break;
+    case 0xCD: vm_cmp_op(vm_a,vm_read(vm_ea_abs())); break;
+    case 0xDD: vm_cmp_op(vm_a,vm_read(vm_ea_absx())); break;
+    case 0xD9: vm_cmp_op(vm_a,vm_read(vm_ea_absy())); break;
+    case 0xC1: vm_cmp_op(vm_a,vm_read(vm_ea_zpindx())); break;
+    case 0xD1: vm_cmp_op(vm_a,vm_read(vm_ea_zpindy())); break;
+    case 0xD2: vm_cmp_op(vm_a,vm_read(vm_ea_zpind())); break;
+    /* CPX */
+    case 0xE0: vm_cmp_op(vm_x,vm_imm()); break;
+    case 0xE4: vm_cmp_op(vm_x,vm_read(vm_ea_zp())); break;
+    case 0xEC: vm_cmp_op(vm_x,vm_read(vm_ea_abs())); break;
+    /* CPY */
+    case 0xC0: vm_cmp_op(vm_y,vm_imm()); break;
+    case 0xC4: vm_cmp_op(vm_y,vm_read(vm_ea_zp())); break;
+    case 0xCC: vm_cmp_op(vm_y,vm_read(vm_ea_abs())); break;
+    /* DEC */
+    case 0x3A: vm_a=vm_dec(vm_a); break;
+    case 0xC6: ea=vm_ea_zp();   vm_write(ea,vm_dec(vm_read(ea))); break;
+    case 0xD6: ea=vm_ea_zpx();  vm_write(ea,vm_dec(vm_read(ea))); break;
+    case 0xCE: ea=vm_ea_abs();  vm_write(ea,vm_dec(vm_read(ea))); break;
+    case 0xDE: ea=vm_ea_absx(); vm_write(ea,vm_dec(vm_read(ea))); break;
+    case 0xCA: vm_x=vm_dec(vm_x); break; /* DEX */
+    case 0x88: vm_y=vm_dec(vm_y); break; /* DEY */
+    /* EOR */
+    case 0x49: vm_a^=vm_imm(); VM_NZ(vm_a); break;
+    case 0x45: vm_a^=vm_read(vm_ea_zp()); VM_NZ(vm_a); break;
+    case 0x55: vm_a^=vm_read(vm_ea_zpx()); VM_NZ(vm_a); break;
+    case 0x4D: vm_a^=vm_read(vm_ea_abs()); VM_NZ(vm_a); break;
+    case 0x5D: vm_a^=vm_read(vm_ea_absx()); VM_NZ(vm_a); break;
+    case 0x59: vm_a^=vm_read(vm_ea_absy()); VM_NZ(vm_a); break;
+    case 0x41: vm_a^=vm_read(vm_ea_zpindx()); VM_NZ(vm_a); break;
+    case 0x51: vm_a^=vm_read(vm_ea_zpindy()); VM_NZ(vm_a); break;
+    case 0x52: vm_a^=vm_read(vm_ea_zpind()); VM_NZ(vm_a); break;
+    /* INC */
+    case 0x1A: vm_a=vm_inc(vm_a); break;
+    case 0xE6: ea=vm_ea_zp();   vm_write(ea,vm_inc(vm_read(ea))); break;
+    case 0xF6: ea=vm_ea_zpx();  vm_write(ea,vm_inc(vm_read(ea))); break;
+    case 0xEE: ea=vm_ea_abs();  vm_write(ea,vm_inc(vm_read(ea))); break;
+    case 0xFE: ea=vm_ea_absx(); vm_write(ea,vm_inc(vm_read(ea))); break;
+    case 0xE8: vm_x=vm_inc(vm_x); break; /* INX */
+    case 0xC8: vm_y=vm_inc(vm_y); break; /* INY */
+    /* JMP */
+    case 0x4C: vm_pc=vm_ea_abs(); break;
+    case 0x6C: { ea=vm_ea_abs(); vm_pc=(uint16_t)vm_read(ea)|(uint16_t)((uint16_t)vm_read((uint16_t)(ea+1u))<<8); break; }
+    case 0x7C: { ea=(uint16_t)(vm_ea_abs()+(uint16_t)vm_x); vm_pc=(uint16_t)vm_read(ea)|(uint16_t)((uint16_t)vm_read((uint16_t)(ea+1u))<<8); break; }
+    /* JSR */
+    case 0x20: { uint16_t tgt=vm_ea_abs(); vm_push16((uint16_t)(vm_pc-1u)); vm_pc=tgt; break; }
+    /* LDA */
+    case 0xA9: vm_a=vm_imm(); VM_NZ(vm_a); break;
+    case 0xA5: vm_a=vm_read(vm_ea_zp()); VM_NZ(vm_a); break;
+    case 0xB5: vm_a=vm_read(vm_ea_zpx()); VM_NZ(vm_a); break;
+    case 0xAD: vm_a=vm_read(vm_ea_abs()); VM_NZ(vm_a); break;
+    case 0xBD: vm_a=vm_read(vm_ea_absx()); VM_NZ(vm_a); break;
+    case 0xB9: vm_a=vm_read(vm_ea_absy()); VM_NZ(vm_a); break;
+    case 0xA1: vm_a=vm_read(vm_ea_zpindx()); VM_NZ(vm_a); break;
+    case 0xB1: vm_a=vm_read(vm_ea_zpindy()); VM_NZ(vm_a); break;
+    case 0xB2: vm_a=vm_read(vm_ea_zpind()); VM_NZ(vm_a); break;
+    /* LDX */
+    case 0xA2: vm_x=vm_imm(); VM_NZ(vm_x); break;
+    case 0xA6: vm_x=vm_read(vm_ea_zp()); VM_NZ(vm_x); break;
+    case 0xB6: vm_x=vm_read(vm_ea_zpy()); VM_NZ(vm_x); break;
+    case 0xAE: vm_x=vm_read(vm_ea_abs()); VM_NZ(vm_x); break;
+    case 0xBE: vm_x=vm_read(vm_ea_absy()); VM_NZ(vm_x); break;
+    /* LDY */
+    case 0xA0: vm_y=vm_imm(); VM_NZ(vm_y); break;
+    case 0xA4: vm_y=vm_read(vm_ea_zp()); VM_NZ(vm_y); break;
+    case 0xB4: vm_y=vm_read(vm_ea_zpx()); VM_NZ(vm_y); break;
+    case 0xAC: vm_y=vm_read(vm_ea_abs()); VM_NZ(vm_y); break;
+    case 0xBC: vm_y=vm_read(vm_ea_absx()); VM_NZ(vm_y); break;
+    /* LSR */
+    case 0x4A: vm_a=vm_lsr(vm_a); break;
+    case 0x46: ea=vm_ea_zp();   vm_write(ea,vm_lsr(vm_read(ea))); break;
+    case 0x56: ea=vm_ea_zpx();  vm_write(ea,vm_lsr(vm_read(ea))); break;
+    case 0x4E: ea=vm_ea_abs();  vm_write(ea,vm_lsr(vm_read(ea))); break;
+    case 0x5E: ea=vm_ea_absx(); vm_write(ea,vm_lsr(vm_read(ea))); break;
+    /* NOP */
+    case 0xEA: break;
+    /* ORA */
+    case 0x09: vm_a|=vm_imm(); VM_NZ(vm_a); break;
+    case 0x05: vm_a|=vm_read(vm_ea_zp()); VM_NZ(vm_a); break;
+    case 0x15: vm_a|=vm_read(vm_ea_zpx()); VM_NZ(vm_a); break;
+    case 0x0D: vm_a|=vm_read(vm_ea_abs()); VM_NZ(vm_a); break;
+    case 0x1D: vm_a|=vm_read(vm_ea_absx()); VM_NZ(vm_a); break;
+    case 0x19: vm_a|=vm_read(vm_ea_absy()); VM_NZ(vm_a); break;
+    case 0x01: vm_a|=vm_read(vm_ea_zpindx()); VM_NZ(vm_a); break;
+    case 0x11: vm_a|=vm_read(vm_ea_zpindy()); VM_NZ(vm_a); break;
+    case 0x12: vm_a|=vm_read(vm_ea_zpind()); VM_NZ(vm_a); break;
+    /* stack */
+    case 0x48: vm_push(vm_a); break;
+    case 0x08: vm_push((uint8_t)(vm_p|0x10u)); break;
+    case 0xDA: vm_push(vm_x); break;
+    case 0x5A: vm_push(vm_y); break;
+    case 0x68: vm_a=vm_pop(); VM_NZ(vm_a); break;
+    case 0x28: vm_p=(uint8_t)((vm_pop()&~0x10u)|0x20u); break;
+    case 0xFA: vm_x=vm_pop(); VM_NZ(vm_x); break;
+    case 0x7A: vm_y=vm_pop(); VM_NZ(vm_y); break;
+    /* RMB0-7 */
+    case 0x07: vm_zp[vm_read(vm_pc++)]&=(uint8_t)~0x01u; break;
+    case 0x17: vm_zp[vm_read(vm_pc++)]&=(uint8_t)~0x02u; break;
+    case 0x27: vm_zp[vm_read(vm_pc++)]&=(uint8_t)~0x04u; break;
+    case 0x37: vm_zp[vm_read(vm_pc++)]&=(uint8_t)~0x08u; break;
+    case 0x47: vm_zp[vm_read(vm_pc++)]&=(uint8_t)~0x10u; break;
+    case 0x57: vm_zp[vm_read(vm_pc++)]&=(uint8_t)~0x20u; break;
+    case 0x67: vm_zp[vm_read(vm_pc++)]&=(uint8_t)~0x40u; break;
+    case 0x77: vm_zp[vm_read(vm_pc++)]&=(uint8_t)~0x80u; break;
+    /* SMB0-7 */
+    case 0x87: vm_zp[vm_read(vm_pc++)]|=0x01u; break;
+    case 0x97: vm_zp[vm_read(vm_pc++)]|=0x02u; break;
+    case 0xA7: vm_zp[vm_read(vm_pc++)]|=0x04u; break;
+    case 0xB7: vm_zp[vm_read(vm_pc++)]|=0x08u; break;
+    case 0xC7: vm_zp[vm_read(vm_pc++)]|=0x10u; break;
+    case 0xD7: vm_zp[vm_read(vm_pc++)]|=0x20u; break;
+    case 0xE7: vm_zp[vm_read(vm_pc++)]|=0x40u; break;
+    case 0xF7: vm_zp[vm_read(vm_pc++)]|=0x80u; break;
+    /* ROL */
+    case 0x2A: vm_a=vm_rol(vm_a); break;
+    case 0x26: ea=vm_ea_zp();   vm_write(ea,vm_rol(vm_read(ea))); break;
+    case 0x36: ea=vm_ea_zpx();  vm_write(ea,vm_rol(vm_read(ea))); break;
+    case 0x2E: ea=vm_ea_abs();  vm_write(ea,vm_rol(vm_read(ea))); break;
+    case 0x3E: ea=vm_ea_absx(); vm_write(ea,vm_rol(vm_read(ea))); break;
+    /* ROR */
+    case 0x6A: vm_a=vm_ror(vm_a); break;
+    case 0x66: ea=vm_ea_zp();   vm_write(ea,vm_ror(vm_read(ea))); break;
+    case 0x76: ea=vm_ea_zpx();  vm_write(ea,vm_ror(vm_read(ea))); break;
+    case 0x6E: ea=vm_ea_abs();  vm_write(ea,vm_ror(vm_read(ea))); break;
+    case 0x7E: ea=vm_ea_absx(); vm_write(ea,vm_ror(vm_read(ea))); break;
+    /* RTI / RTS */
+    case 0x40: vm_p=(uint8_t)((vm_pop()&~0x10u)|0x20u); vm_pc=vm_pop16(); break;
+    case 0x60: vm_pc=(uint16_t)(vm_pop16()+1u); break;
+    /* SBC */
+    case 0xE9: vm_sbc(vm_imm()); break;
+    case 0xE5: vm_sbc(vm_read(vm_ea_zp())); break;
+    case 0xF5: vm_sbc(vm_read(vm_ea_zpx())); break;
+    case 0xED: vm_sbc(vm_read(vm_ea_abs())); break;
+    case 0xFD: vm_sbc(vm_read(vm_ea_absx())); break;
+    case 0xF9: vm_sbc(vm_read(vm_ea_absy())); break;
+    case 0xE1: vm_sbc(vm_read(vm_ea_zpindx())); break;
+    case 0xF1: vm_sbc(vm_read(vm_ea_zpindy())); break;
+    case 0xF2: vm_sbc(vm_read(vm_ea_zpind())); break;
+    /* STA */
+    case 0x85: vm_write(vm_ea_zp(),    vm_a); break;
+    case 0x95: vm_write(vm_ea_zpx(),   vm_a); break;
+    case 0x8D: vm_write(vm_ea_abs(),   vm_a); break;
+    case 0x9D: vm_write(vm_ea_absx(),  vm_a); break;
+    case 0x99: vm_write(vm_ea_absy(),  vm_a); break;
+    case 0x81: vm_write(vm_ea_zpindx(),vm_a); break;
+    case 0x91: vm_write(vm_ea_zpindy(),vm_a); break;
+    case 0x92: vm_write(vm_ea_zpind(), vm_a); break;
+    /* STX */
+    case 0x86: vm_write(vm_ea_zp(),  vm_x); break;
+    case 0x96: vm_write(vm_ea_zpy(), vm_x); break;
+    case 0x8E: vm_write(vm_ea_abs(), vm_x); break;
+    /* STY */
+    case 0x84: vm_write(vm_ea_zp(),  vm_y); break;
+    case 0x94: vm_write(vm_ea_zpx(), vm_y); break;
+    case 0x8C: vm_write(vm_ea_abs(), vm_y); break;
+    /* STZ */
+    case 0x64: vm_write(vm_ea_zp(),   0u); break;
+    case 0x74: vm_write(vm_ea_zpx(),  0u); break;
+    case 0x9C: vm_write(vm_ea_abs(),  0u); break;
+    case 0x9E: vm_write(vm_ea_absx(), 0u); break;
+    /* STP / WAI — halt */
+    case 0xDB: return 1;
+    case 0xCB: return 1;
+    /* transfers */
+    case 0xAA: vm_x=vm_a; VM_NZ(vm_x); break; /* TAX */
+    case 0xA8: vm_y=vm_a; VM_NZ(vm_y); break; /* TAY */
+    case 0xBA: vm_x=vm_sp; VM_NZ(vm_x); break;/* TSX */
+    case 0x8A: vm_a=vm_x; VM_NZ(vm_a); break; /* TXA */
+    case 0x9A: vm_sp=vm_x; break;              /* TXS */
+    case 0x98: vm_a=vm_y; VM_NZ(vm_a); break; /* TYA */
+    /* TRB / TSB */
+    case 0x14: ea=vm_ea_zp();  vm_write(ea,vm_trb(vm_read(ea))); break;
+    case 0x1C: ea=vm_ea_abs(); vm_write(ea,vm_trb(vm_read(ea))); break;
+    case 0x04: ea=vm_ea_zp();  vm_write(ea,vm_tsb(vm_read(ea))); break;
+    case 0x0C: ea=vm_ea_abs(); vm_write(ea,vm_tsb(vm_read(ea))); break;
+    default: return 2; /* illegal */
+    }
+    return 0;
+}
+
+/* disassemble one instruction at addr without modifying vm_pc */
+static void vm_disasm_at(uint16_t addr){
+    uint8_t opc, b1, b2;
+    uint16_t w;
+    int8_t  rel;
+    int i, j;
+    const char *mn = "???";
+    uint8_t mode = M_IMP;
+    opc=vm_read(addr); b1=vm_read((uint16_t)(addr+1u)); b2=vm_read((uint16_t)(addr+2u));
+    for(i=0; ops[i].name[0]; i++){
+        for(j=0; j<ops[i].count; j++){
+            if(ops[i].vars[j].opcode==opc){ mn=ops[i].name; mode=ops[i].vars[j].mode; goto disasm_done; }
+        }
+    }
+disasm_done:
+    w=(uint16_t)b1|(uint16_t)((uint16_t)b2<<8);
+    rel=(int8_t)b1;
+    switch(mode){
+    case M_IMP:
+    case M_STACK:  printf("%-4s              ", mn); break;
+    case M_ACC:    printf("%-4s A             ", mn); break;
+    case M_IMM:    printf("%-4s #$%02X          ", mn, b1); break;
+    case M_ZP:     printf("%-4s $%02X           ", mn, b1); break;
+    case M_ZPX:    printf("%-4s $%02X,X         ", mn, b1); break;
+    case M_ZPY:    printf("%-4s $%02X,Y         ", mn, b1); break;
+    case M_ABS:    printf("%-4s $%04X         ", mn, w); break;
+    case M_ABSX:   printf("%-4s $%04X,X       ", mn, w); break;
+    case M_ABSY:   printf("%-4s $%04X,Y       ", mn, w); break;
+    case M_ABSIND: printf("%-4s ($%04X)       ", mn, w); break;
+    case M_ABSINDX:printf("%-4s ($%04X,X)     ", mn, w); break;
+    case M_ZPIND:  printf("%-4s ($%02X)         ", mn, b1); break;
+    case M_ZPINDX: printf("%-4s ($%02X,X)       ", mn, b1); break;
+    case M_ZPINDY: printf("%-4s ($%02X),Y       ", mn, b1); break;
+    case M_PCREL:
+        if((opc&0x0Fu)==0x0Fu) /* BBR/BBS: 3-byte */
+            printf("%-4s $%02X,$%04X     ", mn, b1, (uint16_t)(addr+3u+(int8_t)b2));
+        else
+            printf("%-4s $%04X         ", mn, (uint16_t)(addr+2u+rel));
+        break;
+    default: printf("%-4s ???           ", mn); break;
+    }
+}
+
+/* return penalty cycles for current instruction (call BEFORE vm_step) */
+static uint8_t vm_penalty_cycles(void){
+    uint8_t opc, b1, b2, zp;
+    uint16_t base, ea;
+    int8_t rel;
+    uint16_t next_pc;
+    int taken;
+    opc = vm_read(vm_pc);
+    switch(opc){
+    /* branch: +1 taken, +1 more if page cross */
+    case 0x90: case 0xB0: case 0xF0: case 0x30:
+    case 0xD0: case 0x10: case 0x80: case 0x50: case 0x70:
+        taken = 0;
+        switch(opc){
+        case 0x90: taken = !VM_C; break;
+        case 0xB0: taken =  VM_C ? 1 : 0; break;
+        case 0xF0: taken = (vm_p&0x02u)?1:0; break;
+        case 0x30: taken =  VM_N ? 1 : 0; break;
+        case 0xD0: taken = (vm_p&0x02u)?0:1; break;
+        case 0x10: taken =  VM_N ? 0 : 1; break;
+        case 0x80: taken = 1; break;
+        case 0x50: taken =  VM_V ? 0 : 1; break;
+        case 0x70: taken =  VM_V ? 1 : 0; break;
+        }
+        if(!taken) return 0u;
+        rel = (int8_t)vm_read((uint16_t)(vm_pc+1u));
+        next_pc = (uint16_t)(vm_pc + 2u);
+        ea = (uint16_t)(next_pc + (int16_t)rel);
+        return (uint8_t)(1u + (((next_pc & 0xFF00u) != (ea & 0xFF00u)) ? 1u : 0u));
+    /* abs,X read ops: page crossing penalty */
+    case 0x7D: case 0x3D: case 0xDD: case 0x5D:
+    case 0xBD: case 0xBC: case 0x1D: case 0xFD: case 0x3C:
+        b1 = vm_read((uint16_t)(vm_pc+1u));
+        b2 = vm_read((uint16_t)(vm_pc+2u));
+        base = (uint16_t)b1 | (uint16_t)((uint16_t)b2<<8);
+        ea   = (uint16_t)(base + (uint16_t)vm_x);
+        return (uint8_t)(((base & 0xFF00u) != (ea & 0xFF00u)) ? 1u : 0u);
+    /* abs,Y read ops: page crossing penalty */
+    case 0x79: case 0x39: case 0xD9: case 0x59:
+    case 0xB9: case 0xBE: case 0x19: case 0xF9:
+        b1 = vm_read((uint16_t)(vm_pc+1u));
+        b2 = vm_read((uint16_t)(vm_pc+2u));
+        base = (uint16_t)b1 | (uint16_t)((uint16_t)b2<<8);
+        ea   = (uint16_t)(base + (uint16_t)vm_y);
+        return (uint8_t)(((base & 0xFF00u) != (ea & 0xFF00u)) ? 1u : 0u);
+    /* (zp),Y read ops: page crossing penalty */
+    case 0x71: case 0x31: case 0xD1: case 0x51:
+    case 0xB1: case 0x11: case 0xF1:
+        zp = vm_read((uint16_t)(vm_pc+1u));
+        base = (uint16_t)vm_zp[zp] | (uint16_t)((uint16_t)vm_zp[(uint8_t)(zp+1u)]<<8);
+        ea   = (uint16_t)(base + (uint16_t)vm_y);
+        return (uint8_t)(((base & 0xFF00u) != (ea & 0xFF00u)) ? 1u : 0u);
+    default: return 0u;
+    }
+}
+
+static void trace_print_run_result(int status, unsigned long steps, unsigned long cycles){
+    printf(NEWLINE "steps: %lu  cycles: %lu" NEWLINE, steps, cycles);
+    printf("A:%02X X:%02X Y:%02X SP:%02X  %c%c%c%c%c%c" NEWLINE NEWLINE,
+        vm_a, vm_x, vm_y, vm_sp,
+        (vm_p&0x80u)?'N':'.', (vm_p&0x40u)?'V':'.',
+        (vm_p&0x08u)?'D':'.', (vm_p&0x04u)?'I':'.',
+        (vm_p&0x02u)?'Z':'.', (vm_p&0x01u)?'C':'.');
+    if(status==1)
+        printf(ANSI_GREEN "@TRACE: halted" ANSI_RESETNEWLINEx2);
+    else if(steps>=10000ul && !status)
+        printf(ANSI_YELLOW "@TRACE: step limit 10000 reached" ANSI_RESETNEWLINEx2);
+    else
+        printf(ANSI_RED "@TRACE: illegal opcode at $%04X" ANSI_RESETNEWLINEx2, (unsigned)vm_pc);
+}
+
+static void cmd_trace(const char *args){
+    char tbuf[8];
+    int  status;
+    unsigned long steps;
+    unsigned long cycles;
+    uint8_t row, col;
+    int run_mode;
+
+    if(nlines==0){ prn_warn("@TRACE nothing to assemble"); return; }
+
+    run_mode = (args && (args[0]=='r' || args[0]=='R'));
+
+    assembly_status=STAT_SUCCESS;
+    nsym=0; xram_sym_clear_all();
+    org=0x9000; pc=0x9000;
+    pass1();
+    if(assembly_status!=STAT_SUCCESS){ prn_err("@TRACE PASS1 error"); return; }
+    {
+        unsigned out_size=(pc>org)?(unsigned)(pc-org):0u;
+        if(out_size>(unsigned)MAXOUT) out_size=(unsigned)MAXOUT;
+        if(out_size>0u) xram1_fill(XRAM_OUT_BASE,0x00,out_size);
+    }
+    pass2();
+    if(assembly_status!=STAT_SUCCESS){ prn_err("@TRACE PASS2 error"); return; }
+
+    vm_code_start=org;
+    vm_code_end=pc;
+    memset(vm_zp, 0, sizeof(vm_zp));
+    memset(vm_stk,0, sizeof(vm_stk));
+    vm_a=0x00u; vm_x=0x00u; vm_y=0x00u;
+    vm_sp=0xFFu; vm_p=0x20u;
+    vm_pc=vm_code_start;
+
+    if(run_mode){
+        cycles=0ul;
+        for(steps=0ul; steps<10000ul; ){
+            cycles += op_cycles[vm_read(vm_pc)] + vm_penalty_cycles();
+            status=vm_step(); steps++;
+            if(status) break;
+        }
+        trace_print_run_result(status, steps, cycles);
         return;
     }
-    fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0666);
-    if (fd < 0) {
-        printf("@SAVE: cannot create %s" NEWLINE, filename);
-        return;
+
+    printf(NEWLINE ANSI_DARK_GRAY "active keys [ENTER:step R:run till STP/BRK Z:Zero Page Q:end of tracing]" ANSI_RESETNEWLINEx2);
+
+    for(;;){
+        printf("PC:$%04X\t", (unsigned)vm_pc);
+        vm_disasm_at(vm_pc);
+        printf("\t%c%c%c%c%c%c A:%02X X:%02X Y:%02X SP:%02X > ",
+            (vm_p&0x80u)?'N':'.', (vm_p&0x40u)?'V':'.',
+            (vm_p&0x08u)?'D':'.', (vm_p&0x04u)?'I':'.',
+            (vm_p&0x02u)?'Z':'.', (vm_p&0x01u)?'C':'.',
+            vm_a, vm_x, vm_y, vm_sp
+        );
+
+        if(!fgets(tbuf, sizeof(tbuf), stdin)) break;
+
+        if(tbuf[0]=='q'||tbuf[0]=='Q'){
+            prn_inf("End of tracing");
+            break;
+        }
+
+        if(tbuf[0]=='z'||tbuf[0]=='Z'){
+            printf(NEWLINE "Zero Page :" NEWLINE NEWLINE);
+            for(row=0u; row<16u; row++){
+                printf("$%02X:", (unsigned)(row*16u));
+                for(col=0u; col<16u; col++) printf(" %02X", vm_zp[row*16u+col]);
+                printf(NEWLINE);
+            }
+            printf(NEWLINE);
+            continue;
+        }
+
+        if(tbuf[0]=='r'||tbuf[0]=='R'){
+            cycles=0ul;
+            for(steps=0ul; steps<10000ul; ){
+                cycles += op_cycles[vm_read(vm_pc)];
+                status=vm_step(); steps++;
+                if(status) break;
+            }
+            trace_print_run_result(status, steps, cycles);
+            break;
+        }
+
+        status=vm_step();
+        if(status==1){ printf(ANSI_GREEN "@TRACE: halted (BRK/STP)" ANSI_RESETNEWLINEx2); break; }
+        if(status==2){ printf(ANSI_RED "@TRACE: illegal opcode $%02X" ANSI_RESETNEWLINEx2, (unsigned)vm_read((uint16_t)(vm_pc-1u))); break; }
     }
-    for (i = 0; i < nlines; i++) {
-        xram_line_read((unsigned)i, g_buf);
-        len = (unsigned)strlen(g_buf);
-        RIA.addr0 = XRAM_LST_BASE;
-        RIA.step0 = 1;
-        for (j = 0u; j < (uint8_t)len; j++) RIA.rw0 = (uint8_t)g_buf[j];
-        RIA.rw0 = (uint8_t)'\n';
-        write_xram(XRAM_LST_BASE, len + 1u, fd);
-    }
-    close(fd);
-    printf("@SAVE: %d lines -> %s" NEWLINE, nlines, filename);
 }
 
 /* --- main: stdin + .include --- */
@@ -1160,7 +1775,7 @@ int main(int argc, char *argv[]){
                 ++i;
                 set_output_path(argv[i]);
             } else {
-                printf(NEWLINE EXCLAMATION "Missing output filename after -o" NEWLINE);
+                printf(NEWLINE NEWLINE EXCLAMATION "Missing output filename after -o" NEWLINE NEWLINE);
             }
             continue;
         }
@@ -1178,10 +1793,10 @@ int main(int argc, char *argv[]){
     if(input_path){
         FILE* src = fopen(input_path, "rb");
         if(!src){
-            printf("Can't open source file %s" NEWLINE, input_path);
+            printf(NEWLINE NEWLINE ANSI_RED EXCLAMATION "Can't open source file %s" NEWLINE NEWLINE, input_path);
         }else{
             printf(APP_MSG_START_ASSEMBLING NEWLINE);
-            printf("Open source file %s" NEWLINE, input_path);
+            printf(NEWLINE NEWLINE ANSI_GREEN "Open source file %s" NEWLINE NEWLINE, input_path);
             while(nlines < MAXLINES && fgets(g_buf,sizeof(g_buf),src)){
                 rstrip(g_buf);
                 strip_utf8_bom(g_buf);
@@ -1239,9 +1854,10 @@ int main(int argc, char *argv[]){
                         "@DEL N [M]          - delete line N or range N..M" NEWLINE
                         "@INS N text         - insert text in line before N" NEWLINE
                         "@MAKE [filename]    - assemble the code and save the binary" NEWLINE
+                        "@TRACE [R]          - step through code; R = run immediately" NEWLINE
                         "@CYCLES [from [to]] - count CPU cycles" NEWLINE
                         "@SYMBOLS            - list assembled symbols" NEWLINE
-                        "@MANUAL [en|pl]     - show manual (default: en)" NEWLINE
+                        "@MANUAL [en|pl] [N] - show manual; N = jump to chapter N" NEWLINE
                         "@CD [path]          - change directory (no arg = show current)" NEWLINE
                         "@DIR [path]         - list directory (size and name)" NEWLINE
                         "@EXIT               - save to " HASS_LAST_SOURCE_CODE_BUFFER_FILE " and exit" NEWLINE NEWLINE
@@ -1259,9 +1875,9 @@ int main(int argc, char *argv[]){
                         load_fname[MAXLEN-1] = 0;
                         nlines = 0; nsym = 0; xram_sym_clear_all();
                         read_file_into_lines(load_fname, 0, 0);
-                        printf(ANSI_GREEN "@LOAD: %d lines loaded from %s" ANSI_RESET NEWLINE NEWLINE, nlines, load_fname);
+                        printf(NEWLINE ANSI_GREEN "@LOAD %d lines loaded from %s" ANSI_RESETNEWLINEx2, nlines, load_fname);
                     } else {
-                        prn_err("@LOAD: missing filename");
+                        prn_inf("@LOAD usage: @LOAD filename");
                     }
                     continue;
                 }
@@ -1293,14 +1909,14 @@ int main(int argc, char *argv[]){
                             /* insert: count file lines first */
                             af = fopen(append_buf, "rb");
                             if(!af){
-                                printf(ANSI_RED "@APPEND: can't open %s" ANSI_RESET NEWLINE NEWLINE, append_buf);
+                                printf(NEWLINE ANSI_RED EXCLAMATION "@APPEND can't open %s" ANSI_RESETNEWLINEx2, append_buf);
                                 continue;
                             }
                             file_count = 0;
                             while(fgets(g_buf, sizeof(g_buf), af)) file_count++;
                             fclose(af);
                             if(nlines + file_count > MAXLINES){
-                                prn_err("@APPEND: buffer full");
+                                prn_err("@APPEND buffer full");
                                 continue;
                             }
                             /* shift existing lines from insert_pos downward */
@@ -1320,15 +1936,15 @@ int main(int argc, char *argv[]){
                             fclose(af);
                             nlines += file_count;
                         }
-                        printf(ANSI_GREEN "@APPEND: %d lines added from %s" ANSI_RESET NEWLINE NEWLINE, nlines - before, append_buf);
+                        printf(ANSI_GREEN "@APPEND %d lines added from %s" ANSI_RESETNEWLINEx2, nlines - before, append_buf);
                     } else {
-                        printf("@APPEND: usage: @APPEND filename [startline]" NEWLINE NEWLINE);
+                        prn_inf("@APPEND usage: @APPEND filename [startline]");
                     }
                     continue;
                 }
                 if(strcmp(dir,"@SYMBOLS")==0){
                     if(nsym == 0){
-                        prn_warn("@SYMBOLS: no symbols (run @MAKE first)");
+                        prn_warn("@SYMBOLS no symbols (run @MAKE first)");
                     } else {
                         int si;
                         for(si = 0; si < nsym; si++){
@@ -1344,7 +1960,7 @@ int main(int argc, char *argv[]){
                     nlines = 0;
                     nsym = 0;
                     xram_sym_clear_all();
-                    prn_ok("@NEW: buffer cleared");
+                    prn_ok("@NEW buffer cleared");
                     continue;
                 }
                 if(strcmp(dir,"@LIST")==0){
@@ -1377,7 +1993,7 @@ int main(int argc, char *argv[]){
                 if(strcmp(dir,"@MAKE")==0){
                     if(rest && rest[0]) set_output_path(rest);
                     if(nlines == 0){
-                        prn_warn("@MAKE: nothing to assembly");
+                        prn_warn("@MAKE: nothing to assemble");
                     } else {
                         assembly_status = STAT_SUCCESS;
                         nsym = 0; xram_sym_clear_all();
@@ -1394,6 +2010,10 @@ int main(int argc, char *argv[]){
                             printf(ANSI_GREEN "PASS2: SUCCESS" ANSI_RESET NEWLINE);
                         if(assembly_status == STAT_SUCCESS) save_bin();
                     }
+                    continue;
+                }
+                if(strcmp(dir,"@TRACE")==0){
+                    cmd_trace(rest);
                     continue;
                 }
                 if(strcmp(dir,"@CYCLES")==0){
@@ -1437,14 +2057,47 @@ int main(int argc, char *argv[]){
                 if(strcmp(dir,"@MANUAL")==0){
                     static char mpath[32];
                     static char mbuf[82];  /* 80 chars + \n + \0 */
+                    static char tok1[8];
+                    static char chapprefix[8];
                     FILE *mf;
                     int page = 0;
-                    const char *lang = (rest && rest[0]) ? rest : "en";
+                    int chapter = 0;
+                    const char *lang = "en";
+                    const char *p_rest = (rest && rest[0]) ? rest : "";
+                    const char *p;
+                    int ti;
+                    /* parse: @MANUAL [en|pl] [N]  or  @MANUAL [N] [en|pl] */
+                    p = p_rest; ti = 0;
+                    while(*p && *p!=' ' && *p!='\t' && ti<7) tok1[ti++] = *p++;
+                    tok1[ti] = 0;
+                    while(*p==' ' || *p=='\t') p++;
+                    if(tok1[0]>='1' && tok1[0]<='9'){
+                        chapter = atoi(tok1);
+                        if(*p) lang = p;
+                    } else if(tok1[0]){
+                        lang = tok1;
+                        if(*p>='1' && *p<='9') chapter = atoi(p);
+                    }
                     sprintf(mpath, "ROM:manual[%.2s].txt", lang);
                     mf = fopen(mpath, "rb");
                     if(!mf){
-                        printf(ANSI_RED "@MANUAL: cannot open %s" ANSI_RESET NEWLINE NEWLINE, mpath);
+                        printf(ANSI_RED "@MANUAL: cannot open %s" ANSI_RESETNEWLINEx2, mpath);
                     } else {
+                        if(chapter > 0){
+                            long sep_pos = 0;
+                            long line_start = 0;
+                            sprintf(chapprefix, "%d.", chapter);
+                            line_start = ftell(mf);
+                            while(fgets(mbuf, sizeof(mbuf), mf)){
+                                rstrip(mbuf);
+                                if(mbuf[0]=='-' && mbuf[1]=='-') sep_pos = line_start;
+                                if(strncmp(mbuf, chapprefix, strlen(chapprefix))==0){
+                                    if(sep_pos) fseek(mf, sep_pos, SEEK_SET);
+                                    break;
+                                }
+                                line_start = ftell(mf);
+                            }
+                        }
                         while(fgets(mbuf, sizeof(mbuf), mf)){
                             rstrip(mbuf);
                             mbuf[80] = 0;
@@ -1464,9 +2117,9 @@ int main(int argc, char *argv[]){
                 if(strcmp(dir,"@CD")==0){
                     if(rest && rest[0]){
                         if(chdir(rest) != 0)
-                            printf(ANSI_RED "@CD: cannot change to %s" ANSI_RESET NEWLINE NEWLINE, rest);
+                            printf(ANSI_RED "@CD: cannot change to %s" ANSI_RESETNEWLINEx2, rest);
                         else
-                            printf(ANSI_GREEN "@CD: %s" ANSI_RESET NEWLINE NEWLINE, rest);
+                            printf(ANSI_GREEN "@CD: %s" ANSI_RESETNEWLINEx2, rest);
                     } else {
                         static char cwd[64];
                         if(f_getcwd(cwd, sizeof(cwd)) == 0)
@@ -1502,7 +2155,7 @@ int main(int argc, char *argv[]){
                     }
                     continue;
                 }
-                printf(ANSI_RED "Error: %s unknown. Check your typing." ANSI_RESET NEWLINE NEWLINE, dir);
+                printf(ANSI_RED "Error: %s unknown. Check your typing." ANSI_RESETNEWLINEx2, dir);
                 continue;
             }
             if(s[0]=='.' && split_token(s,&dir,&rest)){
@@ -1528,7 +2181,7 @@ int main(int argc, char *argv[]){
     } else {
         printf(ANSI_WHITE "number of entered source code lines: ");
         printf("%d", nlines);
-        printf(ANSI_RESET NEWLINE NEWLINE);
+        printf(ANSI_RESETNEWLINEx2);
         pass1();
         if(assembly_status != STAT_SUCCESS){
             printf(ANSI_RED "PASS1: ERRORS !" ANSI_RESET NEWLINE);

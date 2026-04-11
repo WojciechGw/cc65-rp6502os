@@ -1,13 +1,13 @@
 /*
  * Courier RX
- * OS Shell File Receiver
+ * razemOS File Receiver
  * ext-crx.c - C89, cc65 (PC => Picocomputer RP6502-RIA UART)
  */
 
 #include "commons.h"
 #include "commons/courier-gfx.h"
 
-#define APPVER "20260410.0007"
+#define APPVER "20260411.1420"
 
 /* ---- RIA UART access ---------------------------------------------------- */
 
@@ -145,11 +145,10 @@ static int receive_header(void)
         if (!RX_READY()) continue;
         c = RRIA.RX;
 
-        if (c == ESC) return -1;
-
         switch (state) {
         case 0:
             if (c == SOH) state = 1;
+            else if (c == ESC) return -1;  /* cancel only before header starts */
             break;
         case 1:
             if (c == EOH) {
@@ -237,14 +236,6 @@ static void draw_title(void)
     DrawText(1,  0, " razemOS > ",    WHITE,     DARK_GREEN);
     DrawText(1, 12, " Courier RX",      WHITE,     BLACK);
     DrawText(1, 59, "version " APPVER, DARK_GRAY, BLACK);
-}
-
-/* wait for any key then restore console */
-static void wait_key_and_restore(void)
-{
-    while (!RX_READY()) { }
-    c = RRIA.RX;
-    cgx_restore();
 }
 
 /* ======================================================================
@@ -395,42 +386,43 @@ int main(int argc, char **argv)
         DrawText(6, 0, "ERROR: transmission or write error.", RED, BLACK);
         break;
     case 1:
-    {
-        char sb[12];
-        uint32_t crc32_final = rx_checksum_calc ^ 0xFFFFFFFFUL;
-        uint8_t ck_ok = (crc32_final == rx_checksum_exp);
-        DrawText(7, 0, "Saved: ", DARK_GRAY, BLACK);
-        DrawText(7, 7, rx_outpath, WHITE, BLACK);
-        sprintf(sb, "%lu", rx_decoded);
-        DrawText(8, 0, "Transfer complete.", GREEN, BLACK);
-        DrawText(8, 19, sb, WHITE, BLACK);
-        DrawText(8, (uint8_t)(19 + strlen(sb)), " bytes received", GREEN, BLACK);
         {
-            char sb2[24];
-            sprintf(sb2, " Checksum [%08lX] ", crc32_final);
-            if (ck_ok) {
-                DrawText(10, 0, sb2, WHITE, DARK_GREEN);
-            } else {
-                DrawText(10, 0, sb2, WHITE, DARK_RED);
+            char sb[12];
+            uint32_t crc32_final = rx_checksum_calc ^ 0xFFFFFFFFUL;
+            uint8_t ck_ok = (crc32_final == rx_checksum_exp);
+            DrawText(7, 0, "Saved: ", DARK_GRAY, BLACK);
+            DrawText(7, 7, rx_outpath, WHITE, BLACK);
+            sprintf(sb, "%lu", rx_decoded);
+            DrawText(8, 0, "Transfer complete.", GREEN, BLACK);
+            DrawText(8, 19, sb, WHITE, BLACK);
+            DrawText(8, (uint8_t)(19 + strlen(sb)), " bytes received", GREEN, BLACK);
+            {
+                char sb2[24];
+                sprintf(sb2, " Checksum [%08lX] ", crc32_final);
+                if (ck_ok) {
+                    DrawText(10, 0, sb2, WHITE, DARK_GREEN);
+                } else {
+                    DrawText(10, 0, sb2, WHITE, DARK_RED);
+                }
             }
+            break;
         }
-        break;
     }
-    }
-    DrawText(12, 0, "Press any key...", DARK_GRAY, BLACK);
-    wait_key_and_restore();
+    cgx_restore();
+    
     return 0;
 
 done_pre:
     switch (action) {
     case -1:
-        DrawText(8, 0, "Cancelled.",  DARK_GRAY, BLACK);
+        DrawText(8, 0, "Cancelled.",  YELLOW, BLACK);
         break;
     case 0:
-        DrawText(8, 0, "ERROR: cannot open output file.", RED, BLACK);
+        DrawText(8, 0, EXCLAMATION "Cannot open output file.", RED, BLACK);
         break;
     }
-    DrawText(12, 0, "Press any key...", DARK_GRAY, BLACK);
-    wait_key_and_restore();
+    
+    cgx_restore();
+    
     return 0;
 }

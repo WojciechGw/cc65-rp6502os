@@ -8,7 +8,7 @@
 
 #define NEWLINE "\r\n"
 
-#define APPVER "20260410.0007"
+#define APPVER "20260411.1420"
 
 #define HDR_NAME_MAX 31  /* max filename chars in header (+ null = 32 B) */
 

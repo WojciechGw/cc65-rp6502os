@@ -15,13 +15,6 @@
 #include "./commons/console.h"
 #include "./commons/usb_hid_keys.h"
 
-#define STR_HELPER(x) #x
-#define STR(x) STR_HELPER(x)
-
-// wait on clock
-uint32_t ticks = 0; // for PAUSE(millis)
-#define PAUSE(millis) ticks=clock(); while(clock() < (ticks + millis)){}
-
 /* GFX subsystem setup */
 #define GFX_CANVAS_640x480 3
 #define GFX_MODE_CONSOLE   0
@@ -43,3 +36,10 @@ uint32_t ticks = 0; // for PAUSE(millis)
 #define PC_FB_SIZE_BYTES    38400u
 
 #define EXCLAMATION "[!] "
+
+#define STR_HELPER(x) #x
+#define STR(x) STR_HELPER(x)
+
+// wait on clock
+uint32_t ticks = 0; // for PAUSE(millis)
+#define PAUSE(millis) ticks=clock(); while(clock() < (ticks + millis)){}
