@@ -3,6 +3,22 @@
   Picocomputer 6502 (RP6502)
 ================================================================================
 
+  SPIS TRESCI
+
+   1. Wywolanie
+   2. Komendy trybu interaktywnego
+   3. Format pliku zrodlowego
+   4. Etykiety i symbole
+   5. Literaly i wyrazenia
+   6. Dyrektywy
+   7. Tryby adresowania
+   8. Mnemoniki
+   9. Plik listingu (out.lst)
+  10. Ograniczenia
+  11. Komunikaty bledow
+
+--------------------------------------------------------------------------------
+
 HASS jest dwuprzebiegowym asemblerem dla procesora WDC 65C02S dzialajacym
 na Picocomputer 6502. Obsluguje pelny zestaw instrukcji 65C02 wlacznie
 z rozszerzeniami WDC (SMBx, RMBx, BBRx, BBSx, WAI, STP).
@@ -132,6 +148,55 @@ z rozszerzeniami WDC (SMBx, RMBx, BBRx, BBSx, WAI, STP).
     Te kary zaleza od wartosci rejestrow i flag w czasie wykonania programu
     i nie moga byc obliczone na etapie asemblacji.
 
+  @TRACE [R]
+    Asembluje biezacy bufor i uruchamia go we wbudowanym emulatorze
+    programowym WDC 65C02S.
+
+    Bez argumentu: interaktywny tryb krokowy.
+      Kazdy krok wyswietla aktualny PC, deasemblacje nastepnej instrukcji,
+      flagi procesora (NVDIIZC) oraz rejestry A, X, Y, SP.
+
+      Klawisze sterujace:
+        ENTER   - wykonaj jedna instrukcje (krok po kroku)
+        R       - uruchom ciagly az do BRK/STP, nielegalnego opkodu
+                  lub osiagniecia limitu 10000 krokow; po zakonczeniu
+                  wyswietla liczbe krokow, cykli i finalny stan rejestrów
+        Z       - zrzut strony zerowej ($00-$FF) w postaci hex
+        Q       - wyjdz z tracera i wróc do wiersza polecen
+
+    Z argumentem R: tryb uruchomienia - pomija tryb interaktywny,
+      wykonuje program az do BRK/STP, nielegalnego opkodu lub limitu
+      10000 krokow, nastepnie wyswietla podsumowanie.
+
+    Format wyniku:
+      steps: NNN  cycles: NNN
+      A:XX X:XX Y:XX SP:XX  NVDIZC
+
+    Model pamieci emulatora:
+      $0000-$00FF  Strona zerowa  - RAM do odczytu i zapisu
+      $0100-$01FF  Stos           - RAM do odczytu i zapisu
+      $org..$pc    Obszar kodu    - odczyt i zapis (zaladowany po asemblacji)
+      Inne adresy: odczyt zwraca $FF, zapis jest ignorowany
+
+    Programy samomodyfikujace sie:
+      Zapis do obszaru kodu ($org..$pc) jest w pelni obslugiwany. Zmodyfikowane
+      bajty sa przechowywane w XRAM i beda poprawnie odczytane przy kolejnym
+      pobraniu instrukcji, dzieki czemu programy samomodyfikujace sie wykonuja
+      sie zgodnie z oczekiwaniami.
+
+    Limit krokow:
+      Tryb R jest ograniczony do 10000 krokow, aby zapobiec zawieszeniu
+      tracera przy nieskonczonej petli. Po osiagnieciu limitu wyswietlane
+      jest ostrzezenie i tracer konczy prace.
+
+    Uwaga: liczba cykli uwzglednia kary za wzieta galaz i przekroczenie
+      granicy strony - odzwierciedla rzeczywiste zachowanie w czasie wykonania.
+      Dla porowniania: @CYCLES podaje tylko bazowe cykle opkodow.
+
+    Przyklady:
+      @TRACE          <- interaktywny tryb krokowy
+      @TRACE R        <- uruchom od razu, na koncu wyswietl podsumowanie
+
   @CD [sciezka]
     Zmienia biezacy katalog roboczy na podana sciezke. Bez argumentu pokazuje
     biezacy katalog.
@@ -147,13 +212,18 @@ z rozszerzeniami WDC (SMBx, RMBx, BBRx, BBSx, WAI, STP).
       @DIR
       @DIR MSC0:/SHELL
 
-  @MANUAL [en|pl]
+  @MANUAL [en|pl] [N]
     Wyswietla ten podrecznik strona po stronie (28 linii na strone). Enter
-    kontynuuje, q przerywa. Opcjonalny argument wybiera jezyk; domyslnie
-    angielski (en). Dostepne jezyki: en, pl.
+    kontynuuje, q przerywa. Opcjonalny argument jezykowy wybiera jezyk;
+    domyslnie angielski (en). Dostepne jezyki: en, pl.
+    Opcjonalny argument numeryczny N przewija podrecznik do rozdzialu N.
+    Argumenty mozna podawac w dowolnej kolejnosci.
     Przyklady:
-      @MANUAL
-      @MANUAL pl
+      @MANUAL               <- od poczatku (angielski)
+      @MANUAL pl            <- od poczatku (polski)
+      @MANUAL 5             <- przejdz do rozdzialu 5 (angielski)
+      @MANUAL pl 5          <- przejdz do rozdzialu 5 (polski)
+      @MANUAL 10 pl         <- przejdz do rozdzialu 10 (polski)
 
   @EXIT
     Konczy sesje interaktywna. Bufor jest automatycznie zapisywany do pliku
@@ -238,6 +308,20 @@ z rozszerzeniami WDC (SMBx, RMBx, BBRx, BBSx, WAI, STP).
     >wartosc     - starszy bajt (bity 8-15) wartosci 16-bitowej
     *wartosc     - wymuszenie trybu strony zerowej (ZP)
 
+  Arytmetyka etykiet:
+    Po nazwie etykiety mozna podac operator + lub - i offset numeryczny.
+    Offset jest dodawany lub odejmowany od adresu etykiety na etapie
+    asemblacji. Operatory < i > sa stosowane po wykonaniu arytmetyki.
+
+    Skladnia:
+      etykieta+N   - adres etykiety plus N
+      etykieta-N   - adres etykiety minus N
+      <etykieta+N  - mlodszy bajt (etykieta + N)
+      >etykieta+N  - starszy bajt (etykieta + N)
+
+    N moze byc dziesietne, szesnastkowe ($xx) lub dwojkowe (%xxxxxxxx).
+    Obslugiwany jest tylko jeden operator na operand (bez lancuchowania).
+
   Przyklady:
     LDA #$FF          ; imm: hex
     LDA #%11110000    ; imm: bin
@@ -245,6 +329,9 @@ z rozszerzeniami WDC (SMBx, RMBx, BBRx, BBSx, WAI, STP).
     LDA #<LABEL       ; imm: mlodszy bajt etykiety
     LDA #>LABEL       ; imm: starszy bajt etykiety
     LDA *$200         ; wymuszone ZP (choc adres > $FF)
+    STA start+20      ; zapis pod adres start+20
+    LDA #<tabela+4    ; mlodszy bajt (tabela+4)
+    LDA #>tabela+4    ; starszy bajt (tabela+4)
 
 --------------------------------------------------------------------------------
 6. DYREKTYWY

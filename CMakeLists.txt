@@ -41,3 +41,12 @@ rp6502_asset(hass manual[pl].txt docs/hass-manual-pl.txt)
 rp6502_executable(hass DATA 0x0200 RESET 0x0200)
 target_sources(hass PRIVATE src/hass.c)
 target_link_options(hass PRIVATE -C ${CMAKE_SOURCE_DIR}/src/hass.cfg)
+
+add_executable(hassbeta)
+rp6502_asset(hassbeta help src/hass.hlp)
+# ROM: commands
+rp6502_asset(hassbeta manual[en].txt docs/hass-manual-en.txt)
+rp6502_asset(hassbeta manual[pl].txt docs/hass-manual-pl.txt)
+rp6502_executable(hassbeta DATA 0x0200 RESET 0x0200)
+target_sources(hassbeta PRIVATE src/hassbeta.c)
+target_link_options(hassbeta PRIVATE -C ${CMAKE_SOURCE_DIR}/src/hass.cfg)

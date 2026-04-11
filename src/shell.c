@@ -265,6 +265,8 @@ static int startstage_shell(){
                     execute(&cmdline);
                     cmdline.bytes = 0;
                     cmdline.buffer[0] = 0;
+                    while(RX_READY) { (void)RIA.rx; } // flush escape sequences left by previous command
+                    ext_rx = 0;
                     prompt(PROMPT);
                 }
             } else {

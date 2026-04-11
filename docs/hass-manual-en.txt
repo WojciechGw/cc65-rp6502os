@@ -3,6 +3,22 @@
   Picocomputer 6502 (RP6502)
 ================================================================================
 
+  TABLE OF CONTENTS
+
+   1. Invocation
+   2. Interactive Mode Commands
+   3. Source File Format
+   4. Labels and Symbols
+   5. Literals and Expressions
+   6. Directives
+   7. Addressing Modes
+   8. Mnemonics
+   9. Listing File (out.lst)
+  10. Limits
+  11. Error Messages
+
+--------------------------------------------------------------------------------
+
 HASS is a two-pass assembler for the WDC 65C02S processor running on the
 Picocomputer 6502. It supports the full 65C02 instruction set including WDC
 extensions (SMBx, RMBx, BBRx, BBSx, WAI, STP).
@@ -129,6 +145,54 @@ extensions (SMBx, RMBx, BBRx, BBSx, WAI, STP).
     a page boundary. These penalties depend on runtime register values and
     flag states, so they cannot be computed at assembly time.
 
+  @TRACE [R]
+    Assembles the current buffer and runs it in a built-in WDC 65C02S
+    software emulator.
+
+    Without argument: interactive step-by-step mode.
+      Each step displays the current PC, disassembly of the next
+      instruction, CPU flags (NVDIIZC) and registers A, X, Y, SP.
+
+      Interactive keys:
+        ENTER   - execute one instruction (single step)
+        R       - run continuously until BRK/STP, illegal opcode,
+                  or the 10000-step limit is reached; on exit prints
+                  step count, cycle count and final register state
+        Z       - dump Zero Page memory ($00-$FF) as hex
+        Q       - quit the tracer and return to the command prompt
+
+    With argument R: run mode - skips interactive mode entirely,
+      executes until BRK/STP, illegal opcode or the 10000-step limit,
+      then prints step count, cycle count and final register state.
+
+    Run result output format:
+      steps: NNN  cycles: NNN
+      A:XX X:XX Y:XX SP:XX  NVDIZC
+
+    Memory model inside the emulator:
+      $0000-$00FF  Zero Page  - read/write RAM
+      $0100-$01FF  Stack      - read/write RAM
+      $org..$pc    Code area  - read/write (loaded from assembled output)
+      Other addresses: reads return $FF, writes are ignored
+
+    Self-modifying code:
+      Writes to the code area ($org..$pc) are fully supported. Modified
+      bytes are stored in XRAM and will be read back correctly on the next
+      fetch, so self-modifying programs execute as expected.
+
+    Step limit:
+      Run mode (R) is limited to 10000 steps to prevent infinite loops
+      from hanging the tracer. If the limit is reached, a warning is
+      displayed and the tracer exits.
+
+    Note: the cycle count includes branch-taken and page-crossing penalties
+      and reflects actual runtime behaviour. Compare @CYCLES which reports
+      base cycles only.
+
+    Examples:
+      @TRACE          <- interactive step-by-step
+      @TRACE R        <- run immediately, print summary on exit
+
   @CD [path]
     Changes the current working directory to path. With no argument, shows
     the current directory path.
@@ -143,13 +207,18 @@ extensions (SMBx, RMBx, BBRx, BBSx, WAI, STP).
       @DIR
       @DIR MSC0:/SHELL
 
-  @MANUAL [en|pl]
+  @MANUAL [en|pl] [N]
     Displays this manual, page by page (28 lines per page). Press Enter to
-    continue, q to quit. The optional argument selects the language; default
-    is English (en). Available languages: en, pl.
+    continue, q to quit. The optional language argument selects the language;
+    default is English (en). Available languages: en, pl.
+    The optional numeric argument N jumps directly to chapter N.
+    Arguments may be given in any order.
     Examples:
-      @MANUAL
-      @MANUAL pl
+      @MANUAL               <- show from beginning (English)
+      @MANUAL pl            <- show from beginning (Polish)
+      @MANUAL 5             <- jump to chapter 5 (English)
+      @MANUAL pl 5          <- jump to chapter 5 (Polish)
+      @MANUAL 10 pl         <- jump to chapter 10 (Polish)
 
   @EXIT
     Ends the interactive session. The current buffer is automatically saved
@@ -234,6 +303,20 @@ extensions (SMBx, RMBx, BBRx, BBSx, WAI, STP).
     >value       - high byte (bits 8-15) of a 16-bit value
     *value       - force zero-page addressing mode
 
+  Label arithmetic:
+    A label may be followed by + or - and a numeric offset. The offset is
+    added to or subtracted from the label's address at assembly time.
+    Unary operators < and > are applied after the arithmetic.
+
+    Syntax:
+      label+N      - label address plus N
+      label-N      - label address minus N
+      <label+N     - low byte of (label + N)
+      >label+N     - high byte of (label + N)
+
+    N may be decimal, hexadecimal ($xx) or binary (%xxxxxxxx).
+    Only one operator per operand is supported (no chaining).
+
   Examples:
     LDA #$FF          ; immediate: hex
     LDA #%11110000    ; immediate: binary
@@ -241,6 +324,9 @@ extensions (SMBx, RMBx, BBRx, BBSx, WAI, STP).
     LDA #<LABEL       ; immediate: low byte of label
     LDA #>LABEL       ; immediate: high byte of label
     LDA *$200         ; forced ZP (even though address > $FF)
+    STA start+20      ; store to address start+20
+    LDA #<table+4     ; low byte of (table+4)
+    LDA #>table+4     ; high byte of (table+4)
 
 --------------------------------------------------------------------------------
 6. DIRECTIVES
