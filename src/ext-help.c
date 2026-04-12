@@ -1,6 +1,6 @@
 #include "commons.h"
 
-#define APPVER "20260411.1647"
+#define APPVER "20260412.1531"
 
 #define APP_HEADER CSI_CLS CSI "2;1H" CSI HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " Help information                              " ANSI_DARK_GRAY "version " APPVER ANSI_RESET
 #define APP_FOOTER ANSI_DARK_GRAY  "________________________________________________________________________________" ANSI_RESET NEWLINE
@@ -100,6 +100,10 @@ static const cmd_t commands_rom[] = {
     { "label",      "show or set volume label of active drive", 
                     "label          - show label of active drive" NEWLINE
                     "label NEWLABEL - set active drive label to NEWLABEL" },
+    { "pack",       "pack (create) or unpack (extract) a ZIP archive",
+                    "  pack <dirname>       create: STORE (fast, no compression)" NEWLINE
+                    "  pack <dirname> /d    create: DEFLATE (4KB LZ77, smaller/slower)" NEWLINE
+                    "  pack /x <file.zip>   extract to <file> directory"},
     { "peek",       "memory viewer",
                     "peek 0xA000 128 (show 128 bytes of base RAM start from address 0xA000)" NEWLINE
                     "peek 0xF000 256 /X (show 256 bytes of XRAM start from address 0xF000)" },

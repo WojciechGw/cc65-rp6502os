@@ -7,7 +7,7 @@
 #include "commons.h"
 #include "commons/courier-gfx.h"
 
-#define APPVER "20260411.1716"
+#define APPVER "20260412.1531"
 
 /* ---- RIA UART access ---------------------------------------------------- */
 

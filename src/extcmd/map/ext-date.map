@@ -1,14 +1,14 @@
 Modules list:
 -------------
-ext-date.c.22440.0.o:
+ext-date.c.45144.0.o:
     CODE              Offs=000000  Size=0017DF  Align=00001  Fill=0000
     RODATA            Offs=000000  Size=0002B2  Align=00001  Fill=0000
     DATA              Offs=000000  Size=000004  Align=00001  Fill=0000
-crt0_cmd.s.22440.1.o:
+crt0_cmd.s.45144.1.o:
     STARTUP           Offs=000000  Size=00001E  Align=00001  Fill=0000
-write_stub.c.22440.2.o:
+write_stub.c.45144.2.o:
     CODE              Offs=0017DF  Size=00004C  Align=00001  Fill=0000
-initmainargs.s.22440.3.o:
+initmainargs.s.45144.3.o:
     STARTUP           Offs=00001E  Size=000001  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(_directerrno.o):
     CODE              Offs=00182B  Size=000009  Align=00001  Fill=0000
@@ -368,7 +368,7 @@ __STARTADDR__ ([linker generated]):
     [linker generated]        cfg/ext0x8000.cfg:9
     [linker generated]        cfg/ext0x8000.cfg:9
 __STARTUP__ (crt0.o):
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:13
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:13
     [linker generated]        cfg/ext0x8000.cfg:3
 ___clock_gettimespec (gettimespec.o):
     gettime.o                 ../libwrk/rp6502/gettime.s:19
@@ -398,7 +398,7 @@ __tz (timezone.o):
     mktime.o                  common/mktime.s:12
     localtime.o               rp6502/localtime.s:9
 _atoi (atoi.o):
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:17
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:17
 _clock_gettime (gettime.o):
     time.o                    /home/wojciech/git/cc65/asminc/time.inc:65
 _div (divt.o):
@@ -406,19 +406,19 @@ _div (divt.o):
 _fwrite (fwrite.o):
     vfprintf.o                common/vfprintf.s:10
 _localtime (localtime.o):
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:19
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:19
 _ltoa (ltoa.o):
     _printf.o                 common/_printf.s:12
-_main (ext-date.c.22440.0.o):
+_main (ext-date.c.45144.0.o):
     callmain.o                runtime/callmain.s:11
-    crt0_cmd.s.22440.1.o      crt0_cmd.s:2
+    crt0_cmd.s.45144.1.o      crt0_cmd.s:2
 _memcpy (memcpy.o):
     vsnprintf.o               common/vsnprintf.s:10
 _mktime (mktime.o):
     _time_t_to_tm.o           common/_time_t_to_tm.s:14
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:20
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:20
 _printf (printf.o):
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:15
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:15
 _ria_call_int (ria.o):
     errno.o                   rp6502/errno.s:12
     gettimespec.o             ../libwrk/rp6502/gettimespec.s:18
@@ -432,7 +432,7 @@ _ria_set_ax (ria.o):
 _ria_set_axsreg (ria.o):
     localtime.o               rp6502/localtime.s:11
 _sprintf (sprintf.o):
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:16
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:16
 _stdout (_file.o):
     printf.o                  common/printf.s:8
 _strlen (strlen.o):
@@ -440,21 +440,21 @@ _strlen (strlen.o):
 _strlower (strlower.o):
     _printf.o                 common/_printf.s:13
 _time (time.o):
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:21
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:21
 _ultoa (ltoa.o):
     _printf.o                 common/_printf.s:12
 _vfprintf (vfprintf.o):
     printf.o                  common/printf.s:8
 _vsprintf (vsprintf.o):
     sprintf.o                 common/sprintf.s:8
-_write (write_stub.c.22440.2.o):
+_write (write_stub.c.45144.2.o):
     fwrite.o                  common/fwrite.s:10
 addeqysp (addeqsp.o):
-    write_stub.c.22440.2.o    write_stub.c.22440.2.s:64
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
+    write_stub.c.45144.2.o    write_stub.c.45144.2.s:64
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
 addysp (addysp.o):
     incsp6.o                  runtime/incsp6.s:8
     incsp5.o                  runtime/incsp5.s:8
@@ -463,26 +463,26 @@ addysp (addysp.o):
     sprintf.o                 common/sprintf.s:8
     printf.o                  common/printf.s:8
     incsp4.o                  runtime/incsp4.s:8
-    write_stub.c.22440.2.o    write_stub.c.22440.2.s:64
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
+    write_stub.c.45144.2.o    write_stub.c.45144.2.s:64
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
 addysp1 (addysp.o):
     ludiv.o                   runtime/ludiv.s:9
     lsub.o                    runtime/lsub.s:11
     lmul.o                    runtime/lmul.s:9
     ladd.o                    runtime/ladd.s:8
 aslax2 (aslax2.o):
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
 axlong (axlong.o):
     _printf.o                 common/_printf.s:11
 axulong (axlong.o):
     _printf.o                 common/_printf.s:11
 bnegax (bneg.o):
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
 booleq (makebool.o):
     leq.o                     runtime/leq.s:8
 c_sp (zeropage.o):
@@ -517,8 +517,8 @@ c_sp (zeropage.o):
     crt0.o                    /home/wojciech/git/cc65/asminc/zeropage.inc:11
     addysp.o                  runtime/addysp.s:8
     addeqsp.o                 runtime/addeqsp.s:8
-    write_stub.c.22440.2.o    write_stub.c.22440.2.s:10
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:10
+    write_stub.c.45144.2.o    write_stub.c.45144.2.s:10
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:10
 callmain (callmain.o):
     crt0.o                    rp6502/crt0.s:7
 copydata (copydata.o):
@@ -527,30 +527,30 @@ ctypemaskdirect (ctypemask.o):
     strlower.o                common/strlower.s:14
     atoi.o                    common/atoi.s:11
 decsp2 (decsp2.o):
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
 decsp4 (decsp4.o):
     sprintf.o                 common/sprintf.s:8
     lpush.o                   runtime/lpush.s:12
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
 decsp6 (decsp6.o):
     _printf.o                 common/_printf.s:11
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
 donelib (condes.o):
     crt0.o                    rp6502/crt0.s:12
-    crt0_cmd.s.22440.1.o      crt0_cmd.s:2
+    crt0_cmd.s.45144.1.o      crt0_cmd.s:2
 incsp2 (incsp2.o):
     vsnprintf.o               common/vsnprintf.s:9
     staxspi.o                 runtime/staxspi.s:9
     popptr1.o                 runtime/popptr1.s:8
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
 incsp3 (incsp3.o):
     gettime.o                 ../libwrk/rp6502/gettime.s:51
 incsp4 (incsp4.o):
     lcmp.o                    runtime/lcmp.s:9
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
 incsp5 (incsp5.o):
     gettimespec.o             ../libwrk/rp6502/gettimespec.s:65
 incsp6 (incsp6.o):
@@ -559,9 +559,9 @@ incsp6 (incsp6.o):
     vfprintf.o                common/vfprintf.s:9
 initlib (condes.o):
     crt0.o                    rp6502/crt0.s:12
-    crt0_cmd.s.22440.1.o      crt0_cmd.s:2
-initmainargs (initmainargs.s.22440.3.o):
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:14
+    crt0_cmd.s.45144.1.o      crt0_cmd.s:2
+initmainargs (initmainargs.s.45144.3.o):
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:14
 ldax0sp (ldaxsp.o):
     gettimespec.o             ../libwrk/rp6502/gettimespec.s:65
 ldaxysp (ldaxsp.o):
@@ -574,8 +574,8 @@ mul8x16 (mul8.o):
 mul8x16a (mul8.o):
     mul.o                     runtime/mul.s:8
 mulax3 (mulax3.o):
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
 negax (negabs.o):
     divt.o                    common/divt.s:17
     shelp.o                   runtime/shelp.s:11
@@ -630,8 +630,8 @@ ptr1 (zeropage.o):
     localtime.o               rp6502/localtime.s:13
     div.o                     runtime/div.s:12
     atoi.o                    common/atoi.s:10
-    write_stub.c.22440.2.o    write_stub.c.22440.2.s:11
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:11
+    write_stub.c.45144.2.o    write_stub.c.45144.2.s:11
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:11
 ptr2 (zeropage.o):
     memcpy.o                  common/memcpy.s:15
     strlower.o                common/strlower.s:13
@@ -659,7 +659,7 @@ ptr4 (zeropage.o):
     mul8.o                    runtime/mul8.s:10
     mul.o                     runtime/mul.s:10
 push0 (pushax.o):
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
 push1 (push1.o):
     _printf.o                 common/_printf.s:11
     vfprintf.o                common/vfprintf.s:9
@@ -678,22 +678,22 @@ pushax (pushax.o):
     _printf.o                 common/_printf.s:11
     printf.o                  common/printf.s:8
     mktime.o                  common/mktime.s:13
-    write_stub.c.22440.2.o    write_stub.c.22440.2.s:64
-    crt0_cmd.s.22440.1.o      crt0_cmd.s:2
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
+    write_stub.c.45144.2.o    write_stub.c.45144.2.s:64
+    crt0_cmd.s.45144.1.o      crt0_cmd.s:2
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
 pusheax (lpush.o):
     _printf.o                 common/_printf.s:11
     mktime.o                  common/mktime.s:13
     localtime.o               rp6502/localtime.s:10
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
 pushw0sp (pushwsp.o):
     gettime.o                 ../libwrk/rp6502/gettime.s:51
     vsprintf.o                common/vsprintf.s:8
@@ -701,13 +701,13 @@ pushwysp (pushwsp.o):
     gettimespec.o             ../libwrk/rp6502/gettimespec.s:65
     fwrite.o                  common/fwrite.s:11
     vfprintf.o                common/vfprintf.s:9
-    write_stub.c.22440.2.o    write_stub.c.22440.2.s:64
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
+    write_stub.c.45144.2.o    write_stub.c.45144.2.s:64
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
 regbank (zeropage.o):
     _printf.o                 /home/wojciech/git/cc65/asminc/zeropage.inc:14
 shrax2 (shrax2.o):
@@ -735,33 +735,33 @@ sreg (zeropage.o):
     lneg.o                    runtime/lneg.s:11
     icmp.o                    runtime/icmp.s:9
     atoi.o                    common/atoi.s:10
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:10
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:10
 stax0sp (staxsp.o):
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
 staxspidx (staxspi.o):
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
 staxysp (staxsp.o):
     vsprintf.o                common/vsprintf.s:8
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
 steaxspidx (steaxspi.o):
     gettimespec.o             ../libwrk/rp6502/gettimespec.s:65
 subeq0sp (subeqsp.o):
-    write_stub.c.22440.2.o    write_stub.c.22440.2.s:64
+    write_stub.c.45144.2.o    write_stub.c.45144.2.s:64
 subysp (subysp.o):
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
 tmp1 (zeropage.o):
     steaxspi.o                runtime/steaxspi.s:10
     ltoa.o                    common/ltoa.s:11
@@ -777,7 +777,7 @@ tmp1 (zeropage.o):
     div.o                     runtime/div.s:12
     atoi.o                    common/atoi.s:10
     aslax2.o                  runtime/aslax2.s:8
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:11
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:11
 tmp2 (zeropage.o):
     steaxspi.o                runtime/steaxspi.s:10
     lmul.o                    runtime/lmul.s:10
@@ -796,23 +796,23 @@ tosaddeax (ladd.o):
     mktime.o                  common/mktime.s:14
     localtime.o               rp6502/localtime.s:10
 tosdiva0 (div.o):
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
 tosdivax (div.o):
     divt.o                    common/divt.s:17
 toseqeax (leq.o):
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
 tosicmp (icmp.o):
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
 toslcmp (lcmp.o):
     leq.o                     runtime/leq.s:8
 tosmoda0 (mod.o):
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
 tosmodax (mod.o):
-    ext-date.c.22440.0.o      ext-date.c.22440.0.s:3552
+    ext-date.c.45144.0.o      ext-date.c.45144.0.s:3552
 tossubeax (lsub.o):
     mktime.o                  common/mktime.s:14
 tosudivax (udiv.o):

@@ -1,5 +1,5 @@
 // razemOS .COM
-// ROMS Browser - browse *.rp6502 files with arrow-key tile navigation
+// ROMS Browser & Launchpad - browse *.rp6502 files with arrow-key tile navigation
 // command: roms [path]
 //
 

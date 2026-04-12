@@ -10,7 +10,7 @@
 
 #include "commons.h"
 
-#define APPVER "20260411.1803"
+#define APPVER "20260412.1531"
 
 #define FNAMELEN 64
 
@@ -231,6 +231,36 @@ static int rb_getbyte(void) {
     }
     return (int)(unsigned char)rb_buf[rb_pos++];
 }
+
+/* ---- LE32 buffer helper ------------------------------------------------- */
+
+static unsigned long read_le32_buf(const unsigned char *p)
+{
+    return (unsigned long)(unsigned char)p[0]
+         | ((unsigned long)(unsigned char)p[1] << 8)
+         | ((unsigned long)(unsigned char)p[2] << 16)
+         | ((unsigned long)(unsigned char)p[3] << 24);
+}
+
+/* ---- Fixed-Huffman inflate lookup tables -------------------------------- */
+/* Distance codes 0-23 cover distances 1-4096 (matches 4KB LZ77 window)     */
+
+static const unsigned int dist_base[24] = {
+    1,2,3,4,5,7,9,13,17,25,33,49,65,97,129,193,
+    257,385,513,769,1025,1537,2049,3073
+};
+static const unsigned char dist_xb[24] = {
+    0,0,0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10
+};
+
+/* Length symbols 257-285 (index = sym-257); sym 285 → len 258, 0 extra bits */
+static const unsigned int len_base[29] = {
+    3,4,5,6,7,8,9,10,11,13,15,17,19,23,27,31,
+    35,43,51,59,67,83,99,115,131,163,195,227,258
+};
+static const unsigned char len_xb[29] = {
+    0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,0
+};
 
 /* ---- STORE mode --------------------------------------------------------- */
 
@@ -504,6 +534,420 @@ static int pack_deflate(int fd_out, unsigned long *pcrc, unsigned long *puncomp)
     return 0;
 }
 
+/* ==== UNPACK / INFLATE ==================================================== */
+
+/* ---- Inflate bit reader (reuses dfl_bits / dfl_nbits) ------------------- */
+
+static int infl_bit(void)
+{
+    int b;
+    if (dfl_nbits == 0u) {
+        b = rb_getbyte();
+        if (b < 0) return -1;
+        dfl_bits  = (unsigned char)b;
+        dfl_nbits = 8u;
+    }
+    b = (int)(dfl_bits & 1u);
+    dfl_bits  >>= 1;
+    dfl_nbits--;
+    return b;
+}
+
+/* Read n bits LSB-first (extra bits after Huffman code) */
+static int infl_read_lsb(unsigned char n)
+{
+    unsigned int  v = 0u;
+    unsigned char i;
+    int b;
+    for (i = 0u; i < n; i++) {
+        b = infl_bit();
+        if (b < 0) return -1;
+        v |= (unsigned int)(unsigned char)b << i;
+    }
+    return (int)v;
+}
+
+/* Decode fixed Huffman lit/len symbol: 7/8/9 bits, MSB-accumulated        */
+/* First bit read from stream = MSB of code (as emitted by emit_huff).      */
+static int infl_decode_litlen(void)
+{
+    unsigned int  code = 0u;
+    unsigned char i;
+    int b;
+
+    for (i = 0u; i < 7u; i++) {
+        b = infl_bit();
+        if (b < 0) return -1;
+        code = (code << 1) | (unsigned int)(unsigned char)b;
+    }
+    if (code <= 23u) return (int)(256u + code); /* 7-bit: EOB(256), 257-279 */
+
+    b = infl_bit(); if (b < 0) return -1;
+    code = (code << 1) | (unsigned int)(unsigned char)b;  /* 8 bits */
+    if (code >= 48u  && code <= 191u) return (int)(code - 48u);         /* lit 0-143   */
+    if (code >= 192u && code <= 199u) return (int)(280u + code - 192u); /* sym 280-287 */
+
+    b = infl_bit(); if (b < 0) return -1;
+    code = (code << 1) | (unsigned int)(unsigned char)b;  /* 9 bits */
+    if (code >= 400u && code <= 511u) return (int)(144u + code - 400u); /* lit 144-255 */
+
+    return -2; /* invalid code */
+}
+
+/* Decode 5-bit distance code, MSB-accumulated */
+static int infl_decode_dist(void)
+{
+    unsigned int  code = 0u;
+    unsigned char i;
+    int b;
+    for (i = 0u; i < 5u; i++) {
+        b = infl_bit();
+        if (b < 0) return -1;
+        code = (code << 1) | (unsigned int)(unsigned char)b;
+    }
+    return (int)code;
+}
+
+/* ---- Inflate output helpers (reuse dfl_obuf/dfl_opos, lz_win/lz_wpos) -- */
+
+static int unpack_out_fd; /* output fd set by caller before inflate/store    */
+
+static void unpack_flush_obuf(void)
+{
+    unsigned int i;
+    if (dfl_opos > 0u) {
+        RIA.addr0 = PACK_XRAM_STAGE;
+        RIA.step0 = 1;
+        for (i = 0u; i < dfl_opos; i++) RIA.rw0 = dfl_obuf[i];
+        write_xram(PACK_XRAM_STAGE, dfl_opos, unpack_out_fd);
+        dfl_opos = 0u;
+    }
+}
+
+static void unpack_emit(unsigned char b)
+{
+    lz_win[lz_wpos] = b;
+    lz_wpos = (lz_wpos + 1u) & LZ_WIN_MASK;
+    dfl_obuf[dfl_opos++] = b;
+    if (dfl_opos >= 128u) unpack_flush_obuf();
+}
+
+/* ---- Inflate one fixed-Huffman block (BTYPE=01) ------------------------- */
+/* Accumulates into *pcrc (pre-init to 0xFFFFFFFF) and *pusz.                */
+
+static int inflate_fixed_block(unsigned long *pcrc, unsigned long *pusz)
+{
+    int          sym, dc, xb, extra;
+    unsigned int length, dist, src, i;
+    unsigned char bk;
+
+    while (1) {
+        sym = infl_decode_litlen();
+        if (sym < 0) return -1;
+
+        if (sym == 256) return 0; /* end-of-block */
+
+        if (sym < 256) {
+            *pcrc = crc32_upd(*pcrc, (unsigned char)sym);
+            unpack_emit((unsigned char)sym);
+            (*pusz)++;
+        } else {
+            /* length/distance back-reference: sym 257-285 */
+            sym -= 257;
+            if (sym > 28) return -1;
+            xb     = (int)len_xb[(unsigned char)sym];
+            extra  = xb ? infl_read_lsb((unsigned char)xb) : 0;
+            if (extra < 0) return -1;
+            length = len_base[(unsigned char)sym] + (unsigned int)extra;
+
+            dc = infl_decode_dist();
+            if (dc < 0 || dc > 23) return -1;
+            xb    = (int)dist_xb[(unsigned char)dc];
+            extra = xb ? infl_read_lsb((unsigned char)xb) : 0;
+            if (extra < 0) return -1;
+            dist = dist_base[(unsigned char)dc] + (unsigned int)extra;
+            if (dist == 0u || dist > LZ_WIN_SIZE) return -2; /* beyond window */
+
+            src = (unsigned int)((lz_wpos + LZ_WIN_SIZE - dist) & LZ_WIN_MASK);
+            for (i = 0u; i < length; i++) {
+                bk = lz_win[(unsigned int)((src + i) & LZ_WIN_MASK)];
+                *pcrc = crc32_upd(*pcrc, bk);
+                unpack_emit(bk);
+                (*pusz)++;
+            }
+        }
+    }
+}
+
+/* ---- Inflate a DEFLATE stream from fd_in → unpack_out_fd ---------------- */
+/* Returns 0 on success, <0 on error.                                         */
+
+static int unpack_inflate(int fd_in, unsigned long *pcrc, unsigned long *pusz)
+{
+    int          bfinal, btype, rc, b, i;
+    unsigned int blen;
+
+    *pcrc = 0xFFFFFFFFUL;
+    *pusz = 0UL;
+    dfl_bits  = 0u;
+    dfl_nbits = 0u;
+    dfl_opos  = 0u;
+    lz_wpos   = 0u;
+    rb_init(fd_in);
+
+    do {
+        bfinal = infl_bit();   if (bfinal < 0) return -1;
+        btype  = infl_read_lsb(2u); if (btype  < 0) return -1;
+
+        if (btype == 0) {
+            /* BTYPE=00: non-compressed block — align, copy LEN bytes */
+            dfl_nbits = 0u; dfl_bits = 0u;
+            b = rb_getbyte(); if (b < 0) return -1;
+            blen  = (unsigned int)(unsigned char)b;
+            b = rb_getbyte(); if (b < 0) return -1;
+            blen |= (unsigned int)(unsigned char)b << 8;
+            rb_getbyte(); rb_getbyte(); /* NLEN — discard */
+            for (i = 0; i < (int)blen; i++) {
+                b = rb_getbyte(); if (b < 0) return -1;
+                *pcrc = crc32_upd(*pcrc, (unsigned char)b);
+                unpack_emit((unsigned char)b);
+                (*pusz)++;
+            }
+        } else if (btype == 1) {
+            /* BTYPE=01: fixed Huffman */
+            rc = inflate_fixed_block(pcrc, pusz);
+            if (rc < 0) return rc;
+        } else {
+            tx_string(EXCLAMATION "Unsupported DEFLATE type" NEWLINE);
+            return -3;
+        }
+    } while (!bfinal);
+
+    unpack_flush_obuf();
+    *pcrc ^= 0xFFFFFFFFUL;
+    return 0;
+}
+
+/* ---- Copy raw STORE data from fd_in → unpack_out_fd --------------------- */
+
+static int unpack_store(int fd_in, unsigned long comp_sz,
+                        unsigned long *pcrc, unsigned long *pusz)
+{
+    unsigned long remaining = comp_sz;
+    unsigned long crc       = 0xFFFFFFFFUL;
+    unsigned int  nr, j;
+    int           got;
+
+    while (remaining > 0UL) {
+        nr  = (remaining > (unsigned long)RB_SIZE)
+              ? (unsigned int)RB_SIZE : (unsigned int)remaining;
+        got = read(fd_in, rb_buf, nr);
+        if (got <= 0) { tx_string(EXCLAMATION "Read error" NEWLINE); return -1; }
+        nr = (unsigned int)got;
+        for (j = 0u; j < nr; j++) crc = crc32_upd(crc, rb_buf[j]);
+        RIA.addr0 = PACK_XRAM_STAGE;
+        RIA.step0 = 1;
+        for (j = 0u; j < nr; j++) RIA.rw0 = rb_buf[j];
+        write_xram(PACK_XRAM_STAGE, nr, unpack_out_fd);
+        remaining -= (unsigned long)nr;
+    }
+    *pcrc = crc ^ 0xFFFFFFFFUL;
+    *pusz = comp_sz;
+    return 0;
+}
+
+/* ---- Main unpack entry point -------------------------------------------- */
+
+static int do_unpack(const char *arcpath)
+{
+    static f_stat_t      arc_stat;
+    static char          dest_dir[FNAMELEN + 1];
+    static char          outpath[FNAMELEN * 2 + 2];
+    static unsigned char eocd_buf[22];
+    static unsigned char cdhbuf[46];
+    static unsigned char lfhbuf[30];
+
+    unsigned long fsize, cd_offset, cdh_pos, local_off, data_start;
+    unsigned long crc_got, crc_exp, usz_got, usz_exp;
+    unsigned int  nfiles, fnlen_orig, fnlen, extra_len, comment_len;
+    unsigned int  lfh_fnlen, lfh_extra, j;
+    int           fd, fd_out, rc, n, i;
+    const char   *fname;
+
+    /* 1. Get file size */
+    if (f_stat(arcpath, &arc_stat) < 0) {
+        tx_string(EXCLAMATION "Not found: "); tx_string(arcpath); tx_string(NEWLINE);
+        return 1;
+    }
+    fsize = arc_stat.fsize;
+    if (fsize < 22UL) { tx_string(EXCLAMATION "Not a valid ZIP" NEWLINE); return 1; }
+
+    /* 2. Destination directory = arcpath without last extension */
+    n = (int)strlen(arcpath);
+    {
+        int dot = -1;
+        for (i = n - 1; i >= 0; i--) {
+            if (arcpath[i] == '.') { dot = i; break; }
+            if (arcpath[i] == '/' || arcpath[i] == '\\') break;
+        }
+        if (dot < 0) dot = n;
+        if (dot > FNAMELEN) dot = FNAMELEN;
+        memcpy(dest_dir, arcpath, (unsigned int)dot);
+        dest_dir[dot] = '\0';
+    }
+
+    /* 3. Open archive */
+    fd = open(arcpath, O_RDONLY);
+    if (fd < 0) { tx_string(EXCLAMATION "Cannot open archive" NEWLINE); return 1; }
+
+    /* 4. Read EOCD (last 22 bytes) */
+    if (lseek(fd, (off_t)(fsize - 22UL), SEEK_SET) < 0) {
+        tx_string(EXCLAMATION "Seek failed" NEWLINE); close(fd); return 1;
+    }
+    if (read(fd, eocd_buf, 22) != 22) {
+        tx_string(EXCLAMATION "EOCD read failed" NEWLINE); close(fd); return 1;
+    }
+    if (eocd_buf[0] != 0x50 || eocd_buf[1] != 0x4B ||
+        eocd_buf[2] != 0x05 || eocd_buf[3] != 0x06) {
+        tx_string(EXCLAMATION "Not a valid ZIP" NEWLINE); close(fd); return 1;
+    }
+    nfiles    = (unsigned int)(unsigned char)eocd_buf[10] |
+                ((unsigned int)(unsigned char)eocd_buf[11] << 8);
+    cd_offset = read_le32_buf(eocd_buf + 16);
+
+    if (nfiles == 0u) { tx_string(EXCLAMATION "Empty archive" NEWLINE); close(fd); return 1; }
+    if (nfiles > PACK_MAX_FILES) {
+        tx_string(EXCLAMATION "Too many files (max 64)" NEWLINE); close(fd); return 1;
+    }
+
+    /* 5. Read Central Directory */
+    cdh_pos = cd_offset;
+    cdir_n  = 0u;
+    for (j = 0u; j < nfiles && cdir_n < PACK_MAX_FILES; j++) {
+        if (lseek(fd, (off_t)cdh_pos, SEEK_SET) < 0) break;
+        if (read(fd, cdhbuf, 46) != 46) break;
+        if (cdhbuf[0] != 0x50 || cdhbuf[1] != 0x4B ||
+            cdhbuf[2] != 0x01 || cdhbuf[3] != 0x02) break;
+
+        fnlen_orig  = (unsigned int)(unsigned char)cdhbuf[28] |
+                      ((unsigned int)(unsigned char)cdhbuf[29] << 8);
+        extra_len   = (unsigned int)(unsigned char)cdhbuf[30] |
+                      ((unsigned int)(unsigned char)cdhbuf[31] << 8);
+        comment_len = (unsigned int)(unsigned char)cdhbuf[32] |
+                      ((unsigned int)(unsigned char)cdhbuf[33] << 8);
+
+        fnlen = (fnlen_orig > PACK_FNAME_MAX) ? PACK_FNAME_MAX : fnlen_orig;
+        if (read(fd, cdir[cdir_n].fname, fnlen) != (int)fnlen) break;
+        cdir[cdir_n].fname[fnlen] = '\0';
+        cdir[cdir_n].fnlen  = (unsigned char)fnlen;
+
+        cdir[cdir_n].method = (unsigned char)((unsigned int)(unsigned char)cdhbuf[10] |
+                               ((unsigned int)(unsigned char)cdhbuf[11] << 8));
+        cdir[cdir_n].crc32  = read_le32_buf(cdhbuf + 16);
+        cdir[cdir_n].comp   = read_le32_buf(cdhbuf + 20);
+        cdir[cdir_n].uncomp = read_le32_buf(cdhbuf + 24);
+        cdir[cdir_n].offset = read_le32_buf(cdhbuf + 42);
+
+        cdh_pos += 46UL + (unsigned long)fnlen_orig
+                        + (unsigned long)extra_len
+                        + (unsigned long)comment_len;
+        cdir_n++;
+    }
+    if (cdir_n == 0u) {
+        tx_string(EXCLAMATION "Cannot read central directory" NEWLINE);
+        close(fd); return 1;
+    }
+
+    /* 6. Create destination directory (ignore error if exists) */
+    tx_string(NEWLINE "Extracting to: "); tx_string(dest_dir); tx_string(NEWLINE);
+    f_mkdir(dest_dir);
+
+    /* 7. Extract each file */
+    rc = 0;
+    for (j = 0u; j < cdir_n; j++) {
+        /* strip first path component (dirname/) from stored name */
+        fname = cdir[j].fname;
+        {
+            const char *p = fname;
+            while (*p && *p != '/' && *p != '\\') p++;
+            if (*p) fname = p + 1;
+        }
+        if (!*fname) continue; /* skip directory-only entries */
+
+        /* build output path: dest_dir/fname */
+        {
+            unsigned int dlen = (unsigned int)strlen(dest_dir);
+            unsigned int flen = (unsigned int)strlen(fname);
+            if (dlen + 1u + flen >= (unsigned int)(sizeof(outpath) - 1u)) {
+                tx_string(EXCLAMATION "Path too long, skipped" NEWLINE); continue;
+            }
+            memcpy(outpath, dest_dir, dlen);
+            outpath[dlen] = '/';
+            memcpy(outpath + dlen + 1u, fname, flen + 1u);
+        }
+
+        tx_string("  < "); tx_string(outpath);
+
+        /* seek to Local File Header */
+        local_off = cdir[j].offset;
+        if (lseek(fd, (off_t)local_off, SEEK_SET) < 0) {
+            tx_string(" [SKIP: seek]" NEWLINE); continue;
+        }
+        if (read(fd, lfhbuf, 30) != 30) {
+            tx_string(" [SKIP: LFH]" NEWLINE); continue;
+        }
+        if (lfhbuf[0] != 0x50 || lfhbuf[1] != 0x4B ||
+            lfhbuf[2] != 0x03 || lfhbuf[3] != 0x04) {
+            tx_string(" [SKIP: bad LFH sig]" NEWLINE); continue;
+        }
+        lfh_fnlen = (unsigned int)(unsigned char)lfhbuf[26] |
+                    ((unsigned int)(unsigned char)lfhbuf[27] << 8);
+        lfh_extra = (unsigned int)(unsigned char)lfhbuf[28] |
+                    ((unsigned int)(unsigned char)lfhbuf[29] << 8);
+        data_start = local_off + 30UL
+                   + (unsigned long)lfh_fnlen
+                   + (unsigned long)lfh_extra;
+
+        if (lseek(fd, (off_t)data_start, SEEK_SET) < 0) {
+            tx_string(" [SKIP: data seek]" NEWLINE); continue;
+        }
+
+        /* open output file (overwrite if exists) */
+        fd_out = open(outpath, O_WRONLY | O_CREAT | O_TRUNC);
+        if (fd_out < 0) { tx_string(" [SKIP: create]" NEWLINE); continue; }
+        unpack_out_fd = fd_out;
+
+        /* decompress or copy */
+        crc_got = 0UL; usz_got = 0UL;
+        if (cdir[j].method == (unsigned char)ZIP_METHOD_STORE)
+            rc = unpack_store(fd, cdir[j].comp, &crc_got, &usz_got);
+        else if (cdir[j].method == (unsigned char)ZIP_METHOD_DEFLATE)
+            rc = unpack_inflate(fd, &crc_got, &usz_got);
+        else {
+            tx_string(" [SKIP: unknown method]" NEWLINE);
+            close(fd_out); continue;
+        }
+        close(fd_out);
+
+        if (rc < 0) { tx_string(" [ERROR]" NEWLINE); rc = 1; continue; }
+
+        crc_exp = cdir[j].crc32;
+        usz_exp = cdir[j].uncomp;
+        tx_char(' '); tx_dec32(usz_got); tx_string(" B");
+        if (crc_got != crc_exp || usz_got != usz_exp)
+            tx_string(" [CRC/SIZE MISMATCH]");
+        tx_string(NEWLINE);
+    }
+
+    close(fd);
+    tx_string(NEWLINE "Done: ");
+    tx_dec32((unsigned long)cdir_n);
+    tx_string(" file(s) -> ");
+    tx_string(dest_dir);
+    tx_string(NEWLINE);
+    return rc;
+}
+
 /* ---- main --------------------------------------------------------------- */
 
 int main(int argc, char **argv)
@@ -530,18 +974,23 @@ int main(int argc, char **argv)
     static char  src_path[FNAMELEN + 1 + FNAMELEN]; /* "dirname/filename\0" */
     static char  arc_name[PACK_FNAME_MAX + 1];     /* "dirname/filename\0" for archive */
 
+    /* /x: unpack mode — pack /x archive.zip */
+    if (argc >= 2 && argv[0][0] == '/' && (argv[0][1] == 'x' || argv[0][1] == 'X'))
+        return do_unpack(argv[1]);
+
     if (argc == 1 && strcmp(argv[0], "/?") == 0) {
         tx_string(NEWLINE
             "Command : pack" NEWLINE NEWLINE
-            "Create a ZIP archive from a directory" NEWLINE NEWLINE
+            "Pack (create) or unpack (extract) a ZIP archive" NEWLINE NEWLINE
             "Usage:" NEWLINE
-            "  pack <dirname>      STORE (no compression)" NEWLINE
-            "  pack <dirname> /d   DEFLATE (4KB window LZ77, smaller/slower)" NEWLINE
+            "  pack <dirname>       create: STORE (fast, no compression)" NEWLINE
+            "  pack <dirname> /d    create: DEFLATE (4KB LZ77, smaller/slower)" NEWLINE
+            "  pack /x <file.zip>   extract to <file> directory" NEWLINE
             "Output: <dirname>.zip" NEWLINE);
         return 0;
     }
     if (argc == 0 || argv[0][0] == '/') {
-        tx_string(NEWLINE "Usage: pack <dirname> [/d]" NEWLINE);
+        tx_string(NEWLINE "Usage: pack <dirname> [/d] | pack /x <archive.zip>" NEWLINE);
         return 1;
     }
 

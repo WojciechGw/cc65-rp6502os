@@ -13,6 +13,7 @@
 #define APPVER "20260408.1854"
 
 #define APPDIRDEFAULT "MSC0:/"
+#define FILESRC_DEFAULT_EXT ".asm"
 #define APP_MSG_TITLE CSI_RESET CSI "2;1H" CSI HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " Handy ASSembler WDC65C02S" ANSI_DARK_GRAY CSI "2;60Hversion " APPVER ANSI_RESET
 #define APP_MSG_START_ASSEMBLING ANSI_DARK_GRAY CSI "4;1HStart assembling ... " ANSI_RESET
 #define APP_MSG_START_ENTERCODE ANSI_DARK_GRAY CSI "4;1HType @HELP for a list of commands, or start coding." ANSI_RESET
@@ -1647,11 +1648,13 @@ static uint8_t vm_penalty_cycles(void){
 
 static void trace_print_run_result(int status, unsigned long steps, unsigned long cycles){
     printf(NEWLINE "steps: %lu  cycles: %lu" NEWLINE, steps, cycles);
-    printf("A:%02X X:%02X Y:%02X SP:%02X  %c%c%c%c%c%c" NEWLINE NEWLINE,
+    printf(" A   X   Y   SP  N V D I Z C  PC" NEWLINE);
+    printf("$%02X $%02X $%02X $%02X  %c %c %c %c %c %c $%04X" NEWLINE NEWLINE,
         vm_a, vm_x, vm_y, vm_sp,
-        (vm_p&0x80u)?'N':'.', (vm_p&0x40u)?'V':'.',
-        (vm_p&0x08u)?'D':'.', (vm_p&0x04u)?'I':'.',
-        (vm_p&0x02u)?'Z':'.', (vm_p&0x01u)?'C':'.');
+        (vm_p&0x80u)?'1':'0', (vm_p&0x40u)?'1':'0',
+        (vm_p&0x08u)?'1':'0', (vm_p&0x04u)?'1':'0',
+        (vm_p&0x02u)?'1':'0', (vm_p&0x01u)?'1':'0',
+        pc);
     if(status==1)
         printf(ANSI_GREEN "@TRACE: halted" ANSI_RESETNEWLINEx2);
     else if(steps>=10000ul && !status)
@@ -1724,13 +1727,13 @@ static void cmd_trace(const char *args){
         }
 
         if(tbuf[0]=='z'||tbuf[0]=='Z'){
-            printf(NEWLINE "Zero Page :" NEWLINE NEWLINE);
+            printf(NEWLINE ANSI_CYAN "Zero Page :" NEWLINE NEWLINE);
             for(row=0u; row<16u; row++){
                 printf("$%02X:", (unsigned)(row*16u));
                 for(col=0u; col<16u; col++) printf(" %02X", vm_zp[row*16u+col]);
                 printf(NEWLINE);
             }
-            printf(NEWLINE);
+            printf(ANSI_RESET NEWLINE);
             continue;
         }
 
