@@ -6,7 +6,7 @@
 #include "commons.h"
 #include "commons/courier-gfx.h"
 
-#define APPVER "20260413.1124"
+#define APPVER "20260413.1236"
 
 #define HDR_NAME_MAX 31  /* max filename chars in header (+ null = 32 B) */
 
@@ -168,11 +168,11 @@ int main(int argc, char **argv)
         unsigned long tmp;
         uint8_t  ci;
         static const char hx[] = "0123456789ABCDEF";
-        DrawText(3,  0, "Run the receiver script on the PC.", DARK_GRAY, BLACK);
-        DrawText(4,  0, "Receiver script  : crx.py",          DARK_GRAY, BLACK);
-        DrawText(5,  0, "File to transfer : ",                DARK_GRAY, BLACK);
-        DrawText(5, 19, argv[0],                              WHITE    , BLACK);
-        DrawText(6,  0, "Checksum (CRC32) : ", DARK_GRAY, BLACK);
+        DrawText(3,  12, "Run the receiver script on the PC.", DARK_GRAY, BLACK);
+        DrawText(4,  12, "Receiver script  : crx.py",          DARK_GRAY, BLACK);
+        DrawText(5,  12, "File to transfer : ",                DARK_GRAY, BLACK);
+        DrawText(5,  31, argv[0],                              WHITE    , BLACK);
+        DrawText(6,  12, "Checksum (CRC32) : ", DARK_GRAY, BLACK);
         /* first pass: calculate filesize and checksum */
         DrawText(6, 18, " calculating ", WHITE, BLACK);
         while ((n = read(in_fd, hex_bytes, sizeof(hex_bytes))) > 0) {
@@ -188,7 +188,7 @@ int main(int argc, char **argv)
         }
         ckbuf[8] = '\0';
         sprintf(sb, "%ld", filesize);
-        col = (uint8_t)(19 + strlen(argv[0]));
+        col = (uint8_t)(31 + strlen(argv[0]));
         DrawText(5, col, " (size ", DARK_GRAY, BLACK);
         col += 7;
         DrawText(5, col, sb,  WHITE,     BLACK);
@@ -198,10 +198,10 @@ int main(int argc, char **argv)
         DrawText(6, 19,  ckbuf  , WHITE, BLACK);
         DrawText(6, 27, "      ", WHITE, BLACK);
     }
-    DrawText(9,  0, " Y ",                   WHITE, DARK_GREEN);
-    DrawText(9,  3, " start transfer ", LIGHT_GRAY, BLACK);
-    DrawText(10, 0, " Q ",                   WHITE, DARK_RED);
-    DrawText(10, 3, " quit to shell",   LIGHT_GRAY, BLACK);
+    DrawText(9,  12, " Y ",                   WHITE, DARK_GREEN);
+    DrawText(9,  15, " start transfer ", LIGHT_GRAY, BLACK);
+    DrawText(10, 12, " Q ",                   WHITE, DARK_RED);
+    DrawText(10, 15, " quit to shell",   LIGHT_GRAY, BLACK);
 
     /* --- Y / Q prompt --- */
     {
@@ -218,8 +218,8 @@ int main(int argc, char **argv)
 
     ClearLine(9, WHITE, BLACK);
     ClearLine(10, WHITE, BLACK);
-    DrawBar(7, 0L, filesize);
-    DrawText(9, 0, "Sending...", DARK_GRAY, BLACK);
+    DrawBar(7, 12L, filesize);
+    DrawText(9, 12, "Sending...", DARK_GRAY, BLACK);
 
     in_fd = open(argv[0], O_RDONLY);  /* reopen — guaranteed position 0 */
 
@@ -286,23 +286,23 @@ int main(int argc, char **argv)
         for (r = 1; r < (uint8_t)CGX_ROWS; r++) ClearLine(r, WHITE, BLACK);
         draw_title();
         if (cancelled) {
-            DrawText(3, 0, "Transfer cancelled.", YELLOW, BLACK);
-            DrawText(5, 0, "crx.py was interrupted on the PC.", DARK_GRAY, BLACK);
+            DrawText(3, 12, "Transfer cancelled.", YELLOW, BLACK);
+            DrawText(5, 12, "crx.py was interrupted on the PC.", DARK_GRAY, BLACK);
         } else {
             sprintf(sb, "%ld", filesize);
-            DrawText(3, 0, "Sent: ",   DARK_GRAY, BLACK);
-            DrawText(3, 6, argv[0],    WHITE,     BLACK);
-            col = (uint8_t)(6 + strlen(argv[0]));
+            DrawText(3, 12, "Sent: ",   DARK_GRAY, BLACK);
+            DrawText(3, 18, argv[0],    WHITE,     BLACK);
+            col = (uint8_t)(18 + strlen(argv[0]));
             DrawText(3, col, "  (size: ", DARK_GRAY, BLACK);
             col += 9;
             DrawText(3, col, sb,  WHITE,     BLACK);
             col += (uint8_t)strlen(sb);
             DrawText(3, col, " B)", DARK_GRAY, BLACK);
-            DrawText(5, 0, "Transfer completed.", GREEN, BLACK);
+            DrawText(5, 12, "Transfer completed.", GREEN, BLACK);
         }
     }
 
-    PAUSE(150);
+    PAUSE(250);
 
     cgx_restore();
 
