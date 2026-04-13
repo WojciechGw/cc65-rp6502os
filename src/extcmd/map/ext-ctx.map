@@ -1,15 +1,15 @@
 Modules list:
 -------------
-ext-ctx.c.2108.0.o:
+ext-ctx.c.2176.0.o:
     CODE              Offs=000000  Size=00147F  Align=00001  Fill=0000
     RODATA            Offs=000000  Size=000238  Align=00001  Fill=0000
     BSS               Offs=000000  Size=000050  Align=00001  Fill=0000
     DATA              Offs=000000  Size=000006  Align=00001  Fill=0000
-crt0_cmd.s.2108.1.o:
+crt0_cmd.s.2176.1.o:
     STARTUP           Offs=000000  Size=00001E  Align=00001  Fill=0000
-write_stub.c.2108.2.o:
+write_stub.c.2176.2.o:
     CODE              Offs=00147F  Size=00004C  Align=00001  Fill=0000
-initmainargs.s.2108.3.o:
+initmainargs.s.2176.3.o:
     STARTUP           Offs=00001E  Size=000001  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(_directerrno.o):
     CODE              Offs=0014CB  Size=000009  Align=00001  Fill=0000
@@ -380,7 +380,7 @@ __STARTADDR__ ([linker generated]):
     [linker generated]        cfg/ext0x8000.cfg:9
     [linker generated]        cfg/ext0x8000.cfg:9
 __STARTUP__ (crt0.o):
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:13
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:13
     [linker generated]        cfg/ext0x8000.cfg:3
 ___directerrno (_directerrno.o):
     vsnprintf.o               /home/wojciech/git/cc65/asminc/errno.inc:10
@@ -404,24 +404,24 @@ __printf (_printf.o):
     vsnprintf.o               common/vsnprintf.s:10
     vfprintf.o                common/vfprintf.s:10
 _clock (clock.o):
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:22
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:22
 _close (close.o):
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:17
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:17
 _fwrite (fwrite.o):
     vfprintf.o                common/vfprintf.s:10
 _ltoa (ltoa.o):
     _printf.o                 common/_printf.s:12
-_main (ext-ctx.c.2108.0.o):
+_main (ext-ctx.c.2176.0.o):
     callmain.o                runtime/callmain.s:11
-    crt0_cmd.s.2108.1.o       crt0_cmd.s:2
+    crt0_cmd.s.2176.1.o       crt0_cmd.s:2
 _memcpy (memcpy.o):
     vsnprintf.o               common/vsnprintf.s:10
 _open (open.o):
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:16
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:16
 _printf (printf.o):
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:18
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:18
 _read (read.o):
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:23
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:23
 _read_xstack (read_xstack.o):
     read.o                    ../libwrk/rp6502/read.s:17
 _ria_call_int (ria.o):
@@ -439,13 +439,13 @@ _ria_set_ax (ria.o):
     open.o                    ../libwrk/rp6502/open.s:20
     close.o                   ../libwrk/rp6502/close.s:17
 _sprintf (sprintf.o):
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:19
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:19
 _stdout (_file.o):
     printf.o                  common/printf.s:8
 _strlen (strlen.o):
     _printf.o                 common/_printf.s:13
     open.o                    ../libwrk/rp6502/open.s:23
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:21
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:21
 _strlower (strlower.o):
     _printf.o                 common/_printf.s:13
 _ultoa (ltoa.o):
@@ -454,22 +454,22 @@ _vfprintf (vfprintf.o):
     printf.o                  common/printf.s:8
 _vsprintf (vsprintf.o):
     sprintf.o                 common/sprintf.s:8
-_write (write_stub.c.2108.2.o):
+_write (write_stub.c.2176.2.o):
     fwrite.o                  common/fwrite.s:10
 _xreg (xreg.o):
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:15
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:15
 addeq0sp (addeqsp.o):
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
 addeqysp (addeqsp.o):
     read_xstack.o             ../libwrk/rp6502/read_xstack.s:94
     read.o                    ../libwrk/rp6502/read.s:116
-    write_stub.c.2108.2.o     write_stub.c.2108.2.s:64
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
+    write_stub.c.2176.2.o     write_stub.c.2176.2.s:64
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
 addysp (addysp.o):
     leave.o                   runtime/leave.s:14
     incsp8.o                  runtime/incsp8.s:8
@@ -483,17 +483,17 @@ addysp (addysp.o):
     incsp5.o                  runtime/incsp5.s:8
     incsp4.o                  runtime/incsp4.s:8
     incsp3.o                  runtime/incsp3.s:8
-    write_stub.c.2108.2.o     write_stub.c.2108.2.s:64
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
+    write_stub.c.2176.2.o     write_stub.c.2176.2.s:64
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
 addysp1 (addysp.o):
     ludiv.o                   runtime/ludiv.s:9
     lmul.o                    runtime/lmul.s:9
 axlong (axlong.o):
     _printf.o                 common/_printf.s:11
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
 axulong (axlong.o):
     _printf.o                 common/_printf.s:11
 boolge (makebool.o):
@@ -540,8 +540,8 @@ c_sp (zeropage.o):
     crt0.o                    /home/wojciech/git/cc65/asminc/zeropage.inc:11
     addysp.o                  runtime/addysp.s:8
     addeqsp.o                 runtime/addeqsp.s:8
-    write_stub.c.2108.2.o     write_stub.c.2108.2.s:10
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:10
+    write_stub.c.2176.2.o     write_stub.c.2176.2.s:10
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:10
 callmain (callmain.o):
     crt0.o                    rp6502/crt0.s:7
 copydata (copydata.o):
@@ -551,72 +551,72 @@ ctypemaskdirect (ctypemask.o):
 decax1 (decax1.o):
     open.o                    ../libwrk/rp6502/open.s:105
 decsp1 (decsp1.o):
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
 decsp2 (decsp2.o):
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
 decsp3 (decsp3.o):
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
 decsp4 (decsp4.o):
     sprintf.o                 common/sprintf.s:8
     read_xstack.o             ../libwrk/rp6502/read_xstack.s:94
     lpush.o                   runtime/lpush.s:12
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
 decsp5 (decsp5.o):
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
 decsp6 (decsp6.o):
     _printf.o                 common/_printf.s:11
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
 donelib (condes.o):
     crt0.o                    rp6502/crt0.s:12
-    crt0_cmd.s.2108.1.o       crt0_cmd.s:2
+    crt0_cmd.s.2176.1.o       crt0_cmd.s:2
 enter (enter.o):
     open.o                    ../libwrk/rp6502/open.s:105
 getlop (ludiv.o):
     lshelp.o                  runtime/lshelp.s:11
 inceaxy (linc.o):
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
 incsp1 (incsp1.o):
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
 incsp2 (incsp2.o):
     vsnprintf.o               common/vsnprintf.s:9
     popptr1.o                 runtime/popptr1.s:8
     close.o                   ../libwrk/rp6502/close.s:47
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
 incsp3 (incsp3.o):
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
 incsp4 (incsp4.o):
     lcmp.o                    runtime/lcmp.s:9
     read.o                    ../libwrk/rp6502/read.s:116
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
 incsp5 (incsp5.o):
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
 incsp6 (incsp6.o):
     vsnprintf.o               common/vsnprintf.s:9
     fwrite.o                  common/fwrite.s:11
     vfprintf.o                common/vfprintf.s:9
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
 incsp8 (incsp8.o):
     read.o                    ../libwrk/rp6502/read.s:116
 initlib (condes.o):
     crt0.o                    rp6502/crt0.s:12
-    crt0_cmd.s.2108.1.o       crt0_cmd.s:2
-initmainargs (initmainargs.s.2108.3.o):
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:14
+    crt0_cmd.s.2176.1.o       crt0_cmd.s:2
+initmainargs (initmainargs.s.2176.3.o):
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:14
 laddeqysp (laddeqsp.o):
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
 ldax0sp (ldaxsp.o):
     read_xstack.o             ../libwrk/rp6502/read_xstack.s:94
     read.o                    ../libwrk/rp6502/read.s:116
@@ -630,9 +630,9 @@ ldaxysp (ldaxsp.o):
     read_xstack.o             ../libwrk/rp6502/read_xstack.s:94
     read.o                    ../libwrk/rp6502/read.s:116
 ldeaxysp (ldeaxysp.o):
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
 leaa0sp (leaaxsp.o):
     open.o                    ../libwrk/rp6502/open.s:105
 leavey (leave.o):
@@ -691,8 +691,8 @@ ptr1 (zeropage.o):
     lmul.o                    runtime/lmul.s:10
     ldiv.o                    runtime/ldiv.s:12
     div.o                     runtime/div.s:12
-    write_stub.c.2108.2.o     write_stub.c.2108.2.s:11
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:11
+    write_stub.c.2176.2.o     write_stub.c.2176.2.s:11
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:11
 ptr2 (zeropage.o):
     memcpy.o                  common/memcpy.s:15
     strlower.o                common/strlower.s:13
@@ -700,7 +700,7 @@ ptr2 (zeropage.o):
     copydata.o                common/copydata.s:9
     _printf.o                 /home/wojciech/git/cc65/asminc/zeropage.inc:12
     ludiv.o                   runtime/ludiv.s:10
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:11
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:11
 ptr3 (zeropage.o):
     memcpy.o                  common/memcpy.s:15
     ltoa.o                    common/ltoa.s:11
@@ -719,25 +719,25 @@ ptr4 (zeropage.o):
     linc.o                    runtime/linc.s:8
 push0 (pushax.o):
     read.o                    ../libwrk/rp6502/read.s:116
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
 push1 (push1.o):
     _printf.o                 common/_printf.s:11
     vfprintf.o                common/vfprintf.s:9
 pusha (pusha.o):
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
 pusha0 (pushax.o):
     push1.o                   runtime/push1.s:8
     fwrite.o                  common/fwrite.s:11
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
 pushax (pushax.o):
     fwrite.o                  common/fwrite.s:11
     callmain.o                runtime/callmain.s:11
@@ -747,32 +747,32 @@ pushax (pushax.o):
     printf.o                  common/printf.s:8
     open.o                    ../libwrk/rp6502/open.s:105
     close.o                   ../libwrk/rp6502/close.s:47
-    write_stub.c.2108.2.o     write_stub.c.2108.2.s:64
-    crt0_cmd.s.2108.1.o       crt0_cmd.s:2
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
+    write_stub.c.2176.2.o     write_stub.c.2176.2.s:64
+    crt0_cmd.s.2176.1.o       crt0_cmd.s:2
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
 pusheax (lpush.o):
     _printf.o                 common/_printf.s:11
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
 pushl0 (lpush.o):
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
 pushw0sp (pushwsp.o):
     vsprintf.o                common/vsprintf.s:8
 pushwysp (pushwsp.o):
     fwrite.o                  common/fwrite.s:11
     vfprintf.o                common/vfprintf.s:9
     read.o                    ../libwrk/rp6502/read.s:116
-    write_stub.c.2108.2.o     write_stub.c.2108.2.s:64
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
+    write_stub.c.2176.2.o     write_stub.c.2176.2.s:64
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
 regbank (zeropage.o):
     _printf.o                 /home/wojciech/git/cc65/asminc/zeropage.inc:14
 shreax4 (shreax4.o):
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
 sreg (zeropage.o):
     ltoa.o                    common/ltoa.s:11
     lcmp.o                    runtime/lcmp.s:10
@@ -792,29 +792,29 @@ sreg (zeropage.o):
     ldeaxysp.o                runtime/ldeaxysp.s:12
     laddeqsp.o                runtime/laddeqsp.s:8
     axlong.o                  runtime/axlong.s:9
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:10
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:10
 stax0sp (staxsp.o):
     read_xstack.o             ../libwrk/rp6502/read_xstack.s:94
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
 staxysp (staxsp.o):
     vsprintf.o                common/vsprintf.s:8
     read_xstack.o             ../libwrk/rp6502/read_xstack.s:94
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
 steax0sp (steaxsp.o):
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
 steaxysp (steaxsp.o):
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
 subeq0sp (subeqsp.o):
     open.o                    ../libwrk/rp6502/open.s:105
-    write_stub.c.2108.2.o     write_stub.c.2108.2.s:64
+    write_stub.c.2176.2.o     write_stub.c.2176.2.s:64
 subeqysp (subeqsp.o):
     read.o                    ../libwrk/rp6502/read.s:116
 subysp (subysp.o):
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
 tmp1 (zeropage.o):
     mul.o                     runtime/mul.s:10
     ltoa.o                    common/ltoa.s:11
@@ -826,7 +826,7 @@ tmp1 (zeropage.o):
     lshelp.o                  runtime/lshelp.s:12
     ldiv.o                    runtime/ldiv.s:12
     div.o                     runtime/div.s:12
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:11
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:11
 tmp2 (zeropage.o):
     shelp.o                   runtime/shelp.s:12
     lshelp.o                  runtime/lshelp.s:12
@@ -840,27 +840,27 @@ tmp4 (zeropage.o):
     ludiv.o                   runtime/ludiv.s:10
     lmul.o                    runtime/lmul.s:10
 tosdiva0 (div.o):
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
 tosdiveax (ldiv.o):
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
 tosgeeax (lge.o):
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
 toslcmp (lcmp.o):
     lult.o                    runtime/lult.s:8
     lge.o                     runtime/lge.s:8
 tosmoda0 (mod.o):
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
 tosmul0ax (lmul.o):
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
 tosudivax (udiv.o):
     fwrite.o                  common/fwrite.s:12
 tosulteax (lult.o):
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
 tosumula0 (mul8.o):
-    ext-ctx.c.2108.0.o        ext-ctx.c.2108.0.s:2985
+    ext-ctx.c.2176.0.o        ext-ctx.c.2176.0.s:2985
 tosumulax (mul.o):
     fwrite.o                  common/fwrite.s:12
 udiv16 (udiv.o):
