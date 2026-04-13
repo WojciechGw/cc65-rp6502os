@@ -5,7 +5,7 @@
 
 #include "commons.h"
 
-#define APPVER "20260413.1204"
+#define APPVER "20260413.1158"
 
 #define MAX_DEPTH    6      /* max depth below root */
 #define MAX_STACK    96     /* pending work frames   */
@@ -101,8 +101,7 @@ static const char *basename_of(const char *p)
     return last;
 }
 
-/* Draw the connector prefix for a node at given depth.
-   CP437: 0xB3=│  0xC0=└  0xC3=├  0xC4=─  */
+/* Draw the connector prefix for a node at given depth */
 static void print_prefix(uint8_t depth, bool is_last, uint8_t pmask)
 {
     uint8_t k;
@@ -110,9 +109,9 @@ static void print_prefix(uint8_t depth, bool is_last, uint8_t pmask)
         if (pmask & (uint8_t)(1u << (k - 1)))
             printf("    ");
         else
-            printf("\xB3   ");
+            printf("|   ");
     }
-    printf(is_last ? "\xC0\xC4\xC4 " : "\xC3\xC4\xC4 ");
+    printf(is_last ? "+-- " : "|-- ");
 }
 
 /* Collect and sort entries of dir `path`.
