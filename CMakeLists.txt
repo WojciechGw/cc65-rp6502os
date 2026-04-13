@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(MY-RP6502-PROJECT C ASM)
+project(razemOS-RP6502-PROJECT C ASM)
 
 add_subdirectory(tools)
 
@@ -31,6 +31,7 @@ rp6502_asset(razemos label.com src/extcmd/build/label.com)
 rp6502_asset(razemos peek.com src/extcmd/build/peek.com)
 rp6502_asset(razemos roms.com src/extcmd/build/roms.com)
 rp6502_asset(razemos term.com src/extcmd/build/term.com)
+rp6502_asset(razemos tree.com src/extcmd/build/tree.com)
 rp6502_asset(razemos view.com src/extcmd/build/view.com)
 rp6502_asset(razemos pack.com src/extcmd/build/pack.com)
 # rp6502_asset(razemos editor.com src/extcmd/build/editor.com)

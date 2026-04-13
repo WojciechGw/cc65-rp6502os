@@ -99,6 +99,7 @@ commands updates without rebuilding whole `razemos.rp6502`.
 | `roms`      | tile browser for `.rp6502` files — navigate and launch |
 | `ss-matrix` | screensaver: Matrix Rain |
 | `ss-noise`  | screensaver: Character Noise |
+| `tree`      | display directory tree with subdirectories |
 | `view`      | display monochrome BMP (640×480×1bpp), dump framebuffer to `.bin` file. |
 
 ### Standalone applications

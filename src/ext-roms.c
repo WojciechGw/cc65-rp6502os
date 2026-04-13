@@ -6,7 +6,7 @@
 #include "commons.h"
 #include "./commons/courier-gfx.h"
 
-#define APPVER         "20260408.1800"
+#define APPVER "20260413.1123"
 #define APP_FOOTER "________________________________________________________________________________"
 
 #define MAXROMS        64
@@ -57,7 +57,7 @@ static void draw_tile(int idx, bool selected, int top_row)
     int screen_row = HDR_ROWS + (idx / TILE_COLS) - top_row;
     int screen_col = (idx % TILE_COLS) * TILE_W;
     uint8_t fg = selected ? WHITE     : LIGHT_GRAY;
-    uint8_t bg = selected ? DARK_GREEN : DARK_GRAY;
+    uint8_t bg = selected ? DARK_GREEN : BLACK;
     static char tbuf[TILE_W + 1];
     int nlen, i;
 

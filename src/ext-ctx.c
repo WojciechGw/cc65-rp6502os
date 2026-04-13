@@ -6,9 +6,7 @@
 #include "commons.h"
 #include "commons/courier-gfx.h"
 
-#define NEWLINE "\r\n"
-
-#define APPVER "20260413.0649"
+#define APPVER "20260413.1124"
 
 #define HDR_NAME_MAX 31  /* max filename chars in header (+ null = 32 B) */
 

@@ -142,6 +142,8 @@ def main() -> int:
             serial_available = True
             time.sleep(0.2)
             send_line_and_wait(serial_port, "cd MSC0:/SHELL", "cd MSC0:/SHELL", ">")
+            time.sleep(0.2)
+            send_line_and_wait(serial_port, "0:", "0:", ">")
         finally:
             serial_port.close()
             serial_port.dispose = getattr(serial_port, "close", None)
