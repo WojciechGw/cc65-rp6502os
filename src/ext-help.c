@@ -1,6 +1,6 @@
 #include "commons.h"
 
-#define APPVER "20260413.0649"
+#define APPVER "20260413.1213"
 
 #define APP_HEADER CSI_CLS CSI "2;1H" CSI HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " Help information                              " ANSI_DARK_GRAY "version " APPVER ANSI_RESET
 #define APP_FOOTER ANSI_DARK_GRAY  "________________________________________________________________________________" ANSI_RESET NEWLINE
@@ -117,6 +117,12 @@ static const cmd_t commands_rom[] = {
                     "ss-matrix (ESC to exit)"},
     { "ss-noise",   "screensaver - whole screen chars noise",
                     "ss-noise (ESC to exit)"},
+    { "tree",       "display directory tree with subdirectories",
+                    "tree                - current directory" NEWLINE
+                    "tree <path>         - specified path or drive (e.g. MSC0:)" NEWLINE
+                    "tree /t             - directories only (no files)" NEWLINE
+                    "tree /t <path>      - directories only at specified path" NEWLINE
+                    "[Space/Enter] next page, [q] quit"},
 };
 
 static const cmd_t commands_ext[] = {
