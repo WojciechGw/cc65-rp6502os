@@ -16,7 +16,7 @@
 
 #include "shell.h"
 
-#define APPVER "20260411.2001"
+#define APPVER "20260413.0651"
 #define APPNAME "razemOS"
 #define APP_MSG_START ANSI_DARK_GRAY CSI "12;35H" APPNAME
 #define APP_HOURGLASS CSI "14;36H" ANSI_DARK_GRAY ".........." CSI "10D" ANSI_RESET
@@ -265,8 +265,6 @@ static int startstage_shell(){
                     execute(&cmdline);
                     cmdline.bytes = 0;
                     cmdline.buffer[0] = 0;
-                    ext_rx = 0;
-                    while(RX_READY) { (void)RIA.rx; }
                     prompt(PROMPT);
                 }
             } else {

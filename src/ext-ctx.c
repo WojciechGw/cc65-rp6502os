@@ -8,7 +8,7 @@
 
 #define NEWLINE "\r\n"
 
-#define APPVER "20260412.1531"
+#define APPVER "20260413.0649"
 
 #define HDR_NAME_MAX 31  /* max filename chars in header (+ null = 32 B) */
 
@@ -302,8 +302,9 @@ int main(int argc, char **argv)
             DrawText(3, col, " B)", DARK_GRAY, BLACK);
             DrawText(5, 0, "Transfer completed.", GREEN, BLACK);
         }
-        DrawText((uint8_t)(CGX_ROWS - 2), 0, "Press any key...", DARK_GRAY, BLACK);
     }
+
+    PAUSE(150);
 
     cgx_restore();
 

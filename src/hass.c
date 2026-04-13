@@ -10,7 +10,7 @@
 #include "commons.h"
 #include "hass-opcodes.h"
 
-#define APPVER "20260408.1854"
+#define APPVER "20260413.0721"
 
 #define APPDIRDEFAULT "MSC0:/"
 #define FILESRC_DEFAULT_EXT ".asm"

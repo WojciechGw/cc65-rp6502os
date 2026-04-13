@@ -1,6 +1,6 @@
 #include "commons.h"
 
-#define APPVER "20260412.1531"
+#define APPVER "20260413.0649"
 
 #define APP_HEADER CSI_CLS CSI "2;1H" CSI HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " Help information                              " ANSI_DARK_GRAY "version " APPVER ANSI_RESET
 #define APP_FOOTER ANSI_DARK_GRAY  "________________________________________________________________________________" ANSI_RESET NEWLINE
@@ -108,7 +108,7 @@ static const cmd_t commands_rom[] = {
                     "peek 0xA000 128 (show 128 bytes of base RAM start from address 0xA000)" NEWLINE
                     "peek 0xF000 256 /X (show 256 bytes of XRAM start from address 0xF000)" },
     { "roms",       "launchpad for .rp6502 - list & could launch .rp6502s in active directory",
-                    "roms"},
+                    "roms [path]"},
     { "view",       "show BMP 640x480xbpp1", 
                     "view filename.bmp" NEWLINE
                     "view /x 0x2000 - view XRAM from 0x2000 as a bitmap 640x480xbpp1" NEWLINE

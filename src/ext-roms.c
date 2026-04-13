@@ -23,7 +23,7 @@
 #endif
 
 /* keyboard */
-#define KEYBOARD_XRAM   0xFFE0u
+#define KEYBOARD_INPUT   0xFFE0u
 #define KEYBOARD_BYTES  32
 
 static uint8_t keystates[KEYBOARD_BYTES];
@@ -201,7 +201,7 @@ int main(int argc, char **argv)
 
     redraw_all(sel, top_row);
 
-    xreg_ria_keyboard(KEYBOARD_XRAM);
+    xreg_ria_keyboard(KEYBOARD_INPUT);
     v = RIA.vsync;
 
     while (1) {
@@ -211,7 +211,7 @@ int main(int argc, char **argv)
         /* read keyboard bitmask from XRAM */
         new_key = 0;
         for (i = 0; i < KEYBOARD_BYTES; i++) {
-            RIA.addr1 = (uint16_t)(KEYBOARD_XRAM + i);
+            RIA.addr1 = (uint16_t)(KEYBOARD_INPUT + i);
             new_keys  = RIA.rw1;
             for (j = 0; j < 8; j++) {
                 new_key = new_keys & (uint8_t)(1 << j);

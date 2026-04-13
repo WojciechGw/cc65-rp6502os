@@ -1,15 +1,15 @@
 Modules list:
 -------------
-ext-ss-matrix.c.64556.0.o:
+ext-ss-matrix.c.2332.0.o:
     CODE              Offs=000000  Size=000A34  Align=00001  Fill=0000
     RODATA            Offs=000000  Size=00010C  Align=00001  Fill=0000
     BSS               Offs=000000  Size=0009E6  Align=00001  Fill=0000
     DATA              Offs=000000  Size=000068  Align=00001  Fill=0000
-crt0_cmd.s.64556.1.o:
+crt0_cmd.s.2332.1.o:
     STARTUP           Offs=000000  Size=00001E  Align=00001  Fill=0000
-write_stub.c.64556.2.o:
+write_stub.c.2332.2.o:
     CODE              Offs=000A34  Size=00004C  Align=00001  Fill=0000
-initmainargs.s.64556.3.o:
+initmainargs.s.2332.3.o:
     STARTUP           Offs=00001E  Size=000001  Align=00001  Fill=0000
 C:\@prg\cc65\lib/rp6502.lib(_directerrno.o):
     CODE              Offs=000A80  Size=000009  Align=00001  Fill=0000
@@ -349,7 +349,7 @@ __STARTADDR__ ([linker generated]):
     [linker generated]        cfg/ext0x8000.cfg:9
     [linker generated]        cfg/ext0x8000.cfg:9
 __STARTUP__ (crt0.o):
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:13
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:13
     [linker generated]        cfg/ext0x8000.cfg:3
 ___directerrno (_directerrno.o):
     vsnprintf.o               /home/wojciech/git/cc65/asminc/errno.inc:10
@@ -359,7 +359,7 @@ ___errno (errno.o):
 ___oserror (_oserror.o):
     _directerrno.o            /home/wojciech/git/cc65/asminc/errno.inc:7
 ___randomize (randomize.o):
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:22
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:22
 ___seterrno (_seterrno.o):
     _directerrno.o            /home/wojciech/git/cc65/asminc/errno.inc:9
     fwrite.o                  /home/wojciech/git/cc65/asminc/errno.inc:9
@@ -375,26 +375,26 @@ __printf (_printf.o):
     vsnprintf.o               common/vsnprintf.s:10
     vfprintf.o                common/vfprintf.s:10
 _close (close.o):
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:18
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:18
 _fwrite (fwrite.o):
     vfprintf.o                common/vfprintf.s:10
 _lseek (lseek.o):
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:24
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:24
 _ltoa (ltoa.o):
     _printf.o                 common/_printf.s:12
-_main (ext-ss-matrix.c.64556.0.o):
+_main (ext-ss-matrix.c.2332.0.o):
     callmain.o                runtime/callmain.s:11
-    crt0_cmd.s.64556.1.o      crt0_cmd.s:2
+    crt0_cmd.s.2332.1.o       crt0_cmd.s:2
 _memcpy (memcpy.o):
     vsnprintf.o               common/vsnprintf.s:10
 _open (open.o):
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:17
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:17
 _printf (printf.o):
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:19
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:19
 _rand (rand.o):
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:21
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:21
 _read_xram (read_xram.o):
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:16
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:16
 _ria_attr_get (ria_attr.o):
     randomize.o               ../libwrk/rp6502/randomize.s:17
 _ria_call_int (ria.o):
@@ -418,7 +418,7 @@ _ria_set_ax (ria.o):
     lseek.o                   ../libwrk/rp6502/lseek.s:18
     close.o                   ../libwrk/rp6502/close.s:17
 _sprintf (sprintf.o):
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:20
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:20
 _srand (rand.o):
     randomize.o               ../libwrk/rp6502/randomize.s:18
 _stdout (_file.o):
@@ -434,15 +434,15 @@ _vfprintf (vfprintf.o):
     printf.o                  common/printf.s:8
 _vsprintf (vsprintf.o):
     sprintf.o                 common/sprintf.s:8
-_write (write_stub.c.64556.2.o):
+_write (write_stub.c.2332.2.o):
     fwrite.o                  common/fwrite.s:10
 _xreg (xreg.o):
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:15
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:15
 addeq0sp (addeqsp.o):
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:1573
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:1573
 addeqysp (addeqsp.o):
-    write_stub.c.64556.2.o    write_stub.c.64556.2.s:64
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:1573
+    write_stub.c.2332.2.o     write_stub.c.2332.2.s:64
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:1573
 addysp (addysp.o):
     leave.o                   runtime/leave.s:14
     incsp6.o                  runtime/incsp6.s:8
@@ -453,7 +453,7 @@ addysp (addysp.o):
     printf.o                  common/printf.s:8
     incsp8.o                  runtime/incsp8.s:8
     incsp4.o                  runtime/incsp4.s:8
-    write_stub.c.64556.2.o    write_stub.c.64556.2.s:64
+    write_stub.c.2332.2.o     write_stub.c.2332.2.s:64
 axlong (axlong.o):
     _printf.o                 common/_printf.s:11
 axulong (axlong.o):
@@ -492,8 +492,8 @@ c_sp (zeropage.o):
     crt0.o                    /home/wojciech/git/cc65/asminc/zeropage.inc:11
     addysp.o                  runtime/addysp.s:8
     addeqsp.o                 runtime/addeqsp.s:8
-    write_stub.c.64556.2.o    write_stub.c.64556.2.s:10
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:10
+    write_stub.c.2332.2.o     write_stub.c.2332.2.s:10
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:10
 callmain (callmain.o):
     crt0.o                    rp6502/crt0.s:7
 copydata (copydata.o):
@@ -503,41 +503,41 @@ ctypemaskdirect (ctypemask.o):
 decax1 (decax1.o):
     open.o                    ../libwrk/rp6502/open.s:105
 decsp2 (decsp2.o):
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:1573
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:1573
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:1573
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:1573
 decsp3 (decsp3.o):
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:1573
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:1573
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:1573
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:1573
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:1573
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:1573
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:1573
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:1573
 decsp4 (decsp4.o):
     lpush.o                   runtime/lpush.s:12
     sprintf.o                 common/sprintf.s:8
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:1573
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:1573
 decsp6 (decsp6.o):
     _printf.o                 common/_printf.s:11
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:1573
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:1573
 decsp8 (decsp8.o):
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:1573
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:1573
 donelib (condes.o):
     crt0.o                    rp6502/crt0.s:12
-    crt0_cmd.s.64556.1.o      crt0_cmd.s:2
+    crt0_cmd.s.2332.1.o       crt0_cmd.s:2
 enter (enter.o):
     open.o                    ../libwrk/rp6502/open.s:105
 incsp1 (incsp1.o):
     ria_attr.o                ../libwrk/rp6502/ria_attr.s:80
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:1573
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:1573
 incsp2 (incsp2.o):
     vsnprintf.o               common/vsnprintf.s:9
     staspidx.o                runtime/staspidx.s:8
     popptr1.o                 runtime/popptr1.s:8
     close.o                   ../libwrk/rp6502/close.s:47
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:1573
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:1573
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:1573
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:1573
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:1573
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:1573
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:1573
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:1573
 incsp4 (incsp4.o):
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:1573
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:1573
 incsp5 (incsp5.o):
     ria_attr.o                ../libwrk/rp6502/ria_attr.s:80
 incsp6 (incsp6.o):
@@ -547,14 +547,14 @@ incsp6 (incsp6.o):
     read_xram.o               ../libwrk/rp6502/read_xram.s:57
 incsp8 (incsp8.o):
     lseek.o                   ../libwrk/rp6502/lseek.s:58
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:1573
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:1573
 initlib (condes.o):
     crt0.o                    rp6502/crt0.s:12
-    crt0_cmd.s.64556.1.o      crt0_cmd.s:2
-initmainargs (initmainargs.s.64556.3.o):
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:14
+    crt0_cmd.s.2332.1.o       crt0_cmd.s:2
+initmainargs (initmainargs.s.2332.3.o):
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:14
 ldaidx (ldai.o):
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:1573
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:1573
 ldax0sp (ldaxsp.o):
     read_xram.o               ../libwrk/rp6502/read_xram.s:57
     open.o                    ../libwrk/rp6502/open.s:105
@@ -578,8 +578,8 @@ mul8x16 (mul8.o):
 mul8x16a (mul8.o):
     mul.o                     runtime/mul.s:8
 mulax5 (mulax5.o):
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:1573
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:1573
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:1573
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:1573
 negax (negabs.o):
     shelp.o                   runtime/shelp.s:11
     mod.o                     runtime/mod.s:11
@@ -621,8 +621,8 @@ ptr1 (zeropage.o):
     mulax5.o                  runtime/mulax5.s:9
     mul8.o                    runtime/mul8.s:10
     ldai.o                    runtime/ldai.s:8
-    write_stub.c.64556.2.o    write_stub.c.64556.2.s:11
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:11
+    write_stub.c.2332.2.o     write_stub.c.2332.2.s:11
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:11
 ptr2 (zeropage.o):
     memcpy.o                  common/memcpy.s:15
     strlower.o                common/strlower.s:13
@@ -639,24 +639,24 @@ ptr4 (zeropage.o):
     shelp.o                   runtime/shelp.s:12
     mul8.o                    runtime/mul8.s:10
 push0 (pushax.o):
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:1573
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:1573
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:1573
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:1573
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:1573
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:1573
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:1573
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:1573
 push1 (push1.o):
     _printf.o                 common/_printf.s:11
     vfprintf.o                common/vfprintf.s:9
 pusha (pusha.o):
     ria_attr.o                ../libwrk/rp6502/ria_attr.s:80
     ria_attr.o                ../libwrk/rp6502/ria_attr.s:80
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:1573
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:1573
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:1573
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:1573
 pusha0 (pushax.o):
     push1.o                   runtime/push1.s:8
     fwrite.o                  common/fwrite.s:11
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:1573
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:1573
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:1573
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:1573
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:1573
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:1573
 pushax (pushax.o):
     fwrite.o                  common/fwrite.s:11
     callmain.o                runtime/callmain.s:11
@@ -666,13 +666,13 @@ pushax (pushax.o):
     open.o                    ../libwrk/rp6502/open.s:105
     lseek.o                   ../libwrk/rp6502/lseek.s:58
     close.o                   ../libwrk/rp6502/close.s:47
-    write_stub.c.64556.2.o    write_stub.c.64556.2.s:64
-    crt0_cmd.s.64556.1.o      crt0_cmd.s:2
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:1573
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:1573
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:1573
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:1573
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:1573
+    write_stub.c.2332.2.o     write_stub.c.2332.2.s:64
+    crt0_cmd.s.2332.1.o       crt0_cmd.s:2
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:1573
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:1573
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:1573
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:1573
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:1573
 pusheax (lpush.o):
     _printf.o                 common/_printf.s:11
 pushw0sp (pushwsp.o):
@@ -680,14 +680,14 @@ pushw0sp (pushwsp.o):
 pushwysp (pushwsp.o):
     fwrite.o                  common/fwrite.s:11
     vfprintf.o                common/vfprintf.s:9
-    write_stub.c.64556.2.o    write_stub.c.64556.2.s:64
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:1573
+    write_stub.c.2332.2.o     write_stub.c.2332.2.s:64
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:1573
 regbank (zeropage.o):
     _printf.o                 /home/wojciech/git/cc65/asminc/zeropage.inc:14
 shlax3 (aslax3.o):
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:1573
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:1573
 shlax4 (aslax4.o):
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:1573
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:1573
 sreg (zeropage.o):
     lneg.o                    runtime/lneg.s:11
     ltoa.o                    common/ltoa.s:11
@@ -698,20 +698,20 @@ sreg (zeropage.o):
     udiv.o                    runtime/udiv.s:10
     ria.o                     rp6502/ria.s:13
     mod.o                     runtime/mod.s:12
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:10
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:10
 staspidx (staspidx.o):
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:1573
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:1573
 stax0sp (staxsp.o):
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:1573
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:1573
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:1573
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:1573
 staxysp (staxsp.o):
     vsprintf.o                common/vsprintf.s:8
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:1573
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:1573
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:1573
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:1573
 subeq0sp (subeqsp.o):
     open.o                    ../libwrk/rp6502/open.s:105
-    write_stub.c.64556.2.o    write_stub.c.64556.2.s:64
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:1573
+    write_stub.c.2332.2.o     write_stub.c.2332.2.s:64
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:1573
 tmp1 (zeropage.o):
     mul.o                     runtime/mul.s:10
     ltoa.o                    common/ltoa.s:11
@@ -722,15 +722,15 @@ tmp1 (zeropage.o):
     mod.o                     runtime/mod.s:12
     aslax4.o                  runtime/aslax4.s:8
     aslax3.o                  runtime/aslax3.s:8
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:11
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:11
 tmp2 (zeropage.o):
     shelp.o                   runtime/shelp.s:12
 tosmoda0 (mod.o):
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:1573
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:1573
 tosudivax (udiv.o):
     fwrite.o                  common/fwrite.s:12
 tosumula0 (mul8.o):
-    ext-ss-matrix.c.64556.0.o ext-ss-matrix.c.64556.0.s:1573
+    ext-ss-matrix.c.2332.0.o  ext-ss-matrix.c.2332.0.s:1573
 tosumulax (mul.o):
     fwrite.o                  common/fwrite.s:12
 udiv16 (udiv.o):
