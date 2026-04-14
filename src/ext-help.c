@@ -1,6 +1,6 @@
 #include "commons.h"
 
-#define APPVER "20260414.1639"
+#define APPVER "20260414.1728"
 
 #define APP_HEADER CSI_CLS CSI "2;1H" CSI HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " Help information                              " ANSI_DARK_GRAY "version " APPVER ANSI_RESET
 #define APP_FOOTER ANSI_DARK_GRAY  "________________________________________________________________________________" ANSI_RESET NEWLINE
@@ -83,7 +83,8 @@ static const cmd_t commands_rom[] = {
                     "ctx" },
     { "dir",        "show active drive directory, wildcards allowed",
                     "dir *.rp6502 (only .rp6502 files)" NEWLINE
-                    "dir /da (sorted by date ascending)"},
+                    "dir /da (sorted by date ascending)" NEWLINE
+                    "dir !*.rp6502 (shows all files that are not *.rp6502)"},
     { "drives",     "show available drives", 
                     "drives"},
     { "help",       "show help informations", 

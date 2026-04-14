@@ -16,7 +16,7 @@
 
 #include "shell.h"
 
-#define APPVER "20260413.1836"
+#define APPVER "20260414.1710"
 #define APPNAME "razemOS"
 #define APP_MSG_START ANSI_DARK_GRAY CSI "12;35H" APPNAME
 #define APP_HOURGLASS CSI "14;36H" ANSI_DARK_GRAY ".........." CSI "10D" ANSI_RESET
@@ -1750,7 +1750,7 @@ int cmd_launcher(int argc, char **argv){
 #ifdef CODE_CART
 int cmd_cart(int argc, char **argv){
     if(argc < 2) {
-        tx_string("Usage: cart romname (without .rp6502 extension)" NEWLINE);
+        tx_string("Usage: cart romname [args...]" NEWLINE);
     } else {
         char fname[FNAMELEN];
         int cf;
@@ -1760,8 +1760,7 @@ int cmd_cart(int argc, char **argv){
         if(cf >= 0){
             close(cf);
             PAUSE(25);
-            // ria_execl(fname);
-            ria_execl(fname, NULL);
+            ria_execv(fname, argv + 2);
         } else {
             tx_string(NEWLINE EXCLAMATION "file not found" NEWLINE);
         }

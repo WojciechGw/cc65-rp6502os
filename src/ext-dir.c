@@ -1,6 +1,6 @@
 #include "commons.h"
 
-#define APPVER "20260414.1639"
+#define APPVER "20260414.1728"
 
 #define VERSION APPVER
 #define FNAMELEN 64
@@ -131,6 +131,7 @@ int main(int argc, char **argv) {
     unsigned files_count = 0;
     unsigned dirs_count = 0;
     unsigned long total_bytes = 0;
+    bool negate_mask = false;
     char dir_drive[3] = {0};
     static char dir_arg[FNAMELEN];
     static char dir_path_buf[FNAMELEN];
@@ -145,7 +146,8 @@ int main(int argc, char **argv) {
                 "Command : dir" NEWLINE NEWLINE "show active drive directory, wildcards allowed" NEWLINE NEWLINE
                 "Usage:" NEWLINE
                 "dir *.rp6502 (.rp6502 files only)" NEWLINE
-                "dir /da (sorted by date ascending)" NEWLINE);
+                "dir /da (sorted by date ascending)" NEWLINE
+                "dir !*.rp6502 (shows all files that are not *.rp6502)" NEWLINE);
         return -1;
     }
 
@@ -210,6 +212,8 @@ int main(int argc, char **argv) {
     // Copy path/mask into static buffers for reuse.
     strcpy(dir_path_buf, path);
     strcpy(dir_mask_buf, mask);
+    negate_mask = (dir_mask_buf[0] == '!');
+    if (negate_mask) memmove(dir_mask_buf, dir_mask_buf + 1, strlen(dir_mask_buf));
 
     if(f_getcwd(dir_cwd, sizeof(dir_cwd)) < 0) {
         tx_string(NEWLINE EXCLAMATION "getcwd failed" NEWLINE);
@@ -243,7 +247,8 @@ int main(int argc, char **argv) {
 
         // Apply mask only to files; always include directories so they are visible.
         if(!(dir_ent.fattrib & AM_DIR)) {
-            if(!match_mask(dir_ent.fname, dir_mask_buf)) continue;
+            bool matched = match_mask(dir_ent.fname, dir_mask_buf);
+            if(negate_mask ? matched : !matched) continue;
         }
 
         strcpy(dir_entries[dir_entries_count].name, dir_ent.fname);
