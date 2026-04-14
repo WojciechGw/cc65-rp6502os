@@ -110,6 +110,52 @@ commands updates without rebuilding whole `razemos.rp6502`.
 
 ---
 
+## Building shell extensions (`razemOScmd.py`)
+
+`tools/razemOScmd.py` builds and optionally uploads razemOS `.com` shell extension commands.
+It replaces the older `make-com.py`, `make-coms.py`, `make-com2shell.py`, `make-coms2shell.py` scripts (which are kept for compatibility).
+
+### Usage
+
+```
+razemOScmd.py <command> [options]        build a single command
+razemOScmd.py --all [options]            build all ext-*.c commands
+razemOScmd.py --clean [options]          remove build artefacts (.com, .map)
+```
+
+### Examples
+
+| Command | Description |
+|---------|-------------|
+| `razemOScmd.py tree` | build `tree.com` |
+| `razemOScmd.py tree --upload` | build + upload via `ctx.py` to `MSC0:/SHELL` |
+| `razemOScmd.py tree --upload --shell /SHELL` | build + upload to `/SHELL` |
+| `razemOScmd.py --all` | build all `ext-*.c` commands |
+| `razemOScmd.py --all --clean` | clean artefacts, then build all |
+| `razemOScmd.py --all --upload` | build all + upload via `rp6502.py` |
+| `razemOScmd.py --all --upload --uploader ctx` | build all + upload each via `ctx.py` |
+| `razemOScmd.py --clean` | remove all `.com` and `.map` artefacts only |
+
+### Options
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `--upload` | off | upload `.com` after building |
+| `--uploader ctx\|rp6502` | `ctx` (single) / `rp6502` (all) | upload method |
+| `--shell <path>` | `MSC0:/SHELL` | destination path for `ctx.py` upload |
+| `--start <addr>` | `8000` | load address passed to `make` |
+| `--port <port>` | `COM4` | serial port for `ctx.py` upload |
+| `--baud <rate>` | `115200` | baud rate for serial upload |
+| `--clean` | off | remove `.com` and `.map` artefacts before building |
+
+### Requirements
+
+- Python 3
+- `pyserial` — required only for `--uploader ctx` (`pip install pyserial`)
+- `make` or `mingw32-make` in PATH
+
+---
+
 ## File transfer
 
 **PC → RP6502** (receive a file on the Picocomputer):
