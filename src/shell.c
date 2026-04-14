@@ -116,12 +116,27 @@ static int startstage_boot(){
     return 0;
 }
 
+static void tx_csi_n(int n, char cmd) {
+    char buf[8];
+    int i = 0;
+    if (n <= 0) return;
+    buf[i++] = 0x1B; buf[i++] = '[';
+    if (n >= 100) buf[i++] = (char)('0' + n / 100);
+    if (n >= 10)  buf[i++] = (char)('0' + (n / 10) % 10);
+    buf[i++] = (char)('0' + n % 10);
+    buf[i++] = cmd;
+    buf[i]   = 0;
+    tx_string(buf);
+}
+
 static int startstage_shell(){
 
     int i = 0;
     int v = 0;
     char last_rx = 0;
     char ext_rx = 0;
+    int cur       = 0;
+    int csi_param = 0;
 
     // struct tm *tmnow = get_time();
 
@@ -163,14 +178,32 @@ static int startstage_shell(){
                     memcpy(cmdline.buffer, cmdline.lastbuffer, cmdline.lastbytes);
                     cmdline.buffer[cmdline.bytes] = 0;
                     tx_string(cmdline.buffer);
+                    cur = cmdline.bytes;
                     continue;
                 } else if(rx == CHAR_DOWN){
+                    ext_rx = 0;
                     continue;
                 } else if(rx == CHAR_LEFT){
+                    ext_rx = 0;
+                    if(cur > 0){ tx_csi_n(1, 'D'); cur--; }
                     continue;
-                } else if(rx == CHAR_RIGHT) {
+                } else if(rx == CHAR_RIGHT){
+                    ext_rx = 0;
+                    if(cur < cmdline.bytes){ tx_csi_n(1, 'C'); cur++; }
                     continue;
-                } else if(rx == 'O') { // handle terminal access
+                } else if(rx == 'H'){
+                    ext_rx = 0;
+                    if(cur > 0){ tx_csi_n(cur, 'D'); cur = 0; }
+                    continue;
+                } else if(rx == 'F'){
+                    ext_rx = 0;
+                    if(cur < cmdline.bytes){ tx_csi_n(cmdline.bytes - cur, 'C'); cur = cmdline.bytes; }
+                    continue;
+                } else if(rx >= '0' && rx <= '9'){
+                    csi_param = rx - '0';
+                    ext_rx = 3;
+                    continue;
+                } else if(rx == 'O'){
                     ext_rx = 6;
                     continue;
                 } else {
@@ -191,6 +224,7 @@ static int startstage_shell(){
                     cmd_com(com_argc, com_argv);
                     cmdline.bytes = 0;
                     cmdline.buffer[0] = 0;
+                    cur = 0;
                     prompt(PROMPT);
                     continue;
                 }
@@ -199,6 +233,7 @@ static int startstage_shell(){
                     execute_cmd(&cmdline, "keyboard");
                     cmdline.bytes = 0;
                     cmdline.buffer[0] = 0;
+                    cur = 0;
                     prompt(PROMPT_CLS);
                     continue;
                 }
@@ -208,6 +243,7 @@ static int startstage_shell(){
                     execute_cmd(&cmdline, "date /a");
                     cmdline.bytes = 0;
                     cmdline.buffer[0] = 0;
+                    cur = 0;
                     prompt(PROMPT);
                     continue;
                 }
@@ -221,37 +257,78 @@ static int startstage_shell(){
                         cmd_ls(1, args);
                         cmdline.bytes = 0;
                         cmdline.buffer[0] = 0;
+                        cur = 0;
                         prompt(PROMPT);
                     }
                     continue;
                 }
+            } else if(ext_rx == 3){
+                if(rx >= '0' && rx <= '9'){
+                    csi_param = csi_param * 10 + (rx - '0');
+                    continue;
+                }
+                ext_rx = 0;
+                if(rx == '~'){
+                    if(csi_param == 1 || csi_param == 7){
+                        if(cur > 0){ tx_csi_n(cur, 'D'); cur = 0; }
+                    } else if(csi_param == 3){
+                        if(cur < cmdline.bytes){
+                            int ob = cmdline.bytes;
+                            memmove(&cmdline.buffer[cur], &cmdline.buffer[cur+1], ob - cur);
+                            cmdline.bytes--;
+                            cmdline.buffer[cmdline.bytes] = 0;
+                            tx_string(&cmdline.buffer[cur]);
+                            tx_char(' ');
+                            tx_csi_n(ob - cur, 'D');
+                        }
+                    } else if(csi_param == 4 || csi_param == 8){
+                        if(cur < cmdline.bytes){ tx_csi_n(cmdline.bytes - cur, 'C'); cur = cmdline.bytes; }
+                    }
+                }
+                continue;
             // SOT (0x01) — auto-launch file receiver (crx.com /auto)
             } else if(rx == '\x01') {
                 ext_rx = 0;
                 execute_cmd(&cmdline, "crx /auto");
                 cmdline.bytes = 0;
                 cmdline.buffer[0] = 0;
+                cur = 0;
                 prompt(PROMPT_CLS);
                 continue;
             // Normal character (ASCII printable or extended 8-bit, exclude DEL), just put it on the pile.
             } else if(((unsigned char)rx >= 32) && (rx != 127)) {
                 ext_rx = 0;
                 if(cmdline.bytes == CMD_BUF_MAX) {
-                    tx_char(CHAR_BELL); // if the buffer is full, sound a bell
+                    tx_char(CHAR_BELL);
                 } else {
-                    cmdline.buffer[cmdline.bytes++] = rx;
-                    cmdline.buffer[cmdline.bytes] = 0;
-                    tx_char(rx);
+                    if(cur == cmdline.bytes){
+                        cmdline.buffer[cmdline.bytes++] = rx;
+                        cmdline.buffer[cmdline.bytes] = 0;
+                        tx_char(rx);
+                    } else {
+                        int ob = cmdline.bytes;
+                        memmove(&cmdline.buffer[cur+1], &cmdline.buffer[cur], ob - cur + 1);
+                        cmdline.buffer[cur] = rx;
+                        cmdline.bytes++;
+                        cmdline.buffer[cmdline.bytes] = 0;
+                        tx_string(&cmdline.buffer[cur]);
+                        tx_csi_n(ob - cur, 'D');
+                    }
+                    cur++;
                 }
             // Backspace
             } else if(rx == CHAR_BS || rx == KEY_DEL) {
                 ext_rx = 0;
-                if(cmdline.bytes) {
+                if(cur > 0) {
+                    int ob = cmdline.bytes;
+                    memmove(&cmdline.buffer[cur-1], &cmdline.buffer[cur], ob - cur + 1);
                     cmdline.bytes--;
                     cmdline.buffer[cmdline.bytes] = 0;
                     tx_char(CHAR_BS);
+                    tx_string(&cmdline.buffer[cur-1]);
                     tx_char(' ');
-                    tx_char(CHAR_BS);
+                    tx_csi_n(ob - cur + 1, 'D');
+                    cur--;
                 } else {
                     tx_char(CHAR_BELL);
                 }
@@ -265,6 +342,7 @@ static int startstage_shell(){
                     execute(&cmdline);
                     cmdline.bytes = 0;
                     cmdline.buffer[0] = 0;
+                    cur = 0;
                     prompt(PROMPT);
                 }
             } else {
