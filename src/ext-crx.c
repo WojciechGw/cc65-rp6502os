@@ -5,9 +5,11 @@
  */
 
 #include "commons.h"
+
+#define _NEED_DRAWBAR
 #include "commons/courier-gfx.h"
 
-#define APPVER "20260414.1728"
+#define APPVER "20260415.1452"
 
 /* ---- RIA UART access ---------------------------------------------------- */
 
@@ -19,15 +21,15 @@ typedef struct {
 
 typedef unsigned int u16;
 
-#define RIA_BASE_ADDR ((u16)0xFFE0u)
+#define RIA_BASE_ADDR ((u16)KEYBOARD_INPUT)
 #define RIA_PTR       ((ria_uart_t*)(RIA_BASE_ADDR))
 #define RRIA          (*RIA_PTR)
 
 #define RRIA_READY_TX_BIT 0x80u  /* bit 7 */
 #define RRIA_READY_RX_BIT 0x40u  /* bit 6 */
 
-#define RX_READY() (RRIA.READY & RRIA_READY_RX_BIT)
-#define TX_READY() (RRIA.READY & RRIA_READY_TX_BIT)
+#define RRX_READY() (RRIA.READY & RRIA_READY_RX_BIT)
+#define RTX_READY() (RRIA.READY & RRIA_READY_TX_BIT)
 
 /* ---- protocol constants ------------------------------------------------- */
 
@@ -105,7 +107,7 @@ static uint8_t ihx_buf[16];
 
 static void ria_tx_byte(unsigned char b)
 {
-    while (TX_READY() == 0) { }
+    while (RTX_READY() == 0) { }
     RRIA.TX = b;
 }
 
@@ -142,7 +144,7 @@ static int receive_header(void)
     rx_checksum_exp   = 0;
 
     for (;;) {
-        if (!RX_READY()) continue;
+        if (!RRX_READY()) continue;
         c = RRIA.RX;
 
         switch (state) {
@@ -258,7 +260,7 @@ int main(int argc, char **argv)
         /* --- interactive: wait for SOT or Esc --- */
         DrawText(3, 13, "Waiting for incoming data or [Esc] to exit", DARK_GRAY, BLACK);
         for (;;) {
-            if (RX_READY()) {
+            if (RRX_READY()) {
                 c = RRIA.RX;
                 if (c == SOT) break;
                 if (c == ESC) { action = -1; goto done_pre; }
@@ -325,7 +327,7 @@ int main(int argc, char **argv)
     {
         int prev_pct = -1;
         for (;;) {
-            if (RX_READY()) {
+            if (RRX_READY()) {
                 uint8_t r;
                 c = RRIA.RX;
                 rx_count++;
@@ -374,7 +376,7 @@ int main(int argc, char **argv)
     {
         clock_t drain_start = clock();
         while ((clock() - drain_start) < 10) {
-            if (RX_READY()) { c = RRIA.RX; if (c == EOT) break; }
+            if (RRX_READY()) { c = RRIA.RX; if (c == EOT) break; }
         }
     }
 

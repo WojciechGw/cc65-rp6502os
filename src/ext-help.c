@@ -1,12 +1,11 @@
 #include "commons.h"
 
-#define APPVER "20260414.1728"
+#define APPVER "20260415.1452"
 
 #define APP_HEADER CSI_CLS CSI "2;1H" CSI HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " Help information                              " ANSI_DARK_GRAY "version " APPVER ANSI_RESET
 #define APP_FOOTER ANSI_DARK_GRAY  "________________________________________________________________________________" ANSI_RESET NEWLINE
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
-#define NEWLINE "\r\n"
 
 typedef struct {
     const char *cmd;
@@ -22,8 +21,8 @@ static const cmd_t commands[] = {
                 "bsave picture.bin 0000 8192 /x (save 8192 bytes start from XRAM address 0x0000)"},
     { "brun",   "load binary file to RAM and run",
                 "brun hello.bin A300 (load and run binary file hello.bin at address 0xA300)"},
-    { "cart",   "launch ROM (filename without extension)", 
-                "cart [path]romfilename"},
+    { "cart",   "launch ROM (name without extension) with optional arguments", 
+                "cart [path]romfilename [args ...]"},
     { "cd",     "change active directory", 
                 "cd <directory>"},
     { "chmod",  "set file attributes",

@@ -10,7 +10,7 @@
 
 #include "commons.h"
 
-#define APPVER "20260414.1728"
+#define APPVER "20260415.1453"
 
 #define FNAMELEN 64
 
@@ -52,11 +52,6 @@
 /* write() is overridden by write_stub.c to go to UART; file writes must    */
 /* copy data to XRAM first, then call write_xram(xram_addr, count, fd).     */
 #define PACK_XRAM_STAGE 0xA000u  /* 128-byte staging window in XRAM */
-
-/* ---- TX helpers --------------------------------------------------------- */
-
-#define TX_READY (RIA.ready & RIA_READY_TX_BIT)
-#define TX_READY_SPIN while(!TX_READY)
 
 static void tx_char(char c)            { TX_READY_SPIN; RIA.tx = c; }
 static void tx_string(const char *s)   { while (*s) tx_char(*s++); }

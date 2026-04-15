@@ -26,7 +26,7 @@ extern struct _timezone _tz;
     #define __STACKSIZE__ 0x0200
 #endif
 #define MEMTOP (0xFF00-__STACKSIZE__-1)
-#define COM_LOAD_ADDR 0x8000  // lowest ram address where to load the external command code (binary shell extensions - .com files)
+#define COM_LOAD_ADDR 0x9400  // lowest ram address where to load the external command code (binary shell extensions - .com files)
 
 #define SHELLDRIVEDIRDEFAULT "MSC0:/SHELL/"
 #define SHELLDIRDEFAULT "ROM:"
@@ -47,11 +47,6 @@ extern struct _timezone _tz;
 #define RUN_ARGS_BUF 32
 #define RUN_ARGS_BLOCK_SIZE (1 + RUN_ARGS_MAX*2 + RUN_ARGS_BUF)
 #define HEXDUMP_LINE_SIZE 16
-
-#define TX_READY (RIA.ready & RIA_READY_TX_BIT)
-#define RX_READY (RIA.ready & RIA_READY_RX_BIT)
-#define TX_READY_SPIN while(!TX_READY)
-#define RX_READY_SPIN while(!RX_READY)
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
 

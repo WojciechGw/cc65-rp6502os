@@ -9,25 +9,14 @@
 
 // #define DEBUG
 
+#define _NEED_KEYSTATES
+
 #include "commons.h"
 
-#define APPVER "20260414.1728"
+#define APPVER "20260415.1453"
 
 // An extremely simple terminal for the Pico RIA W modem.
 // Uses the terminal built in to the Pico VGA.
-
-// Keyboard related
-//
-// XRAM locations
-#define KEYBOARD_INPUT 0xFF00 // KEYBOARD_BYTES of bitmask data
-#define KEYBOARD_BYTES 32
-uint8_t keystates[KEYBOARD_BYTES] = {0};
-// keystates[code>>3] gets contents from correct byte in array
-// 1 << (code&7) moves a 1 into proper position to mask with byte contents
-// final & gives 1 if key is pressed, 0 if not
-#define key(code) (keystates[code >> 3] & (1 << (code & 7)))
-
-#define RX_READY (RIA.ready & RIA_READY_RX_BIT)
 
 void print(char *s)
 {

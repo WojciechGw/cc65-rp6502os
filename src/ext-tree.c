@@ -5,7 +5,7 @@
 
 #include "commons.h"
 
-#define APPVER "20260414.1728"
+#define APPVER "20260415.1453"
 
 #define MAX_DEPTH    6      /* max depth below root */
 #define MAX_STACK    96     /* pending work frames   */
@@ -17,7 +17,6 @@
 #define AM_DIR 0x10
 #endif
 
-#define RX_READY   (RIA.ready & RIA_READY_RX_BIT)
 #define PAGE_LINES 27   /* output lines before "--- more ---" prompt */
 
 /* ------------------------------------------------------------------ */

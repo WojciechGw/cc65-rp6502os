@@ -4,16 +4,12 @@
  * ext-ctx.c - C89, cc65 (Picocomputer RP6502-RIA UART => PC)
  */
 #include "commons.h"
+#define _NEED_DRAWBAR
 #include "commons/courier-gfx.h"
 
-#define APPVER "20260414.1728"
+#define APPVER "20260415.1452"
 
 #define HDR_NAME_MAX 31  /* max filename chars in header (+ null = 32 B) */
-
-#define RX_READY (RIA.ready & RIA_READY_RX_BIT)
-#define TX_READY (RIA.ready & RIA_READY_TX_BIT)
-#define TX_READY_SPIN  while (!TX_READY)
-#define RX_READY_SPIN  while (!RX_READY)
 
 #define HEX_LINE_MAX 64  /* :LLAAAATT + 2*16 data + CC + CRLF */
 

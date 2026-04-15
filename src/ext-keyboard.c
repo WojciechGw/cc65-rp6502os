@@ -6,25 +6,17 @@
 // #define VSYNCWAIT
 // #define DEBUG
 
+#define _NEED_KEYSTATES
+
 #include "commons.h"
 
-#define APPVER "20260414.1728"
+#define APPVER "20260415.1453"
 
 #define APP_HEADER CSI "2;1H" CSI HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " Keyboard Visualiser                           " ANSI_DARK_GRAY "version " APPVER ANSI_RESET
 #define APP_FOOTER ANSI_DARK_GRAY CSI "11;1H________________________________________________________________________________" NEWLINE "press and hold both Shift keys to exit                     last keycode :       " ANSI_RESET
 
 // Keyboard related
 //
-// XRAM locations
-#define KEYBOARD_INPUT 0xFFE0 // KEYBOARD_BYTES of bitmask data
-// 256 bytes HID code max, stored in 32 uint8
-#define KEYBOARD_BYTES 32
-uint8_t keystates[KEYBOARD_BYTES] = {0};
-// keystates[code>>3] gets contents from correct byte in array
-// 1 << (code&7) moves a 1 into proper position to mask with byte contents
-// final & gives 1 if key is pressed, 0 if not
-#define key(code) (keystates[code >> 3] & (1 << (code & 7)))
-
 #define KB_VIEW_ROWS 7
 #define KB_VIEW_COLS 80
 
@@ -35,8 +27,6 @@ uint8_t keystates[KEYBOARD_BYTES] = {0};
 
 #define POS_KEYBOARD  "4;1H"
 #define POS_KEYPRESS  "12;75H"
-
-#define RX_READY (RIA.ready & RIA_READY_RX_BIT)
 
 typedef struct {
     uint8_t row;

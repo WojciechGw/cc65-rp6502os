@@ -1,12 +1,9 @@
 #include "commons.h"
 
-#define APPVER "20260414.1728"
+#define APPVER "20260415.1452"
 
 static char dev_label[16];
 static char saved_cwd[128];
-
-#define TX_READY (RIA.ready & RIA_READY_TX_BIT)
-#define TX_READY_SPIN while(!TX_READY)
 
 inline void tx_char(char c) {
     TX_READY_SPIN;

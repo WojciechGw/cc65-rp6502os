@@ -16,7 +16,7 @@
 
 #include "shell.h"
 
-#define APPVER "20260414.1710"
+#define APPVER "20260415.1457"
 #define APPNAME "razemOS"
 #define APP_MSG_START ANSI_DARK_GRAY CSI "12;35H" APPNAME
 #define APP_HOURGLASS CSI "14;36H" ANSI_DARK_GRAY ".........." CSI "10D" ANSI_RESET
@@ -116,6 +116,82 @@ static int startstage_boot(){
     return 0;
 }
 
+/* ------------------------------------------------------------------ */
+/* Command history                                                      */
+/* ------------------------------------------------------------------ */
+
+#define HIST_MAX  20
+#define HIST_FILE "MSC0:/SHELL/.history"
+
+static char hist_buf[HIST_MAX][CMD_BUF_MAX + 1];
+static int  hist_count = 0;
+static int  hist_head  = 0;  /* next write slot */
+
+/* hist_get(0)=newest, hist_get(hist_count-1)=oldest */
+static const char *hist_get(int i) {
+    return hist_buf[(hist_head - 1 - i + HIST_MAX * 2) % HIST_MAX];
+}
+
+static void hist_save(void) {
+    int fd, i;
+    char nl = '\n';
+    const char *p;
+    int n;
+    fd = open(HIST_FILE, O_WRONLY | O_CREAT | O_TRUNC);
+    if (fd < 0) return;
+    for (i = hist_count - 1; i >= 0; i--) {  /* oldest first */
+        p = hist_get(i);
+        n = (int)strlen(p);
+        write(fd, p, n);
+        write(fd, &nl, 1);
+    }
+    close(fd);
+}
+
+static void hist_load(void) {
+    int fd;
+    char c;
+    static char line[CMD_BUF_MAX + 1];
+    int lp = 0;
+    int slot;
+    hist_count = 0;
+    hist_head  = 0;
+    fd = open(HIST_FILE, O_RDONLY);
+    if (fd < 0) return;
+    while (read(fd, &c, 1) == 1) {
+        if (c == '\n' || c == '\r') {
+            if (lp > 0) {
+                line[lp] = 0;
+                slot = hist_head % HIST_MAX;
+                strncpy(hist_buf[slot], line, CMD_BUF_MAX);
+                hist_buf[slot][CMD_BUF_MAX] = 0;
+                hist_head = (hist_head + 1) % HIST_MAX;
+                if (hist_count < HIST_MAX) hist_count++;
+                lp = 0;
+            }
+        } else if (lp < CMD_BUF_MAX) {
+            line[lp++] = c;
+        }
+    }
+    close(fd);
+}
+
+static void hist_add(const char *cmd) {
+    int slot;
+    if (!cmd[0]) return;
+    if (hist_count > 0 &&
+        strcmp(hist_buf[(hist_head - 1 + HIST_MAX) % HIST_MAX], cmd) == 0)
+        return;  /* skip duplicate */
+    slot = hist_head % HIST_MAX;
+    strncpy(hist_buf[slot], cmd, CMD_BUF_MAX);
+    hist_buf[slot][CMD_BUF_MAX] = 0;
+    hist_head = (hist_head + 1) % HIST_MAX;
+    if (hist_count < HIST_MAX) hist_count++;
+    hist_save();
+}
+
+/* ------------------------------------------------------------------ */
+
 static void tx_csi_n(int n, char cmd) {
     char buf[8];
     int i = 0;
@@ -137,6 +213,10 @@ static int startstage_shell(){
     char ext_rx = 0;
     int cur       = 0;
     int csi_param = 0;
+    int hist_pos  = -1;  /* -1=new input; 0=newest; hist_count-1=oldest */
+    char hist_saved[CMD_BUF_MAX + 1];
+    int  hist_saved_bytes = 0;
+    int  hist_saved_cur   = 0;
 
     // struct tm *tmnow = get_time();
 
@@ -151,6 +231,8 @@ static int startstage_shell(){
     prompt(PROMPT_CLS);
     // printf(APP_MSG_TITLE APP_STARTPROMPTPOS);
     // prompt(PROMPT_FIRST);
+
+    hist_load();
 
     while (1)
     {
@@ -170,18 +252,57 @@ static int startstage_shell(){
                 }
                 ext_rx = 0;
             } else if(ext_rx == 2){
-                if(rx == CHAR_UP && (cmdline.lastbytes > 0)){
+                if(rx == CHAR_UP){
                     ext_rx = 0;
-                    tx_string(CSI "K" CSI "1A");
-                    prompt(PROMPT);
-                    cmdline.bytes = cmdline.lastbytes;
-                    memcpy(cmdline.buffer, cmdline.lastbuffer, cmdline.lastbytes);
-                    cmdline.buffer[cmdline.bytes] = 0;
-                    tx_string(cmdline.buffer);
-                    cur = cmdline.bytes;
+                    if(hist_count > 0) {
+                        int new_pos = hist_pos + 1;
+                        if(new_pos >= hist_count) new_pos = hist_count - 1;
+                        if(hist_pos == -1) {
+                            /* save current input before browsing */
+                            strncpy(hist_saved, cmdline.buffer, CMD_BUF_MAX);
+                            hist_saved[CMD_BUF_MAX] = 0;
+                            hist_saved_bytes = cmdline.bytes;
+                            hist_saved_cur   = cur;
+                        }
+                        hist_pos = new_pos;
+                        if(cur > 0) tx_csi_n(cur, 'D');
+                        tx_string(CSI "K" CSI "1A");
+                        prompt(PROMPT);
+                        strncpy(cmdline.buffer, hist_get(hist_pos), CMD_BUF_MAX);
+                        cmdline.buffer[CMD_BUF_MAX] = 0;
+                        cmdline.bytes = (int)strlen(cmdline.buffer);
+                        tx_string(cmdline.buffer);
+                        cur = cmdline.bytes;
+                    }
                     continue;
                 } else if(rx == CHAR_DOWN){
                     ext_rx = 0;
+                    if(hist_pos >= 0) {
+                        if(hist_pos == 0) {
+                            /* restore saved input */
+                            hist_pos = -1;
+                            if(cur > 0) tx_csi_n(cur, 'D');
+                            tx_string(CSI "K" CSI "1A");
+                            prompt(PROMPT);
+                            strncpy(cmdline.buffer, hist_saved, CMD_BUF_MAX);
+                            cmdline.buffer[CMD_BUF_MAX] = 0;
+                            cmdline.bytes = hist_saved_bytes;
+                            tx_string(cmdline.buffer);
+                            cur = hist_saved_cur;
+                            if(cur < cmdline.bytes)
+                                tx_csi_n(cmdline.bytes - cur, 'D');
+                        } else {
+                            hist_pos--;
+                            if(cur > 0) tx_csi_n(cur, 'D');
+                            tx_string(CSI "K" CSI "1A");
+                            prompt(PROMPT);
+                            strncpy(cmdline.buffer, hist_get(hist_pos), CMD_BUF_MAX);
+                            cmdline.buffer[CMD_BUF_MAX] = 0;
+                            cmdline.bytes = (int)strlen(cmdline.buffer);
+                            tx_string(cmdline.buffer);
+                            cur = cmdline.bytes;
+                        }
+                    }
                     continue;
                 } else if(rx == CHAR_LEFT){
                     ext_rx = 0;
@@ -339,6 +460,8 @@ static int startstage_shell(){
                 if(cmdline.bytes){
                     tx_string(NEWLINE);
                     cmdline.lastbytes = cmdline.bytes;
+                    hist_add(cmdline.buffer);
+                    hist_pos = -1;
                     execute(&cmdline);
                     cmdline.bytes = 0;
                     cmdline.buffer[0] = 0;
@@ -469,9 +592,14 @@ void hexdump(uint16_t addr, uint16_t bytes, char_stream_func_t streamer, read_da
 
 // things related to : disk operations
 
-bool match_mask(const char *name, const char *mask) { // Simple wildcard match supporting '*' (0+ chars) and '?' (1 char).
-    const char *star = 0;
-    const char *match = 0;
+bool match_mask(const char *name, const char *mask) { // Simple wildcard match supporting '*' (0+ chars), '?' (1 char), '!' negation prefix.
+    const char *star;
+    const char *mp;
+    bool negate = (*mask == '!');
+    bool result;
+    if(negate) mask++;
+    star = 0;
+    mp   = 0;
     while(*name) {
         if(*mask == '?' || *mask == *name) {
             mask++;
@@ -480,18 +608,20 @@ bool match_mask(const char *name, const char *mask) { // Simple wildcard match s
         }
         if(*mask == '*') {
             star = mask++;
-            match = name;
+            mp   = name;
             continue;
         }
         if(star) {
             mask = star + 1;
-            name = ++match;
+            name = ++mp;
             continue;
         }
-        return false;
+        result = false;
+        return negate ? !result : result;
     }
     while(*mask == '*') mask++;
-    return *mask == 0;
+    result = (*mask == 0);
+    return negate ? !result : result;
 }
 
 const char *format_fat_datetime(unsigned fdate, unsigned ftime) { // Format FAT date/time into YYYY-MM-DD hh:mm:ss
@@ -708,9 +838,8 @@ static int execute(cmdline_t *cl) {
     }
     // Allow selecting drive by typing e.g. "0:" directly
     if(tokens == 1 &&
-       tokenList[0][0] >= '0' && tokenList[0][0] <= '7' &&
-       tokenList[0][1] == ':' && tokenList[0][2] == 0) {
-        char *drv_args[2];
+        tokenList[0][0] >= '0' && tokenList[0][0] <= '7' &&
+        tokenList[0][1] == ':' && tokenList[0][2] == 0) {
         drv_args[0] = (char *)"drive";
         drv_args[1] = tokenList[0];
         return cmd_drive(2, drv_args);
@@ -1554,7 +1683,7 @@ int cmd_mem(int argc, char **argv) {
     tx_dec32(free);
     tx_string(" B free" NEWLINE );
     tx_hex16(COM_LOAD_ADDR);
-    tx_string(" .com load address" NEWLINE);
+    tx_string(" .com run address (default)" NEWLINE);
     return 0;
 }
 

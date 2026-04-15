@@ -1,6 +1,6 @@
 #include "commons.h"
 
-#define APPVER "20260414.1728"
+#define APPVER "20260415.1452"
 
 #define VERSION APPVER
 #define FNAMELEN 64
@@ -27,9 +27,6 @@ static char dir_dt_buf[20];
 #define AM_ARC 0x20
 #endif
 
-#define TX_READY (RIA.ready & RIA_READY_TX_BIT)
-#define TX_READY_SPIN while(!TX_READY)
-
 inline void tx_char(char c) {
     TX_READY_SPIN;
     RIA.tx = c;
@@ -46,10 +43,15 @@ void tx_string(const char *buf) {
     return;
 }
 
-// Simple wildcard match supporting '*' (0+ chars) and '?' (1 char).
+// Simple wildcard match supporting '*' (0+ chars), '?' (1 char), '!' negation prefix.
 bool match_mask(const char *name, const char *mask) {
-    const char *star = 0;
-    const char *match = 0;
+    const char *star;
+    const char *mp;
+    bool negate = (*mask == '!');
+    bool result;
+    if(negate) mask++;
+    star = 0;
+    mp   = 0;
     while(*name) {
         if(*mask == '?' || *mask == *name) {
             mask++;
@@ -58,18 +60,20 @@ bool match_mask(const char *name, const char *mask) {
         }
         if(*mask == '*') {
             star = mask++;
-            match = name;
+            mp   = name;
             continue;
         }
         if(star) {
             mask = star + 1;
-            name = ++match;
+            name = ++mp;
             continue;
         }
-        return false;
+        result = false;
+        return negate ? !result : result;
     }
     while(*mask == '*') mask++;
-    return *mask == 0;
+    result = (*mask == 0);
+    return negate ? !result : result;
 }
 
 // Print an unsigned long in decimal.
@@ -131,7 +135,6 @@ int main(int argc, char **argv) {
     unsigned files_count = 0;
     unsigned dirs_count = 0;
     unsigned long total_bytes = 0;
-    bool negate_mask = false;
     char dir_drive[3] = {0};
     static char dir_arg[FNAMELEN];
     static char dir_path_buf[FNAMELEN];
@@ -212,9 +215,6 @@ int main(int argc, char **argv) {
     // Copy path/mask into static buffers for reuse.
     strcpy(dir_path_buf, path);
     strcpy(dir_mask_buf, mask);
-    negate_mask = (dir_mask_buf[0] == '!');
-    if (negate_mask) memmove(dir_mask_buf, dir_mask_buf + 1, strlen(dir_mask_buf));
-
     if(f_getcwd(dir_cwd, sizeof(dir_cwd)) < 0) {
         tx_string(NEWLINE EXCLAMATION "getcwd failed" NEWLINE);
         rc = -1;
@@ -247,8 +247,7 @@ int main(int argc, char **argv) {
 
         // Apply mask only to files; always include directories so they are visible.
         if(!(dir_ent.fattrib & AM_DIR)) {
-            bool matched = match_mask(dir_ent.fname, dir_mask_buf);
-            if(negate_mask ? matched : !matched) continue;
+            if(!match_mask(dir_ent.fname, dir_mask_buf)) continue;
         }
 
         strcpy(dir_entries[dir_entries_count].name, dir_ent.fname);

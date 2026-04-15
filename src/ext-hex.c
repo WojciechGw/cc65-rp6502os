@@ -1,13 +1,11 @@
 #include "commons.h"
 
-#define APPVER "20260414.1728"
+#define APPVER "20260415.1453"
 
 // #define DEBUG
 
 #define FNAMELEN 64
 #define HEXDUMP_LINE_SIZE 16
-#define TX_READY (RIA.ready & RIA_READY_TX_BIT)
-#define TX_READY_SPIN  while (!TX_READY)
 
 typedef void (*char_stream_func_t)(const char *buf, int size);
 typedef void (*read_data_func_t)(uint8_t *buf, uint16_t addr, uint16_t size);

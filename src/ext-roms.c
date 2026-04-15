@@ -3,10 +3,12 @@
 // command: roms [path]
 //
 
+#define _NEED_KEYSTATES
+
 #include "commons.h"
 #include "./commons/courier-gfx.h"
 
-#define APPVER "20260414.1728"
+#define APPVER "20260415.1453"
 #define APP_FOOTER "________________________________________________________________________________"
 
 #define MAXROMS        64
@@ -22,13 +24,7 @@
 #define AM_DIR 0x10
 #endif
 
-/* keyboard */
-#define KEYBOARD_INPUT   0xFFE0u
-#define KEYBOARD_BYTES  32
-
-static uint8_t keystates[KEYBOARD_BYTES];
 static bool    handled_key;
-#define key(code) (keystates[(code) >> 3] & (1 << ((code) & 7)))
 
 /* ROM list */
 static char     rom_dname[MAXROMS][ROM_DNAME_LEN + 1];

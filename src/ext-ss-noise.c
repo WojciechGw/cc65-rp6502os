@@ -8,9 +8,11 @@
  * Font must already be loaded at 0xF700 by the OS Shell (InitTerminalFont).
  */
 
+#define _NEED_KEYSTATES
+
 #include "commons.h"
 
-#define APPVER "20260414.1728"
+#define APPVER "20260415.1453"
 
 #define FONTDIR "ROM:"
 
@@ -36,13 +38,6 @@
 #define CANVAS_PAL        0xFFFFu       /* system default palette            */
 
 #define UPDATES_PER_FRAME 200           /* cells refreshed per vsync         */
-
-/* ---- keyboard ----------------------------------------------------------- */
-#define KEYBOARD_INPUT 0xFFE0
-#define KEYBOARD_BYTES 32
-static uint8_t keystates[KEYBOARD_BYTES];
-#define key(code) (keystates[code >> 3] & (1 << (code & 7)))
-#define RX_READY (RIA.ready & RIA_READY_RX_BIT)
 
 /* ---- character set ------------------------------------------------------ */
 static const char MCHARS[] =

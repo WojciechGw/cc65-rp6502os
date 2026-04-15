@@ -64,6 +64,7 @@ static void ClearLine(uint8_t row, uint8_t fg, uint8_t bg)
         DrawChar(row, c, ' ', fg, bg);
 }
 
+#ifdef _NEED_DRAWBAR
 /* Draw progress bar on the given row.
    Format: [XXXXXXXX......] XX%
    filled cells: 0xDB (block), empty: 0xB0 (light shade) */
@@ -97,6 +98,7 @@ static void DrawBar(uint8_t row, long done, long total)
     nb[4] = '\0';
     DrawText(row, col, nb, WHITE, BLACK);
 }
+#endif
 
 /* ----- canvas init / restore --------------------------------------------- */
 
