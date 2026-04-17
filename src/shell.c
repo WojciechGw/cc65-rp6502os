@@ -16,6 +16,8 @@
 
 #include "shell.h"
 
+// #define CLOCK_SHOW
+
 #define APPVER "20260415.1457"
 #define APPNAME "razemOS"
 #define APP_MSG_START ANSI_DARK_GRAY CSI "12;35H" APPNAME
@@ -29,15 +31,19 @@ void *__fastcall__ argv_mem(size_t size) { return malloc(size); }
 // argv[0] saved here before any sub-program call can corrupt the heap argv buffer
 static char shell_prog[FNAMELEN];
 
+#ifdef CLOCK_SHOW
+    uint16_t counter_clock = 0;
+#endif
+
 int main(int argc, char *argv[]){
 
     int stage;
-#ifdef DEBUG
+    #ifdef DEBUG
     int i;
     printf("argc = %d\n", argc);
     for (i = 0; i < argc; i++)
         printf("argv[%d] = %s\n", i, argv[i]);
-#endif
+    #endif
 
     strncpy(shell_prog, argv[0], sizeof(shell_prog) - 1);
     shell_prog[sizeof(shell_prog) - 1] = '\0';
@@ -205,6 +211,19 @@ static void tx_csi_n(int n, char cmd) {
     tx_string(buf);
 }
 
+#ifdef CLOCK_SHOW
+void ClockUpdate(void){
+    int hour, mins, secs;
+    time_t t = time(NULL);
+    struct tm *tm = localtime(&t);
+    hour = tm->tm_hour;
+    mins = tm->tm_min;
+    secs = tm->tm_sec;
+    if(secs < 6)
+        printf(CSI "s" CSI "1;76H" ANSI_GREEN "%02d:%02d" ANSI_RESET CSI "u", hour, mins);
+}
+#endif
+
 static int startstage_shell(){
 
     int i = 0;
@@ -232,10 +251,31 @@ static int startstage_shell(){
     // printf(APP_MSG_TITLE APP_STARTPROMPTPOS);
     // prompt(PROMPT_FIRST);
 
+    #ifdef CLOCK_SHOW
+    ClockUpdate();
+    #endif
+
     hist_load();
+
+    #ifdef CLOCK_SHOW
+    v = RIA.vsync;
+    #endif
 
     while (1)
     {
+
+        #ifdef CLOCK_SHOW
+        if(v == RIA.vsync)
+        {
+            ++counter_clock;
+        } else {
+            if(counter_clock > 10){
+                ClockUpdate();
+                counter_clock = 0;
+            }
+            v == RIA.vsync;
+        }
+        #endif
 
         if(RX_READY) {
             char rx = (char)RIA.rx;
@@ -343,6 +383,8 @@ static int startstage_shell(){
                         com_argc = 3;
                     }
                     cmd_com(com_argc, com_argv);
+                    while(RX_READY) (void)RIA.rx;
+                    ext_rx = 0;
                     cmdline.bytes = 0;
                     cmdline.buffer[0] = 0;
                     cur = 0;
@@ -352,6 +394,8 @@ static int startstage_shell(){
                 if(rx == CHAR_F2 || rx == 'Q') {
                     ext_rx = 0;
                     execute_cmd(&cmdline, "keyboard");
+                    while(RX_READY) (void)RIA.rx;
+                    ext_rx = 0;
                     cmdline.bytes = 0;
                     cmdline.buffer[0] = 0;
                     cur = 0;
@@ -362,6 +406,8 @@ static int startstage_shell(){
                     ext_rx = 0;
                     tx_string(NEWLINE);
                     execute_cmd(&cmdline, "date /a");
+                    while(RX_READY) (void)RIA.rx;
+                    ext_rx = 0;
                     cmdline.bytes = 0;
                     cmdline.buffer[0] = 0;
                     cur = 0;
@@ -376,6 +422,8 @@ static int startstage_shell(){
                         args[0] = (char *)"ls";
                         tx_string(NEWLINE);
                         cmd_ls(1, args);
+                        while(RX_READY) (void)RIA.rx;
+                        ext_rx = 0;
                         cmdline.bytes = 0;
                         cmdline.buffer[0] = 0;
                         cur = 0;
@@ -411,6 +459,8 @@ static int startstage_shell(){
             } else if(rx == '\x01') {
                 ext_rx = 0;
                 execute_cmd(&cmdline, "crx /auto");
+                while(RX_READY) (void)RIA.rx;
+                ext_rx = 0;
                 cmdline.bytes = 0;
                 cmdline.buffer[0] = 0;
                 cur = 0;
@@ -459,14 +509,18 @@ static int startstage_shell(){
                 if(rx == CHAR_LF && last_rx == CHAR_CR) continue; // Ignore CRLF
                 if(cmdline.bytes){
                     tx_string(NEWLINE);
-                    cmdline.lastbytes = cmdline.bytes;
                     hist_add(cmdline.buffer);
                     hist_pos = -1;
                     execute(&cmdline);
+                    while(!RX_READY) {(void)RIA.rx;}
                     cmdline.bytes = 0;
                     cmdline.buffer[0] = 0;
                     cur = 0;
                     prompt(PROMPT);
+                    putchar('\x08');
+                    putchar(' ');
+                    putchar(' ');
+                    putchar('\x08');
                 }
             } else {
                 ext_rx = 0;
@@ -483,7 +537,7 @@ void cls(){ // clear screen
 
 void prompt(uint8_t mode) {
     if(mode == PROMPT_CLS) cls();    
-    printf("%s%s%s", (mode == PROMPT_FIRST ? "" : NEWLINE), dir_cwd, (mode == PROMPT_FIRST ? SHELLPROMPT_1ST : SHELLPROMPT));
+    printf("%s%s%s", (mode == PROMPT_FIRST ? "" : NEWLINE), dir_cwd, (mode == PROMPT_FIRST ? NEWLINE SHELLPROMPT_1ST : SHELLPROMPT));
     return;
 }
 
@@ -825,13 +879,10 @@ static int tokenize(char *buf, int maxBuf, char **tokenList, int maxTokens) {
 
 static int execute(cmdline_t *cl) {
     int i;
-    char *tokenList[CMD_TOKEN_MAX];
+    char *tokenList[CMD_TOKEN_MAX + 1]; /* +1 for NULL sentinel required by ria_execv */
     int tokens = 0;
-    cl->lastbytes = 0;
-    memcpy(cl->lastbuffer, cl->buffer, cl->bytes);
-    cl->lastbytes = cl->bytes;
-    cl->lastbuffer[cl->bytes] = 0;
-    tokens = tokenize(cl->buffer, cl->bytes, tokenList, ARRAY_SIZE(tokenList));
+    tokens = tokenize(cl->buffer, cl->bytes, tokenList, CMD_TOKEN_MAX);
+    if(tokens >= 0) tokenList[tokens] = NULL;
     if(tokens <= 0) {
         if(tokens < 0) tx_string(EXCLAMATION "unterminated quote/escape" NEWLINE);
         return 0;
@@ -1888,8 +1939,12 @@ int cmd_cart(int argc, char **argv){
         cf = open(fname, O_RDONLY);
         if(cf >= 0){
             close(cf);
-            PAUSE(25);
-            ria_execv(fname, argv + 2);
+            PAUSE(10);
+            if (argc > 2){
+                ria_execv(fname, argv + 2);
+            } else {
+                ria_execl(fname, NULL);
+            }
         } else {
             tx_string(NEWLINE EXCLAMATION "file not found" NEWLINE);
         }

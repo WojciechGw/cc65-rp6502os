@@ -4,4 +4,4 @@
 #define CSI_CLS         CSI "2J"
 #define CSI_CURSOR_SHOW CSI "?25h"
 #define CSI_CURSOR_HIDE CSI "?25l"
-#define CSI_CURSOR_HOME CSI "0;0H"
+#define CSI_CURSOR_HOME CSI "1;1H"

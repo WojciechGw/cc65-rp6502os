@@ -43,3 +43,12 @@ rp6502_asset(razemos [font8x8]experiment2.bmp assets/fnt/[font8x8]experiment2.bm
 rp6502_executable(razemos DATA 0x0200 RESET 0x0200)
 target_sources(razemos PRIVATE src/shell.c)
 target_link_options(razemos PRIVATE -C ${CMAKE_SOURCE_DIR}/src/shell.cfg)
+
+add_executable(launchpad)
+rp6502_asset(launchpad help src/launchpad.hlp)
+# ROM: commands
+rp6502_executable(launchpad DATA 0x0200 RESET 0x0200)
+target_sources(launchpad PRIVATE src/ext-roms.c)
+target_link_options(launchpad PRIVATE -C ${CMAKE_SOURCE_DIR}/src/launchpad.cfg)
+
+include(src/razemosmt/CMakeLists_mt.txt)

@@ -8,7 +8,7 @@
 #include "commons.h"
 #include "./commons/courier-gfx.h"
 
-#define APPVER "20260415.1453"
+#define APPVER "20260415.2059"
 #define APP_FOOTER "________________________________________________________________________________"
 
 #define MAXROMS        64
@@ -16,7 +16,7 @@
 #define ROM_PATH_LEN   64   /* full path stored for ria_execl */
 #define TILE_COLS      4
 #define TILE_W         20   /* chars per tile = ROM_DNAME_LEN + 2 */
-#define HDR_ROWS       4    /* rows 0-3 reserved for header */
+#define HDR_ROWS       5    /* rows 0-3 reserved for header */
 #define FTR_ROWS       3    /* rows 27-29 reserved for status */
 #define CONTENT_ROWS   (CGX_ROWS - HDR_ROWS - FTR_ROWS)  /* 26 */
 
@@ -116,8 +116,8 @@ static void draw_header(void)
     DrawText(1,  0, " razemOS > "    ,     WHITE, DARK_GREEN);
     DrawText(1, 12, "ROMS launcher"  ,     WHITE,      BLACK);
     DrawText(1, 59, "version " APPVER, DARK_GRAY,      BLACK);
-    ClearLine(2, DARK_GRAY, BLACK);
-    DrawText(2,  12, "navigate by arrows, press [ENTER] to launch, press [Esc] to exit", DARK_GRAY, BLACK);
+    ClearLine(3, DARK_GRAY, BLACK);
+    DrawText(3,  12, "navigate by arrows, press [ENTER] to launch, press [SPACE] to exit", DARK_GRAY, BLACK);
 }
 
 /* ------------------------------------------------------------------ */
@@ -129,7 +129,7 @@ int main(int argc, char **argv)
     int dirdes;
     int sel, top_row, new_sel, new_top, old_sel;
     int action;
-    uint8_t v, new_keys, new_key;
+    uint8_t new_keys, new_key;
     int i, j, keylast;
     int nlen, plen, flen, pos;
     static char pathbuf[ROM_PATH_LEN];
@@ -198,11 +198,8 @@ int main(int argc, char **argv)
     redraw_all(sel, top_row);
 
     xreg_ria_keyboard(KEYBOARD_INPUT);
-    v = RIA.vsync;
 
     while (1) {
-        if (RIA.vsync == v) continue;
-        v = RIA.vsync;
 
         /* read keyboard bitmask from XRAM */
         new_key = 0;
@@ -225,7 +222,7 @@ int main(int argc, char **argv)
                 if (key(KEY_UP))    action = 3;
                 if (key(KEY_DOWN))  action = 4;
                 if (key(KEY_ENTER)) action = 5;
-                if (key(KEY_ESC))   action = 99;
+                if (key(KEY_SPACE))   action = 99;
                 handled_key = true;
             }
         } else {
@@ -259,8 +256,7 @@ int main(int argc, char **argv)
             action = 0;
             continue;
         case 99: /* ESC — exit */
-            cgx_restore();
-            return 0;
+            goto end_of_ext;
         default:
             break;
         }
@@ -288,4 +284,12 @@ int main(int argc, char **argv)
             draw_status(sel);
         }
     }
+
+end_of_ext:
+
+    xreg_ria_keyboard(0xFFFF);
+    cgx_restore();
+
+    return 0;
+
 }

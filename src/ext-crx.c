@@ -9,7 +9,7 @@
 #define _NEED_DRAWBAR
 #include "commons/courier-gfx.h"
 
-#define APPVER "20260415.1452"
+#define APPVER "20260415.1721"
 
 /* ---- RIA UART access ---------------------------------------------------- */
 

@@ -82,9 +82,7 @@ static const char hexdigits[] = "0123456789ABCDEF";
 
 typedef struct {
     int bytes;
-    int lastbytes;
     char buffer[CMD_BUF_MAX+1];
-    char lastbuffer[CMD_BUF_MAX+1];
 } cmdline_t;
 
 typedef struct {
