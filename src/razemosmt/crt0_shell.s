@@ -1,11 +1,9 @@
 ;
 ; crt0_shell.s — TASK0 startup for razemOSmt
 ;
-; Sends a single '!' byte via UART immediately on entry
-; to confirm that kernel_init reached TASK0_ENTRY ($0E60).
-; Then sets c_sp and calls _main.
-;
-; Does NOT reset hardware SP.
+; Sends '!' via UART to confirm kernel reached TASK0_ENTRY ($0E60).
+; Zeroes cc65 ZP ($0028-$0041), sets c_sp, calls _main.
+; Does NOT reset hardware SP (kernel sets it to $013F).
 ;
 
 .export _init, _exit
@@ -31,6 +29,14 @@ _init:
     beq @tx_wait
     lda #'!'
     sta RIA_TX
+
+    ; Zero cc65 ZP variables ($0028–$0041, zpspace=26 bytes)
+    lda #0
+    ldx #25
+@zp_clr:
+    sta $28,x
+    dex
+    bpl @zp_clr
 
     ; Set cc65 software stack pointer — do NOT touch hardware SP
     lda #<(__RAM_START__ + __RAM_SIZE__)

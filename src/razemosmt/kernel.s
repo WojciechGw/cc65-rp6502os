@@ -4,9 +4,9 @@
 ;
 ; Memory layout:
 ;   $0200–$025F  JUMPTABLE  — stable ABI vectors (32 × JMP abs)
-;   $0260–$0A5F  KERNEL     — IRQ handler, scheduler, syscalls, ria wrappers
-;   $0A60–$0B5F  KDATA      — kernel variables
-;   $0B60–$0C5F  TCBAREA    — 4 × TCB (Task Control Block, 64 bytes each)
+;   $0260–$0C5F  KERNEL     — IRQ handler, scheduler, syscalls, ria wrappers
+;   $0C60–$0D5F  KDATA      — kernel variables
+;   $0D60–$0E5F  TCBAREA    — 2 × TCB (Task Control Block, 128 bytes each)
 ;
 ; Kernel Zero Page (fixed addresses, NOT via linker):
 ;   $001A  kzp_tmp0    — scratch A on IRQ entry
@@ -57,10 +57,21 @@ kzp_spare1  = $0027
 
 ; ---------------------------------------------------------------------------
 ; TCB layout — offsets (TCB = 64 bytes, base = $0D60 + task_id*64)
+;
+; Each task owns 26 bytes of cc65 ZP: task_id * 26 + $0028
+;   TASK0: $0028–$0041,  TASK1: $0042–$005B
+;   TASK2: $005C–$0075,  TASK3: $0076–$008F
+;
+; ZP snapshot (TCB+28, 26 bytes) saves only the task's own cc65 ZP slice.
+; $00–$19 not snapshotted (cc65 never uses them when ZP start=$0028).
+; kzp_* ($1A–$27) managed exclusively by kernel, never snapshotted.
+;
+; Max tasks: 4 ($0D60 + 4*64 = $0E60 = TASK0_ENTRY boundary)
 ; ---------------------------------------------------------------------------
 
 TCB_BASE    = $0D60
 TCB_SIZE    = 64        ; power-of-2 → indexed by 6x ASL
+MAX_TASKS   = 4
 
 TCB_PC_LO   = 0         ; +0  program counter lo
 TCB_PC_HI   = 1         ; +1  program counter hi
@@ -83,9 +94,8 @@ TCB_LADDR_H = 17        ; +17 load address hi
 TCB_MSIZE_L = 18        ; +18 RAM size lo
 TCB_MSIZE_H = 19        ; +19 RAM size hi
 TCB_NAME    = 20        ; +20 name (8 bytes: 7 chars + null)
-TCB_ZP_SNAP = 28        ; +28 ZP$0000–$0019 snapshot (26 bytes)
-                        ; +54 reserved (10 bytes)
-                        ; = 64 bytes total
+TCB_ZP_SNAP = 28        ; +28 cc65 ZP snapshot (26 bytes, task-specific slice)
+                        ; +54 reserved (10 bytes) = 64 total
 
 ; Task status
 TASK_DEAD    = 0
@@ -176,6 +186,14 @@ jt_xpush_byte:        jmp xpush_byte          ; $025D [30]
 
 TASK0_ENTRY = $0E60     ; cc65 crt0 __STARTUP__ — must match shell.cfg __STARTADDR__
 
+; ZP slice start addresses per task_id (cc65 ZP = 26 bytes per task)
+; Indexed as zp_slice_lo[task_id*2] (only lo byte needed, hi=$00 always)
+zp_slice_lo:
+    .byte $28, 0    ; task_id=0: $0028–$0041
+    .byte $42, 0    ; task_id=1: $0042–$005B
+    .byte $5C, 0    ; task_id=2: $005C–$0075
+    .byte $76, 0    ; task_id=3: $0076–$008F
+
 kernel_init:
     ; Disable interrupts during initialization
     sei
@@ -197,39 +215,29 @@ kernel_init:
     sta kzp_spare0
     sta kzp_spare1
 
-    ; Clear TCBAREA ($0D60–$0E5F): 256 bytes, page-crossing.
-    ; $0D60–$0DFF: 160 bytes (Y from $60 to $FF, wraps to 0)
-    ; $0E00–$0E5F:  96 bytes (Y from $00 to $5F)
-    ; MUST stop before $0E60 = TASK0 entry point.
+    ; Clear TCBAREA ($0D60–$0E5F = 256 bytes) in one pass.
+    ; ptr=$0D60, Y=0..FF → writes $0D60+0 .. $0D60+$FF = $0D60–$0E5F exactly.
     lda #<TCB_BASE       ; $60
     sta kzp_tcb_lo
     lda #>TCB_BASE       ; $0D
     sta kzp_tcb_hi
     lda #0
-    ldy #<TCB_BASE       ; Y = $60 — start of TCBAREA within its page
+    ldy #0
 @clr_tcb:
     sta (kzp_tcb_lo),y
     iny
-    bne @clr_tcb         ; stop when Y wraps to 0 (wrote $60–$FF = 160 bytes)
-    ; Y=0 now; second page starts at $0E00: set ptr lo=$00, hi=$0E
-    lda #0
-    sta kzp_tcb_lo       ; base ptr = $0E00
-    inc kzp_tcb_hi       ; kzp_tcb_hi = $0E
-@clr_tcb2:
-    sta (kzp_tcb_lo),y
-    iny
-    cpy #$60             ; stop when Y=$60 → $0E00+$60=$0E60 (TASK0 entry)
-    bne @clr_tcb2
+    bne @clr_tcb         ; Y wraps 0 after $FF → done
 
     ; Initialize VSYNC shadow
     lda RIA_VSYNC
     sta kzp_vsync
 
-    ; Register IRQ handler with RIA ($FFF0–$FFF1)
-    lda #<irq_handler
+    ; Enable VSync IRQ via RIA: write 1 to $FFF0 (IRQ enable register).
+    ; RIA asserts CPU_IRQB on each VSync when enabled.
+    ; CPU jumps through $FFFE/$FFFF (standard 6502 IRQ vector) to irq_handler.
+    ; IRQ handler must read $FFF0 (IRQ ACK) to de-assert the IRQ pin.
+    lda #1
     sta RIA_IRQ
-    lda #>irq_handler
-    sta RIA_IRQ+1
 
     ; Register TASK0 in TCB[0].
     ; sys_task_create cannot be called yet (IRQ disabled, stack not set up),
@@ -284,7 +292,7 @@ kernel_init:
 
 set_tcb_ptr:
     ; TCB_BASE + task_id * 64
-    ; task_id * 64: 6x ASL (max A=3 → 3*64=192, fits in 8 bits)
+    ; task_id * 64: 6x ASL (max A=3 → 3*64=$C0, fits in 8 bits)
     asl             ; *2
     asl             ; *4
     asl             ; *8
@@ -307,6 +315,10 @@ set_tcb_ptr:
 .export irq_handler
 
 irq_handler:
+    ; --- 0. IRQ ACK — de-assert CPU_IRQB pin (read $FFF0) ---
+    ; Must be first: RIA keeps IRQ asserted until acknowledged.
+    bit RIA_IRQ
+
     ; --- 1. Atomic save A, X, Y ---
     sta kzp_tmp0
     stx kzp_tmp1
@@ -353,12 +365,10 @@ irq_handler:
     lda kzp_tmp2
     sta (kzp_tcb_lo),y
 
-    ; Current task SP: CPU pushed 3 bytes (PChi, PClo, P) before IRQ entry,
-    ; so current SP = SP_before_IRQ - 3. We save SP_before_IRQ.
+    ; Save current SP as-is (after IRQ pushed PChi/PClo/P, SP = SP_before_IRQ - 3).
+    ; RTI will pop P/PClo/PChi from this SP, so we restore this exact value.
     tsx
     txa
-    clc
-    adc #3
     ldy #TCB_SP
     sta (kzp_tcb_lo),y
 
@@ -375,91 +385,38 @@ irq_handler:
     ldy #TCB_PC_HI
     sta (kzp_tcb_lo),y
 
-    ; --- 7. Save ZP$0000–$0019 to TCB+28 (26 bytes, unrolled) ---
-    ; Y is used as TCB offset; addressing via (kzp_tcb_lo),y
-    ldy #TCB_ZP_SNAP
-    lda $00
+    ; --- 7. Save cc65 ZP slice to TCB snapshot (26 bytes) ---
+    ; Each task has its own ZP slice: $0028 + task_id*26
+    ; ZP source = $28 + kzp_curr*26; TCB dest = TCB_ZP_SNAP..+25
+    ; Use kzp_spare0 ($26) as ZP src, kzp_spare1 ($27) as TCB offset counter.
+    ; kzp_curr*26: use table lookup (4 entries: 0,26,52,78)
+    lda kzp_curr
+    asl
+    tay
+    lda zp_slice_lo,y   ; ZP slice start for this task_id
+    sta kzp_spare0
+    lda #TCB_ZP_SNAP
+    sta kzp_spare1
+@zp_save:
+    ldy kzp_spare0
+    lda $00,y
+    ldy kzp_spare1
     sta (kzp_tcb_lo),y
-    iny
-    lda $01
-    sta (kzp_tcb_lo),y
-    iny
-    lda $02
-    sta (kzp_tcb_lo),y
-    iny
-    lda $03
-    sta (kzp_tcb_lo),y
-    iny
-    lda $04
-    sta (kzp_tcb_lo),y
-    iny
-    lda $05
-    sta (kzp_tcb_lo),y
-    iny
-    lda $06
-    sta (kzp_tcb_lo),y
-    iny
-    lda $07
-    sta (kzp_tcb_lo),y
-    iny
-    lda $08
-    sta (kzp_tcb_lo),y
-    iny
-    lda $09
-    sta (kzp_tcb_lo),y
-    iny
-    lda $0A
-    sta (kzp_tcb_lo),y
-    iny
-    lda $0B
-    sta (kzp_tcb_lo),y
-    iny
-    lda $0C
-    sta (kzp_tcb_lo),y
-    iny
-    lda $0D
-    sta (kzp_tcb_lo),y
-    iny
-    lda $0E
-    sta (kzp_tcb_lo),y
-    iny
-    lda $0F
-    sta (kzp_tcb_lo),y
-    iny
-    lda $10
-    sta (kzp_tcb_lo),y
-    iny
-    lda $11
-    sta (kzp_tcb_lo),y
-    iny
-    lda $12
-    sta (kzp_tcb_lo),y
-    iny
-    lda $13
-    sta (kzp_tcb_lo),y
-    iny
-    lda $14
-    sta (kzp_tcb_lo),y
-    iny
-    lda $15
-    sta (kzp_tcb_lo),y
-    iny
-    lda $16
-    sta (kzp_tcb_lo),y
-    iny
-    lda $17
-    sta (kzp_tcb_lo),y
-    iny
-    lda $18
-    sta (kzp_tcb_lo),y
-    iny
-    lda $19
-    sta (kzp_tcb_lo),y  ; last — no iny
+    inc kzp_spare0
+    inc kzp_spare1
+    lda kzp_spare1
+    cmp #(TCB_ZP_SNAP + 26)
+    bne @zp_save
 
-    ; --- 8. Set current task status = READY ---
+    ; --- 8. Set current task status = READY (only if it was RUNNING) ---
+    ; A WAITING task must not be overwritten — it is sleeping intentionally.
     ldy #TCB_STATUS
+    lda (kzp_tcb_lo),y
+    cmp #TASK_RUNNING
+    bne @keep_status
     lda #TASK_READY
     sta (kzp_tcb_lo),y
+@keep_status:
 
     ; --- 9. Increment frame counter ---
     ldy #TCB_FCNT_L
@@ -491,93 +448,12 @@ irq_handler:
     lda #TASK_RUNNING
     sta (kzp_tcb_lo),y
 
-    ; --- 15. Restore ZP$0000–$0019 from new task TCB ---
-    ldy #TCB_ZP_SNAP
-    lda (kzp_tcb_lo),y
-    sta $00
-    iny
-    lda (kzp_tcb_lo),y
-    sta $01
-    iny
-    lda (kzp_tcb_lo),y
-    sta $02
-    iny
-    lda (kzp_tcb_lo),y
-    sta $03
-    iny
-    lda (kzp_tcb_lo),y
-    sta $04
-    iny
-    lda (kzp_tcb_lo),y
-    sta $05
-    iny
-    lda (kzp_tcb_lo),y
-    sta $06
-    iny
-    lda (kzp_tcb_lo),y
-    sta $07
-    iny
-    lda (kzp_tcb_lo),y
-    sta $08
-    iny
-    lda (kzp_tcb_lo),y
-    sta $09
-    iny
-    lda (kzp_tcb_lo),y
-    sta $0A
-    iny
-    lda (kzp_tcb_lo),y
-    sta $0B
-    iny
-    lda (kzp_tcb_lo),y
-    sta $0C
-    iny
-    lda (kzp_tcb_lo),y
-    sta $0D
-    iny
-    lda (kzp_tcb_lo),y
-    sta $0E
-    iny
-    lda (kzp_tcb_lo),y
-    sta $0F
-    iny
-    lda (kzp_tcb_lo),y
-    sta $10
-    iny
-    lda (kzp_tcb_lo),y
-    sta $11
-    iny
-    lda (kzp_tcb_lo),y
-    sta $12
-    iny
-    lda (kzp_tcb_lo),y
-    sta $13
-    iny
-    lda (kzp_tcb_lo),y
-    sta $14
-    iny
-    lda (kzp_tcb_lo),y
-    sta $15
-    iny
-    lda (kzp_tcb_lo),y
-    sta $16
-    iny
-    lda (kzp_tcb_lo),y
-    sta $17
-    iny
-    lda (kzp_tcb_lo),y
-    sta $18
-    iny
-    lda (kzp_tcb_lo),y
-    sta $19  ; last — no iny
+    ; --- 15+16+17+18. Pre-load registers, restore ZP slice, set SP ---
 
-    ; --- 16. Restore new task SP ---
+    ; Pre-load SP, A, X, Y from TCB (kzp_tcb_lo/hi valid here)
     ldy #TCB_SP
     lda (kzp_tcb_lo),y
-    tax
-    txs
-
-    ; --- 17. Restore A, X, Y via kzp_tmp ---
+    tax             ; X = new task SP
     ldy #TCB_A
     lda (kzp_tcb_lo),y
     sta kzp_tmp0
@@ -588,10 +464,35 @@ irq_handler:
     lda (kzp_tcb_lo),y
     sta kzp_tmp2
 
-    ; --- 18. Clear in_irq flag ---
+    ; Clear in_irq flag
     lda kzp_iflags
     and #(.BITNOT IFLAGS_IN_IRQ & $FF)
     sta kzp_iflags
+
+    ; Restore cc65 ZP slice for new task (kzp_next).
+    ; kzp_spare0 = ZP dest ($0028 + kzp_next*26)
+    ; kzp_spare1 = TCB src offset (TCB_ZP_SNAP..+25)
+    ; kzp_tmp0/1/2/tcb_lo/hi must not be clobbered — spare0/1 are safe ($26/$27).
+    lda kzp_next
+    asl
+    tay
+    lda zp_slice_lo,y
+    sta kzp_spare0
+    lda #TCB_ZP_SNAP
+    sta kzp_spare1
+@zp_rest:
+    ldy kzp_spare1
+    lda (kzp_tcb_lo),y
+    ldy kzp_spare0
+    sta $00,y
+    inc kzp_spare0
+    inc kzp_spare1
+    lda kzp_spare1
+    cmp #(TCB_ZP_SNAP + 26)
+    bne @zp_rest
+
+    ; Set new task SP
+    txs
 
     lda kzp_tmp2
     tay
@@ -622,7 +523,7 @@ irq_handler:
 ; ---------------------------------------------------------------------------
 
 kernel_scheduler:
-    ; --- Phase 1: wake WAITING tasks ---
+    ; --- Phase 1: wake WAITING tasks — scan all MAX_TASKS slots ---
     ldx #0
 @wake_loop:
     txa
@@ -695,14 +596,17 @@ kernel_scheduler:
     cpx kzp_ntask
     bne @wake_loop
 
-    ; --- Phase 2: round-robin from (curr+1) AND 3 ---
+    ; --- Phase 2: round-robin from (curr+1) mod MAX_TASKS ---
     lda kzp_curr
     clc
     adc #1
-    and #3
+    cmp #MAX_TASKS
+    bcc @rr_no_wrap
+    lda #0
+@rr_no_wrap:
     sta kzp_next        ; starting candidate
 
-    ldx #0              ; attempt counter (max 4)
+    ldx #0              ; attempt counter (max MAX_TASKS)
 @rr_loop:
     lda kzp_next
     jsr set_tcb_ptr
@@ -714,10 +618,13 @@ kernel_scheduler:
     lda kzp_next
     clc
     adc #1
-    and #3
+    cmp #MAX_TASKS
+    bcc @rr_inc_ok
+    lda #0
+@rr_inc_ok:
     sta kzp_next
     inx
-    cpx #4
+    cpx #MAX_TASKS
     bne @rr_loop
 
     ; No READY task found → continue current task
@@ -789,8 +696,12 @@ sys_exit:
 ; ---------------------------------------------------------------------------
 
 sys_task_create:
+    ; Disable IRQ for the entire syscall — IRQ handler clobbers kzp_tcb_lo/hi
+    ; which we rely on throughout. Re-enabled before return.
+    sei
+
     ; Validate task_id range
-    cpy #4
+    cpy #MAX_TASKS
     bcc @slot_ok
     jmp @err
 @slot_ok:
@@ -841,7 +752,7 @@ sys_task_create:
     ldy #TCB_ID
     sta (kzp_tcb_lo),y
 
-    ; SP init: based on task_id
+    ; SP init: task_id*64 + $3F → $3F/$7F/$BF/$FF
     tax                 ; save task_id
     lda kzp_tcb_lo
     sec
@@ -852,7 +763,6 @@ sys_task_create:
     lsr
     lsr
     lsr                 ; task_id in A
-    ; sp_init table: $3F, $7F, $BF, $FF
     asl
     asl
     asl
@@ -906,10 +816,12 @@ sys_task_create:
     ldy #TCB_SP
     sta (kzp_tcb_lo),y
 
+    cli
     lda #0
     rts
 
 @err:
+    cli
     lda #$FF
     rts
 
@@ -938,6 +850,7 @@ sys_task_kill:
 sys_task_wait:
     sta kzp_spare0
     lda kzp_curr
+    sta kzp_next            ; save our own task_id
     jsr set_tcb_ptr
     ldy #TCB_STATUS
     lda #TASK_WAITING
@@ -948,11 +861,11 @@ sys_task_wait:
     ldy #TCB_WPARAM
     lda kzp_spare0
     sta (kzp_tcb_lo),y
-    ; Wait for IRQ
+    ; Wait for scheduler to wake us (check OUR OWN TCB, not kzp_curr)
     cli
 @wait:
     wai
-    lda kzp_curr
+    lda kzp_next            ; our saved task_id
     jsr set_tcb_ptr
     ldy #TCB_STATUS
     lda (kzp_tcb_lo),y
@@ -969,6 +882,7 @@ sys_sleep_frames:
     sta kzp_spare0
     stx kzp_spare1
     lda kzp_curr
+    sta kzp_next            ; save our own task_id (kzp_next free here)
     jsr set_tcb_ptr
     ldy #TCB_STATUS
     lda #TASK_WAITING
@@ -982,11 +896,11 @@ sys_sleep_frames:
     ldy #TCB_WPARAM1
     lda kzp_spare1
     sta (kzp_tcb_lo),y
-    ; Wait for scheduler to wake us
+    ; Wait for scheduler to wake us (check OUR OWN TCB, not kzp_curr)
     cli
 @wait:
     wai
-    lda kzp_curr
+    lda kzp_next            ; our saved task_id
     jsr set_tcb_ptr
     ldy #TCB_STATUS
     lda (kzp_tcb_lo),y
@@ -1066,6 +980,17 @@ k_sp_init_table:
 
 tcb_area:
     .res 256, $00
+
+; ---------------------------------------------------------------------------
+; SEGMENT VECTORS — 6502 hardware vectors $FFFA–$FFFF
+; NMI=$FFFA, RESET=$FFFC, IRQ=$FFFE
+; rp6502_executable sets RESET=$0260; we add IRQ=irq_handler here so the
+; standard 6502 IRQ mechanism (CPU_IRQB assert by RIA on VSync) dispatches
+; directly to our handler.
+; Note: rp6502_executable will write RESET from cmake; VECTORS segment
+; provides IRQ and NMI as .word entries. The cmake RESET overrides our
+; .word below for RESET, but IRQ/NMI are ours.
+; ---------------------------------------------------------------------------
 
 ; ---------------------------------------------------------------------------
 ; EOF kernel.s

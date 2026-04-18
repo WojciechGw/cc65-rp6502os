@@ -51,4 +51,4 @@ rp6502_executable(launchpad DATA 0x0200 RESET 0x0200)
 target_sources(launchpad PRIVATE src/ext-roms.c)
 target_link_options(launchpad PRIVATE -C ${CMAKE_SOURCE_DIR}/src/launchpad.cfg)
 
-include(src/razemosmt/CMakeLists_mt.txt)
+include(src/razemosmt/CMakeLists[rmt].txt)
