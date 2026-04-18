@@ -7,8 +7,8 @@
 # Old version (razemos, hass, launchpad) remains UNCHANGED.
 #
 # Targets:
-#   rmt_kernel       — kernel ($0200–$0E5F), standalone for testing
-#   rmt_task0        — shell TASK0 ($0E60+), standalone (requires kernel in RAM)
+#   rmt_kernel       — kernel ($0200–$0F5F), standalone for testing
+#   rmt_task0        — shell TASK0 ($1000+), standalone (requires kernel in RAM)
 #   rmt_task1        — TASK1 heartbeat ($A000), standalone task binary
 #   rmt_full         — combined image: kernel + shell + task1, single .rp6502 file
 #                      RESET=$0260, loads everything at once
@@ -49,7 +49,7 @@ add_custom_command(TARGET rmt_kernel POST_BUILD
 
 add_executable(rmt_task0)
 
-rp6502_executable(rmt_task0 DATA 0x0E60 RESET 0x0E60)
+rp6502_executable(rmt_task0 DATA 0x1000 RESET 0x1000)
 
 target_sources(rmt_task0 PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/shell_mt.c
@@ -96,8 +96,8 @@ add_custom_command(TARGET rmt_task1 POST_BUILD
 # rmtf — combined image: kernel ($0200) + shell ($0E60) + task1 ($A000)
 #
 # Mechanism: rp6502.py create rmt_task0 (ELF) -- rmt_kernel.rp6502 -- rmt_task1.rp6502
-#   rmt_kernel.rp6502  — data $0200–$0E5F, RESET=$0260 (kernel_init)
-#   rmt_task0 (ELF)    — data from $0E60 (TASK0 shell)
+#   rmt_kernel.rp6502  — data $0200–$0F5F, RESET=$0260 (kernel_init)
+#   rmt_task0 (ELF)    — data from $1000 (TASK0 shell)
 #   rmt_task1.rp6502   — data from $A000 (TASK1 heartbeat)
 #   Result: single .rp6502 with RESET=$0260, all three regions present
 #
@@ -114,7 +114,7 @@ add_custom_command(
     DEPENDS rmt_kernel rmt_task0 rmt_task1
     COMMAND ${Python3_EXECUTABLE}
             ${CMAKE_SOURCE_DIR}/tools/rp6502.py
-            -a 0x0E60
+            -a 0x1000
             -o ${FULL_ROM}
             create ${SHELL_ELF}
             ${KERNEL_ROM}

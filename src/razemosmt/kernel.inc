@@ -30,9 +30,10 @@ KERNEL_BASE = $0200
 ; ---------------------------------------------------------------------------
 
 KERNEL_INIT    = $0260     ; CPU RESET entry point — kernel_init (start of KCODE)
-KERNEL_KDATA   = $0C60     ; start of kernel data (KDATA)
-KERNEL_TCBBASE = $0D60     ; start of Task Control Blocks (TCBAREA, 4x64B)
-KERNEL_END     = $0E60     ; first free address after kernel (TASK0 start)
+KERNEL_KDATA   = $0D00     ; start of kernel data (KDATA)
+KERNEL_ZP_SLOT_BASE = $0D02 ; zp_slot_base[0..7]: ZP base lo per task slot
+KERNEL_TCBBASE = $0E00     ; start of Task Control Blocks (TCBAREA, 8x64B)
+KERNEL_END     = $1000     ; first free address after kernel (TASK0 start)
 
 ; ---------------------------------------------------------------------------
 ; Kernel syscalls (own kernel logic)
@@ -43,7 +44,7 @@ KERN_YIELD          = KERNEL_BASE + $00     ; [ 0] $0200 — yield CPU (voluntar
 KERN_EXIT           = KERNEL_BASE + $03     ; [ 1] $0203 — terminate task
                                             ;       entry: A=exit_code, does not return
 KERN_TASK_CREATE    = KERNEL_BASE + $06     ; [ 2] $0206 — create task
-                                            ;       entry: A/X=code_addr, Y=slot(0..3)
+                                            ;       entry: A/X=code_addr, Y=slot(0..7)
                                             ;       exit:  A=0 OK, A=$FF error
 KERN_TASK_KILL      = KERNEL_BASE + $09     ; [ 3] $0209 — kill task
                                             ;       entry: A=task_id
@@ -52,7 +53,7 @@ KERN_TASK_WAIT      = KERNEL_BASE + $0C     ; [ 4] $020C — wait for child to f
 KERN_SLEEP_FRAMES   = KERNEL_BASE + $0F     ; [ 5] $020F — sleep N VSync frames (60Hz)
                                             ;       entry: A=lo, X=hi (frame count)
 KERN_GET_TASK_ID    = KERNEL_BASE + $12     ; [ 6] $0212 — get current task ID
-                                            ;       exit:  A=task_id (0..3)
+                                            ;       exit:  A=task_id (0..7)
 KERN_TASK_STATUS    = KERNEL_BASE + $15     ; [ 7] $0215 — task status
                                             ;       entry: A=task_id
                                             ;       exit:  A=status, X=wait_type
@@ -128,10 +129,10 @@ KERN_CLOCK_GETTIME  = KERNEL_BASE + $54     ; [27] $0254 — ria_clock_gettime
 
 KERN_MUL8           = KERNEL_BASE + $57     ; [28] $0257 — mth_mul8
                                             ;       entry: A=a, X=b → A/X=16-bit result
-KERN_DIV16          = KERNEL_BASE + $5A     ; [29] $025A — mth_div16
-                                            ;       entry: api_zp2..5=dividend, A/X=divisor
-KERN_XPUSH_BYTE     = KERNEL_BASE + $5D     ; [30] $025D — xpush_byte
-                                            ;       entry: A=byte → XSTACK
+KERN_SET_IRQFREQ    = KERNEL_BASE + $5A     ; [29] $025A — set IRQ/context-switch frequency
+                                            ;       entry: A=lo, X=hi (Hz, 1–1000)
+KERN_SET_PHI2       = KERNEL_BASE + $5D     ; [30] $025D — set PHI2 clock + reprogram VIA T1
+                                            ;       entry: A=lo, X=hi (kHz, 100–8000)
 
 ; ---------------------------------------------------------------------------
 ; Task status constants (for use with KERN_TASK_STATUS)

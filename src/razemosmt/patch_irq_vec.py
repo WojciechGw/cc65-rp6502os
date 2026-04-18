@@ -37,9 +37,11 @@ with open(elf_file, 'rb') as f:
 
 base_addr = 0x0200
 irq_addr = None
-# Search for BIT $FFF0 = 2C F0 FF followed by STA $xx (85 xx = kernel ZP save)
-for i in range(len(elf_data) - 3):
-    if elf_data[i] == 0x2C and elf_data[i+1] == 0xF0 and elf_data[i+2] == 0xFF:
+# Search for irq_handler entry: STA kzp_tmp0 ($001A) = 85 1A,
+# then LDA VIA_T1CL ($FFD4) = AD D4 FF
+for i in range(len(elf_data) - 5):
+    if (elf_data[i] == 0x85 and elf_data[i+1] == 0x1A and
+            elf_data[i+2] == 0xAD and elf_data[i+3] == 0xD4 and elf_data[i+4] == 0xFF):
         candidate = base_addr + i
         if candidate >= kernel_start:
             irq_addr = candidate

@@ -8,6 +8,8 @@
 #include <unistd.h>
 #include <stdlib.h>
 
+#define DEBUG
+
 #define APPVER "0.01"
 #define APPNAME "razemOS(mt)"
 #define UNAME APPNAME " v." APPVER
@@ -265,9 +267,9 @@ static f_stat_t s_dirent;
 /* --------------------------------------------------------------------------
  * TCB layout (mirrors kernel.s definitions)
  * -------------------------------------------------------------------------- */
-#define TCB_BASE     ((volatile unsigned char *)0x0D60)
+#define TCB_BASE     ((volatile unsigned char *)0x0E00)
 #define TCB_SIZE     64
-#define MAX_TASKS    4
+#define MAX_TASKS    8
 
 #define TCB_PC_LO    0
 #define TCB_PC_HI    1
@@ -290,6 +292,8 @@ static f_stat_t s_dirent;
 void __fastcall__ kern_task_create(unsigned int addr);
 void __fastcall__ kern_sleep_frames(unsigned int n);
 unsigned char __fastcall__ kern_task_kill(unsigned char task_id);
+void __fastcall__ kern_set_irqfreq(unsigned int hz);
+unsigned char __fastcall__ kern_set_phi2(unsigned int khz);
 extern unsigned char kern_task_create_slot;
 
 static void uart_puthex8(unsigned char v)
@@ -351,11 +355,11 @@ static void cmd_mem(void)
     mem_row("ZP cc65    ", 0x0028, 0x0041);
     mem_row("JUMPTABLE  ", 0x0200, 0x025F);
     mem_row("KERNEL     ", 0x0260, 0x0AF1);
-    mem_row("KDATA      ", 0x0C60, 0x0D5F);
-    mem_row("TCBAREA    ", 0x0D60, 0x0E5F);
+    mem_row("KDATA      ", 0x0D00, 0x0DFF);
+    mem_row("TCBAREA    ", 0x0E00, 0x0FFF);
     uart_puts(CRLF);
     uart_puts("  --- task0 ---" CRLF);
-    mem_row("STARTUP    ", (unsigned int)_STARTUP_RUN__,
+    mem_row("STARTUP    ", (unsigned int)_STARTUP_RUN__,   /* TASK0 from $1000 */
             (unsigned int)_STARTUP_RUN__ + (unsigned int)_STARTUP_SIZE__ - 1);
     mem_row("CODE       ", (unsigned int)_CODE_RUN__,
             (unsigned int)_CODE_RUN__    + (unsigned int)_CODE_SIZE__    - 1);
@@ -374,10 +378,14 @@ static void cmd_mem(void)
     uart_puts("B" CRLF);
     mem_row("cc65 stack ", 0x9E00, 0x9FFF);
     uart_puts(CRLF);
-    uart_puts("  --- tasks 1-3 ---" CRLF);
-    mem_row("TASK1 RAM  ", 0xA000, 0xBFFF);
-    mem_row("TASK2 RAM  ", 0xC000, 0xDFFF);
-    mem_row("TASK3 RAM  ", 0xE000, 0xF7FF);
+    uart_puts("  --- tasks 1-7 ---" CRLF);
+    mem_row("TASK1 RAM  ", 0xA000, 0xAFFF);
+    mem_row("TASK2 RAM  ", 0xB000, 0xBFFF);
+    mem_row("TASK3 RAM  ", 0xC000, 0xCFFF);
+    mem_row("TASK4 RAM  ", 0xD000, 0xD7FF);  /* example layout */
+    mem_row("TASK5 RAM  ", 0xD800, 0xDFFF);
+    mem_row("TASK6 RAM  ", 0xE000, 0xEFFF);
+    mem_row("TASK7 RAM  ", 0xF000, 0xF7FF);
     uart_puts(CRLF);
 }
 
@@ -512,6 +520,66 @@ static unsigned int parse_uint(const char *s)
     return v;
 }
 
+/* KDATA layout (offsets from 0x0D00) — mirrors kernel.s KDATA segment:
+ * +0  stack_pool_free, +1 zp_pool_free, +2..+9 zp_slot_base[8]
+ * +10 via_phi2_lo, +11 via_phi2_hi
+ * +12 via_t1_latch_lo, +13 via_t1_latch_hi
+ * +14 via_irq_divider, +15 via_irq_tick
+ * +16 via_irq_hz_lo, +17 via_irq_hz_hi */
+#define KDATA_BASE         ((volatile unsigned char *)0x0D00)
+#define KDATA_PHI2_LO      10
+#define KDATA_PHI2_HI      11
+#define KDATA_T1_LATCH_LO  12
+#define KDATA_T1_LATCH_HI  13
+#define KDATA_IRQ_DIVIDER  14
+#define KDATA_IRQ_HZ_LO    16
+#define KDATA_IRQ_HZ_HI    17
+
+static void cmd_irqstat(void)
+{
+    volatile unsigned char *kd = KDATA_BASE;
+    unsigned int phi2_khz, latch, divider, irq_hz_set;
+    unsigned long ticks_per_switch;
+    unsigned int hz_calc;
+
+    phi2_khz     = (unsigned int)kd[KDATA_PHI2_LO] | ((unsigned int)kd[KDATA_PHI2_HI] << 8);
+    latch        = (unsigned int)kd[KDATA_T1_LATCH_LO] | ((unsigned int)kd[KDATA_T1_LATCH_HI] << 8);
+    divider      = kd[KDATA_IRQ_DIVIDER];
+    irq_hz_set   = (unsigned int)kd[KDATA_IRQ_HZ_LO] | ((unsigned int)kd[KDATA_IRQ_HZ_HI] << 8);
+
+    /* actual Hz = phi2_khz * 1000 / (latch * divider) */
+    ticks_per_switch = (unsigned long)latch * divider;
+    hz_calc = (ticks_per_switch > 0)
+              ? (unsigned int)((unsigned long)phi2_khz * 1000UL / ticks_per_switch)
+              : 0;
+
+    uart_puts("phi2:    "); uart_put_dec(phi2_khz);   uart_puts(" kHz" CRLF);
+    uart_puts("latch:   "); uart_put_dec(latch);       uart_puts(CRLF);
+    uart_puts("divider: "); uart_put_dec(divider);     uart_puts(CRLF);
+    uart_puts("set:     "); uart_put_dec(irq_hz_set);  uart_puts(" Hz" CRLF);
+    uart_puts("actual:  "); uart_put_dec(hz_calc);     uart_puts(" Hz" CRLF);
+}
+
+static void cmd_irqfreq(const char *arg)
+{
+    unsigned int hz;
+    if (*arg == '\0') { uart_puts("usage: irqfreq <Hz>" CRLF); return; }
+    hz = parse_uint(arg);
+    if (hz < 1 || hz > 1000) { uart_puts("! range: 1-1000" CRLF); return; }
+    kern_set_irqfreq(hz);
+}
+
+static void cmd_phi2(const char *arg)
+{
+    unsigned int khz;
+    unsigned char r;
+    if (*arg == '\0') { uart_puts("usage: phi2 <kHz>" CRLF); return; }
+    khz = parse_uint(arg);
+    if (khz < 100 || khz > 8000) { uart_puts("! range: 100-8000" CRLF); return; }
+    r = kern_set_phi2(khz);
+    if (r != 0) uart_puts("! phi2: error" CRLF);
+}
+
 static void cmd_sleep(const char *arg)
 {
     unsigned int n = parse_uint(arg);
@@ -562,6 +630,9 @@ static void cmd_help(void)
         "sleep <N>\t\tsleep N vsync frames" CRLF
         "load <file> <addr>\tload binary to memory ($hex)" CRLF
         "run <slot> <addr>\tstart task (addr: decimal or $hex)" CRLF
+        "irqfreq <Hz>\t\tset context-switch frequency (1-1000 Hz)" CRLF
+        "irqstat\t\t\tmeasure actual IRQ frequency" CRLF
+        "phi2 <kHz>\t\tset CPU clock (100-8000 kHz)" CRLF
         "uname\t\t\tversion" CRLF
         "exit\t\t\texit to the monitor" CRLF
     );
@@ -664,6 +735,12 @@ static void execute(char *buf)
         cmd_run(arg);
     else if (!strncmp(buf, "load ", 5))
         cmd_load(arg);
+    else if (!strcmp(buf, "irqstat"))
+        cmd_irqstat();
+    else if (!strncmp(buf, "irqfreq ", 8))
+        cmd_irqfreq(arg);
+    else if (!strncmp(buf, "phi2 ", 5))
+        cmd_phi2(arg);
     else {
         uart_puts("? ");
         uart_puts(buf);
