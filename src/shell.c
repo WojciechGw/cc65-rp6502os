@@ -18,7 +18,7 @@
 
 // #define CLOCK_SHOW
 
-#define APPVER "20260423.0848"
+#define APPVER "20260423.1356"
 #define APPNAME "razemOS"
 #define APP_MSG_START ANSI_DARK_GRAY CSI "12;35H" APPNAME
 #define APP_HOURGLASS CSI "14;36H" ANSI_DARK_GRAY ".........." CSI "10D" ANSI_RESET
@@ -273,7 +273,7 @@ static int startstage_shell(){
                 ClockUpdate();
                 counter_clock = 0;
             }
-            v == RIA.vsync;
+            v = RIA.vsync;
         }
         #endif
 
@@ -295,7 +295,8 @@ static int startstage_shell(){
                 if(rx == CHAR_UP){
                     ext_rx = 0;
                     if(hist_count > 0) {
-                        int new_pos = hist_pos + 1;
+                        int new_pos;
+                        new_pos = hist_pos + 1;
                         if(new_pos >= hist_count) new_pos = hist_count - 1;
                         if(hist_pos == -1) {
                             /* save current input before browsing */
@@ -678,6 +679,43 @@ bool match_mask(const char *name, const char *mask) { // Simple wildcard match s
     return negate ? !result : result;
 }
 
+static int str_copy_checked(char *dst, size_t dst_size, const char *src) {
+    size_t len;
+    if(dst_size == 0) return -1;
+    len = strlen(src);
+    if(len >= dst_size) {
+        dst[0] = 0;
+        return -1;
+    }
+    memcpy(dst, src, len + 1);
+    return 0;
+}
+
+static int str_append_checked(char *dst, size_t dst_size, const char *src) {
+    size_t dst_len;
+    size_t src_len;
+    dst_len = strlen(dst);
+    src_len = strlen(src);
+    if(dst_len >= dst_size || src_len >= dst_size - dst_len) return -1;
+    memcpy(dst + dst_len, src, src_len + 1);
+    return 0;
+}
+
+static int str_copy_suffix_checked(char *dst, size_t dst_size, const char *src, const char *suffix) {
+    if(str_copy_checked(dst, dst_size, src) < 0) return -1;
+    return str_append_checked(dst, dst_size, suffix);
+}
+
+static int path_join_checked(char *dst, size_t dst_size, const char *path, const char *name) {
+    size_t path_len;
+    if(str_copy_checked(dst, dst_size, path) < 0) return -1;
+    path_len = strlen(dst);
+    if(path_len && dst[path_len - 1] != '/' && dst[path_len - 1] != '\\') {
+        if(str_append_checked(dst, dst_size, "/") < 0) return -1;
+    }
+    return str_append_checked(dst, dst_size, name);
+}
+
 const char *format_fat_datetime(unsigned fdate, unsigned ftime) { // Format FAT date/time into YYYY-MM-DD hh:mm:ss
     unsigned year = 1980 + (fdate >> 9);
     unsigned month = (fdate >> 5) & 0xF;
@@ -756,6 +794,23 @@ uint16_t mem_top(void) {
 
 uint16_t mem_free(void) {
     return (uint16_t)(MEMTOP - mem_lo() + 1);
+}
+
+static int ram_program_range_ok(uint16_t addr, unsigned long size) {
+    unsigned long start;
+    unsigned long bottom;
+    unsigned long top;
+    start = (unsigned long)addr;
+    bottom = (unsigned long)mem_lo();
+    top = (unsigned long)mem_top();
+    if(size == 0) return (start >= bottom && start <= top);
+    if(start < bottom || start > top) return 0;
+    if((size - 1) > (top - start)) return 0;
+    return 1;
+}
+
+static void tx_ram_range_error(void) {
+    tx_string(EXCLAMATION "load range" NEWLINE);
 }
 
 // things related to : RTC
@@ -1115,6 +1170,10 @@ int cmd_list(int argc, char **argv) {
         }
     }
     close(fd);
+    if(n < 0) {
+        tx_string(EXCLAMATION "reading error" NEWLINE);
+        return -1;
+    }
     tx_string(NEWLINE "--- END ---" NEWLINE);
     return 0;
 }
@@ -1158,9 +1217,15 @@ int cmd_rm(int argc, char **argv) {
         }
 
         // wildcard handling: split path/mask
-        strcpy(rm_path, ".");
-        strcpy(rm_mask, "*.*");
-        strcpy(rm_file, arg);
+        str_copy_checked(rm_path, sizeof(rm_path), ".");
+        str_copy_checked(rm_mask, sizeof(rm_mask), "*.*");
+        if(str_copy_checked(rm_file, sizeof(rm_file), arg) < 0) {
+            tx_string(EXCLAMATION "path too long: ");
+            tx_string(arg);
+            tx_string(NEWLINE);
+            rc = -1;
+            continue;
+        }
         p = rm_file;
         if(*p == '/' || *p == '\\') p++;
         while(*p) {
@@ -1169,13 +1234,25 @@ int cmd_rm(int argc, char **argv) {
         }
         if(last_sep) {
             *last_sep = 0;
-            strcpy(rm_path, rm_file);
-            strcpy(rm_mask, last_sep + 1);
+            if(str_copy_checked(rm_path, sizeof(rm_path), rm_file) < 0 ||
+               str_copy_checked(rm_mask, sizeof(rm_mask), last_sep + 1) < 0) {
+                tx_string(EXCLAMATION "path too long: ");
+                tx_string(arg);
+                tx_string(NEWLINE);
+                rc = -1;
+                continue;
+            }
         } else {
-            strcpy(rm_mask, rm_file);
-            strcpy(rm_path, ".");
+            if(str_copy_checked(rm_mask, sizeof(rm_mask), rm_file) < 0 ||
+               str_copy_checked(rm_path, sizeof(rm_path), ".") < 0) {
+                tx_string(EXCLAMATION "path too long: ");
+                tx_string(arg);
+                tx_string(NEWLINE);
+                rc = -1;
+                continue;
+            }
         }
-        if(!*rm_mask) strcpy(rm_mask, "*.*");
+        if(!*rm_mask) str_copy_checked(rm_mask, sizeof(rm_mask), "*.*");
 
         {
             int dd = f_opendir(rm_path);
@@ -1196,11 +1273,17 @@ int cmd_rm(int argc, char **argv) {
                 if(!match_mask(dir_ent.fname, rm_mask)) continue;
 
                 if(!strcmp(rm_path, ".") || !rm_path[0]) {
-                    strcpy(rm_file, dir_ent.fname);
+                    if(str_copy_checked(rm_file, sizeof(rm_file), dir_ent.fname) < 0) {
+                        tx_string(EXCLAMATION "path too long" NEWLINE);
+                        rc = -1;
+                        break;
+                    }
                 } else {
-                    strcpy(rm_file, rm_path);
-                    strcat(rm_file, "/");
-                    strcat(rm_file, dir_ent.fname);
+                    if(path_join_checked(rm_file, sizeof(rm_file), rm_path, dir_ent.fname) < 0) {
+                        tx_string(EXCLAMATION "path too long" NEWLINE);
+                        rc = -1;
+                        break;
+                    }
                 }
                 if(unlink(rm_file) < 0) {
                     tx_string("rm failed: ");
@@ -1321,6 +1404,16 @@ int cmd_brun(int argc, char **argv) {
     }
     start = (uint16_t)strtoul(argv[2], NULL, 16);
     addr = start;
+    if(f_stat(argv[1], &dir_ent) < 0) {
+        tx_string(EXCLAMATION "can't read file status" NEWLINE);
+        close(fd);
+        return -1;
+    }
+    if(!ram_program_range_ok(start, dir_ent.fsize)) {
+        tx_ram_range_error();
+        close(fd);
+        return -1;
+    }
 
     while((n = read(fd, bload_buf, sizeof(bload_buf))) > 0) {
         ram_writer(bload_buf, addr, n);
@@ -1375,13 +1468,18 @@ int cmd_exe(int argc, char **argv) { // run binary with load address stored in l
         return -1;
     }
     load_addr = (uint16_t)(addr_buf[0] | ((uint16_t)addr_buf[1] << 8));
+    bytes_left = dir_ent.fsize - 2;
+    if(!ram_program_range_ok(load_addr, bytes_left)) {
+        tx_ram_range_error();
+        close(fd);
+        return -1;
+    }
     if(lseek(fd, 0, SEEK_SET) < 0) {
         tx_string(EXCLAMATION "seeking failed" NEWLINE);
         close(fd);
         return -1;
     }
 
-    bytes_left = dir_ent.fsize - 2;
     addr = load_addr;
     while(bytes_left) {
         int chunk = (bytes_left > (unsigned long)sizeof(bload_buf)) ? (int)sizeof(bload_buf) : (int)bytes_left;
@@ -1463,6 +1561,16 @@ int cmd_com(int argc, char **argv) { // run external command
     // printf("%s", resolved);
     if(fd < 0) {
         tx_string(EXCLAMATION "isn't an internal or external command" NEWLINE);
+        return -1;
+    }
+    if(f_stat(resolved, &dir_ent) < 0) {
+        tx_string(EXCLAMATION "can't read file status" NEWLINE);
+        close(fd);
+        return -1;
+    }
+    if(!ram_program_range_ok(COM_LOAD_ADDR, dir_ent.fsize)) {
+        tx_ram_range_error();
+        close(fd);
         return -1;
     }
 
@@ -1547,6 +1655,10 @@ int cmd_copy(int argc, char **argv) {
     }
     close(src);
     close(dst);
+    if(n < 0) {
+        tx_string(EXCLAMATION "read error" NEWLINE);
+        return -1;
+    }
     return 0;
 }
 
@@ -1559,16 +1671,23 @@ int cmd_cp(int argc, char **argv) {
         tx_string("Usage: cp <src> <dst> [/m]" NEWLINE);
         return 0;
     }
-    strcpy(cpm_dest, argv[2]);
+    if(str_copy_checked(cpm_dest, sizeof(cpm_dest), argv[2]) < 0) {
+        tx_string(EXCLAMATION "destination path too long" NEWLINE);
+        return -1;
+    }
     if(argc > 3 && !strcmp(argv[3], "/m")) mv_mode = 1;
 
     /* Split mask into path and wildcard */
     {
-        char *p = argv[1];
+        char *p;
         char *last_sep = 0;
-        strcpy(cpm_path, ".");
-        strcpy(cpm_mask, "*.*");
-        strcpy(cpm_srcfile, p); /* reuse as temp */
+        str_copy_checked(cpm_path, sizeof(cpm_path), ".");
+        str_copy_checked(cpm_mask, sizeof(cpm_mask), "*.*");
+        if(str_copy_checked(cpm_srcfile, sizeof(cpm_srcfile), argv[1]) < 0) {
+            tx_string(EXCLAMATION "source path too long" NEWLINE);
+            return -1;
+        }
+        p = cpm_srcfile;
         if(*p == '/' || *p == '\\') p++;
         while(*p) {
             if(*p == '/' || *p == '\\') last_sep = p;
@@ -1576,13 +1695,19 @@ int cmd_cp(int argc, char **argv) {
         }
         if(last_sep) {
             *last_sep = 0;
-            strcpy(cpm_path, argv[1]);
-            strcpy(cpm_mask, last_sep + 1);
+            if(str_copy_checked(cpm_path, sizeof(cpm_path), cpm_srcfile) < 0 ||
+               str_copy_checked(cpm_mask, sizeof(cpm_mask), last_sep + 1) < 0) {
+                tx_string(EXCLAMATION "source path too long" NEWLINE);
+                return -1;
+            }
         } else {
-            strcpy(cpm_mask, argv[1]);
-            strcpy(cpm_path, ".");
+            if(str_copy_checked(cpm_mask, sizeof(cpm_mask), argv[1]) < 0 ||
+               str_copy_checked(cpm_path, sizeof(cpm_path), ".") < 0) {
+                tx_string(EXCLAMATION "source path too long" NEWLINE);
+                return -1;
+            }
         }
-        if(!*cpm_mask) strcpy(cpm_mask, "*.*");
+        if(!*cpm_mask) str_copy_checked(cpm_mask, sizeof(cpm_mask), "*.*");
     }
 
     dirdes = f_opendir(cpm_path);
@@ -1628,17 +1753,24 @@ int cmd_cp(int argc, char **argv) {
 
         /* build src path */
         if(!strcmp(cpm_path, ".") || !cpm_path[0]) {
-            strcpy(cpm_srcfile, dir_ent.fname);
+            if(str_copy_checked(cpm_srcfile, sizeof(cpm_srcfile), dir_ent.fname) < 0) {
+                tx_string(EXCLAMATION "source path too long" NEWLINE);
+                rc = -1;
+                break;
+            }
         } else {
-            strcpy(cpm_srcfile, cpm_path);
-            strcat(cpm_srcfile, "/");
-            strcat(cpm_srcfile, dir_ent.fname);
+            if(path_join_checked(cpm_srcfile, sizeof(cpm_srcfile), cpm_path, dir_ent.fname) < 0) {
+                tx_string(EXCLAMATION "source path too long" NEWLINE);
+                rc = -1;
+                break;
+            }
         }
         /* build dst path */
-        strcpy(cpm_dstfile, cpm_dest);
-        if(cpm_dest[0] && cpm_dest[strlen(cpm_dest)-1] != '/' && cpm_dest[strlen(cpm_dest)-1] != '\\')
-            strcat(cpm_dstfile, "/");
-        strcat(cpm_dstfile, dir_ent.fname);
+        if(path_join_checked(cpm_dstfile, sizeof(cpm_dstfile), cpm_dest, dir_ent.fname) < 0) {
+            tx_string(EXCLAMATION "destination path too long" NEWLINE);
+            rc = -1;
+            break;
+        }
 
         if(mv_mode){
             tx_string("moving ");
@@ -1934,8 +2066,10 @@ int cmd_cart(int argc, char **argv){
     } else {
         char fname[FNAMELEN];
         int cf;
-        strcpy(fname, argv[1]);
-        strcat(fname, ".rp6502");
+        if(str_copy_suffix_checked(fname, sizeof(fname), argv[1], ".rp6502") < 0) {
+            tx_string(NEWLINE EXCLAMATION "path too long" NEWLINE);
+            return -1;
+        }
         cf = open(fname, O_RDONLY);
         if(cf >= 0){
             close(cf);

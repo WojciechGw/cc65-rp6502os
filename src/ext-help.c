@@ -1,9 +1,9 @@
 #include "commons.h"
 
-#define APPVER "20260423.1247"
+#define APPVER "20260423.1424"
 
 #define APP_HEADER CSI_CLS CSI "2;1H" CSI HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " Help information                              " ANSI_DARK_GRAY "version " APPVER ANSI_RESET
-#define APP_FOOTER ANSI_DARK_GRAY  "________________________________________________________________________________" ANSI_RESET NEWLINE
+#define APP_FOOTER ANSI_DARK_GRAY  "_______________________________________________________________________________" ANSI_RESET NEWLINE
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
 
@@ -218,6 +218,6 @@ int main(int argc, char **argv) {
     printf("<F4>    list current directory" NEWLINE);
     printf("<UP>    recall last command" NEWLINE);
     printf(APP_FOOTER);
-
+    while(RX_READY) (void)RIA.rx;
     return 0;
 }

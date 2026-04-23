@@ -1,6 +1,6 @@
 #include "commons.h"
 
-#define APPVER "20260423.1027"
+#define APPVER "20260423.1356"
 
 // #define DEBUG
 
