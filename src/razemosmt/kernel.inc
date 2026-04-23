@@ -123,12 +123,7 @@ KERN_CLOCK          = KERNEL_BASE + $51     ; [26] $0251 — ria_clock
 KERN_CLOCK_GETTIME  = KERNEL_BASE + $54     ; [27] $0254 — ria_clock_gettime
                                             ;       exit:  api_zp2..5=unix_sec 32-bit
 
-; ---------------------------------------------------------------------------
-; RIA wrappers — math
-; ---------------------------------------------------------------------------
-
-KERN_MUL8           = KERNEL_BASE + $57     ; [28] $0257 — mth_mul8
-                                            ;       entry: A=a, X=b → A/X=16-bit result
+KERN_SYNCFS         = KERNEL_BASE + $57     ; [28] $0257 — ria_syncfs (sync filesystem)
 KERN_SET_IRQFREQ    = KERNEL_BASE + $5A     ; [29] $025A — set IRQ/context-switch frequency
                                             ;       entry: A=lo, X=hi (Hz, 1–1000)
 KERN_SET_PHI2       = KERNEL_BASE + $5D     ; [30] $025D — set PHI2 clock + reprogram VIA T1

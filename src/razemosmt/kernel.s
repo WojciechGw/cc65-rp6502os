@@ -186,7 +186,7 @@ jt_uart_getc:         jmp uart_getc           ; $024B [24]
 jt_uart_getc_nb:      jmp uart_getc_nb        ; $024E [25]
 jt_ria_clock:         jmp ria_clock           ; $0251 [26]
 jt_ria_clock_gettime: jmp ria_clock_gettime   ; $0254 [27]
-jt_mth_mul8:          jmp mth_mul8            ; $0257 [28]
+jt_ria_syncfs:        jmp ria_syncfs          ; $0257 [28] sync filesystem
 jt_sys_set_irqfreq:   jmp sys_set_irqfreq     ; $025A [29] set IRQ/context-switch frequency (Hz)
 jt_sys_set_phi2:      jmp sys_set_phi2        ; $025D [30] set PHI2 clock + reprogram VIA T1
 
@@ -265,6 +265,30 @@ kernel_init:
     sta via_phi2_lo
     lda RIA_X               ; hi byte of kHz
     sta via_phi2_hi
+    ; Initialize IRQ frequency to 60 Hz (KDATA is zeroed by loader — must set explicitly)
+    lda #60
+    sta via_irq_hz_lo
+    stz via_irq_hz_hi
+    lda #1
+    sta via_irq_divider
+    sta via_irq_tick
+    ; Initialize zp_slot_base table
+    lda #$28
+    sta zp_slot_base+0
+    lda #$42
+    sta zp_slot_base+1
+    lda #$5C
+    sta zp_slot_base+2
+    lda #$76
+    sta zp_slot_base+3
+    lda #$90
+    sta zp_slot_base+4
+    lda #$AA
+    sta zp_slot_base+5
+    lda #$C4
+    sta zp_slot_base+6
+    lda #$DE
+    sta zp_slot_base+7
     ; Compute Timer1 latch and divider for 60Hz, store in KDATA
     jsr via_compute_latch
 
@@ -516,10 +540,15 @@ irq_handler:
     ; --- 13. Point TCB pointer to new task ---
     jsr set_tcb_ptr
 
-    ; --- 14. Mark new task as RUNNING ---
+    ; --- 14. Mark new task as RUNNING (skip if WAITING — sleeping task stays
+    ; WAITING so Phase 1 keeps ticking its countdown each IRQ)
     ldy #TCB_STATUS
+    lda (kzp_tcb_lo),y
+    cmp #TASK_WAITING
+    beq @skip_set_running
     lda #TASK_RUNNING
     sta (kzp_tcb_lo),y
+@skip_set_running:
 
     ; --- 15+16+17+18. Pre-load registers, restore ZP slice, set SP ---
 
@@ -702,9 +731,13 @@ kernel_scheduler:
     lda kzp_curr
     sta kzp_next
 
-    ; Mark current task RUNNING again (stays)
+    ; Only mark RUNNING if not WAITING — a sleeping task must stay WAITING so
+    ; step 8 on the next IRQ won't convert it to READY and skip Phase 1 wakeup.
     jsr set_tcb_ptr
     ldy #TCB_STATUS
+    lda (kzp_tcb_lo),y
+    cmp #TASK_WAITING
+    beq @rr_found
     lda #TASK_RUNNING
     sta (kzp_tcb_lo),y
 
@@ -1008,7 +1041,8 @@ sys_sleep_frames:
     ldy #TCB_WPARAM1
     lda kzp_spare1
     sta (kzp_tcb_lo),y
-    ; Wait for scheduler to wake us (check OUR OWN TCB, not kzp_curr)
+    ; Wait for scheduler to wake us: TASK_RUNNING means countdown elapsed and
+    ; the IRQ restored us. While WAITING or READY, keep spinning.
     cli
 @wait:
     wai
@@ -1149,136 +1183,169 @@ free_zp_slot:
 ; via_compute_latch — compute VIA T1 latch and IRQ divider for target Hz
 ; Input:  via_phi2_lo/hi (kHz), via_irq_hz_lo/hi (Hz, 1–1000)
 ; Output: via_t1_latch_lo/hi, via_irq_divider, via_irq_tick set in KDATA
-; Clobbers: A, X, Y, api_zp2..5, kzp_spare0/1, kzp_tmp2
+; Pure 6502, no RIA calls.
+; Clobbers: A, X, Y, api_zp2..5, kzp_spare0/1, kzp_tmp2/3
 ; ---------------------------------------------------------------------------
 
 via_compute_latch:
-    ; --- Step 1: api_zp2..4 = kHz * 1000 ---
+    ; Step 1: kHz*1000 into api_zp2(lo)/api_zp3(mid)/api_zp4(hi), 24-bit
+    ; kHz*1000 = kHz*(8+32+64+128+256+512)
+    ; spare = kzp_spare0/1 (16-bit shift register), kzp_tmp3 = spare overflow byte
     lda via_phi2_lo
     sta kzp_spare0
     lda via_phi2_hi
     sta kzp_spare1
+    stz kzp_tmp3            ; spare overflow
     stz api_zp2
     stz api_zp3
     stz api_zp4
-    stz api_zp5
-    ; kHz*1000 = kHz*(512+256+128+64+32+8)
-    ; *8
+    ; *8 (3 shifts — spare stays 16-bit, no overflow yet)
     asl kzp_spare0
     rol kzp_spare1
     asl kzp_spare0
     rol kzp_spare1
     asl kzp_spare0
     rol kzp_spare1
-    lda api_zp2
     clc
-    adc kzp_spare0
-    sta api_zp2
-    lda api_zp3
-    adc kzp_spare1
-    sta api_zp3
-    ; *16 (carry only)
-    asl kzp_spare0
-    rol kzp_spare1
-    lda api_zp4
-    rol
-    sta api_zp4
-    ; *32
-    asl kzp_spare0
-    rol kzp_spare1
-    rol api_zp4
     lda api_zp2
-    clc
     adc kzp_spare0
     sta api_zp2
     lda api_zp3
     adc kzp_spare1
     sta api_zp3
     lda api_zp4
-    adc #0
+    adc kzp_tmp3
     sta api_zp4
-    ; *64
+    ; *32 (2 more shifts, total 5 — spare may overflow into kzp_tmp3)
     asl kzp_spare0
     rol kzp_spare1
-    rol api_zp4
-    lda api_zp2
+    rol kzp_tmp3
+    asl kzp_spare0
+    rol kzp_spare1
+    rol kzp_tmp3
     clc
+    lda api_zp2
     adc kzp_spare0
     sta api_zp2
     lda api_zp3
     adc kzp_spare1
     sta api_zp3
     lda api_zp4
-    adc #0
+    adc kzp_tmp3
     sta api_zp4
-    ; *128
+    ; *64 (1 more shift, total 6)
     asl kzp_spare0
     rol kzp_spare1
-    rol api_zp4
-    lda api_zp2
+    rol kzp_tmp3
     clc
+    lda api_zp2
     adc kzp_spare0
     sta api_zp2
     lda api_zp3
     adc kzp_spare1
     sta api_zp3
     lda api_zp4
-    adc #0
+    adc kzp_tmp3
     sta api_zp4
-    ; *256
+    ; *128 (1 more shift, total 7)
     asl kzp_spare0
     rol kzp_spare1
-    rol api_zp4
-    lda api_zp2
+    rol kzp_tmp3
     clc
+    lda api_zp2
     adc kzp_spare0
     sta api_zp2
     lda api_zp3
     adc kzp_spare1
     sta api_zp3
     lda api_zp4
-    adc #0
+    adc kzp_tmp3
     sta api_zp4
-    ; *512
+    ; *256 (1 more shift, total 8)
     asl kzp_spare0
     rol kzp_spare1
-    rol api_zp4
-    lda api_zp2
+    rol kzp_tmp3
     clc
+    lda api_zp2
     adc kzp_spare0
     sta api_zp2
     lda api_zp3
     adc kzp_spare1
     sta api_zp3
     lda api_zp4
-    adc #0
+    adc kzp_tmp3
     sta api_zp4
-    ; api_zp2..4 = kHz*1000 (24-bit), api_zp5=0
+    ; *512 (1 more shift, total 9)
+    asl kzp_spare0
+    rol kzp_spare1
+    rol kzp_tmp3
+    clc
+    lda api_zp2
+    adc kzp_spare0
+    sta api_zp2
+    lda api_zp3
+    adc kzp_spare1
+    sta api_zp3
+    lda api_zp4
+    adc kzp_tmp3
+    sta api_zp4
+    ; api_zp2/3/4 = kHz*1000 (24-bit); kzp_tmp3 now free (spare done)
 
-    ; --- Step 2: find D (power-of-2) s.t. kHz*1000/(Hz*D) ≤ 65535 ---
-    ; Use kzp_spare0/1 as working divisor (Hz*D), kzp_tmp2 = D
-    lda via_irq_hz_lo
-    sta kzp_spare0
-    lda via_irq_hz_hi
-    sta kzp_spare1
-    lda #1
-    sta kzp_tmp2        ; D = 1
-@find_d:
-    lda kzp_spare0
-    ldx kzp_spare1
-    jsr mth_div16           ; A=lo, X=hi of (kHz*1000)/(Hz*D)
-    ; overflow check: if api_zp4≠0 and X=0, true quotient > 65535 → double D
-    cpx #0
-    bne @done               ; X>0: result 256..65535, fits
-    lda api_zp4
-    beq @done               ; api_zp4=0: kHz*1000 ≤ 65535, fits
-    asl kzp_spare0
+    ; Step 2: 24÷16 restoring division
+    ; Dividend: api_zp2(lo)/api_zp3(mid)/api_zp4(hi)  — 24-bit
+    ; Divisor:  via_irq_hz_lo(lo)/via_irq_hz_hi(hi)   — 16-bit
+    ; Quotient: kzp_spare0(lo)/kzp_spare1(hi)/kzp_tmp3(overflow) — 24-bit
+    ; Remainder: api_zp5(lo)/kzp_tmp2(hi) — discarded
+    stz kzp_spare0          ; quotient = 0
+    stz kzp_spare1
+    stz kzp_tmp3
+    stz api_zp5             ; remainder = 0
+    stz kzp_tmp2
+    ldy #24
+@div_bit:
+    asl api_zp2
+    rol api_zp3
+    rol api_zp4
+    rol api_zp5
+    rol kzp_tmp2
+    lda api_zp5
+    sec
+    sbc via_irq_hz_lo
+    tax
+    lda kzp_tmp2
+    sbc via_irq_hz_hi
+    bcc @no_sub
+    stx api_zp5
+    sta kzp_tmp2
+    sec
+    bra @shift_q
+@no_sub:
+    clc
+@shift_q:
+    rol kzp_spare0
     rol kzp_spare1
-    asl kzp_tmp2
-    bra @find_d
+    rol kzp_tmp3
+    dey
+    bne @div_bit
+    ; quotient in kzp_spare0/1/tmp3 (24-bit)
+
+    ; Step 3: scale quotient down to 16 bits, tracking D (divider)
+    ; If quotient > $FFFF, shift right and double D until it fits.
+    lda #1
+    sta kzp_tmp2            ; D = 1
+@scale:
+    lda kzp_tmp3
+    beq @done               ; overflow byte = 0: quotient fits in 16 bits
+    lsr kzp_tmp3
+    ror kzp_spare1
+    ror kzp_spare0
+    asl kzp_tmp2            ; D <<= 1
+    bra @scale
 @done:
+    lda kzp_spare0
     sta via_t1_latch_lo
-    stx via_t1_latch_hi
+    lda kzp_spare1
+    sta via_t1_latch_hi
     lda kzp_tmp2
     sta via_irq_divider
     sta via_irq_tick
@@ -1317,7 +1384,10 @@ sys_set_phi2:
     lda via_t1_latch_lo
     sta VIA_T1LL
     lda via_t1_latch_hi
-    sta VIA_T1LH            ; writing T1CH loads counter + clears IFR T1 flag
+    sta VIA_T1LH            ; update latch
+    sta VIA_T1CH            ; reload counter immediately
+    lda via_irq_divider
+    sta via_irq_tick        ; reset tick countdown
 
     cli
     lda #0
@@ -1337,7 +1407,10 @@ sys_set_irqfreq:
     lda via_t1_latch_lo
     sta VIA_T1LL
     lda via_t1_latch_hi
-    sta VIA_T1LH
+    sta VIA_T1LH            ; update latch
+    sta VIA_T1CH            ; reload counter immediately (starts new period)
+    lda via_irq_divider
+    sta via_irq_tick        ; reset tick countdown
     cli
     lda #0
     rts

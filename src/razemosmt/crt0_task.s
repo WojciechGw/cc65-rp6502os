@@ -21,7 +21,7 @@ KERN_EXIT        = $0203
 KERN_GET_TASK_ID = $0212    ; A = current task_id
 
 ; TCB layout (mirror kernel.s)
-TCB_BASE   = $0D60
+TCB_BASE   = $0E00
 TCB_SIZE   = 64
 TCB_ZPBASE = 30     ; offset of ZP slice base lo in TCB
 

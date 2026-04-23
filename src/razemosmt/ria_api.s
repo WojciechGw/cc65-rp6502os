@@ -114,26 +114,6 @@ OP_SETLABEL     = $2C   ; ustaw etykietę woluminu (nazwa przez XSTACK)
 OP_GETLABEL     = $2D   ; pobierz etykietę woluminu (ścieżka przez XSTACK)
 OP_GETFREE      = $2E   ; wolne miejsce (ścieżka przez XSTACK)
 
-; Opcody koprocesora matematycznego (RP2350)
-OP_MTH_MUL8     = $30   ; A(8)  = a8  * b8          wejście: A=a, X=b  wynik: A/X(16)
-OP_MTH_MUL16    = $31   ; A(32) = a16 * b16          wejście: XSTACK a16, A/X = b16
-OP_MTH_MULS16   = $32   ; A(32,signed) = a16 * b16   jw.
-OP_MTH_DIV16    = $33   ; A/X = dividend32 / div16   XSTACK: dividend(4B)+divisor(2B)
-OP_MTH_SQRT32   = $34   ; A/X = sqrt(n32)            XSTACK: n(4B)
-OP_MTH_FADD     = $38   ; fp32 = a + b               XSTACK: a(4B), A/X+SREG = b
-OP_MTH_FSUB     = $39   ; fp32 = a - b
-OP_MTH_FMUL     = $3A   ; fp32 = a * b
-OP_MTH_FDIV     = $3B   ; fp32 = a / b
-OP_MTH_FSQRT    = $3C   ; fp32 = sqrt(x)             A/X+SREG = x
-OP_MTH_FSIN     = $3D   ; fp32 = sin(x)
-OP_MTH_FCOS     = $3E   ; fp32 = cos(x)
-OP_MTH_FATAN2   = $3F   ; fp32 = atan2(y,x)          XSTACK: y(4B), A/X+SREG = x
-OP_MTH_FPOW     = $40   ; fp32 = pow(base,exp)        XSTACK: base(4B), A/X+SREG = exp
-OP_MTH_FLOG     = $41   ; fp32 = log(x)
-OP_MTH_FEXP     = $42   ; fp32 = exp(x)
-OP_MTH_FTOI     = $43   ; long = (long)fp32           A/X+SREG = x
-OP_MTH_ITOF     = $44   ; fp32 = (float)long          A/X+SREG = i
-
 ; Identyfikatory atrybutów systemu (ATTR_GET / ATTR_SET)
 ATTR_ERRNO_OPT  = $00
 ATTR_PHI2_KHZ   = $01   ; częstotliwość CPU w kHz (tylko odczyt)
@@ -201,11 +181,6 @@ api_zp7: .res 1   ; zachowany A / ptr2 hi
 .export ria_mkdir, ria_chdir, ria_chdrive, ria_getcwd, ria_chmod, ria_syncfs
 .export ria_setlabel, ria_getlabel
 .export ria_clock, ria_clock_gettime
-.export mth_mul8, mth_mul16, mth_muls16, mth_div16, mth_sqrt32
-.export mth_itof, mth_ftoi
-.export mth_fadd, mth_fsub, mth_fmul, mth_fdiv
-.export mth_fsqrt, mth_fsin, mth_fcos, mth_flog, mth_fexp
-.export mth_fatan2, mth_fpow
 .export xram0_set_addr, xram0_set_step, xram0_write_byte, xram0_read_byte
 .export xram0_write_buf, xram0_read_buf
 .export xram1_set_addr, xram1_set_step
@@ -816,159 +791,6 @@ ria_clock_gettime:
         lda #OP_CLOCK_GETTIME
         jsr ria_call
         jsr xpop_long       ; tv_sec → api_zp2..zp5
-        rts
-
-; ---------------------------------------------------------------------------
-; Koprocesor matematyczny (RP2350 FPU)
-; ---------------------------------------------------------------------------
-
-; mth_mul8 — mnożenie 8×8 → 16 (bez znaku)
-; Wejście: A = a, X = b
-; Wyjście: A/X = wynik 16-bit
-mth_mul8:
-        sta RIA_A
-        stx RIA_X
-        lda #OP_MTH_MUL8
-        jmp ria_call
-
-; mth_mul16 — mnożenie 16×16 → 32 (bez znaku)
-; Wejście: api_zp2/3 = a, A/X = b
-; Wyjście: api_zp2..zp5 = wynik 32-bit
-mth_mul16:
-        jsr ria_set_ax
-        lda api_zp2
-        sta RIA_XSTACK
-        lda api_zp3
-        sta RIA_XSTACK
-        lda #OP_MTH_MUL16
-        jsr ria_call_long
-        rts
-
-; mth_muls16 — mnożenie 16×16 → 32 (ze znakiem)
-mth_muls16:
-        jsr ria_set_ax
-        lda api_zp2
-        sta RIA_XSTACK
-        lda api_zp3
-        sta RIA_XSTACK
-        lda #OP_MTH_MULS16
-        jsr ria_call_long
-        rts
-
-; mth_div16 — dzielenie 32÷16 (bez znaku)
-; Wejście: api_zp2..zp5 = dzielna 32-bit, A/X = dzielnik
-; Wyjście: A/X = iloraz
-mth_div16:
-        jsr ria_set_ax
-        jsr xpush_long
-        lda #OP_MTH_DIV16
-        jmp ria_call
-
-; mth_sqrt32 — pierwiastek kwadratowy 32-bit → 16-bit
-; Wejście: api_zp2..zp5 = n
-; Wyjście: A/X = floor(sqrt(n))
-mth_sqrt32:
-        jsr xpush_long
-        lda #OP_MTH_SQRT32
-        jmp ria_call
-
-; --- Float32 (IEEE 754 single, 32-bit raw w api_zp2..zp5) ---
-
-; mth_itof — long → float32
-; Wejście: api_zp2..zp5 = liczba całkowita
-; Wyjście: api_zp2..zp5 = fp32
-mth_itof:
-        jsr ria_set_long
-        lda #OP_MTH_ITOF
-        jsr ria_call_long
-        rts
-
-; mth_ftoi — float32 → long
-; Wejście: api_zp2..zp5 = fp32
-; Wyjście: api_zp2..zp5 = long
-mth_ftoi:
-        jsr ria_set_long
-        lda #OP_MTH_FTOI
-        jsr ria_call_long
-        rts
-
-; Operacje binarne fp32: a op b
-; Wejście: api_zp2..zp5 = a (trafi na XSTACK)
-;          przed wywołaniem ustaw b przez: ria_set_long (z innymi ZP)
-;          lub bezpośrednio: sta RIA_A / stx RIA_X / sta RIA_SREG / sta RIA_SREG+1
-; Wyjście: api_zp2..zp5 = wynik fp32
-
-mth_fadd:
-        jsr xpush_long
-        lda #OP_MTH_FADD
-        jsr ria_call_long
-        rts
-
-mth_fsub:
-        jsr xpush_long
-        lda #OP_MTH_FSUB
-        jsr ria_call_long
-        rts
-
-mth_fmul:
-        jsr xpush_long
-        lda #OP_MTH_FMUL
-        jsr ria_call_long
-        rts
-
-mth_fdiv:
-        jsr xpush_long
-        lda #OP_MTH_FDIV
-        jsr ria_call_long
-        rts
-
-; Operacje unarne fp32
-; Wejście: api_zp2..zp5 = x
-
-mth_fsqrt:
-        jsr ria_set_long
-        lda #OP_MTH_FSQRT
-        jsr ria_call_long
-        rts
-
-mth_fsin:
-        jsr ria_set_long
-        lda #OP_MTH_FSIN
-        jsr ria_call_long
-        rts
-
-mth_fcos:
-        jsr ria_set_long
-        lda #OP_MTH_FCOS
-        jsr ria_call_long
-        rts
-
-mth_flog:
-        jsr ria_set_long
-        lda #OP_MTH_FLOG
-        jsr ria_call_long
-        rts
-
-mth_fexp:
-        jsr ria_set_long
-        lda #OP_MTH_FEXP
-        jsr ria_call_long
-        rts
-
-; mth_fatan2 — atan2(y, x)
-; Wejście: api_zp2..zp5 = y; ustaw x w RIA_A/X/SREG przed wywołaniem
-mth_fatan2:
-        jsr xpush_long
-        lda #OP_MTH_FATAN2
-        jsr ria_call_long
-        rts
-
-; mth_fpow — pow(base, exp)
-; Wejście: api_zp2..zp5 = base; ustaw exp w RIA_A/X/SREG przed wywołaniem
-mth_fpow:
-        jsr xpush_long
-        lda #OP_MTH_FPOW
-        jsr ria_call_long
         rts
 
 ; ---------------------------------------------------------------------------

@@ -10,7 +10,7 @@
 
 #define DEBUG
 
-#define APPVER "0.01"
+#define APPVER "0.02[202604230813]"
 #define APPNAME "razemOS(mt)"
 #define UNAME APPNAME " v." APPVER
 
@@ -291,6 +291,7 @@ static f_stat_t s_dirent;
 /* kernel syscall wrappers (kern_calls.s) */
 void __fastcall__ kern_task_create(unsigned int addr);
 void __fastcall__ kern_sleep_frames(unsigned int n);
+void __fastcall__ kern_sleep_ms(unsigned int ms);
 unsigned char __fastcall__ kern_task_kill(unsigned char task_id);
 void __fastcall__ kern_set_irqfreq(unsigned int hz);
 unsigned char __fastcall__ kern_set_phi2(unsigned int khz);
@@ -582,9 +583,9 @@ static void cmd_phi2(const char *arg)
 
 static void cmd_sleep(const char *arg)
 {
-    unsigned int n = parse_uint(arg);
-    if (n == 0) { uart_puts("usage: sleep <frames>" CRLF); return; }
-    kern_sleep_frames(n);
+    unsigned int ms = parse_uint(arg);
+    if (ms == 0) { uart_puts("usage: sleep <ms>" CRLF); return; }
+    kern_sleep_ms(ms);
 }
 
 static unsigned int parse_hex(const char *s)
@@ -627,7 +628,7 @@ static void cmd_help(void)
         "mem\t\t\tmemory map" CRLF
         "ps\t\t\ttask list" CRLF
         "kill <id>\t\tkill task by id" CRLF
-        "sleep <N>\t\tsleep N vsync frames" CRLF
+        "sleep <ms>\t\tsleep N milliseconds" CRLF
         "load <file> <addr>\tload binary to memory ($hex)" CRLF
         "run <slot> <addr>\tstart task (addr: decimal or $hex)" CRLF
         "irqfreq <Hz>\t\tset context-switch frequency (1-1000 Hz)" CRLF
