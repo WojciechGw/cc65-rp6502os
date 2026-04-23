@@ -394,7 +394,7 @@ static int startstage_shell(){
                 if(rx == CHAR_F2 || rx == 'Q') {
                     ext_rx = 0;
                     execute_cmd(&cmdline, "keyboard");
-                    while(RX_READY) (void)RIA.rx;
+                    // while(RX_READY) (void)RIA.rx;
                     ext_rx = 0;
                     cmdline.bytes = 0;
                     cmdline.buffer[0] = 0;
@@ -512,7 +512,7 @@ static int startstage_shell(){
                     hist_add(cmdline.buffer);
                     hist_pos = -1;
                     execute(&cmdline);
-                    while(!RX_READY) {(void)RIA.rx;}
+                    // while(!RX_READY) {(void)RIA.rx;}
                     cmdline.bytes = 0;
                     cmdline.buffer[0] = 0;
                     cur = 0;
@@ -788,7 +788,7 @@ void show_time(void) { // print current date & time to console
     struct tm *tmnow = get_time();
     char buf[32];
 
-    if(!(appflags | APPFLAG_RTC)){
+    if(!(appflags & APPFLAG_RTC)){
         tx_string(NEWLINE ANSI_RED "[Time: ERROR] Real Time Clock is not set." ANSI_RESET NEWLINE NEWLINE);
         return;
     }

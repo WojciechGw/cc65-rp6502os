@@ -10,7 +10,7 @@
 
 #include "commons.h"
 
-#define APPVER "20260415.1721"
+#define APPVER "20260423.1027"
 
 #define FNAMELEN 64
 
