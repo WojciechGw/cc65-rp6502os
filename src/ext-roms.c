@@ -8,7 +8,7 @@
 #include "commons.h"
 #include "./commons/courier-gfx.h"
 
-#define APPVER "20260423.1356"
+#define APPVER "20260501.2235"
 #define APP_FOOTER "________________________________________________________________________________"
 
 #define MAXROMS        64
