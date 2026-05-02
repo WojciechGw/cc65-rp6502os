@@ -1,7 +1,6 @@
-; Hello World
-; for Handy ASSembler 65C02S
-; --------------------------
-.org $8000
+; Hello World for Handy ASSembler
+; ------------------------------
+.org $A000
 
 RIA_TX .equ $FFE1
 
@@ -14,13 +13,15 @@ loop:
     CMP #$00
     BNE loop
     RTS
+end:STP
 
 text:
 .ascii  "Hello World. "
-.ascii  "I'm back!"
+.ascii  "I'm back !"
 .asciiz "\r\n"
 
-;for OS Shell .exe
+; for OS shell .exe
 shellrun:
 .word  start
-; -- end of file --
+; -- end --
+

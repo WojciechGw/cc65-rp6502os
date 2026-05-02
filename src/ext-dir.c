@@ -1,6 +1,6 @@
 #include "commons.h"
 
-#define APPVER "20260502.1534"
+#define APPVER "20260502.1552"
 
 #define VERSION APPVER
 #define FNAMELEN 64
