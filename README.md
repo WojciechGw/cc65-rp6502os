@@ -35,13 +35,24 @@ or standard `.rp6502` RP6502 ROMs (BIG ROMS - run by command `cart` or `roms`).
 
 ## Keyboard shortcuts
 
+### Function keys
+
 | Key | Action |
 |-----|--------|
-| F1  | help |
+| F1  | help (or `help <command>` if something is typed) |
 | F2  | keyboard visualiser |
 | F3  | date, time and calendar |
 | F4  | directory of active drive |
-| ↑   | recall last command |
+
+### Line editing
+
+| Key | Action |
+|-----|--------|
+| ← / →       | move cursor left / right |
+| Home / End  | jump to beginning / end of line |
+| Backspace   | delete character before cursor |
+| Delete      | delete character at cursor |
+| ↑ / ↓       | scroll through command history (up to 20 entries, saved to disk) |
 
 ---
 
