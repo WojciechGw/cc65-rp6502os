@@ -17,7 +17,7 @@ All files needed to run the project are in the `release/latest/` folder.
 Copy to the USB drive:
 - `razemos.rp6502` — the shell; can be installed as boot ROM
 - `hass.rp6502` — Handy ASSembler for 65C02S
-- `hello.asm` — example source file for hass
+- `hello.asm` `font.asm` — example source file for hass
 - `ctx.py` / `crx.py` — PC-side file transfer scripts (Python)
 
 The startup screen is displayed while waiting for a Wi-Fi connection (RTC update over NTP).
@@ -26,10 +26,25 @@ The startup screen is displayed while waiting for a Wi-Fi connection (RTC update
 
 ## Memory
 
-User programs running under razemOS have access to `$8000–$FCFF` (~31 KB).
+User programs running under razemOS have access to `$A000–$FCFF` (~26 KB).
 Programs can be created (hass) as `.com` files intended to be external shell commands
 or `.exe` files as executables (last two bytes LSB,MSB must pointed to .exe start address, look at hello.asm)
 or standard `.rp6502` RP6502 ROMs (BIG ROMS - run by command `cart` or `roms`).
+
+`.com` files are loaded at `$A000` by default. This can be changed by passing `/comrun:XXXX` as an argument
+when launching `razemos.rp6502`, where `XXXX` is the target load address in hexadecimal.
+The argument is forwarded through all boot stages (BOOT → START) and sets the load address for the entire session.
+
+```
+razemos.rp6502 /comrun:9600    ; load .com files at $9600 instead of $A000
+```
+
+When changing the load address, all `.com` shell extensions (`ext-*.c`) must be rebuilt with the matching
+`--start` address using `razemOScmd.py` tool:
+
+```
+razemOScmd.py --all --start 9600
+```
 
 ---
 
@@ -39,10 +54,10 @@ or standard `.rp6502` RP6502 ROMs (BIG ROMS - run by command `cart` or `roms`).
 
 | Key | Action |
 |-----|--------|
-| F1  | help (or `help <command>` if something is typed) |
+| F1  | help (or `<command>` then F1 if something is typed) |
 | F2  | keyboard visualiser |
-| F3  | date, time and calendar |
-| F4  | directory of active drive |
+| F3  | shows current date, time and calendar |
+| F4  | shows directory of active drive |
 
 ### Line editing
 
@@ -52,7 +67,7 @@ or standard `.rp6502` RP6502 ROMs (BIG ROMS - run by command `cart` or `roms`).
 | Home / End  | jump to beginning / end of line |
 | Backspace   | delete character before cursor |
 | Delete      | delete character at cursor |
-| ↑ / ↓       | scroll through command history (up to 20 entries, saved to disk) |
+| ↑ / ↓       | scroll through command history (up to 20 entries, saved to a file `MSC0:/SHELL/.history`) |
 
 ---
 
@@ -124,7 +139,6 @@ commands updates without rebuilding whole `razemos.rp6502`.
 ## Building shell extensions (`razemOScmd.py`)
 
 `tools/razemOScmd.py` builds and optionally uploads razemOS `.com` shell extension commands.
-It replaces the older `make-com.py`, `make-coms.py`, `make-com2shell.py`, `make-coms2shell.py` scripts (which are kept for compatibility).
 
 ### Usage
 
@@ -163,7 +177,6 @@ razemOScmd.py --clean [options]          remove build artefacts (.com, .map)
 
 - Python 3
 - `pyserial` — required only for `--uploader ctx` (`pip install pyserial`)
-- `make` or `mingw32-make` in PATH
 
 ---
 
