@@ -1878,7 +1878,7 @@ int cmd_mem(int argc, char **argv) {
     tx_dec32(free);
     tx_string(" B free" NEWLINE );
     tx_hex16(COM_LOAD_ADDR);
-    tx_string(" .com run address (default)" NEWLINE);
+    tx_string(" .com run address (default)" NEWLINE NEWLINE);
     return 0;
 }
 
