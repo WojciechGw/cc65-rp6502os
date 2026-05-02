@@ -8,7 +8,7 @@
 #include "commons.h"
 #include "./commons/courier-gfx.h"
 
-#define APPVER "20260502.1138"
+#define APPVER "20260502.1534"
 #define APP_FOOTER "________________________________________________________________________________"
 
 #define MAXROMS        64
@@ -117,7 +117,7 @@ static void draw_header(void)
     DrawText(1, 12, "ROMS launcher"  ,     WHITE,      BLACK);
     DrawText(1, 59, "version " APPVER, DARK_GRAY,      BLACK);
     ClearLine(3, DARK_GRAY, BLACK);
-    DrawText(3,  12, "navigate by arrows, press [ENTER] to launch, press [SPACE] to exit", DARK_GRAY, BLACK);
+    DrawText(3,  12, "navigate by arrows, press [ENTER] to launch, press [Esc] to exit", DARK_GRAY, BLACK);
 }
 
 /* ------------------------------------------------------------------ */
@@ -222,7 +222,7 @@ int main(int argc, char **argv)
                 if (key(KEY_UP))    action = 3;
                 if (key(KEY_DOWN))  action = 4;
                 if (key(KEY_ENTER)) action = 5;
-                if (key(KEY_SPACE))   action = 99;
+                if (key(KEY_ESC))   action = 99;
                 handled_key = true;
             }
         } else {

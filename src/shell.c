@@ -16,9 +16,7 @@
 
 #include "shell.h"
 
-// #define CLOCK_SHOW
-
-#define APPVER "20260502.0913"
+#define APPVER "20260502.1500"
 #define APPNAME "razemOS"
 #define APP_MSG_START ANSI_DARK_GRAY CSI "12;35H" APPNAME
 #define APP_HOURGLASS CSI "14;36H" ANSI_DARK_GRAY ".........." CSI "10D" ANSI_RESET
@@ -30,10 +28,6 @@ void *__fastcall__ argv_mem(size_t size) { return malloc(size); }
 
 // argv[0] saved here before any sub-program call can corrupt the heap argv buffer
 static char shell_prog[FNAMELEN];
-
-#ifdef CLOCK_SHOW
-    uint16_t counter_clock = 0;
-#endif
 
 int main(int argc, char *argv[]){
 
@@ -246,19 +240,6 @@ static void tx_csi_n(int n, char cmd) {
     tx_string(buf);
 }
 
-#ifdef CLOCK_SHOW
-void ClockUpdate(void){
-    int hour, mins, secs;
-    time_t t = time(NULL);
-    struct tm *tm = localtime(&t);
-    hour = tm->tm_hour;
-    mins = tm->tm_min;
-    secs = tm->tm_sec;
-    if(secs < 6)
-        printf(CSI "s" CSI "1;76H" ANSI_GREEN "%02d:%02d" ANSI_RESET CSI "u", hour, mins);
-}
-#endif
-
 static int startstage_shell(){
 
     int i = 0;
@@ -274,8 +255,6 @@ static int startstage_shell(){
 
     printf(CSI_RESET);
 
-    // struct tm *tmnow = get_time();
-
     f_chdrive("0:");
     current_drive = '0';
     if(f_getcwd(dir_cwd, sizeof(dir_cwd)) >= 0 && dir_cwd[1] == ':') {
@@ -284,35 +263,12 @@ static int startstage_shell(){
     strncpy(shelldir, default_shelldir, sizeof(shelldir));
     shelldir[sizeof(shelldir) - 1] = '\0';
 
-    prompt(PROMPT_CLS);
-    // printf(APP_MSG_TITLE APP_STARTPROMPTPOS);
-    // prompt(PROMPT_FIRST);
-
-    #ifdef CLOCK_SHOW
-    ClockUpdate();
-    #endif
+    prompt(PROMPT_FIRST);
 
     hist_load();
 
-    #ifdef CLOCK_SHOW
-    v = RIA.vsync;
-    #endif
-
     while (1)
     {
-
-        #ifdef CLOCK_SHOW
-        if(v == RIA.vsync)
-        {
-            ++counter_clock;
-        } else {
-            if(counter_clock > 10){
-                ClockUpdate();
-                counter_clock = 0;
-            }
-            v = RIA.vsync;
-        }
-        #endif
 
         if(RX_READY) {
             char rx = (char)RIA.rx;
@@ -429,7 +385,6 @@ static int startstage_shell(){
                 if(rx == CHAR_F2 || rx == 'Q') {
                     ext_rx = 0;
                     execute_cmd(&cmdline, "keyboard");
-                    // while(RX_READY) (void)RIA.rx;
                     ext_rx = 0;
                     cmdline.bytes = 0;
                     cmdline.buffer[0] = 0;
@@ -462,6 +417,7 @@ static int startstage_shell(){
                         cmdline.bytes = 0;
                         cmdline.buffer[0] = 0;
                         cur = 0;
+                        tx_string(NEWLINE);
                         prompt(PROMPT);
                     }
                     continue;
@@ -551,11 +507,8 @@ static int startstage_shell(){
                     cmdline.bytes = 0;
                     cmdline.buffer[0] = 0;
                     cur = 0;
+                    tx_string(NEWLINE);
                     prompt(PROMPT);
-                    putchar('\x08');
-                    putchar(' ');
-                    putchar(' ');
-                    putchar('\x08');
                 }
             } else {
                 ext_rx = 0;
@@ -566,15 +519,17 @@ static int startstage_shell(){
 }
 
 void cls(){ // clear screen
-    printf(CSI_CLS APP_MSG_TITLE APP_STARTPROMPTPOS CSI_CURSOR_SHOW);
+    printf(CSI_CLS APP_MSG_TITLE NEWLINE APP_STARTPROMPTPOS CSI_CURSOR_SHOW);
     return;
 }
 
 void prompt(uint8_t mode) {
-    if(mode == PROMPT_CLS) cls();
-    if(mode != PROMPT) tx_string(NEWLINE);
+    if(mode != PROMPT) {
+        cls();
+        tx_string(NEWLINE);
+    } 
     tx_string(dir_cwd);
-    tx_string(mode == PROMPT_FIRST ? NEWLINE SHELLPROMPT_1ST : SHELLPROMPT);
+    tx_string(mode == PROMPT_FIRST ? SHELLPROMPT_1ST : SHELLPROMPT);
     return;
 }
 
@@ -629,57 +584,6 @@ void tx_dec32(unsigned long val) { // Print an unsigned long in decimal.
     }
     tx_chars(&out[i], 10 - i);
 }
-#ifdef CODE_HEXDUMP
-int hexstr(char *str, uint8_t val) { // Assumes str points to at least two bytes.
-    str[0] = hexdigits[val >> 4];
-    str[1] = hexdigits[val & 0xF];
-    return 2;
-}
-
-void hexdump(uint16_t addr, uint16_t bytes, char_stream_func_t streamer, read_data_func_t reader) {
-    int i;
-    uint8_t data[HEXDUMP_LINE_SIZE];
-    char string[HEXDUMP_LINE_SIZE * 3 + 32];
-
-    while(bytes) {
-        char *str = string;
-        int rd = bytes > sizeof(data) ? sizeof(data) : bytes;
-        str += hexstr(str, addr >> 8);
-        str += hexstr(str, addr & 0xFF);
-        *str++ = ' ';
-        *str++ = ' ';
-        reader(data, addr, rd);
-        for(i = 0; i < rd; i++) {
-            if (i == 8) *str++ = ' ';
-            *str++ = ' ';
-            str += hexstr(str, data[i]);
-        }
-        if(rd < HEXDUMP_LINE_SIZE){
-            int missing = HEXDUMP_LINE_SIZE - rd;
-            for(i = 0; i < missing; i++){
-                if (i == 8) *str++ = ' ';
-                *str++ = ' ';
-                *str++ = ' ';
-                *str++ = ' ';
-            }
-        }
-        *str++ = ' ';
-        *str++ = ' ';
-        *str++ = 0xB3;
-        for(i = 0; i < rd; i++) {
-            char b = (data[i] >= 32 && data[i] <= 126) ? data[i] : '.';
-            *str++ = b;
-        }
-        *str++ = 0xB3;
-        *str++ = CHAR_CR;
-        *str++ = CHAR_LF;
-        streamer(string, str - string);
-        bytes -= rd;
-        addr += rd;
-    }
-    return;
-}
-#endif
 
 // things related to : disk operations
 
@@ -808,15 +712,6 @@ void xram_writer(const uint8_t *buf, uint16_t addr, uint16_t size) {
     RIA.addr0 = addr;
     for(; size; size--) RIA.rw0 = *buf++;
 }
-
-#ifdef CODE_PEEK
-static void file_reader(uint8_t *buf, uint16_t addr, uint16_t size) {
-    off_t pos = (off_t)filehex_base + (off_t)addr;
-    if(filehex_fd < 0) return;
-    if(lseek(filehex_fd, pos, SEEK_SET) < 0) return;
-    read(filehex_fd, buf, size);
-}
-#endif
 
 // things related to memory
 
@@ -1846,49 +1741,12 @@ int cmd_cp(int argc, char **argv) {
     return (rc < 0) ? -1 : 0;
 }
 
-#ifdef CODE_PEEK
-int cmd_peek(int argc, char **argv) {
-    uint16_t addr = 0;
-    uint16_t size = 16;
-    uint8_t use_xram = 0;
-
-    if(argc < 2) {
-        tx_string("Usage: peek addr [bytes] [/x]" NEWLINE);
-        return 0;
-    }
-    addr = strtoul(argv[1], NULL, 16);
-    if(argc > 2) {
-        if(!strcmp(argv[2], "/x")) {
-            use_xram = 1;
-        } else {
-            size = strtoul(argv[2], NULL, 0);
-        }
-    }
-    if(argc > 3 && (!strcmp(argv[3], "/x"))) {
-        use_xram = 1;
-    }
-    tx_string(NEWLINE "Peek at the ");
-    if(use_xram) {
-        tx_string("XRAM" NEWLINE "---" NEWLINE);
-        hexdump(addr, size, tx_chars, xram_reader);
-    } else {
-        tx_string("RAM" NEWLINE "---" NEWLINE);
-        hexdump(addr, size, tx_chars, ram_reader);
-    }
-    tx_string(NEWLINE);
-    return 0;
-}
-#endif
-
-#ifdef CODE_TIME
 int cmd_time(int argc, char **argv) {
     (void)argc; (void)argv;
     show_time();
     return 0;
 }
-#endif
 
-#ifdef CODE_PHI2
 int cmd_phi2(int argc, char **argv) {
     int hz = phi2();
     (void)argc; (void)argv;
@@ -1897,7 +1755,6 @@ int cmd_phi2(int argc, char **argv) {
     tx_string(" Hz" NEWLINE);
     return 0;
 }
-#endif
 
 int cmd_mem(int argc, char **argv) {
     uint16_t bottom = mem_lo();
@@ -1916,49 +1773,6 @@ int cmd_mem(int argc, char **argv) {
     return 0;
 }
 
-#ifdef CODE_HEXDUMP
-int cmd_hex(int argc, char **argv) {
-    uint32_t offset = 0;
-    uint32_t bytes;
-    uint32_t maxbytes;
-    uint16_t dump_bytes;
-
-    if(argc < 2) {
-        tx_string("Usage: hex <file> [offset] [bytes]" NEWLINE);
-        return 0;
-    }
-    if(f_stat(argv[1], &dir_ent) < 0) {
-        tx_string(EXCLAMATION "stat failed" NEWLINE);
-        return -1;
-    }
-    maxbytes = dir_ent.fsize;
-    if(argc > 2) offset = (uint32_t)strtoul(argv[2], NULL, 0);
-    if(offset > maxbytes) {
-        tx_string(EXCLAMATION "offset past end of file" NEWLINE);
-        return -1;
-    }
-    maxbytes -= offset;
-    bytes = (argc > 3) ? (uint32_t)strtoul(argv[3], NULL, 0) : maxbytes;
-    if(bytes > maxbytes) bytes = maxbytes;
-    if(bytes == 0) {
-        tx_string(EXCLAMATION "nothing to show" NEWLINE);
-        return 0;
-    }
-    filehex_fd = open(argv[1], O_RDONLY);
-    if(filehex_fd < 0) {
-        tx_string(EXCLAMATION "can't open a file" NEWLINE);
-        return -1;
-    }
-    filehex_base = offset;
-    dump_bytes = (bytes > 0xFFFFu) ? 0xFFFFu : (uint16_t)bytes;
-    hexdump((uint16_t)offset, dump_bytes, tx_chars, file_reader);
-    close(filehex_fd);
-    filehex_fd = -1;
-    filehex_base = 0;
-    tx_string(NEWLINE);
-    return 0;
-}
-#endif
 int cmd_stat(int argc, char **argv) {
     if(argc < 2) {
         tx_string("Usage: stat <path>" NEWLINE);
@@ -2081,7 +1895,6 @@ int cmd_ls(int argc, char **argv){
     return rc;
 }
 
-#ifdef CODE_LAUNCH
 int cmd_launcher(int argc, char **argv){
 
     if(argc < 2) {
@@ -2103,9 +1916,7 @@ int cmd_launcher(int argc, char **argv){
     return 0;
 
 }
-#endif
 
-#ifdef CODE_CART
 int cmd_cart(int argc, char **argv){
     if(argc < 2) {
         tx_string("Usage: cart romname [args...]" NEWLINE);
@@ -2131,4 +1942,3 @@ int cmd_cart(int argc, char **argv){
     }
     return 0;
 }
-#endif
