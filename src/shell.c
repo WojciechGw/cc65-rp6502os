@@ -18,7 +18,7 @@
 
 // #define CLOCK_SHOW
 
-#define APPVER "20260501.2239"
+#define APPVER "20260502.0913"
 #define APPNAME "razemOS"
 #define APP_MSG_START ANSI_DARK_GRAY CSI "12;35H" APPNAME
 #define APP_HOURGLASS CSI "14;36H" ANSI_DARK_GRAY ".........." CSI "10D" ANSI_RESET
@@ -59,9 +59,9 @@ int main(int argc, char *argv[]){
         ria_attr_set(1, RIA_ATTR_LAUNCHER);
         ria_execl(shell_prog, arg, NULL);
     } else if (stage == 1) {
-        char arg[] = "START";
+        char *args[] = { "START", NULL };
         startstage_boot();
-        ria_execl(shell_prog, arg, NULL);
+        ria_execv(shell_prog, args);
     } else if (stage == 2) {
         startstage_shell();
     } else {
@@ -77,7 +77,7 @@ static int startstage_boot(){
     int i = 0;
     struct tm *tmnow = get_time();
 
-    printf(CSI_RESET CSI_CURSOR_HIDE);
+    printf(CSI_CLS CSI_CURSOR_HIDE);
 
     // boot screen
     xreg(1, 0, 0, GFX_CANVAS_640x480);
@@ -93,8 +93,6 @@ static int startstage_boot(){
     xreg(1, 0, 1, GFX_MODE_BITMAP, GFX_BITMAP_bpp1, GFX_STRUCT, GFX_PLANE_0, 1, 440);
     PAUSE(150);
     xreg(1, 0, 1, GFX_MODE_CONSOLE, GFX_PLANE_2);
-
-    // printf(APP_MSG_START);
 
     if(!(appflags & APPFLAG_RTC)){
         printf(APP_HOURGLASS);
@@ -117,7 +115,7 @@ static int startstage_boot(){
             }
         }
     } else {
-        printf(CSI_CLS ANSI_RESET CSI_CURSOR_SHOW);
+        printf(CSI_RESET ANSI_RESET CSI_CURSOR_SHOW);
     }
     return 0;
 }
@@ -236,6 +234,8 @@ static int startstage_shell(){
     char hist_saved[CMD_BUF_MAX + 1];
     int  hist_saved_bytes = 0;
     int  hist_saved_cur   = 0;
+
+    printf(CSI_RESET);
 
     // struct tm *tmnow = get_time();
 
@@ -537,8 +537,10 @@ void cls(){ // clear screen
 }
 
 void prompt(uint8_t mode) {
-    if(mode == PROMPT_CLS) cls();    
-    printf("%s%s%s", (mode == PROMPT_FIRST ? "" : NEWLINE), dir_cwd, (mode == PROMPT_FIRST ? NEWLINE SHELLPROMPT_1ST : SHELLPROMPT));
+    if(mode == PROMPT_CLS) cls();
+    if(mode != PROMPT) tx_string(NEWLINE);
+    tx_string(dir_cwd);
+    tx_string(mode == PROMPT_FIRST ? NEWLINE SHELLPROMPT_1ST : SHELLPROMPT);
     return;
 }
 
@@ -1404,17 +1406,20 @@ int cmd_brun(int argc, char **argv) {
     }
     start = (uint16_t)strtoul(argv[2], NULL, 16);
     addr = start;
-    if(f_stat(argv[1], &dir_ent) < 0) {
-        tx_string(EXCLAMATION "can't read file status" NEWLINE);
-        close(fd);
-        return -1;
+    {
+        long fsize = lseek(fd, 0, SEEK_END);
+        if(fsize < 0) {
+            tx_string(EXCLAMATION "can't read file status" NEWLINE);
+            close(fd);
+            return -1;
+        }
+        if(!ram_program_range_ok(start, (unsigned long)fsize)) {
+            tx_ram_range_error();
+            close(fd);
+            return -1;
+        }
+        lseek(fd, 0, SEEK_SET);
     }
-    if(!ram_program_range_ok(start, dir_ent.fsize)) {
-        tx_ram_range_error();
-        close(fd);
-        return -1;
-    }
-
     while((n = read(fd, bload_buf, sizeof(bload_buf))) > 0) {
         ram_writer(bload_buf, addr, n);
         addr += (uint16_t)n;
@@ -1443,24 +1448,29 @@ int cmd_exe(int argc, char **argv) { // run binary with load address stored in l
         tx_string("Usage: exe <file.exe> [args...]" NEWLINE);
         return 0;
     }
-    if(f_stat(argv[1], &dir_ent) < 0) {
-        tx_string(EXCLAMATION "can't read file status" NEWLINE);
-        return -1;
-    }
-    if(dir_ent.fsize < 2) {
-        tx_string(EXCLAMATION "invalid EXE" NEWLINE);
-        return -1;
-    }
-
     fd = open(argv[1], O_RDONLY);
     if(fd < 0) {
         tx_string(EXCLAMATION "can't open a file" NEWLINE);
         return -1;
     }
-    if(lseek(fd, (off_t)dir_ent.fsize - 2, SEEK_SET) < 0) {
-        tx_string(EXCLAMATION "seeking failed" NEWLINE);
-        close(fd);
-        return -1;
+    {
+        long fsize = lseek(fd, 0, SEEK_END);
+        if(fsize < 0) {
+            tx_string(EXCLAMATION "can't read file status" NEWLINE);
+            close(fd);
+            return -1;
+        }
+        if(fsize < 2) {
+            tx_string(EXCLAMATION "invalid EXE" NEWLINE);
+            close(fd);
+            return -1;
+        }
+        bytes_left = (unsigned long)fsize - 2;
+        if(lseek(fd, (off_t)fsize - 2, SEEK_SET) < 0) {
+            tx_string(EXCLAMATION "seeking failed" NEWLINE);
+            close(fd);
+            return -1;
+        }
     }
     if(read(fd, addr_buf, sizeof(addr_buf)) != (int)sizeof(addr_buf)) {
         tx_string(EXCLAMATION "reading failed" NEWLINE);
@@ -1468,7 +1478,6 @@ int cmd_exe(int argc, char **argv) { // run binary with load address stored in l
         return -1;
     }
     load_addr = (uint16_t)(addr_buf[0] | ((uint16_t)addr_buf[1] << 8));
-    bytes_left = dir_ent.fsize - 2;
     if(!ram_program_range_ok(load_addr, bytes_left)) {
         tx_ram_range_error();
         close(fd);
@@ -1563,17 +1572,20 @@ int cmd_com(int argc, char **argv) { // run external command
         tx_string(EXCLAMATION "isn't an internal or external command" NEWLINE);
         return -1;
     }
-    if(f_stat(resolved, &dir_ent) < 0) {
-        tx_string(EXCLAMATION "can't read file status" NEWLINE);
-        close(fd);
-        return -1;
+    {
+        long fsize = lseek(fd, 0, SEEK_END);
+        if(fsize < 0) {
+            tx_string(EXCLAMATION "can't read file status" NEWLINE);
+            close(fd);
+            return -1;
+        }
+        if(!ram_program_range_ok(COM_LOAD_ADDR, (unsigned long)fsize)) {
+            tx_ram_range_error();
+            close(fd);
+            return -1;
+        }
+        lseek(fd, 0, SEEK_SET);
     }
-    if(!ram_program_range_ok(COM_LOAD_ADDR, dir_ent.fsize)) {
-        tx_ram_range_error();
-        close(fd);
-        return -1;
-    }
-
     while((n = read(fd, bload_buf, sizeof(bload_buf))) > 0) {
         ram_writer(bload_buf, addr, n);
         addr += (uint16_t)n;

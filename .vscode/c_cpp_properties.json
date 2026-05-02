@@ -4,14 +4,17 @@
             "name": "Win32",
             "includePath": [
                 "${workspaceFolder}/**",
-                "C:/@prg/cc65/include"
+                "C:\\@prg\\cc65\\include"
             ],
             "defines": [
                 "_DEBUG",
                 "UNICODE",
                 "_UNICODE"
             ],
-            "compilerPath": "C:/@prg/cc65/bin/cl65.exe"
+            "cStandard": "c89",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "windows-clang-x64",
+            "configurationProvider": "ms-vscode.cmake-tools"
         }
     ],
     "version": 4

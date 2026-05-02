@@ -10,7 +10,7 @@
 
 #include "commons.h"
 
-#define APPVER "20260501.2235"
+#define APPVER "20260502.1104"
 
 #define FNAMELEN 64
 
@@ -48,10 +48,11 @@
 
 #define RB_SIZE  128u
 
-/* ---- XRAM staging area for file writes ---------------------------------- */
+/* ---- XRAM layout -------------------------------------------------------- */
 /* write() is overridden by write_stub.c to go to UART; file writes must    */
 /* copy data to XRAM first, then call write_xram(xram_addr, count, fd).     */
-#define PACK_XRAM_STAGE 0xA000u  /* 128-byte staging window in XRAM */
+#define PACK_XRAM_STAGE 0xA000u  /* 128-byte staging window in XRAM        */
+#define CDIR_XRAM_BASE  0xA080u  /* central dir: 72B × 64 = 4608B in XRAM  */
 
 static void tx_char(char c)            { TX_READY_SPIN; RIA.tx = c; }
 static void tx_string(const char *s)   { while (*s) tx_char(*s++); }
@@ -79,8 +80,26 @@ typedef struct {
     unsigned char _pad[2];                     /*  2B alignment */
 } cdir_t;  /* 72B × 64 = 4608B */
 
-static cdir_t         cdir[PACK_MAX_FILES];
+static cdir_t         cdir_entry;           /* single working entry (72B) */
 static unsigned int   cdir_n;
+
+static void cdir_set(unsigned int n, const cdir_t *e)
+{
+    unsigned int i;
+    const unsigned char *p = (const unsigned char *)e;
+    RIA.addr0 = CDIR_XRAM_BASE + n * (unsigned int)sizeof(cdir_t);
+    RIA.step0 = 1;
+    for (i = 0u; i < (unsigned int)sizeof(cdir_t); i++) RIA.rw0 = p[i];
+}
+
+static void cdir_get(unsigned int n, cdir_t *e)
+{
+    unsigned int i;
+    unsigned char *p = (unsigned char *)e;
+    RIA.addr0 = CDIR_XRAM_BASE + n * (unsigned int)sizeof(cdir_t);
+    RIA.step0 = 1;
+    for (i = 0u; i < (unsigned int)sizeof(cdir_t); i++) p[i] = RIA.rw0;
+}
 static unsigned long  out_pos;   /* total bytes written to output file */
 
 /* ---- I/O buffers -------------------------------------------------------- */
@@ -832,16 +851,17 @@ static int do_unpack(const char *arcpath)
                       ((unsigned int)(unsigned char)cdhbuf[33] << 8);
 
         fnlen = (fnlen_orig > PACK_FNAME_MAX) ? PACK_FNAME_MAX : fnlen_orig;
-        if (read(fd, cdir[cdir_n].fname, fnlen) != (int)fnlen) break;
-        cdir[cdir_n].fname[fnlen] = '\0';
-        cdir[cdir_n].fnlen  = (unsigned char)fnlen;
+        if (read(fd, cdir_entry.fname, fnlen) != (int)fnlen) break;
+        cdir_entry.fname[fnlen] = '\0';
+        cdir_entry.fnlen  = (unsigned char)fnlen;
 
-        cdir[cdir_n].method = (unsigned char)((unsigned int)(unsigned char)cdhbuf[10] |
+        cdir_entry.method = (unsigned char)((unsigned int)(unsigned char)cdhbuf[10] |
                                ((unsigned int)(unsigned char)cdhbuf[11] << 8));
-        cdir[cdir_n].crc32  = read_le32_buf(cdhbuf + 16);
-        cdir[cdir_n].comp   = read_le32_buf(cdhbuf + 20);
-        cdir[cdir_n].uncomp = read_le32_buf(cdhbuf + 24);
-        cdir[cdir_n].offset = read_le32_buf(cdhbuf + 42);
+        cdir_entry.crc32  = read_le32_buf(cdhbuf + 16);
+        cdir_entry.comp   = read_le32_buf(cdhbuf + 20);
+        cdir_entry.uncomp = read_le32_buf(cdhbuf + 24);
+        cdir_entry.offset = read_le32_buf(cdhbuf + 42);
+        cdir_set(cdir_n, &cdir_entry);
 
         cdh_pos += 46UL + (unsigned long)fnlen_orig
                         + (unsigned long)extra_len
@@ -860,8 +880,10 @@ static int do_unpack(const char *arcpath)
     /* 7. Extract each file */
     rc = 0;
     for (j = 0u; j < cdir_n; j++) {
+        cdir_get(j, &cdir_entry);
+
         /* strip first path component (dirname/) from stored name */
-        fname = cdir[j].fname;
+        fname = cdir_entry.fname;
         {
             const char *p = fname;
             while (*p && *p != '/' && *p != '\\') p++;
@@ -884,7 +906,7 @@ static int do_unpack(const char *arcpath)
         tx_string("  < "); tx_string(outpath);
 
         /* seek to Local File Header */
-        local_off = cdir[j].offset;
+        local_off = cdir_entry.offset;
         if (lseek(fd, (off_t)local_off, SEEK_SET) < 0) {
             tx_string(" [SKIP: seek]" NEWLINE); continue;
         }
@@ -914,9 +936,9 @@ static int do_unpack(const char *arcpath)
 
         /* decompress or copy */
         crc_got = 0UL; usz_got = 0UL;
-        if (cdir[j].method == (unsigned char)ZIP_METHOD_STORE)
-            rc = unpack_store(fd, cdir[j].comp, &crc_got, &usz_got);
-        else if (cdir[j].method == (unsigned char)ZIP_METHOD_DEFLATE)
+        if (cdir_entry.method == (unsigned char)ZIP_METHOD_STORE)
+            rc = unpack_store(fd, cdir_entry.comp, &crc_got, &usz_got);
+        else if (cdir_entry.method == (unsigned char)ZIP_METHOD_DEFLATE)
             rc = unpack_inflate(fd, &crc_got, &usz_got);
         else {
             tx_string(" [SKIP: unknown method]" NEWLINE);
@@ -926,8 +948,8 @@ static int do_unpack(const char *arcpath)
 
         if (rc < 0) { tx_string(" [ERROR]" NEWLINE); rc = 1; continue; }
 
-        crc_exp = cdir[j].crc32;
-        usz_exp = cdir[j].uncomp;
+        crc_exp = cdir_entry.crc32;
+        usz_exp = cdir_entry.uncomp;
         tx_char(' '); tx_dec32(usz_got); tx_string(" B");
         if (crc_got != crc_exp || usz_got != usz_exp)
             tx_string(" [CRC/SIZE MISMATCH]");
@@ -1110,15 +1132,16 @@ int main(int argc, char **argv)
         write_dd(fd_out, crc, comp, uncomp);
 
         /* save central directory entry */
-        memcpy(cdir[cdir_n].fname, arc_name, fnlen + 1u);
-        cdir[cdir_n].fnlen  = fnlen;
-        cdir[cdir_n].crc32  = crc;
-        cdir[cdir_n].comp   = comp;
-        cdir[cdir_n].uncomp = uncomp;
-        cdir[cdir_n].offset = local_off;
-        cdir[cdir_n].fdate  = dent.fdate;
-        cdir[cdir_n].ftime  = dent.ftime;
-        cdir[cdir_n].method = (unsigned char)method;
+        memcpy(cdir_entry.fname, arc_name, fnlen + 1u);
+        cdir_entry.fnlen  = fnlen;
+        cdir_entry.crc32  = crc;
+        cdir_entry.comp   = comp;
+        cdir_entry.uncomp = uncomp;
+        cdir_entry.offset = local_off;
+        cdir_entry.fdate  = dent.fdate;
+        cdir_entry.ftime  = dent.ftime;
+        cdir_entry.method = (unsigned char)method;
+        cdir_set(cdir_n, &cdir_entry);
         cdir_n++;
     }
 
@@ -1126,7 +1149,10 @@ int main(int argc, char **argv)
 
     /* write central directory */
     cd_start = out_pos;
-    for (i = 0; i < (int)cdir_n; i++) write_cdh(fd_out, &cdir[i]);
+    for (i = 0; i < (int)cdir_n; i++) {
+        cdir_get((unsigned int)i, &cdir_entry);
+        write_cdh(fd_out, &cdir_entry);
+    }
     cd_size = out_pos - cd_start;
 
     write_eocd(fd_out, cdir_n, cd_start, cd_size);
