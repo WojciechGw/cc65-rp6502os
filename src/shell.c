@@ -38,8 +38,10 @@ static char shell_prog[FNAMELEN];
 int main(int argc, char *argv[]){
 
     int stage;
-    #ifdef DEBUG
     int i;
+    const char *comrun_arg = NULL;
+
+    #ifdef DEBUG
     printf("argc = %d\n", argc);
     for (i = 0; i < argc; i++)
         printf("argv[%d] = %s\n", i, argv[i]);
@@ -48,24 +50,59 @@ int main(int argc, char *argv[]){
     strncpy(shell_prog, argv[0], sizeof(shell_prog) - 1);
     shell_prog[sizeof(shell_prog) - 1] = '\0';
 
-    stage = (argc == 1) ? 0
-          : (argc == 2 && !strcmp(argv[1], "BOOT"))  ? 1
-          : (argc == 2 && !strcmp(argv[1], "START")) ? 2
-          : -1;
+    /* scan all args for /comrun:XXXX (present in every stage) */
+    for (i = 1; i < argc; i++) {
+        if (strncmp(argv[i], "/comrun:", 8) == 0) {
+            comrun_arg = argv[i];
+            com_load_addr = (uint16_t)strtoul(argv[i] + 8, NULL, 16);
+        }
+    }
 
-    // init stage -> self call with argument BOOT
-    if (stage == 0) {
-        char arg[] = "BOOT";
-        ria_attr_set(1, RIA_ATTR_LAUNCHER);
-        ria_execl(shell_prog, arg, NULL);
-    } else if (stage == 1) {
-        char *args[] = { "START", NULL };
-        startstage_boot();
-        ria_execv(shell_prog, args);
-    } else if (stage == 2) {
-        startstage_shell();
-    } else {
-        printf(EXCLAMATION "boot error" NEWLINE NEWLINE);
+    if (argc >= 2 && !strcmp(argv[1], "BOOT"))  stage = 1;
+    else if (argc >= 2 && !strcmp(argv[1], "START")) stage = 2;
+    else if (argc == 1 || comrun_arg) stage = 0;
+    else stage = -1;
+
+    {
+        char arg_boot[] = "BOOT";
+        char arg_start[] = "START";
+        char arg_comrun[16];
+        char *args_boot_comrun[3];
+        char *args_start_comrun[3];
+        char *args_start[2];
+
+        // init stage -> self call with argument BOOT
+        if (stage == 0) {
+            ria_attr_set(1, RIA_ATTR_LAUNCHER);
+            if (comrun_arg) {
+                strncpy(arg_comrun, comrun_arg, sizeof(arg_comrun) - 1);
+                arg_comrun[sizeof(arg_comrun) - 1] = '\0';
+                args_boot_comrun[0] = arg_boot;
+                args_boot_comrun[1] = arg_comrun;
+                args_boot_comrun[2] = NULL;
+                ria_execv(shell_prog, args_boot_comrun);
+            } else {
+                ria_execl(shell_prog, arg_boot, NULL);
+            }
+        } else if (stage == 1) {
+            startstage_boot();
+            if (comrun_arg) {
+                strncpy(arg_comrun, comrun_arg, sizeof(arg_comrun) - 1);
+                arg_comrun[sizeof(arg_comrun) - 1] = '\0';
+                args_start_comrun[0] = arg_start;
+                args_start_comrun[1] = arg_comrun;
+                args_start_comrun[2] = NULL;
+                ria_execv(shell_prog, args_start_comrun);
+            } else {
+                args_start[0] = arg_start;
+                args_start[1] = NULL;
+                ria_execv(shell_prog, args_start);
+            }
+        } else if (stage == 2) {
+            startstage_shell();
+        } else {
+            printf(EXCLAMATION "boot error" NEWLINE NEWLINE);
+        }
     }
 
     return -1;
@@ -306,8 +343,7 @@ static int startstage_shell(){
                             hist_saved_cur   = cur;
                         }
                         hist_pos = new_pos;
-                        if(cur > 0) tx_csi_n(cur, 'D');
-                        tx_string(CSI "K" CSI "1A");
+                        tx_string("\r" CSI "2K");
                         prompt(PROMPT);
                         strncpy(cmdline.buffer, hist_get(hist_pos), CMD_BUF_MAX);
                         cmdline.buffer[CMD_BUF_MAX] = 0;
@@ -322,8 +358,7 @@ static int startstage_shell(){
                         if(hist_pos == 0) {
                             /* restore saved input */
                             hist_pos = -1;
-                            if(cur > 0) tx_csi_n(cur, 'D');
-                            tx_string(CSI "K" CSI "1A");
+                            tx_string("\r" CSI "2K");
                             prompt(PROMPT);
                             strncpy(cmdline.buffer, hist_saved, CMD_BUF_MAX);
                             cmdline.buffer[CMD_BUF_MAX] = 0;
@@ -334,8 +369,7 @@ static int startstage_shell(){
                                 tx_csi_n(cmdline.bytes - cur, 'D');
                         } else {
                             hist_pos--;
-                            if(cur > 0) tx_csi_n(cur, 'D');
-                            tx_string(CSI "K" CSI "1A");
+                            tx_string("\r" CSI "2K");
                             prompt(PROMPT);
                             strncpy(cmdline.buffer, hist_get(hist_pos), CMD_BUF_MAX);
                             cmdline.buffer[CMD_BUF_MAX] = 0;
@@ -1520,7 +1554,7 @@ int cmd_exe(int argc, char **argv) { // run binary with load address stored in l
 int cmd_com(int argc, char **argv) { // run external command
     int fd;
     int n;
-    uint16_t addr = COM_LOAD_ADDR;
+    uint16_t addr = com_load_addr;
     void (*fn)(void);
     int user_argc;
     char **user_argv;
@@ -1579,7 +1613,7 @@ int cmd_com(int argc, char **argv) { // run external command
             close(fd);
             return -1;
         }
-        if(!ram_program_range_ok(COM_LOAD_ADDR, (unsigned long)fsize)) {
+        if(!ram_program_range_ok(com_load_addr, (unsigned long)fsize)) {
             tx_ram_range_error();
             close(fd);
             return -1;
@@ -1603,7 +1637,7 @@ int cmd_com(int argc, char **argv) { // run external command
     user_argv = argv + 2;
     build_run_args(user_argc, user_argv);
 
-    fn = (void (*)(void))COM_LOAD_ADDR;
+    fn = (void (*)(void))com_load_addr;
     fn();
     memcpy((void *)RUN_ARGS_BASE, run_args_backup, RUN_ARGS_BLOCK_SIZE);
     refresh_current_drive();
@@ -1621,7 +1655,7 @@ int cmd_run(int argc, char **argv) { // run at address with optional args
         return 0;
     }
     if(argc == 1){
-        addr = COM_LOAD_ADDR;
+        addr = com_load_addr;
     } else {
         addr = (uint16_t)strtoul(argv[1], NULL, 16);
     }
@@ -1870,15 +1904,15 @@ int cmd_mem(int argc, char **argv) {
     uint16_t top = mem_top();
     uint16_t free = mem_free();
     (void)argc; (void)argv;
-    tx_string(NEWLINE APPNAME " memory info" NEWLINE NEWLINE);
+    tx_string(NEWLINE APPNAME " MEMORY INFO" NEWLINE NEWLINE);
     tx_hex16(bottom);
-    tx_string(" lowest" NEWLINE);
+    tx_string("\tlowest" NEWLINE);
     tx_hex16(top);
-    tx_string(" highest" NEWLINE );
+    tx_string("\thighest" NEWLINE);
     tx_dec32(free);
-    tx_string(" B free" NEWLINE );
-    tx_hex16(COM_LOAD_ADDR);
-    tx_string(" .com run address (default)" NEWLINE NEWLINE);
+    tx_string("\tB free" NEWLINE);
+    tx_hex16(com_load_addr);
+    tx_string("\t.com run address (default)" NEWLINE);
     return 0;
 }
 

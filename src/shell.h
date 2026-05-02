@@ -27,6 +27,7 @@ extern struct _timezone _tz;
 #endif
 #define MEMTOP (0xFF00-__STACKSIZE__-1)
 #define COM_LOAD_ADDR 0xA000  // lowest ram address where to load the external command code (binary shell extensions - .com files)
+static uint16_t com_load_addr = COM_LOAD_ADDR;
 
 #define SHELLDRIVEDIRDEFAULT "MSC0:/SHELL/"
 #define SHELLDIRDEFAULT "ROM:"
