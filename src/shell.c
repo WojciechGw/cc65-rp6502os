@@ -1894,7 +1894,7 @@ int cmd_ls(int argc, char **argv){
     }
     return rc;
 }
-
+/*
 int cmd_launcher(int argc, char **argv){
 
     if(argc < 2) {
@@ -1916,6 +1916,7 @@ int cmd_launcher(int argc, char **argv){
     return 0;
 
 }
+*/
 
 int cmd_cart(int argc, char **argv){
     if(argc < 2) {

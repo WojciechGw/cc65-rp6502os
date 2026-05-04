@@ -1,6 +1,6 @@
 #include "commons.h"
 
-#define APPVER "20260502.1552"
+#define APPVER "20260504.0519"
 
 #define APP_HEADER CSI_CLS CSI "2;1H" CSI HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " Help information                              " ANSI_DARK_GRAY "version " APPVER ANSI_RESET
 #define APP_FOOTER ANSI_DARK_GRAY  "_______________________________________________________________________________" ANSI_RESET NEWLINE NEWLINE
@@ -100,6 +100,19 @@ static const cmd_t commands_rom[] = {
     { "label",      "show or set volume label of active drive", 
                     "label          - show label of active drive" NEWLINE
                     "label NEWLABEL - set active drive label to NEWLABEL" },
+    { "txt2pdf",    "convert a text file to PDF (A4, Courier or DroidSansMono)",
+                    "txt2pdf <file> [/s N] [/m L R T B] [/n d|p] [/pl]" NEWLINE
+                    "txt2pdf notes.txt              - default 10pt, 20 mm margins" NEWLINE
+                    "txt2pdf notes.txt /s 12        - 12pt base font size" NEWLINE
+                    "txt2pdf notes.txt /m 15 15 20 25 - custom L/R/T/B margins in mm" NEWLINE
+                    "txt2pdf notes.txt /n d         - page numbers: 'strona N z T'" NEWLINE
+                    "txt2pdf notes.txt /n p         - page numbers: '- N -'" NEWLINE
+                    "txt2pdf notes.txt /pl          - Polish chars (CP852), embeds DroidSansMono" NEWLINE
+                    "Formatting by extension (always on):" NEWLINE
+                    "  .asm    : lines starting with ';' in italic" NEWLINE
+                    "  .txt/.md: '#'/'##'/... as headings (base + hashes*2 pt)" NEWLINE
+                    "  '#>' prefix forces new page before that heading" NEWLINE
+                    "TOC: first line '@NL' (N=depth 1-9, L='<'=start '>'=end)"},
     { "pack",       "pack (create) or unpack (extract) a ZIP archive",
                     "  pack <dirname>       create: STORE (fast, no compression)" NEWLINE
                     "  pack <dirname> /d    create: DEFLATE (4KB LZ77, smaller/slower)" NEWLINE
@@ -212,11 +225,11 @@ int main(int argc, char **argv) {
     }
 
     printf(NEWLINE NEWLINE "Keyboard:" NEWLINE);
-    printf("<F1>    help informations" NEWLINE);
-    printf("<F2>    keyboard visualiser" NEWLINE);
-    printf("<F3>    current date/time and calendar" NEWLINE);
-    printf("<F4>    list current directory" NEWLINE);
-    printf("<UP>    recall last command" NEWLINE);
+    printf("<F1>\thelp informations" NEWLINE);
+    printf("<F2>\tkeyboard visualiser" NEWLINE);
+    printf("<F3>\tcurrent date/time and calendar" NEWLINE);
+    printf("<F4>\tlist current directory" NEWLINE);
+    printf("<UP>\tcommand history" NEWLINE);
     printf(APP_FOOTER);
     while(RX_READY) (void)RIA.rx;
     return 0;

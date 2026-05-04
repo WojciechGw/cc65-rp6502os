@@ -19,7 +19,7 @@ extern struct _timezone _tz;
     #define __STACKSIZE__ 0x0200
 #endif
 #define MEMTOP (0xFF00-__STACKSIZE__-1)
-#define COM_LOAD_ADDR 0xA000  // lowest ram address where to load the external command code (binary shell extensions - .com files)
+#define COM_LOAD_ADDR 0x9800  // lowest ram address where to load the external command code (binary shell extensions - .com files)
 static uint16_t com_load_addr = COM_LOAD_ADDR;
 
 #define SHELLDRIVEDIRDEFAULT "MSC0:/SHELL/"
@@ -34,11 +34,11 @@ static uint16_t com_load_addr = COM_LOAD_ADDR;
 #define SHELLWALLPAPER "ROM:wallpaper.bin"
 
 #define CMD_BUF_MAX 80
-#define CMD_TOKEN_MAX 5
+#define CMD_TOKEN_MAX 9
 #define EDIT_BUF_MAX 2048
 #define RUN_ARGS_BASE 0x0200      // where argc/argv block is stored for run (safe area outside shell BSS)
-#define RUN_ARGS_MAX 4
-#define RUN_ARGS_BUF 32
+#define RUN_ARGS_MAX 8
+#define RUN_ARGS_BUF 64
 #define RUN_ARGS_BLOCK_SIZE (1 + RUN_ARGS_MAX*2 + RUN_ARGS_BUF)
 #define HEXDUMP_LINE_SIZE 16
 
@@ -167,7 +167,7 @@ static const cmd_t commands[] = {
     { "stat",   "", "", cmd_stat},
     { "time",   "", "", cmd_time },
     { "phi2",   "", "", cmd_phi2},
-    { "launcher",   "", "", cmd_launcher },
+//    { "launcher",   "", "", cmd_launcher },
     { "cart",   "", "", cmd_cart },
 };
 
@@ -225,7 +225,7 @@ int cmd_run(int argc, char **argv);
 int cmd_stat(int argc, char **argv);
 int cmd_time(int argc, char **argv);
 int cmd_phi2(int argc, char **argv);
-int cmd_launcher(int argc, char **argv);
+// int cmd_launcher(int argc, char **argv);
 int cmd_cart(int argc, char **argv);
 extern char _BSS_RUN__[];
 extern char _BSS_SIZE__[];
