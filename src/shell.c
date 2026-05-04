@@ -1071,12 +1071,14 @@ int cmd_list(int argc, char **argv) {
         int idx;
         for(idx = 0; idx < n; idx++) {
             char ch = buf[idx];
+            /*
             if(at_line_start) {
                 tx_string(ANSI_DARK_GRAY);
                 tx_dec32((unsigned long)lineno);
                 tx_string(TAB ANSI_RESET);
                 at_line_start = 0;
             }
+            */
             if(ch == '\n') {
                 tx_string(NEWLINE);
                 lines++;
@@ -1084,10 +1086,10 @@ int cmd_list(int argc, char **argv) {
                 at_line_start = 1;
                 if(lines >= 28) {
                     char ans;
-                    tx_string(NEWLINE ANSI_DARK_GRAY "--More-- (q to quit)" ANSI_RESET);
+                    tx_string(NEWLINE ANSI_DARK_GRAY "-- MORE -- (q to quit)" ANSI_RESET);
                     RX_READY_SPIN;
                     ans = (char)RIA.rx;
-                    tx_string(NEWLINE "\x1b[K"); // clear prompt line
+                    tx_string("\x1b[2K\x0d\x1b[1A"); // clear prompt line
                     if(ans == 'q' || ans == 'Q' || ans == CHAR_ESC) {
                         close(fd);
                         tx_string(NEWLINE ANSI_DARK_GRAY "--- END ---" ANSI_RESET NEWLINE);

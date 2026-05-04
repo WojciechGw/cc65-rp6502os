@@ -24,7 +24,7 @@
 
 #include "commons.h"
 
-#define APPVER "20260504.0646"
+#define APPVER "20260504.1231"
 
 /* ---- compile-time constants ---------------------------------------------- */
 
@@ -110,8 +110,9 @@ static unsigned font_h_pt;       /* normal line height: base_size * 12 / 10 */
 static uint8_t  fmt_mode;        /* FMT_NONE / FMT_ASM / FMT_MD */
 static uint8_t  page_num_mode;   /* PGNUM_NONE / PGNUM_FULL / PGNUM_SHORT */
 static uint8_t  want_toc;        /* 1 if @NX header found */
-static uint8_t  toc_depth;       /* max heading level for TOC (1..9) */
+static uint8_t  toc_depth;       /* how many top levels to include in TOC (1..9) */
 static uint8_t  toc_at_start;    /* 1 = TOC before content, 0 = after */
+static uint8_t  toc_min_h;       /* min hash count to include: max_h - toc_depth + 1 */
 static off_t    file_body_start; /* file offset after @NX line */
 
 /* TOC entries collected during count_pages */
@@ -519,6 +520,25 @@ static unsigned count_pages(int fd) {
     unsigned pages    = 1u;
 
     toc_count = 0u;
+    toc_min_h = 1u;
+
+    /* pre-scan: find max hash count so we know which levels are "top" */
+    if (want_toc) {
+        uint8_t max_h = 0u;
+        lseek(fd, file_body_start, SEEK_SET);
+        while ((n = read_line(fd, lbuf, LINE_BUF_LEN - 1u)) >= 0) {
+            if (n > 0) {
+                uint8_t fnp = 0u;
+                unsigned h = count_hashes(lbuf, &fnp);
+                if (h > (unsigned)max_h) max_h = (uint8_t)h;
+            }
+        }
+        if (max_h > 0u) {
+            unsigned min = (max_h >= toc_depth) ? (unsigned)max_h - (unsigned)toc_depth + 1u : 1u;
+            toc_min_h = (uint8_t)min;
+        }
+    }
+
     lseek(fd, file_body_start, SEEK_SET);
 
     while ((n = read_line(fd, lbuf, LINE_BUF_LEN - 1u)) >= 0) {
@@ -551,7 +571,7 @@ static unsigned count_pages(int fd) {
         }
 
         /* record TOC entry */
-        if (h >= 1u && want_toc && h <= (unsigned)toc_depth && toc_count < TOC_MAX) {
+        if (h >= 1u && want_toc && h >= (unsigned)toc_min_h && toc_count < TOC_MAX) {
             toc_page[toc_count]   = (uint8_t)pages;
             toc_hashes[toc_count] = (uint8_t)h;
             toc_count++;

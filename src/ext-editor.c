@@ -6,14 +6,14 @@
 #include <fcntl.h>
 #include "commons.h"
 
-#define APPVER "20260402.2034"
+#define APPVER "20260504.1249"
 
 /* --- XRAM register addresses --- */
 #define XRAM_STRUCT_SYS_KEYBOARD 0xFF20
 #define XRAM_STRUCT_SYS_MOUSE    0xFF40
 
 /* --- GFX canvas --- */
-#define GFX_CANVAS_640x480       0b00000011
+//#define GFX_CANVAS_640x480       0b00000011
 
 /* --- XRAM text buffer: 256 rows x 80 cols x 1 byte = 20480 bytes --- */
 #define TEXT_BUF_BASE    0x0000u
