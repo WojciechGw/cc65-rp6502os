@@ -24,7 +24,7 @@
 
 #include "commons.h"
 
-#define APPVER "20260504.0609"
+#define APPVER "20260504.0646"
 
 /* ---- compile-time constants ---------------------------------------------- */
 
@@ -717,8 +717,8 @@ static unsigned long toc_block(int in_fd, uint8_t mo, unsigned content_pages) {
     while (toc_idx < toc_count && cur_line < lines_per_page) {
         unsigned pgn = 0u, text_start, text_len = 0u, dots = 0u, num_w, i;
 
-        /* pre-compute num_w from stored page number (adjusted for TOC position) */
-        { unsigned tpgn = (unsigned)toc_page[toc_idx] + (toc_at_start ? 1u : 0u);
+        /* pre-compute num_w from stored content page number (1-based, no offset) */
+        { unsigned tpgn = (unsigned)toc_page[toc_idx];
           num_w = 0u;
           { unsigned v = tpgn; do { num_w++; v /= 10u; } while (v); }
         }
@@ -737,26 +737,23 @@ static unsigned long toc_block(int in_fd, uint8_t mo, unsigned content_pages) {
           unsigned gt  = fnp2 ? 1u : 0u;
           text_start   = hh + gt + (lbuf[hh + gt] == ' ' ? 1u : 0u);
           pgn          = (unsigned)toc_page[toc_idx];
-          /* indent by (h-1)*2 spaces for hierarchy */
-          { unsigned indent = ((unsigned)toc_hashes[toc_idx] - 1u) * 2u;
-            toc_idx++;
+          { toc_idx++;
             text_len = (unsigned)strlen(lbuf + text_start);
 
-            /* dots fill accounting for indent */
+            /* dots fill */
             { unsigned total_chars = usable_w / font_w_pt;
-              unsigned used = indent + text_len + 1u + num_w;
+              unsigned used = text_len + 1u + num_w;
               dots = (used < total_chars) ? (total_chars - used) : 0u;
-              if (indent + text_len + 1u + num_w > total_chars) {
-                  if (text_len > total_chars - indent - 1u - num_w)
-                      text_len = total_chars - indent - 1u - num_w;
+              if (text_len + 1u + num_w > total_chars) {
+                  if (text_len > total_chars - 1u - num_w)
+                      text_len = total_chars - 1u - num_w;
                   dots = 0u;
               }
             }
 
-            /* emit: "(" + indent spaces + text */
+            /* emit: "(" + text */
             if (mo) {
-                sz += 1UL + (unsigned long)indent;
-                sz += (unsigned long)text_len;
+                sz += 1UL + (unsigned long)text_len;
                 for (i = 0u; i < text_len; i++)
                     if (lbuf[text_start + i] == '(' || lbuf[text_start + i] == ')' || lbuf[text_start + i] == '\\') sz++;
             } else {
@@ -764,7 +761,6 @@ static unsigned long toc_block(int in_fd, uint8_t mo, unsigned content_pages) {
                 char esc[2];
                 esc[1] = 0;
                 pdf_putc('(');
-                for (ii = 0u; ii < indent; ii++) pdf_putc(' ');
                 for (ii = 0u; ii < text_len; ii++) {
                     char ch = lbuf[text_start + ii];
                     if (ch=='('||ch==')'||ch=='\\') { esc[0]='\\'; pdf_write_chunk(esc,1u); }
@@ -775,7 +771,7 @@ static unsigned long toc_block(int in_fd, uint8_t mo, unsigned content_pages) {
             if (mo) sz += (unsigned long)dots;
             else { unsigned ii; for (ii=0u;ii<dots;ii++) pdf_putc('.'); }
             /* space + page number */
-            { unsigned tpgn = pgn + (toc_at_start ? 1u : 0u);
+            { unsigned tpgn = pgn;
               if (mo) {
                   sz += 1UL;
                   { unsigned v = tpgn; do { sz++; v /= 10u; } while (v); }
@@ -1043,8 +1039,6 @@ static void write_toc_stream_obj(int in_fd, unsigned stream_obj,
 
     before_read = (unsigned long)lseek(in_fd, 0, SEEK_CUR);
     stream_len = toc_block(in_fd, 1u, content_pages);
-    if (page_num_mode != PGNUM_NONE)
-        stream_len += measure_pgnum_block(content_pages + 1u, content_pages + 1u);
 
     lseek(in_fd, (off_t)before_read, SEEK_SET);
 
@@ -1053,8 +1047,6 @@ static void write_toc_stream_obj(int in_fd, unsigned stream_obj,
     pdf_puti(stream_len);
     pdf_puts(" >>\nstream\n");
     toc_block(in_fd, 0u, content_pages);
-    if (page_num_mode != PGNUM_NONE)
-        emit_pgnum_block(content_pages + 1u, content_pages + 1u);
     pdf_puts("endstream\n");
     end_obj();
 }

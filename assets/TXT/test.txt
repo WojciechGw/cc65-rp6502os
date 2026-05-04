@@ -1,10 +1,9 @@
-@3> Table of contents
+@1> Table of contents
 ^Document Title
-Copyright 2026 (c) Wojciech Gwio«dzik
+Copyright 2026 (c) Wojciech Gwiozdzik
 
 ### Preface
 Lorem ipsum dolor sit amet
-¥†©ˆä¢˜¾«¤¨ãà—½
 
 ###> Chapter 1
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor 
