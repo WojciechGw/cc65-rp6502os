@@ -6,7 +6,7 @@
 #include <fcntl.h>
 #include "commons.h"
 
-#define APPVER "20260505.0723"
+#define APPVER "20260505.0930"
 #define APPNAME "Editor"
 #define APP_MSG_TITLE CSI "2;1H" CSI HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " " APPNAME ANSI_DARK_GRAY CSI "2;60Hversion " APPVER ANSI_RESET
 
@@ -72,10 +72,26 @@ static char    line_tmp[80];
 /* ================================================================
    keycode_to_char: USB HID keycode -> ASCII
    ================================================================ */
-static char keycode_to_char(uint8_t code, uint8_t shift, uint8_t caps)
+static char keycode_to_char(uint8_t code, uint8_t shift, uint8_t caps, uint8_t ralt)
 {
     uint8_t upper;
     static const char sh_digits[9] = {'!','@','#','$','%','^','&','*','('};
+
+    /* Right Alt + letter → Polish CP852 chars */
+    if (ralt) {
+        switch (code) {
+            case KEY_A: return shift ? (char)0xA4u : (char)0xA5u; /* Ą / ą */
+            case KEY_C: return shift ? (char)0x8Fu : (char)0x86u; /* Ć / ć */
+            case KEY_E: return shift ? (char)0xA8u : (char)0xA9u; /* Ę / ę */
+            case KEY_L: return shift ? (char)0x9Du : (char)0x88u; /* Ł / ł */
+            case KEY_N: return shift ? (char)0xE3u : (char)0xE4u; /* Ń / ń */
+            case KEY_O: return shift ? (char)0xE0u : (char)0xA2u; /* Ó / ó */
+            case KEY_S: return shift ? (char)0x97u : (char)0x98u; /* Ś / ś */
+            case KEY_X: return shift ? (char)0x8Du : (char)0xABu; /* Ź / ź */
+            case KEY_Z: return shift ? (char)0xBDu : (char)0xBEu; /* Ż / ż */
+            default:    return 0;
+        }
+    }
 
     if (code >= KEY_A && code <= KEY_Z) {
         upper = shift ? (uint8_t)(!caps) : caps;
@@ -92,11 +108,11 @@ static char keycode_to_char(uint8_t code, uint8_t shift, uint8_t caps)
     if (code == KEY_SEMICOLON)  return shift ? ':' : ';';
     if (code == KEY_EQUAL)      return shift ? '+' : '=';
     if (code == KEY_APOSTROPHE) return shift ? '"' : '\'';
-    if (code == KEY_COMMA)       return shift ? '<' : ',';
-    if (code == KEY_LEFTBRACE)   return shift ? '{' : '[';
-    if (code == KEY_RIGHTBRACE)  return shift ? '}' : ']';
-    if (code == KEY_BACKSLASH)   return shift ? '|' : '\\';
-    if (code == KEY_GRAVE)       return shift ? '~' : '`';
+    if (code == KEY_COMMA)      return shift ? '<' : ',';
+    if (code == KEY_LEFTBRACE)  return shift ? '{' : '[';
+    if (code == KEY_RIGHTBRACE) return shift ? '}' : ']';
+    if (code == KEY_BACKSLASH)  return shift ? '|' : '\\';
+    if (code == KEY_GRAVE)      return shift ? '~' : '`';
     return 0;
 }
 
@@ -287,7 +303,7 @@ static int menu_input(const char *prompt, char *buf, uint8_t maxlen)
                             menu_print_row(input_row, buf);
                         }
                     } else {
-                        ch = keycode_to_char(code, shift, caps);
+                        ch = keycode_to_char(code, shift, caps, 0u);
                         if (ch && len < (uint8_t)(maxlen - 1u)) {
                             for (i = len; i > pos; i--) buf[i] = buf[i - 1u];
                             buf[pos++] = ch;
@@ -652,6 +668,42 @@ static void do_backspace_join(void)
 }
 
 /* ================================================================
+   do_delete_join: Delete at end of a row — join next row onto current.
+   Mirror of do_backspace_join: next row's text is appended to current
+   row starting at cur_len, then next row is removed by shifting up.
+   Cursor stays at cur.col. If combined length > TEXT_COLS, do nothing.
+   ================================================================ */
+static void do_delete_join(void)
+{
+    uint8_t cur_len, next_len, j, write_col;
+    char    next_line[80];
+
+    if (cur.row >= content_rows) return;
+
+    cur_len  = line_text_len(cur.row);
+    next_len = line_text_len((uint8_t)(cur.row + 1u));
+
+    if ((uint16_t)cur_len + next_len > (uint16_t)TEXT_COLS) return;
+
+    if (next_len > 0u) {
+        RIA.addr1 = TEXT_BUF_BASE + (uint16_t)(cur.row + 1u) * TEXT_COLS;
+        RIA.step1 = 1;
+        for (j = 0u; j < next_len; j++) next_line[j] = (char)RIA.rw1;
+    }
+
+    write_col = cur_len;
+    for (j = 0u; j < next_len; j++, write_col++) {
+        RIA.addr0 = TEXT_BUF_BASE + (uint16_t)cur.row * TEXT_COLS + write_col;
+        RIA.step0 = 0;
+        RIA.rw0   = (uint8_t)next_line[j];
+    }
+
+    rows_shift_up((uint8_t)(cur.row + 1u));
+
+    redraw_screen();
+}
+
+/* ================================================================
    do_enter: split current row at cur.col.
    Text from cur.col..79 of current row moves to start of next row;
    all rows below shift down by one.
@@ -726,7 +778,7 @@ static void do_copy(void)
 
     clipboard[clip_len] = 0;
     sel_active = 0u;
-    draw_menu_bar("COPIED");
+    draw_menu_bar("TEXT COPIED");
 }
 
 /* ================================================================
@@ -755,7 +807,7 @@ static void do_cut(void)
         cur.col = 0u;
     }
     redraw_screen();
-    draw_menu_bar("Cut.");
+    draw_menu_bar("TEXT CUT");
 }
 
 /* ================================================================
@@ -811,7 +863,7 @@ int main(int argc, char **argv)
     int     mouse_wheel_change;
     bool    handled_key;
     uint8_t k, j, new_key, new_keys, last_key;
-    uint8_t key_capslock, key_shifts, key_ctrl;
+    uint8_t key_capslock, key_shifts, key_ctrl, key_ralt;
     uint8_t max_scroll;
     int     ok;
     char    ch;
@@ -939,6 +991,7 @@ int main(int argc, char **argv)
         key_capslock = (uint8_t)(key(KEY_CAPSLOCK)   ? 1u : 0u);
         key_shifts   = (uint8_t)((key(KEY_LEFTSHIFT) || key(KEY_RIGHTSHIFT)) ? 1u : 0u);
         key_ctrl     = (uint8_t)((key(KEY_LEFTCTRL)  || key(KEY_RIGHTCTRL))  ? 1u : 0u);
+        key_ralt     = (uint8_t)( key(KEY_RIGHTALT)                          ? 1u : 0u);
 
         if (!(keystates[0] & 1u)) {
             if (!handled_key) {
@@ -987,7 +1040,7 @@ int main(int argc, char **argv)
                     if (menu_input("Save: (e.g. MSC0:/dir/file.txt)", current_filename, 64u)) {
                         ok = save_file(current_filename);
                         draw_title_bar();
-                        draw_menu_bar(ok >= 0 ? "Saved." : EXCLAMATION "cannot save file");
+                        draw_menu_bar(ok >= 0 ? "FILE SAVED" : EXCLAMATION "cannot save file");
                         printf(ANSI_SHOW_CUR "\033[%d;%dH",
                                (int)((cur.row - scroll_row) + 1u + TITLE_ROWS),
                                (int)(cur.col + 1u));
@@ -999,7 +1052,7 @@ int main(int argc, char **argv)
                     repeat_key = 0u;
                     if (menu_input("Find:", search_pattern, 32u)) {
                         if (!find_text(search_pattern)) {
-                            draw_menu_bar("NOT FOUND");
+                            draw_menu_bar("TEXT NOT FOUND");
                         }
                     } else {
                         redraw_screen();
@@ -1150,6 +1203,33 @@ int main(int argc, char **argv)
                         do_backspace_join();
                     }
 
+                /* --- Delete --- */
+                } else if (key(KEY_DELETE)) {
+                    {
+                        uint8_t cur_text_len = line_text_len(cur.row);
+                        if (cur.col < cur_text_len) {
+                            /* delete char at cursor: shift row left from col+1 */
+                            line_shift_left(cur.row, (uint8_t)(cur.col + 1u));
+                            /* redraw current line */
+                            {
+                                uint8_t j2;
+                                RIA.addr1 = TEXT_BUF_BASE + (uint16_t)cur.row * TEXT_COLS;
+                                RIA.step1 = 1;
+                                for (j2 = 0u; j2 < TEXT_COLS; j2++) {
+                                    char c = (char)RIA.rw1;
+                                    g_linebuf[j2] = c ? c : ' ';
+                                }
+                                printf("\033[%d;1H",
+                                       (int)((cur.row - scroll_row) + 1u + TITLE_ROWS));
+                                for (j2 = 0u; j2 < TEXT_COLS; j2++)
+                                    putchar((uint8_t)g_linebuf[j2]);
+                            }
+                        } else if (cur.row < content_rows) {
+                            /* at end of line: join next row onto current */
+                            do_delete_join();
+                        }
+                    }
+
                 /* --- ESC: exit --- */
                 } else if (key(KEY_ESC)) {
                     // xreg_vga_canvas(GFX_CANVAS_640x480);   /* restore default console mode */
@@ -1159,7 +1239,7 @@ int main(int argc, char **argv)
                 /* --- Generic character input --- */
                 } else {
                     ch = keycode_to_char(last_key, (uint8_t)(key_shifts && !key_ctrl),
-                                         key_capslock);
+                                         key_capslock, key_ralt);
                     if (ch) {
                         if (insert_mode && cur.col < (uint8_t)(TEXT_COLS - 1u)) {
                             line_shift_right(cur.row, cur.col);
