@@ -6,7 +6,7 @@
 #include <fcntl.h>
 #include "commons.h"
 
-#define APPVER "20260505.0510"
+#define APPVER "20260505.0626"
 #define APPNAME "Editor"
 #define APP_MSG_TITLE CSI "2;1H" CSI HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " " APPNAME ANSI_DARK_GRAY CSI "2;60Hversion " APPVER ANSI_RESET
 
@@ -217,15 +217,15 @@ static int menu_input(const char *prompt, char *buf, uint8_t maxlen)
     int     done, result;
     char    ch;
 
-    len    = 0u;
+    /* measure pre-filled content so caller can seed the buffer */
+    for (len = 0u; buf[len] && len < (uint8_t)(maxlen - 1u); len++) {}
     done   = 0;
     result = 0;
-    buf[0] = 0;
 
     for (k = 0u; k < KEYBOARD_BYTES; k++) prev_ks[k] = keystates[k];
 
     menu_print_row(TITLE_ROWS + EDIT_ROWS + 3u, prompt);
-    menu_print_row(TITLE_ROWS + EDIT_ROWS + 4u, "");
+    menu_print_row(TITLE_ROWS + EDIT_ROWS + 4u, buf);
 
     while (!done) {
         for (k = 0u; k < KEYBOARD_BYTES; k++) {
@@ -513,6 +513,158 @@ static void line_shift_left(uint8_t row, uint8_t from_col)
 }
 
 /* ================================================================
+   rows_shift_down: moves rows [from_row .. content_rows-1] one slot
+   down in XRAM (row by row, bottom-up), then clears from_row.
+   Caller must have checked content_rows < 255 before calling.
+   ================================================================ */
+static void rows_shift_down(uint8_t from_row)
+{
+    uint16_t r;
+    uint8_t  j;
+
+    /* copy bottom-up so we don't overwrite source before reading it */
+    for (r = (uint16_t)content_rows; r > (uint16_t)from_row; r--) {
+        RIA.addr1 = TEXT_BUF_BASE + (r - 1u) * TEXT_COLS;
+        RIA.step1 = 1;
+        for (j = 0u; j < TEXT_COLS; j++) line_tmp[j] = (char)RIA.rw1;
+        RIA.addr0 = TEXT_BUF_BASE + r * TEXT_COLS;
+        RIA.step0 = 1;
+        for (j = 0u; j < TEXT_COLS; j++) RIA.rw0 = (uint8_t)line_tmp[j];
+    }
+
+    /* clear the newly freed row */
+    RIA.addr0 = TEXT_BUF_BASE + (uint16_t)from_row * TEXT_COLS;
+    RIA.step0 = 1;
+    for (j = 0u; j < TEXT_COLS; j++) RIA.rw0 = ' ';
+}
+
+/* ================================================================
+   rows_shift_up: moves rows [from_row+1 .. content_rows-1] one slot
+   up in XRAM, then clears the last row, decrements content_rows.
+   ================================================================ */
+static void rows_shift_up(uint8_t from_row)
+{
+    uint16_t r;
+    uint8_t  j;
+
+    for (r = (uint16_t)from_row + 1u; r < (uint16_t)content_rows; r++) {
+        RIA.addr1 = TEXT_BUF_BASE + r * TEXT_COLS;
+        RIA.step1 = 1;
+        for (j = 0u; j < TEXT_COLS; j++) line_tmp[j] = (char)RIA.rw1;
+        RIA.addr0 = TEXT_BUF_BASE + (r - 1u) * TEXT_COLS;
+        RIA.step0 = 1;
+        for (j = 0u; j < TEXT_COLS; j++) RIA.rw0 = (uint8_t)line_tmp[j];
+    }
+
+    /* clear the vacated last row */
+    if (content_rows > 0u) {
+        RIA.addr0 = TEXT_BUF_BASE + (uint16_t)(content_rows - 1u) * TEXT_COLS;
+        RIA.step0 = 1;
+        for (j = 0u; j < TEXT_COLS; j++) RIA.rw0 = ' ';
+        content_rows--;
+    }
+}
+
+/* ================================================================
+   do_backspace_join: join current row onto end of previous row.
+   The text of current row is appended (starting at prev row's text
+   length), then current row is removed by shifting rows up.
+   Cursor moves to the join point on the previous row.
+   ================================================================ */
+static void do_backspace_join(void)
+{
+    uint8_t prev_len, cur_len, j, write_col;
+    char    cur_line[80];
+
+    if (cur.row == 0u) return;
+
+    prev_len = line_text_len((uint8_t)(cur.row - 1u));
+    cur_len  = line_text_len(cur.row);
+
+    /* if merged text would exceed one row, only move cursor — don't destroy data */
+    if ((uint16_t)prev_len + cur_len > (uint16_t)TEXT_COLS) {
+        cur.row--;
+        cur.col = prev_len;
+        if (cur.row < scroll_row) scroll_row = cur.row;
+        redraw_screen();
+        return;
+    }
+
+    /* safe to merge: append current row text to previous row */
+    if (cur_len > 0u) {
+        RIA.addr1 = TEXT_BUF_BASE + (uint16_t)cur.row * TEXT_COLS;
+        RIA.step1 = 1;
+        for (j = 0u; j < cur_len; j++) cur_line[j] = (char)RIA.rw1;
+    }
+
+    write_col = prev_len;
+    for (j = 0u; j < cur_len; j++, write_col++) {
+        RIA.addr0 = TEXT_BUF_BASE + (uint16_t)(cur.row - 1u) * TEXT_COLS + write_col;
+        RIA.step0 = 0;
+        RIA.rw0   = (uint8_t)cur_line[j];
+    }
+
+    cur.row--;
+    cur.col = prev_len;
+
+    rows_shift_up(cur.row + 1u);
+
+    if (cur.row < scroll_row) scroll_row = cur.row;
+
+    redraw_screen();
+}
+
+/* ================================================================
+   do_enter: split current row at cur.col.
+   Text from cur.col..79 of current row moves to start of next row;
+   all rows below shift down by one.
+   ================================================================ */
+static void do_enter(void)
+{
+    uint8_t tail_len, j;
+    char    tail[80];
+
+    if (cur.row >= 255u) return;
+
+    /* save tail (text after cursor on this row) */
+    tail_len = 0u;
+    if (cur.col < TEXT_COLS) {
+        RIA.addr1 = TEXT_BUF_BASE + (uint16_t)cur.row * TEXT_COLS + cur.col;
+        RIA.step1 = 1;
+        for (j = cur.col; j < TEXT_COLS; j++) {
+            char c = (char)RIA.rw1;
+            tail[tail_len++] = c ? c : ' ';
+        }
+        /* trim trailing spaces from tail */
+        while (tail_len > 0u && tail[tail_len - 1u] == ' ') tail_len--;
+    }
+
+    /* erase tail from current row */
+    RIA.addr0 = TEXT_BUF_BASE + (uint16_t)cur.row * TEXT_COLS + cur.col;
+    RIA.step0 = 1;
+    for (j = cur.col; j < TEXT_COLS; j++) RIA.rw0 = ' ';
+
+    /* shift all rows below current row down by one */
+    rows_shift_down((uint8_t)(cur.row + 1u));
+    content_rows++;
+
+    /* write tail at start of new row */
+    if (tail_len > 0u) {
+        RIA.addr0 = TEXT_BUF_BASE + (uint16_t)(cur.row + 1u) * TEXT_COLS;
+        RIA.step0 = 1;
+        for (j = 0u; j < tail_len; j++) RIA.rw0 = (uint8_t)tail[j];
+    }
+
+    /* advance cursor */
+    cur.row++;
+    cur.col = 0u;
+    if ((uint8_t)(cur.row - scroll_row) >= EDIT_ROWS)
+        scroll_row = (uint8_t)(cur.row - EDIT_ROWS + 1u);
+
+    redraw_screen();
+}
+
+/* ================================================================
    do_copy: copies selection or current line to clipboard.
    ================================================================ */
 static void do_copy(void)
@@ -628,6 +780,7 @@ int main(int argc, char **argv)
     char    ch;
     uint8_t repeat_key;
     clock_t repeat_start, repeat_last;
+    uint8_t target_col;
 
     /* init state */
     cur.row             = 0u;
@@ -650,6 +803,7 @@ int main(int argc, char **argv)
     repeat_key          = 0u;
     repeat_start        = 0;
     repeat_last         = 0;
+    target_col          = 0u;
 
     xreg_ria_keyboard(XRAM_STRUCT_SYS_KEYBOARD);
     xreg_ria_mouse(XRAM_STRUCT_SYS_MOUSE);
@@ -692,6 +846,8 @@ int main(int argc, char **argv)
                 /* scroll up */
                 if (scroll_row > 0u) {
                     scroll_row--;
+                    if (cur.row >= (uint8_t)(scroll_row + EDIT_ROWS))
+                        cur.row = (uint8_t)(scroll_row + EDIT_ROWS - 1u);
                     redraw_screen();
                 }
             } else {
@@ -700,6 +856,8 @@ int main(int argc, char **argv)
                              ? (uint8_t)(content_rows - EDIT_ROWS) : 0u;
                 if (scroll_row < max_scroll) {
                     scroll_row++;
+                    if (cur.row < scroll_row)
+                        cur.row = scroll_row;
                     redraw_screen();
                 }
             }
@@ -808,16 +966,44 @@ int main(int argc, char **argv)
 
                 /* --- Cursor movement --- */
                 } else if (key(KEY_LEFT)) {
-                    if (cur.col > 0u) cur.col--;
+                    if (cur.col > 0u) {
+                        cur.col--;
+                    } else if (cur.row > 0u) {
+                        cur.row--;
+                        cur.col = line_text_len(cur.row);
+                        if (cur.row < scroll_row) {
+                            scroll_row = cur.row;
+                            redraw_screen();
+                        }
+                    }
+                    target_col = cur.col;
 
                 } else if (key(KEY_RIGHT)) {
                     { uint8_t lim = line_text_len(cur.row);
-                      if (cur.col < lim) cur.col++;
+                      if (cur.col < lim) {
+                          cur.col++;
+                      } else if ((uint16_t)cur.row < content_rows) {
+                          cur.row++;
+                          cur.col = 0u;
+                          if ((uint8_t)(cur.row - scroll_row) >= EDIT_ROWS) {
+                              scroll_row = (uint8_t)(cur.row - EDIT_ROWS + 1u);
+                              redraw_screen();
+                          }
+                      }
                     }
+                    target_col = cur.col;
 
                 } else if (key(KEY_UP)) {
+                    if (repeat_key == KEY_UP && last_key == KEY_UP) {
+                        /* continuing vertical move — keep target_col */
+                    } else {
+                        target_col = cur.col;
+                    }
                     if (cur.row > 0u) {
                         cur.row--;
+                        { uint8_t lim = line_text_len(cur.row);
+                          cur.col = (target_col <= lim) ? target_col : lim;
+                        }
                         if (cur.row < scroll_row) {
                             scroll_row = cur.row;
                             redraw_screen();
@@ -825,8 +1011,17 @@ int main(int argc, char **argv)
                     }
 
                 } else if (key(KEY_DOWN)) {
-                    if (content_rows > 0u && (uint16_t)cur.row + 1u < content_rows) {
+                    if (repeat_key == KEY_DOWN && last_key == KEY_DOWN) {
+                        /* continuing vertical move — keep target_col */
+                    } else {
+                        target_col = cur.col;
+                    }
+                    if ((uint16_t)cur.row < content_rows) {
                         cur.row++;
+                        { uint8_t lim = (cur.row < content_rows)
+                                        ? line_text_len(cur.row) : 0u;
+                          cur.col = (target_col <= lim) ? target_col : lim;
+                        }
                         if ((uint8_t)(cur.row - scroll_row) >= EDIT_ROWS) {
                             scroll_row = (uint8_t)(cur.row - EDIT_ROWS + 1u);
                             redraw_screen();
@@ -880,18 +1075,9 @@ int main(int argc, char **argv)
                         redraw_screen();
                     }
 
-                /* --- Enter: move to start of next row --- */
+                /* --- Enter: split line at cursor --- */
                 } else if (key(KEY_ENTER) || key(KEY_KPENTER)) {
-                    if (cur.row < 255u) {
-                        cur.row++;
-                        if ((uint16_t)(cur.row + 1u) > content_rows)
-                            content_rows = (uint16_t)(cur.row + 1u);
-                        if ((uint8_t)(cur.row - scroll_row) >= EDIT_ROWS) {
-                            scroll_row = (uint8_t)(cur.row - EDIT_ROWS + 1u);
-                            redraw_screen();
-                        }
-                    }
-                    cur.col = 0u;
+                    do_enter();
 
                 /* --- Backspace --- */
                 } else if (key(KEY_BACKSPACE)) {
@@ -919,19 +1105,8 @@ int main(int argc, char **argv)
                                 putchar((uint8_t)g_linebuf[j2]);
                         }
                     } else if (cur.row > 0u) {
-                        /* at col 0: move to end of previous row and erase last char there */
-                        cur.row--;
-                        if (cur.row < scroll_row) {
-                            scroll_row = cur.row;
-                        }
-                        cur.col = line_text_len(cur.row);
-                        if (cur.col > 0u) {
-                            cur.col--;
-                            RIA.addr0 = TEXT_BUF_BASE + (uint16_t)cur.row * TEXT_COLS + cur.col;
-                            RIA.step0 = 0;
-                            RIA.rw0   = ' ';
-                        }
-                        redraw_screen();
+                        /* at col 0: join this row onto end of previous row */
+                        do_backspace_join();
                     }
 
                 /* --- ESC: exit --- */
@@ -958,22 +1133,35 @@ int main(int argc, char **argv)
                                (int)(cur.col + 1u),
                                ch);
 
-                        if (cur.col < (uint8_t)(TEXT_COLS - 1u)) cur.col++;
+                        if (cur.col < (uint8_t)(TEXT_COLS - 1u)) {
+                            cur.col++;
 
-                        /* redraw rest of line (insert mode shifts chars) */
-                        if (insert_mode) {
-                            uint8_t j2;
-                            RIA.addr1 = TEXT_BUF_BASE + (uint16_t)cur.row * TEXT_COLS + cur.col;
-                            RIA.step1 = 1;
-                            for (j2 = cur.col; j2 < TEXT_COLS; j2++) {
-                                char c = (char)RIA.rw1;
-                                putchar(c ? c : ' ');
+                            /* redraw rest of line (insert mode shifts chars) */
+                            if (insert_mode) {
+                                uint8_t j2;
+                                RIA.addr1 = TEXT_BUF_BASE + (uint16_t)cur.row * TEXT_COLS + cur.col;
+                                RIA.step1 = 1;
+                                for (j2 = cur.col; j2 < TEXT_COLS; j2++) {
+                                    char c = (char)RIA.rw1;
+                                    putchar(c ? c : ' ');
+                                }
+                            }
+
+                            /* extend content tracking */
+                            if ((uint16_t)(cur.row + 1u) > content_rows)
+                                content_rows = (uint16_t)(cur.row + 1u);
+
+                        } else if (cur.row < 255u) {
+                            /* last column reached — wrap to next row */
+                            cur.row++;
+                            cur.col = 0u;
+                            if ((uint16_t)(cur.row + 1u) > content_rows)
+                                content_rows = (uint16_t)(cur.row + 1u);
+                            if ((uint8_t)(cur.row - scroll_row) >= EDIT_ROWS) {
+                                scroll_row = (uint8_t)(cur.row - EDIT_ROWS + 1u);
+                                redraw_screen();
                             }
                         }
-
-                        /* extend content tracking */
-                        if ((uint16_t)(cur.row + 1u) > content_rows)
-                            content_rows = (uint16_t)(cur.row + 1u);
                     }
                 }
 
