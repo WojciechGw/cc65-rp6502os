@@ -6,7 +6,7 @@
 #include <fcntl.h>
 #include "commons.h"
 
-#define APPVER "20260505.0716"
+#define APPVER "20260505.0723"
 #define APPNAME "Editor"
 #define APP_MSG_TITLE CSI "2;1H" CSI HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " " APPNAME ANSI_DARK_GRAY CSI "2;60Hversion " APPVER ANSI_RESET
 
@@ -92,7 +92,11 @@ static char keycode_to_char(uint8_t code, uint8_t shift, uint8_t caps)
     if (code == KEY_SEMICOLON)  return shift ? ':' : ';';
     if (code == KEY_EQUAL)      return shift ? '+' : '=';
     if (code == KEY_APOSTROPHE) return shift ? '"' : '\'';
-    if (code == KEY_COMMA)      return shift ? '<' : ',';
+    if (code == KEY_COMMA)       return shift ? '<' : ',';
+    if (code == KEY_LEFTBRACE)   return shift ? '{' : '[';
+    if (code == KEY_RIGHTBRACE)  return shift ? '}' : ']';
+    if (code == KEY_BACKSLASH)   return shift ? '|' : '\\';
+    if (code == KEY_GRAVE)       return shift ? '~' : '`';
     return 0;
 }
 
@@ -984,7 +988,7 @@ int main(int argc, char **argv)
                         ok = save_file(current_filename);
                         draw_title_bar();
                         draw_menu_bar(ok >= 0 ? "Saved." : EXCLAMATION "cannot save file");
-                        printf("\033[%d;%dH",
+                        printf(ANSI_SHOW_CUR "\033[%d;%dH",
                                (int)((cur.row - scroll_row) + 1u + TITLE_ROWS),
                                (int)(cur.col + 1u));
                     } else {
