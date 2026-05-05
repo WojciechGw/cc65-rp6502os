@@ -16,7 +16,7 @@
 
 #include "shell.h"
 
-#define APPVER "20260502.1550"
+#define APPVER "20260505.0500"
 #define APPNAME "razemOS"
 #define APP_MSG_START ANSI_DARK_GRAY CSI "12;35H" APPNAME
 #define APP_HOURGLASS CSI "14;36H" ANSI_DARK_GRAY ".........." CSI "10D" ANSI_RESET
@@ -253,7 +253,7 @@ static int startstage_shell(){
     int  hist_saved_bytes = 0;
     int  hist_saved_cur   = 0;
 
-    printf(CSI_RESET);
+    printf(CSI_RESET OSC_CURSOR_COLOR "408040" OSC_ST);
 
     f_chdrive("0:");
     current_drive = '0';
@@ -993,7 +993,7 @@ int cmd_cls(int, char **) { // clear screen
 }
 
 int cmd_exit(int status, char **) { // exit to rp6502 monitor
-    tx_string(APP_MSG_EXIT);
+    tx_string(APP_MSG_EXIT OSC_ST);
     exit(status);
     return 0;
 }

@@ -6,7 +6,13 @@
 #include <fcntl.h>
 #include "commons.h"
 
-#define APPVER "20260504.1249"
+#define APPVER "20260505.0510"
+#define APPNAME "Editor"
+#define APP_MSG_TITLE CSI "2;1H" CSI HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " " APPNAME ANSI_DARK_GRAY CSI "2;60Hversion " APPVER ANSI_RESET
+
+/* autorepeat: clock() ticks are centiseconds (1 tick = 10 ms) */
+#define REPEAT_DELAY  40u   /* 400 ms before first repeat */
+#define REPEAT_RATE    5u   /* 50 ms between repeats */
 
 /* --- XRAM register addresses --- */
 #define XRAM_STRUCT_SYS_KEYBOARD 0xFF20
@@ -22,14 +28,15 @@
 
 /* --- Terminal dimensions (640x480, 16px font) --- */
 #define TERM_ROWS        30u
-#define EDIT_ROWS        27u
-#define MENU_ROWS        3u
+#define TITLE_ROWS       3u    /* fixed title bar at top */
+#define MENU_ROWS        4u    /* fixed menu at bottom */
+#define EDIT_ROWS        (TERM_ROWS - TITLE_ROWS - MENU_ROWS) /* editable area */
 
 /* --- ANSI escape helpers --- */
 #define ANSI_HOME        "\033[H"
 #define ANSI_HIDE_CUR    "\033[?25l"
 #define ANSI_SHOW_CUR    "\033[?25h"
-#define ANSI_REVERSE     "\033[7m"
+#define ANSI_REVERSE     "\033[0;7m"
 #define ANSI_NORMAL      "\033[0m"
 
 /* --- keyboard --- */
@@ -97,17 +104,39 @@ static char keycode_to_char(uint8_t code, uint8_t shift, uint8_t caps)
 static void menu_print_row(uint8_t ansi_row, const char *text)
 {
     uint8_t i;
-    printf("\033[%d;1H" ANSI_REVERSE, (int)ansi_row);
+    printf("\033[%d;1H", (int)ansi_row);
     for (i = 0u; text[i] && i < TEXT_COLS; i++) putchar((uint8_t)text[i]);
     while (i < TEXT_COLS) { putchar(' '); i++; }
-    printf(ANSI_NORMAL);
+    printf(ANSI_RESET);
 }
 
 /* ================================================================
-   draw_menu_bar: 3-row status bar at bottom of terminal.
-   Row EDIT_ROWS+1: key shortcuts
-   Row EDIT_ROWS+2: [INS]/[OVR] + status/filename
-   Row EDIT_ROWS+3: MARK SET indicator
+   draw_title_bar: 3-row title bar at top of terminal (rows 1-3).
+   Row 1: empty
+   Row 2: program name, version
+   Row 3: just semigraphical horizontal line
+   ================================================================ */
+static void draw_title_bar(void)
+{
+
+    static const char menu_line1[] = APP_MSG_TITLE;
+
+    uint8_t i;
+
+    printf("\033[2;1H" );
+    for (i = 0u; menu_line1[i]; i++) putchar((uint8_t)menu_line1[i]);
+    printf("\033[3;1H" );
+    for (i = 0u; i < 80u; i++) putchar('\xc4');
+    printf(ANSI_NORMAL);
+
+}
+
+/* ================================================================
+   draw_menu_bar: 4-row status bar at bottom of terminal.
+   Row EDIT_ROWS+1: just semigraphical horizontal line
+   Row EDIT_ROWS+2: key shortcuts
+   Row EDIT_ROWS+3: [INS]/[OVR] + status/filename
+   Row EDIT_ROWS+4: MARK SET indicator
    ================================================================ */
 static void draw_menu_bar(const char *status)
 {
@@ -116,22 +145,24 @@ static void draw_menu_bar(const char *status)
     const char *info;
     char        row2[81];
 
-    mode_str = insert_mode ? "[INS]" : "[OVR]";
-    info     = status ? status : (current_filename[0] ? current_filename : "");
+    mode_str = insert_mode ? "mode [INS] document:" : "mode [OVR] document:";
+    info     = status ? status : (current_filename[0] ? current_filename : "none");
 
-    menu_print_row(EDIT_ROWS + 1u,
-        "Ins=Mode ^K=Mark ^C=Copy ^X=Cut ^V=Paste "
-        "F5=Open F6=Save F7=Find ESC=Exit");
+    printf("\033[%d;1H", TITLE_ROWS + EDIT_ROWS + 1u);
+    for (i = 0u; i < 80u; i++) putchar('\xc4');
+
+    menu_print_row(TITLE_ROWS + EDIT_ROWS + 2u,
+        "[Ins] type mode [^K] mark [F5] open [F6] save [F7] find [Esc] exit");
 
     /* compose "[INS/OVR] info..." */
     for (i = 0u; mode_str[i]; i++) row2[i] = mode_str[i];
     row2[i++] = ' ';
     for (; info[0] && (i < 80u); i++, info++) row2[i] = *info;
     row2[i] = 0;
-    menu_print_row(EDIT_ROWS + 2u, row2);
+    menu_print_row(TITLE_ROWS + EDIT_ROWS + 3u, row2);
 
-    menu_print_row(EDIT_ROWS + 3u,
-        sel_active ? "MARK SET  (^C=copy  ^X=cut  ^K=clear)" : "");
+    menu_print_row(TITLE_ROWS + EDIT_ROWS + 4u,
+        sel_active ? "MARK SET  [^C] copy [^X] cut [^K] clear" : "");
 }
 
 /* ================================================================
@@ -144,20 +175,32 @@ static void redraw_screen(void)
     uint16_t xrow;
 
     printf(ANSI_HIDE_CUR ANSI_HOME);
+    draw_title_bar();
     for (r = 0u; r < EDIT_ROWS; r++) {
         xrow = (uint16_t)scroll_row + r;
-        RIA.addr1 = TEXT_BUF_BASE + xrow * TEXT_COLS;
-        RIA.step1 = 1;
-        for (j = 0u; j < TEXT_COLS; j++) {
-            char c = (char)RIA.rw1;
-            g_linebuf[j] = c ? c : ' ';
+        printf("\033[%d;1H", (int)(r + 1u + TITLE_ROWS));
+        if (xrow < content_rows) {
+            RIA.addr1 = TEXT_BUF_BASE + xrow * TEXT_COLS;
+            RIA.step1 = 1;
+            for (j = 0u; j < TEXT_COLS; j++) {
+                char c = (char)RIA.rw1;
+                g_linebuf[j] = c ? c : ' ';
+            }
+            for (j = 0u; j < TEXT_COLS; j++) putchar((uint8_t)g_linebuf[j]);
+        } else if (xrow == content_rows) {
+            /* "- END of document -" centred in dark grey */
+            static const char eod[] = "- End of document -";
+            printf(ANSI_DARK_GRAY);
+            for (j = 0u; eod[j]; j++) putchar((uint8_t)eod[j]);
+            printf(ANSI_NORMAL);
+        } else {
+            /* blank lines beyond END marker */
+            for (j = 0u; j < TEXT_COLS; j++) putchar(' ');
         }
-        printf("\033[%d;1H", (int)(r + 1u));
-        for (j = 0u; j < TEXT_COLS; j++) putchar((uint8_t)g_linebuf[j]);
     }
     draw_menu_bar(NULL);
     printf("\033[%d;%dH" ANSI_SHOW_CUR,
-           (int)((cur.row - scroll_row) + 1u),
+           (int)((cur.row - scroll_row) + 1u + TITLE_ROWS),
            (int)(cur.col + 1u));
 }
 
@@ -181,8 +224,8 @@ static int menu_input(const char *prompt, char *buf, uint8_t maxlen)
 
     for (k = 0u; k < KEYBOARD_BYTES; k++) prev_ks[k] = keystates[k];
 
-    menu_print_row(EDIT_ROWS + 2u, prompt);
-    menu_print_row(EDIT_ROWS + 3u, "");
+    menu_print_row(TITLE_ROWS + EDIT_ROWS + 3u, prompt);
+    menu_print_row(TITLE_ROWS + EDIT_ROWS + 4u, "");
 
     while (!done) {
         for (k = 0u; k < KEYBOARD_BYTES; k++) {
@@ -209,14 +252,14 @@ static int menu_input(const char *prompt, char *buf, uint8_t maxlen)
                         if (len > 0u) {
                             len--;
                             buf[len] = 0;
-                            menu_print_row(EDIT_ROWS + 3u, buf);
+                            menu_print_row(TITLE_ROWS + EDIT_ROWS + 4u, buf);
                         }
                     } else {
                         ch = keycode_to_char(code, shift, caps);
                         if (ch && len < (uint8_t)(maxlen - 1u)) {
                             buf[len++] = ch;
                             buf[len]   = 0;
-                            menu_print_row(EDIT_ROWS + 3u, buf);
+                            menu_print_row(TITLE_ROWS + EDIT_ROWS + 4u, buf);
                         }
                     }
                 }
@@ -227,6 +270,18 @@ static int menu_input(const char *prompt, char *buf, uint8_t maxlen)
 
     for (k = 0u; k < KEYBOARD_BYTES; k++) keystates[k] = cur_ks[k];
     return result;
+}
+
+/* Returns one past the last non-space byte in the given XRAM row (0..TEXT_COLS). */
+static uint8_t line_text_len(uint8_t row)
+{
+    uint8_t j, last = 0u;
+    RIA.addr1 = TEXT_BUF_BASE + (uint16_t)row * TEXT_COLS;
+    RIA.step1 = 1;
+    for (j = 0u; j < TEXT_COLS; j++) {
+        if ((char)RIA.rw1 != ' ') last = j + 1u;
+    }
+    return last;
 }
 
 /* ================================================================
@@ -331,11 +386,11 @@ static int save_file(const char *filename)
         while (len > 0u && g_linebuf[len - 1u] == ' ') len--;
 
         g_linebuf[len] = '\n';
-        /* copy to XRAM scratch then write (RP6502: write reads from XRAM) */
+        /* copy to XRAM scratch, then write via write_xram (write() is hijacked to UART) */
         RIA.addr0 = XRAM_SCRATCH;
         RIA.step0 = 1;
         for (j = 0u; j <= len; j++) RIA.rw0 = (uint8_t)g_linebuf[j];
-        write(fd, (const void *)(unsigned)XRAM_SCRATCH, (unsigned)(len + 1u));
+        write_xram(XRAM_SCRATCH, (unsigned)(len + 1u), fd);
     }
 
     close(fd);
@@ -395,16 +450,18 @@ static int find_text(const char *pattern)
                 redraw_screen();
 
                 /* highlight matched text with reverse video */
+                /*
                 disp_row = (uint8_t)(row - scroll_row);
-                printf("\033[%d;%dH" ANSI_REVERSE,
-                       (int)(disp_row + 1u), (int)(col + 1u));
+                printf("\033[%d;%dH" CSI HIGHLIGHT_COLOR,
+                       (int)(disp_row + 1u + TITLE_ROWS), (int)(col + 1u));
                 for (i = 0u; i < plen; i++) {
                     putchar(g_linebuf[(uint8_t)(col + i)]
                             ? g_linebuf[(uint8_t)(col + i)] : ' ');
                 }
-                printf(ANSI_NORMAL);
-                /* restore cursor position */
-                printf("\033[%d;%dH", (int)(disp_row + 1u), (int)(col + 1u));
+                printf(ANSI_RESET);
+                */
+                // restore cursor position
+                printf("\033[%d;%dH", (int)(disp_row + 1u + TITLE_ROWS), (int)(col + 1u));
                 return 1;
             }
         }
@@ -559,7 +616,7 @@ static void do_paste(void)
 /* ================================================================
    main
    ================================================================ */
-void main(void)
+int main(int argc, char **argv)
 {
     uint8_t mouse_wheel, mouse_wheel_prev;
     int     mouse_wheel_change;
@@ -569,6 +626,8 @@ void main(void)
     uint8_t max_scroll;
     int     ok;
     char    ch;
+    uint8_t repeat_key;
+    clock_t repeat_start, repeat_last;
 
     /* init state */
     cur.row             = 0u;
@@ -588,14 +647,30 @@ void main(void)
     sel_col             = 0u;
     clip_len            = 0u;
     clipboard[0]        = 0;
+    repeat_key          = 0u;
+    repeat_start        = 0;
+    repeat_last         = 0;
 
     xreg_ria_keyboard(XRAM_STRUCT_SYS_KEYBOARD);
     xreg_ria_mouse(XRAM_STRUCT_SYS_MOUSE);
 
     /* clear text buffer and display */
     editor_clear();
+    draw_title_bar();
     draw_menu_bar(NULL);
-    printf(ANSI_SHOW_CUR "\033[1;1H");
+    printf(OSC_CURSOR_COLOR "408040" OSC_ST ANSI_SHOW_CUR "\033[%d;1H", (int)(TITLE_ROWS + 1u));
+
+    /* open file passed as argument */
+    if (argc >= 1 && argv[0][0]) {
+        strncpy(current_filename, argv[0], 63u);
+        current_filename[63] = 0;
+        ok = load_file(current_filename);
+        draw_menu_bar(ok >= 0 ? current_filename : EXCLAMATION "cannot open file");
+        cur.row    = 0u;
+        cur.col    = 0u;
+        scroll_row = 0u;
+        printf("\033[%d;1H", (int)(TITLE_ROWS + 1u));
+    }
 
     /* capture initial mouse wheel position */
     RIA.addr1 = XRAM_STRUCT_SYS_MOUSE + 3;
@@ -639,13 +714,31 @@ void main(void)
             for (j = 0u; j < 8u; j++) {
                 uint8_t code = (uint8_t)((k << 3) + j);
                 new_key = new_keys & (uint8_t)(1u << j);
-                /* rising edge only: key just pressed (0→1) */
+                /* rising edge: key just pressed (0→1) */
                 if ((code > 3u) && new_key && !(keystates[k] & (uint8_t)(1u << j))) {
-                    last_key    = code;
-                    handled_key = false;
+                    last_key     = code;
+                    handled_key  = false;
+                    repeat_key   = code;
+                    repeat_start = clock();
+                    repeat_last  = repeat_start;
                 }
             }
             keystates[k] = new_keys;
+        }
+
+        /* --- autorepeat: fire again if key held long enough --- */
+        if (repeat_key) {
+            if (key(repeat_key)) {
+                clock_t now = clock();
+                if ((now - repeat_start) >= (clock_t)REPEAT_DELAY &&
+                    (now - repeat_last)  >= (clock_t)REPEAT_RATE) {
+                    last_key    = repeat_key;
+                    handled_key = false;
+                    repeat_last = now;
+                }
+            } else {
+                repeat_key = 0u;
+            }
         }
 
         key_capslock = (uint8_t)(key(KEY_CAPSLOCK)   ? 1u : 0u);
@@ -655,8 +748,9 @@ void main(void)
         if (!(keystates[0] & 1u)) {
             if (!handled_key) {
 
-                /* --- Ctrl+key combos --- */
+                /* --- Ctrl+key combos (no autorepeat) --- */
                 if (key_ctrl && key(KEY_K)) {
+                    repeat_key = 0u;
                     if (sel_active && sel_row == cur.row && sel_col == cur.col) {
                         sel_active = 0u;
                     } else {
@@ -667,37 +761,43 @@ void main(void)
                     draw_menu_bar(NULL);
 
                 } else if (key_ctrl && key(KEY_C)) {
+                    repeat_key = 0u;
                     do_copy();
 
                 } else if (key_ctrl && key(KEY_X)) {
+                    repeat_key = 0u;
                     do_cut();
 
                 } else if (key_ctrl && key(KEY_V)) {
+                    repeat_key = 0u;
                     do_paste();
 
-                /* --- Insert / Overwrite mode toggle --- */
+                /* --- Insert / Overwrite mode toggle (no autorepeat) --- */
                 } else if (key(KEY_INSERT)) {
+                    repeat_key  = 0u;
                     insert_mode = insert_mode ? 0u : 1u;
                     draw_menu_bar(NULL);
 
-                /* --- File / Search dialogs --- */
+                /* --- File / Search dialogs (no autorepeat) --- */
                 } else if (key(KEY_F5)) {
                     if (menu_input("Open: (e.g. MSC0:/dir/file.txt)", current_filename, 64u)) {
                         ok = load_file(current_filename);
-                        draw_menu_bar(ok >= 0 ? current_filename : "ERROR: cannot open file");
+                        draw_menu_bar(ok >= 0 ? current_filename : EXCLAMATION "cannot open file");
                     } else {
                         redraw_screen();
                     }
 
                 } else if (key(KEY_F6)) {
+                    repeat_key = 0u;
                     if (menu_input("Save: (e.g. MSC0:/dir/file.txt)", current_filename, 64u)) {
                         ok = save_file(current_filename);
-                        draw_menu_bar(ok >= 0 ? "Saved." : "ERROR: cannot save file");
+                        draw_menu_bar(ok >= 0 ? "Saved." : EXCLAMATION "cannot save file");
                     } else {
                         redraw_screen();
                     }
 
                 } else if (key(KEY_F7)) {
+                    repeat_key = 0u;
                     if (menu_input("Find:", search_pattern, 32u)) {
                         if (!find_text(search_pattern)) {
                             draw_menu_bar("Not found.");
@@ -711,7 +811,9 @@ void main(void)
                     if (cur.col > 0u) cur.col--;
 
                 } else if (key(KEY_RIGHT)) {
-                    if (cur.col < (uint8_t)(TEXT_COLS - 1u)) cur.col++;
+                    { uint8_t lim = line_text_len(cur.row);
+                      if (cur.col < lim) cur.col++;
+                    }
 
                 } else if (key(KEY_UP)) {
                     if (cur.row > 0u) {
@@ -723,14 +825,59 @@ void main(void)
                     }
 
                 } else if (key(KEY_DOWN)) {
-                    if (cur.row < 255u) {
+                    if (content_rows > 0u && (uint16_t)cur.row + 1u < content_rows) {
                         cur.row++;
-                        if ((uint16_t)(cur.row + 1u) > content_rows)
-                            content_rows = (uint16_t)(cur.row + 1u);
                         if ((uint8_t)(cur.row - scroll_row) >= EDIT_ROWS) {
                             scroll_row = (uint8_t)(cur.row - EDIT_ROWS + 1u);
                             redraw_screen();
                         }
+                    }
+
+                } else if (key_ctrl && key_shifts && key(KEY_HOME)) {
+                    repeat_key = 0u;
+                    cur.row    = 0u;
+                    cur.col    = 0u;
+                    scroll_row = 0u;
+                    redraw_screen();
+
+                } else if (key_ctrl && key_shifts && key(KEY_END)) {
+                    repeat_key = 0u;
+                    cur.row    = (content_rows > 0u) ? (uint8_t)(content_rows - 1u) : 0u;
+                    cur.col    = line_text_len(cur.row);
+                    if (content_rows > (uint16_t)EDIT_ROWS)
+                        scroll_row = (uint8_t)(content_rows - EDIT_ROWS);
+                    else
+                        scroll_row = 0u;
+                    redraw_screen();
+
+                } else if (key(KEY_HOME)) {
+                    repeat_key = 0u;
+                    cur.col = 0u;
+
+                } else if (key(KEY_END)) {
+                    repeat_key = 0u;
+                    cur.col = line_text_len(cur.row);
+
+                } else if (key(KEY_PAGEUP)) {
+                    if (cur.row >= (uint8_t)EDIT_ROWS) {
+                        cur.row -= (uint8_t)EDIT_ROWS;
+                    } else {
+                        cur.row = 0u;
+                    }
+                    if (cur.row < scroll_row) {
+                        scroll_row = cur.row;
+                        redraw_screen();
+                    }
+
+                } else if (key(KEY_PAGEDOWN)) {
+                    if ((uint16_t)cur.row + (uint16_t)EDIT_ROWS < (uint16_t)content_rows) {
+                        cur.row += (uint8_t)EDIT_ROWS;
+                    } else {
+                        cur.row = (content_rows > 0u) ? (uint8_t)(content_rows - 1u) : 0u;
+                    }
+                    if ((uint8_t)(cur.row - scroll_row) >= EDIT_ROWS) {
+                        scroll_row = (uint8_t)(cur.row - EDIT_ROWS + 1u);
+                        redraw_screen();
                     }
 
                 /* --- Enter: move to start of next row --- */
@@ -767,16 +914,30 @@ void main(void)
                                 g_linebuf[j2] = c ? c : ' ';
                             }
                             printf("\033[%d;1H",
-                                   (int)((cur.row - scroll_row) + 1u));
+                                   (int)((cur.row - scroll_row) + 1u + TITLE_ROWS));
                             for (j2 = 0u; j2 < TEXT_COLS; j2++)
                                 putchar((uint8_t)g_linebuf[j2]);
                         }
+                    } else if (cur.row > 0u) {
+                        /* at col 0: move to end of previous row and erase last char there */
+                        cur.row--;
+                        if (cur.row < scroll_row) {
+                            scroll_row = cur.row;
+                        }
+                        cur.col = line_text_len(cur.row);
+                        if (cur.col > 0u) {
+                            cur.col--;
+                            RIA.addr0 = TEXT_BUF_BASE + (uint16_t)cur.row * TEXT_COLS + cur.col;
+                            RIA.step0 = 0;
+                            RIA.rw0   = ' ';
+                        }
+                        redraw_screen();
                     }
 
                 /* --- ESC: exit --- */
                 } else if (key(KEY_ESC)) {
-                    xreg_vga_canvas(GFX_CANVAS_640x480);   /* restore default console mode */
-                    xreg(1, 0, 1, 0);
+                    // xreg_vga_canvas(GFX_CANVAS_640x480);   /* restore default console mode */
+                    // xreg(1, 0, 1, 0);
                     break;
 
                 /* --- Generic character input --- */
@@ -793,7 +954,7 @@ void main(void)
 
                         /* print char at terminal position */
                         printf("\033[%d;%dH%c",
-                               (int)((cur.row - scroll_row) + 1u),
+                               (int)((cur.row - scroll_row) + 1u + TITLE_ROWS),
                                (int)(cur.col + 1u),
                                ch);
 
@@ -818,7 +979,7 @@ void main(void)
 
                 /* position cursor after any key action */
                 printf("\033[%d;%dH",
-                       (int)((cur.row - scroll_row) + 1u),
+                       (int)((cur.row - scroll_row) + 1u + TITLE_ROWS),
                        (int)(cur.col + 1u));
                 handled_key = true;
             }
@@ -827,5 +988,9 @@ void main(void)
         }
     }
 
-    printf("\n");
+    xreg_ria_keyboard(0xFFFF);
+    xreg_ria_mouse(0xFFFF);
+    printf(CSI_RESET CSI_CURSOR_HOME CSI_CURSOR_SHOW);
+    return 0;
+
 }

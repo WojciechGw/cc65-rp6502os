@@ -24,7 +24,7 @@
 
 #include "commons.h"
 
-#define APPVER "20260504.1231"
+#define APPVER "20260504.1713"
 
 /* ---- compile-time constants ---------------------------------------------- */
 
@@ -1136,7 +1136,7 @@ int main(int argc, char **argv) {
 
     if (argc < 1 || !argv[0][0]) {
         printf(NEWLINE
-               "Usage: txt2pdf <file.txt> [/s N] [/m L R T B] [/n d|p]"
+               "Usage: txt2pdf <file.txt> [/s N] [/m L R T B] [/nd|/np]"
                NEWLINE
                "  TOC: start file with '@NL' (N=depth 1-9, L=< start or > end)"
                NEWLINE);
@@ -1172,14 +1172,12 @@ int main(int argc, char **argv) {
             if (argc > 1 + arg_off) { right_mm = (unsigned)atoi(argv[1 + arg_off]); arg_off++; }
             if (argc > 1 + arg_off) { top_mm   = (unsigned)atoi(argv[1 + arg_off]); arg_off++; }
             if (argc > 1 + arg_off) { bot_mm   = (unsigned)atoi(argv[1 + arg_off]); arg_off++; }
-        } else if ((flag == 'n' || flag == 'N') && a[2] == 0) {
+        } else if ((flag == 'n' || flag == 'N') &&
+                   (a[2] == 'd' || a[2] == 'D' || a[2] == 'p' || a[2] == 'P') &&
+                   a[3] == 0) {
+            if (a[2] == 'd' || a[2] == 'D') page_num_mode = PGNUM_FULL;
+            else                             page_num_mode = PGNUM_SHORT;
             arg_off++;
-            if (argc > 1 + arg_off) {
-                char sub = argv[1 + arg_off][0];
-                if (sub == 'd' || sub == 'D') page_num_mode = PGNUM_FULL;
-                else if (sub == 'p' || sub == 'P') page_num_mode = PGNUM_SHORT;
-                arg_off++;
-            }
         } else {
             break;
         }

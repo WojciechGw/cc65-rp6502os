@@ -16,4 +16,5 @@
 #define WHITE 15
 
 #define HIGHLIGHT_COLOR "97;42m" // white (37) on red (41) or green (42)
-// #define HIGHLIGHT_COLOR "[30;47m" // black (30) on white (47)
+#define CHAR_HIGHLIGHT  "0;7m"
+#define CHAR_NORMAL     "7;0m"
