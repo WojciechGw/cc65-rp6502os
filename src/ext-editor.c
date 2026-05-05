@@ -6,7 +6,7 @@
 #include <fcntl.h>
 #include "commons.h"
 
-#define APPVER "20260505.0626"
+#define APPVER "20260505.0716"
 #define APPNAME "Editor"
 #define APP_MSG_TITLE CSI "2;1H" CSI HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " " APPNAME ANSI_DARK_GRAY CSI "2;60Hversion " APPVER ANSI_RESET
 
@@ -118,17 +118,25 @@ static void menu_print_row(uint8_t ansi_row, const char *text)
    ================================================================ */
 static void draw_title_bar(void)
 {
-
     static const char menu_line1[] = APP_MSG_TITLE;
+    uint8_t i, fn_len, line_len;
 
-    uint8_t i;
-
-    printf("\033[2;1H" );
+    printf("\033[2;1H");
     for (i = 0u; menu_line1[i]; i++) putchar((uint8_t)menu_line1[i]);
-    printf("\033[3;1H" );
-    for (i = 0u; i < 80u; i++) putchar('\xc4');
-    printf(ANSI_NORMAL);
 
+    printf("\033[3;1H");
+    if (current_filename[0]) {
+        for (fn_len = 0u; current_filename[fn_len]; fn_len++) {}
+        /* "[" + filename + "]" = fn_len + 2; leave at least 1 line char */
+        line_len = (fn_len + 2u < 79u) ? (uint8_t)(80u - fn_len - 2u) : 1u;
+        for (i = 0u; i < line_len; i++) putchar('\xc4');
+        putchar('\xb4');
+        for (i = 0u; i < fn_len; i++) putchar((uint8_t)current_filename[i]);
+        putchar('\xb3');
+    } else {
+        for (i = 0u; i < 80u; i++) putchar('\xc4');
+    }
+    printf(ANSI_NORMAL);
 }
 
 /* ================================================================
@@ -145,7 +153,7 @@ static void draw_menu_bar(const char *status)
     const char *info;
     char        row2[81];
 
-    mode_str = insert_mode ? "mode [INS] document:" : "mode [OVR] document:";
+    mode_str = insert_mode ? "mode [INS]" : "mode [OVR]";
     info     = status ? status : (current_filename[0] ? current_filename : "none");
 
     printf("\033[%d;1H", TITLE_ROWS + EDIT_ROWS + 1u);
@@ -212,20 +220,23 @@ static int menu_input(const char *prompt, char *buf, uint8_t maxlen)
 {
     uint8_t prev_ks[KEYBOARD_BYTES];
     uint8_t cur_ks[KEYBOARD_BYTES];
-    uint8_t len, k, j, code, was, now;
+    uint8_t len, pos, k, j, code, was, now, i;
     uint8_t shift, caps;
     int     done, result;
     char    ch;
+    uint8_t input_row = TITLE_ROWS + EDIT_ROWS + 4u;
 
     /* measure pre-filled content so caller can seed the buffer */
     for (len = 0u; buf[len] && len < (uint8_t)(maxlen - 1u); len++) {}
+    pos    = len;   /* cursor at end of pre-filled text */
     done   = 0;
     result = 0;
 
     for (k = 0u; k < KEYBOARD_BYTES; k++) prev_ks[k] = keystates[k];
 
     menu_print_row(TITLE_ROWS + EDIT_ROWS + 3u, prompt);
-    menu_print_row(TITLE_ROWS + EDIT_ROWS + 4u, buf);
+    menu_print_row(input_row, buf);
+    printf(ANSI_SHOW_CUR "\033[%d;%dH", (int)input_row, (int)(pos + 1u));
 
     while (!done) {
         for (k = 0u; k < KEYBOARD_BYTES; k++) {
@@ -248,26 +259,48 @@ static int menu_input(const char *prompt, char *buf, uint8_t maxlen)
                         result = 1; done = 1;
                     } else if (code == KEY_ESC) {
                         result = 0; done = 1;
+                    } else if (code == KEY_LEFT) {
+                        if (pos > 0u) pos--;
+                    } else if (code == KEY_RIGHT) {
+                        if (pos < len) pos++;
+                    } else if (code == KEY_HOME) {
+                        pos = 0u;
+                    } else if (code == KEY_END) {
+                        pos = len;
                     } else if (code == KEY_BACKSPACE) {
-                        if (len > 0u) {
+                        if (pos > 0u) {
+                            for (i = pos - 1u; i < len - 1u; i++) buf[i] = buf[i + 1u];
+                            len--;
+                            pos--;
+                            buf[len] = 0;
+                            menu_print_row(input_row, buf);
+                        }
+                    } else if (code == KEY_DELETE) {
+                        if (pos < len) {
+                            for (i = pos; i < len - 1u; i++) buf[i] = buf[i + 1u];
                             len--;
                             buf[len] = 0;
-                            menu_print_row(TITLE_ROWS + EDIT_ROWS + 4u, buf);
+                            menu_print_row(input_row, buf);
                         }
                     } else {
                         ch = keycode_to_char(code, shift, caps);
                         if (ch && len < (uint8_t)(maxlen - 1u)) {
-                            buf[len++] = ch;
-                            buf[len]   = 0;
-                            menu_print_row(TITLE_ROWS + EDIT_ROWS + 4u, buf);
+                            for (i = len; i > pos; i--) buf[i] = buf[i - 1u];
+                            buf[pos++] = ch;
+                            len++;
+                            buf[len] = 0;
+                            menu_print_row(input_row, buf);
                         }
                     }
+                    /* reposition terminal cursor after every keystroke */
+                    printf("\033[%d;%dH", (int)input_row, (int)(pos + 1u));
                 }
             }
             prev_ks[k] = cur_ks[k];
         }
     }
 
+    printf(ANSI_HIDE_CUR);
     for (k = 0u; k < KEYBOARD_BYTES; k++) keystates[k] = cur_ks[k];
     return result;
 }
@@ -689,7 +722,7 @@ static void do_copy(void)
 
     clipboard[clip_len] = 0;
     sel_active = 0u;
-    draw_menu_bar("Copied.");
+    draw_menu_bar("COPIED");
 }
 
 /* ================================================================
@@ -949,7 +982,11 @@ int main(int argc, char **argv)
                     repeat_key = 0u;
                     if (menu_input("Save: (e.g. MSC0:/dir/file.txt)", current_filename, 64u)) {
                         ok = save_file(current_filename);
+                        draw_title_bar();
                         draw_menu_bar(ok >= 0 ? "Saved." : EXCLAMATION "cannot save file");
+                        printf("\033[%d;%dH",
+                               (int)((cur.row - scroll_row) + 1u + TITLE_ROWS),
+                               (int)(cur.col + 1u));
                     } else {
                         redraw_screen();
                     }
@@ -958,7 +995,7 @@ int main(int argc, char **argv)
                     repeat_key = 0u;
                     if (menu_input("Find:", search_pattern, 32u)) {
                         if (!find_text(search_pattern)) {
-                            draw_menu_bar("Not found.");
+                            draw_menu_bar("NOT FOUND");
                         }
                     } else {
                         redraw_screen();
