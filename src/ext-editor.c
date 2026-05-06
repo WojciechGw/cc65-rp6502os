@@ -6,7 +6,7 @@
 #include <fcntl.h>
 #include "commons.h"
 
-#define APPVER "20260506.1312"
+#define APPVER "20260506.1502"
 #define APPNAME "Editor"
 #define APP_MSG_TITLE CSI "2;1H" CSI HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " " APPNAME ANSI_DARK_GRAY CSI "2;60Hversion " APPVER ANSI_RESET
 
@@ -155,6 +155,77 @@ static void menu_print_text(uint8_t ansi_row, uint8_t ansi_col, const char *text
 }
 
 /* ================================================================
+   window_draw: draws a box with semigraphic border and filled background.
+   x_pos, y_pos: 1-based terminal column/row of the top-left corner.
+   width, height: outer dimensions including the border.
+   color_fg / color_bg: ANSI SGR strings (e.g. "37m" / "44m"), or NULL.
+   window_text: prints text inside the window at (wx_pos, wy_pos) offset
+   from the inner top-left corner (1-based, clipped to inner area).
+   ================================================================ */
+static uint8_t win_x;   /* saved top-left column of last window_draw call */
+static uint8_t win_y;   /* saved top-left row    of last window_draw call */
+static uint8_t win_w;   /* saved outer width */
+static uint8_t win_h;   /* saved outer height */
+
+static void window_draw(uint8_t x_pos, uint8_t y_pos,
+                        uint8_t width, uint8_t height,
+                        const char *color_fg, const char *color_bg)
+{
+    uint8_t r, c, inner_w;
+
+    win_x = x_pos;
+    win_y = y_pos;
+    win_w = width;
+    win_h = height;
+
+    if (width < 2u || height < 2u) return;
+    inner_w = (uint8_t)(width - 2u);
+
+    for (r = 0u; r < height; r++) {
+        printf("\033[%d;%dH", (int)(y_pos + r), (int)x_pos);
+        if (color_bg) { printf(color_bg); }
+        if (color_fg) { printf(color_fg); }
+        if (r == 0u) {
+            putchar('\xDA');
+            for (c = 0u; c < inner_w; c++) putchar('\xC4');
+            putchar('\xBF');
+        } else if (r == (uint8_t)(height - 1u)) {
+            putchar('\xC0');
+            for (c = 0u; c < inner_w; c++) putchar('\xC4');
+            putchar('\xD9');
+        } else {
+            putchar('\xB3');
+            for (c = 0u; c < inner_w; c++) putchar(' ');
+            putchar('\xB3');
+        }
+    }
+    printf(ANSI_RESET CSI_CURSOR_HIDE);
+}
+
+static void window_text(const char *text,
+                        uint8_t wx_pos, uint8_t wy_pos,
+                        const char *color_fg, const char *color_bg){
+
+    uint8_t col, max_len, i;
+
+    if (win_w < 2u || win_h < 2u) return;
+    /* clamp to inner area */
+    if (wx_pos < 1u) wx_pos = 1u;
+    if (wy_pos < 1u) wy_pos = 1u;
+    if (wx_pos > (uint8_t)(win_w - 2u)) return;
+    if (wy_pos > (uint8_t)(win_h - 2u)) return;
+
+    if (color_bg) { printf(color_bg); }
+    if (color_fg) { printf(color_fg); }
+    col     = (uint8_t)(win_x + wx_pos);   /* 1-based terminal column */
+    max_len = (uint8_t)(win_w - 1u - wx_pos);
+    
+    printf("\033[%d;%dH", (int)(win_y + wy_pos), (int)col);
+    for (i = 0u; text[i] && i < max_len; i++) putchar((uint8_t)text[i]);
+    printf(ANSI_RESET);
+}
+
+/* ================================================================
    draw_title_bar: 3-row title bar at top of terminal (rows 1-3).
    Row 1: empty
    Row 2: program name, version
@@ -212,7 +283,6 @@ static void draw_menu_bar(const char *status)
     menu_print_row(TITLE_ROWS + EDIT_ROWS + 2u, row2);
 
     printf("\033[%d;1H", TITLE_ROWS + EDIT_ROWS + 1u);
-    // for (i = 0u; i < 80u; i++) putchar('\xc4');
  
     if (current_filename[0]) {
         for (fn_len = 0u; current_filename[fn_len]; fn_len++) {}
@@ -224,6 +294,12 @@ static void draw_menu_bar(const char *status)
     } else {
         for (i = 0u; i < 80u; i++) putchar('\xc4');
     }
+    {
+        char pos_buf[17];
+        sprintf(pos_buf, "row: %3d col:%-3d\xc3", (int)(cur.row + 1), (int)(cur.col + 1));
+        menu_print_text(TITLE_ROWS + EDIT_ROWS + 1u, 1u, pos_buf);
+    }
+
     printf(ANSI_NORMAL);
     
     /* unused but do not touch this
@@ -233,7 +309,7 @@ static void draw_menu_bar(const char *status)
     putchar(sel_active  ? '\x1f' : '\xfe');
 
     menu_print_row(TITLE_ROWS + EDIT_ROWS + 2u,
-        "[Ctrl+O] open [Ctrl+S] save [Ctrl+F] find [Esc] exit");
+        "[Ctrl+O] open [Ctrl+S] save [Ctrl+F] find [Ctrl+Q] exit");
     */
 
 }
@@ -1061,6 +1137,17 @@ int main(int argc, char **argv)
     cur.row    = 0u;
     cur.col    = 0u;
     scroll_row = 0u;
+    printf(OSC_CURSOR_COLOR "408040" OSC_ST ANSI_SHOW_CUR "\033[%d;1H", (int)(TITLE_ROWS + 1u));
+
+    window_draw((80u-26u)/2u, (30u-16u)/2u, 26, 16, CSI "37m", CSI "48;2;40;80;40m");
+    window_text(APPNAME, 2, 2, CSI "37m", CSI "48;2;40;80;40m");
+    window_text("for razemOS", 2, 3, CSI "37m", CSI "48;2;40;80;40m");
+    window_text("(c) 2026 by WojciechGw", 2, 14, CSI "37m", CSI "48;2;40;80;40m");
+    PAUSE(200);
+    editor_clear();
+    redraw_screen();
+    draw_title_bar();
+    draw_menu_bar(ok > 0 ? "Ready" : ok == 0 ? "FILE CREATED" : EXCLAMATION "cannot open file");
     printf(OSC_CURSOR_COLOR "408040" OSC_ST ANSI_SHOW_CUR "\033[%d;1H", (int)(TITLE_ROWS + 1u));
 
     /* capture initial mouse wheel position */
