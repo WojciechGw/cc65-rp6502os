@@ -6,7 +6,7 @@
 #include <fcntl.h>
 #include "commons.h"
 
-#define APPVER "20260506.1245"
+#define APPVER "20260506.1312"
 #define APPNAME "Editor"
 #define APP_MSG_TITLE CSI "2;1H" CSI HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " " APPNAME ANSI_DARK_GRAY CSI "2;60Hversion " APPVER ANSI_RESET
 
@@ -1016,7 +1016,7 @@ int main(int argc, char **argv)
     int     mouse_wheel_change;
     bool    handled_key;
     uint8_t k, j, new_key, new_keys, last_key;
-    uint8_t key_capslock, key_shifts, key_ctrl, key_ralt;
+    uint8_t key_capslock, key_shifts, key_ctrl, key_ralt, key_lalt;
     uint8_t max_scroll;
     int     ok;
     char    ch;
@@ -1144,6 +1144,7 @@ int main(int argc, char **argv)
         key_capslock = (uint8_t)(key(KEY_CAPSLOCK)   ? 1u : 0u);
         key_shifts   = (uint8_t)((key(KEY_LEFTSHIFT) || key(KEY_RIGHTSHIFT)) ? 1u : 0u);
         key_ctrl     = (uint8_t)((key(KEY_LEFTCTRL)  || key(KEY_RIGHTCTRL))  ? 1u : 0u);
+        key_lalt     = (uint8_t)( key(KEY_LEFTALT)                           ? 1u : 0u);
         key_ralt     = (uint8_t)( key(KEY_RIGHTALT)                          ? 1u : 0u);
 
         if (!(keystates[0] & 1u)) {
@@ -1430,10 +1431,9 @@ int main(int argc, char **argv)
                         }
                     }
 
-                /* --- ESC: exit --- */
-                } else if (key(KEY_ESC)) {
-                    // xreg_vga_canvas(GFX_CANVAS_640x480);   /* restore default console mode */
-                    // xreg(1, 0, 1, 0);
+                /* --- Alt+F4 / Ctrl+Q: exit --- */
+                } else if (key_ctrl && key(KEY_Q)) {
+                    repeat_key = 0u;
                     break;
 
                 /* --- Generic character input --- */
@@ -1503,7 +1503,10 @@ int main(int argc, char **argv)
         int i;
         while (RX_READY) i = RIA.rx;
     }
-    printf(CSI_ECHO_ON CSI_CURSOR_SHOW CSI_CLS);
+
+    xreg_vga_canvas(3);
+    xreg(1, 0, 1, 0);
+    printf(CSI_CLS CSI_ECHO_ON CSI_CURSOR_SHOW CSI_CURSOR_HOME);
     return 0;
 
 }
