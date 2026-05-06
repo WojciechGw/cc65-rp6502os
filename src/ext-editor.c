@@ -6,13 +6,14 @@
 #include <fcntl.h>
 #include "commons.h"
 
-#define APPVER "20260505.0930"
+#define APPVER "20260506.1137"
 #define APPNAME "Editor"
 #define APP_MSG_TITLE CSI "2;1H" CSI HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " " APPNAME ANSI_DARK_GRAY CSI "2;60Hversion " APPVER ANSI_RESET
 
 /* autorepeat: clock() ticks are centiseconds (1 tick = 10 ms) */
-#define REPEAT_DELAY  40u   /* 400 ms before first repeat */
-#define REPEAT_RATE    5u   /* 50 ms between repeats */
+#define REPEAT_DELAY      40u   /* 400 ms before first repeat */
+#define REPEAT_RATE        5u   /* 50 ms between repeats (default) */
+#define REPEAT_RATE_FAST   2u   /* 20 ms between repeats (arrow keys without Shift) */
 
 /* --- XRAM register addresses --- */
 #define XRAM_STRUCT_SYS_KEYBOARD 0xFF20
@@ -26,10 +27,14 @@
 #define TEXT_COLS        80u
 #define XRAM_SCRATCH     0xA200u   /* scratch for file write (82 bytes) */
 
+/* --- XRAM clipboard: up to 32 whole lines stored after text buffer --- */
+#define CLIP_BUF_BASE    0x5100u
+#define CLIP_MAX_LINES   32u
+
 /* --- Terminal dimensions (640x480, 16px font) --- */
 #define TERM_ROWS        30u
 #define TITLE_ROWS       3u    /* fixed title bar at top */
-#define MENU_ROWS        4u    /* fixed menu at bottom */
+#define MENU_ROWS        2u    /* fixed menu at bottom */
 #define EDIT_ROWS        (TERM_ROWS - TITLE_ROWS - MENU_ROWS) /* editable area */
 
 /* --- ANSI escape helpers --- */
@@ -38,6 +43,8 @@
 #define ANSI_SHOW_CUR    "\033[?25h"
 #define ANSI_REVERSE     "\033[0;7m"
 #define ANSI_NORMAL      "\033[0m"
+#define ANSI_SEL_BG      "\x1b[48;2;60;60;60m"
+#define ANSI_SEL_BG_OFF  "\x1b[49m"
 
 /* --- keyboard --- */
 #define KEYBOARD_BYTES 32
@@ -64,10 +71,16 @@ static char g_linebuf[82];
 static uint8_t insert_mode = 1u;
 static uint8_t sel_active  = 0u;
 static uint8_t sel_row     = 0u;
-static uint8_t sel_col     = 0u;
-static char    clipboard[81];
-static uint8_t clip_len    = 0u;
+static uint8_t sel_col     = 0u;   /* anchor column for char-level selection */
+#define SEL_MODE_LINE 0u
+#define SEL_MODE_CHAR 1u
+static uint8_t sel_mode    = SEL_MODE_LINE;
+static uint8_t clip_lines   = 0u;   /* number of whole rows in XRAM clipboard */
+static uint8_t clip_is_char = 0u;   /* 1 = clipboard holds char fragment, not whole rows */
 static char    line_tmp[80];
+
+static uint8_t sel_min_row(void);
+static uint8_t sel_max_row(void);
 
 /* ================================================================
    keycode_to_char: USB HID keycode -> ASCII
@@ -130,6 +143,14 @@ static void menu_print_row(uint8_t ansi_row, const char *text)
     printf(ANSI_RESET);
 }
 
+static void menu_print_text(uint8_t ansi_row, uint8_t ansi_col, const char *text)
+{
+    uint8_t i;
+    printf("\033[%d;%dH", (int)ansi_row, (int)ansi_col);
+    for (i = 0u; text[i] && i < TEXT_COLS; i++) putchar((uint8_t)text[i]);
+    printf(ANSI_RESET);
+}
+
 /* ================================================================
    draw_title_bar: 3-row title bar at top of terminal (rows 1-3).
    Row 1: empty
@@ -139,24 +160,15 @@ static void menu_print_row(uint8_t ansi_row, const char *text)
 static void draw_title_bar(void)
 {
     static const char menu_line1[] = APP_MSG_TITLE;
-    uint8_t i, fn_len, line_len;
+    uint8_t i;
 
     printf("\033[2;1H");
     for (i = 0u; menu_line1[i]; i++) putchar((uint8_t)menu_line1[i]);
 
     printf("\033[3;1H");
-    if (current_filename[0]) {
-        for (fn_len = 0u; current_filename[fn_len]; fn_len++) {}
-        /* "[" + filename + "]" = fn_len + 2; leave at least 1 line char */
-        line_len = (fn_len + 2u < 79u) ? (uint8_t)(80u - fn_len - 2u) : 1u;
-        for (i = 0u; i < line_len; i++) putchar('\xc4');
-        putchar('\xb4');
-        for (i = 0u; i < fn_len; i++) putchar((uint8_t)current_filename[i]);
-        putchar('\xb3');
-    } else {
-        for (i = 0u; i < 80u; i++) putchar('\xc4');
-    }
+    for (i = 0u; i < 80u; i++) putchar('\xc4');    
     printf(ANSI_NORMAL);
+
 }
 
 /* ================================================================
@@ -166,31 +178,61 @@ static void draw_title_bar(void)
    Row EDIT_ROWS+3: [INS]/[OVR] + status/filename
    Row EDIT_ROWS+4: MARK SET indicator
    ================================================================ */
+
+#define INFO_READY "Ready"
+#define CHAR_VBAR "\xb3"
+#define CHAR_HBAR "\xc4"
+#define MODE_INS "[INS]"
+#define MODE_OVR "[OVR]"
+#define CLIPBOARD_WITHDATA "[CLIP]"
+
 static void draw_menu_bar(const char *status)
 {
-    uint8_t     i;
+    uint8_t i, s, fn_len, line_len;
     const char *mode_str;
+    const char *clip_str;
     const char *info;
-    char        row2[81];
-
-    mode_str = insert_mode ? "mode [INS]" : "mode [OVR]";
-    info     = status ? status : (current_filename[0] ? current_filename : "none");
+    char row2[81];
+    
+    info = status ? status : INFO_READY;
+    mode_str = insert_mode ? MODE_INS : MODE_OVR;
+    clip_str = (clip_is_char > 0u || clip_lines > 0u) ? CLIPBOARD_WITHDATA : "";
+    
+    i = 0u;
+    for (; info[0] && (i < 80u); i++, info++) row2[i] = *info;
+    row2[i++] = ' ';
+    for (s = 0u; mode_str[s]; s++, i++) row2[i] = mode_str[s];
+    row2[i++] = ' ';
+    for (s = 0u; clip_str[s]; s++, i++) row2[i] = clip_str[s];
+    row2[i++] = ' ';
+    row2[i] = 0;
+    menu_print_row(TITLE_ROWS + EDIT_ROWS + 2u, row2);
 
     printf("\033[%d;1H", TITLE_ROWS + EDIT_ROWS + 1u);
-    for (i = 0u; i < 80u; i++) putchar('\xc4');
+    // for (i = 0u; i < 80u; i++) putchar('\xc4');
+ 
+    if (current_filename[0]) {
+        for (fn_len = 0u; current_filename[fn_len]; fn_len++) {}
+        line_len = (fn_len + 2u < 79u) ? (uint8_t)(80u - fn_len - 2u) : 1u;
+        for (i = 0u; i < line_len; i++) putchar('\xc4');
+        putchar('\xb4');
+        putchar(' ');
+        for (i = 0u; i < fn_len; i++) putchar((uint8_t)current_filename[i]);
+    } else {
+        for (i = 0u; i < 80u; i++) putchar('\xc4');
+    }
+    printf(ANSI_NORMAL);
+    
+    /* unused but do not touch this
+
+    putchar('\xb4');
+    putchar(insert_mode ? '\x1d' : '\x19');
+    putchar(sel_active  ? '\x1f' : '\xfe');
 
     menu_print_row(TITLE_ROWS + EDIT_ROWS + 2u,
         "[Ins] type mode [^K] mark [F5] open [F6] save [F7] find [Esc] exit");
+    */
 
-    /* compose "[INS/OVR] info..." */
-    for (i = 0u; mode_str[i]; i++) row2[i] = mode_str[i];
-    row2[i++] = ' ';
-    for (; info[0] && (i < 80u); i++, info++) row2[i] = *info;
-    row2[i] = 0;
-    menu_print_row(TITLE_ROWS + EDIT_ROWS + 3u, row2);
-
-    menu_print_row(TITLE_ROWS + EDIT_ROWS + 4u,
-        sel_active ? "MARK SET  [^C] copy [^X] cut [^K] clear" : "");
 }
 
 /* ================================================================
@@ -205,8 +247,18 @@ static void redraw_screen(void)
     printf(ANSI_HIDE_CUR ANSI_HOME);
     draw_title_bar();
     for (r = 0u; r < EDIT_ROWS; r++) {
+        uint8_t in_sel, in_char_sel;
         xrow = (uint16_t)scroll_row + r;
+        in_char_sel = sel_active && sel_mode == SEL_MODE_CHAR
+                      && (uint8_t)xrow == sel_row && (uint8_t)xrow == cur.row
+                      && xrow < content_rows;
+        in_sel = sel_active && sel_mode == SEL_MODE_LINE
+                 && (uint8_t)xrow >= sel_min_row()
+                 && (uint8_t)xrow <= sel_max_row()
+                 && xrow < content_rows;
         printf("\033[%d;1H", (int)(r + 1u + TITLE_ROWS));
+        if (in_sel)          printf(ANSI_SEL_BG);
+        else if (!in_char_sel) printf(ANSI_SEL_BG_OFF);
         if (xrow < content_rows) {
             RIA.addr1 = TEXT_BUF_BASE + xrow * TEXT_COLS;
             RIA.step1 = 1;
@@ -214,7 +266,19 @@ static void redraw_screen(void)
                 char c = (char)RIA.rw1;
                 g_linebuf[j] = c ? c : ' ';
             }
-            for (j = 0u; j < TEXT_COLS; j++) putchar((uint8_t)g_linebuf[j]);
+            if (in_char_sel) {
+                uint8_t c_from = (sel_col < cur.col) ? sel_col : cur.col;
+                uint8_t c_to   = (sel_col > cur.col) ? sel_col : cur.col;
+                for (j = 0u; j < TEXT_COLS; j++) {
+                    if (j >= c_from && j < c_to) printf(ANSI_SEL_BG);
+                    else                          printf(ANSI_SEL_BG_OFF);
+                    putchar((uint8_t)g_linebuf[j]);
+                }
+                printf(ANSI_SEL_BG_OFF);
+            } else {
+                for (j = 0u; j < TEXT_COLS; j++) putchar((uint8_t)g_linebuf[j]);
+                if (in_sel) printf(ANSI_SEL_BG_OFF);
+            }
         } else if (xrow == content_rows) {
             /* "- END of document -" centred in dark grey */
             static const char eod[] = "- End of document -";
@@ -244,7 +308,12 @@ static int menu_input(const char *prompt, char *buf, uint8_t maxlen)
     uint8_t shift, caps;
     int     done, result;
     char    ch;
-    uint8_t input_row = TITLE_ROWS + EDIT_ROWS + 4u;
+    uint8_t input_row = TITLE_ROWS + EDIT_ROWS + 2u;
+    uint8_t plen;   /* prompt length in columns */
+    uint8_t field;  /* width of input field = 80 - plen */
+
+    for (plen = 0u; prompt[plen]; plen++) {}
+    field = (plen < 79u) ? (uint8_t)(80u - plen) : 1u;
 
     /* measure pre-filled content so caller can seed the buffer */
     for (len = 0u; buf[len] && len < (uint8_t)(maxlen - 1u); len++) {}
@@ -254,9 +323,13 @@ static int menu_input(const char *prompt, char *buf, uint8_t maxlen)
 
     for (k = 0u; k < KEYBOARD_BYTES; k++) prev_ks[k] = keystates[k];
 
-    menu_print_row(TITLE_ROWS + EDIT_ROWS + 3u, prompt);
-    menu_print_row(input_row, buf);
-    printf(ANSI_SHOW_CUR "\033[%d;%dH", (int)input_row, (int)(pos + 1u));
+    /* draw prompt + input field in one row */
+    printf("\033[%d;1H", (int)input_row);
+    for (i = 0u; i < plen; i++) putchar((uint8_t)prompt[i]);
+    for (i = 0u; buf[i] && i < field; i++) putchar((uint8_t)buf[i]);
+    for (; i < field; i++) putchar(' ');
+    printf(ANSI_RESET ANSI_SHOW_CUR "\033[%d;%dH",
+           (int)input_row, (int)(plen + pos + 1u));
 
     while (!done) {
         for (k = 0u; k < KEYBOARD_BYTES; k++) {
@@ -293,27 +366,33 @@ static int menu_input(const char *prompt, char *buf, uint8_t maxlen)
                             len--;
                             pos--;
                             buf[len] = 0;
-                            menu_print_row(input_row, buf);
+                            printf("\033[%d;%dH", (int)input_row, (int)(plen + 1u));
+                            for (i = 0u; buf[i] && i < field; i++) putchar((uint8_t)buf[i]);
+                            for (; i < field; i++) putchar(' ');
                         }
                     } else if (code == KEY_DELETE) {
                         if (pos < len) {
                             for (i = pos; i < len - 1u; i++) buf[i] = buf[i + 1u];
                             len--;
                             buf[len] = 0;
-                            menu_print_row(input_row, buf);
+                            printf("\033[%d;%dH", (int)input_row, (int)(plen + 1u));
+                            for (i = 0u; buf[i] && i < field; i++) putchar((uint8_t)buf[i]);
+                            for (; i < field; i++) putchar(' ');
                         }
                     } else {
                         ch = keycode_to_char(code, shift, caps, 0u);
-                        if (ch && len < (uint8_t)(maxlen - 1u)) {
+                        if (ch && len < (uint8_t)(maxlen - 1u) && len < field) {
                             for (i = len; i > pos; i--) buf[i] = buf[i - 1u];
                             buf[pos++] = ch;
                             len++;
                             buf[len] = 0;
-                            menu_print_row(input_row, buf);
+                            printf("\033[%d;%dH", (int)input_row, (int)(plen + 1u));
+                            for (i = 0u; buf[i] && i < field; i++) putchar((uint8_t)buf[i]);
+                            for (; i < field; i++) putchar(' ');
                         }
                     }
                     /* reposition terminal cursor after every keystroke */
-                    printf("\033[%d;%dH", (int)input_row, (int)(pos + 1u));
+                    printf("\033[%d;%dH", (int)input_row, (int)(plen + pos + 1u));
                 }
             }
             prev_ks[k] = cur_ks[k];
@@ -754,104 +833,161 @@ static void do_enter(void)
 }
 
 /* ================================================================
-   do_copy: copies selection or current line to clipboard.
+   sel_min_row / sel_max_row: first and last selected row (anchor..cursor).
+   ================================================================ */
+static uint8_t sel_min_row(void) { return sel_row < cur.row ? sel_row : cur.row; }
+static uint8_t sel_max_row(void) { return sel_row > cur.row ? sel_row : cur.row; }
+
+/* ================================================================
+   do_copy: copies selected rows (or current row) into XRAM clipboard.
+   Stores whole lines; clip_lines = number of lines saved.
    ================================================================ */
 static void do_copy(void)
 {
-    uint8_t i, start_col, end_col;
+    uint8_t r, j, from, to;
 
-    if (sel_active && sel_row == cur.row) {
-        if (sel_col < cur.col) { start_col = sel_col; end_col = cur.col; }
-        else                   { start_col = cur.col; end_col = sel_col; }
-        clip_len = (uint8_t)(end_col - start_col);
-        if (clip_len > TEXT_COLS) clip_len = (uint8_t)TEXT_COLS;
-        RIA.addr1 = TEXT_BUF_BASE + (uint16_t)cur.row * TEXT_COLS + start_col;
+    if (sel_active && sel_mode == SEL_MODE_CHAR) {
+        uint8_t c_from = (sel_col < cur.col) ? sel_col : cur.col;
+        uint8_t c_to   = (sel_col > cur.col) ? sel_col : cur.col;
+        uint8_t len    = (uint8_t)(c_to - c_from);
+        if (len == 0u) { sel_active = 0u; return; }
+        clip_lines   = 1u;
+        clip_is_char = 1u;
+        RIA.addr0 = CLIP_BUF_BASE; RIA.step0 = 1;
+        for (j = 0u; j < TEXT_COLS; j++) RIA.rw0 = ' ';
+        RIA.addr1 = TEXT_BUF_BASE + (uint16_t)cur.row * TEXT_COLS + c_from;
         RIA.step1 = 1;
-        for (i = 0u; i < clip_len; i++) clipboard[i] = (char)RIA.rw1;
-    } else {
-        RIA.addr1 = TEXT_BUF_BASE + (uint16_t)cur.row * TEXT_COLS;
-        RIA.step1 = 1;
-        for (i = 0u; i < TEXT_COLS; i++) clipboard[i] = (char)RIA.rw1;
-        clip_len = (uint8_t)TEXT_COLS;
-        while (clip_len > 0u && clipboard[clip_len - 1u] == ' ') clip_len--;
+        for (j = 0u; j < len; j++) {
+            RIA.addr0 = CLIP_BUF_BASE + j; RIA.step0 = 0;
+            RIA.rw0   = RIA.rw1;
+        }
+        sel_active = 0u;
+        redraw_screen();
+        draw_menu_bar("Copied");
+        return;
     }
 
-    clipboard[clip_len] = 0;
+    clip_is_char = 0u;
+    from = sel_active ? sel_min_row() : cur.row;
+    to   = sel_active ? sel_max_row() : cur.row;
+    if (to >= (uint8_t)content_rows) to = (uint8_t)(content_rows > 0u ? content_rows - 1u : 0u);
+
+    clip_lines = (uint8_t)(to - from + 1u);
+    if (clip_lines > CLIP_MAX_LINES) clip_lines = (uint8_t)CLIP_MAX_LINES;
+
+    for (r = 0u; r < clip_lines; r++) {
+        RIA.addr1 = TEXT_BUF_BASE + (uint16_t)(from + r) * TEXT_COLS;
+        RIA.step1 = 1;
+        RIA.addr0 = CLIP_BUF_BASE + (uint16_t)r * TEXT_COLS;
+        RIA.step0 = 0;
+        for (j = 0u; j < TEXT_COLS; j++) {
+            RIA.addr0 = CLIP_BUF_BASE + (uint16_t)r * TEXT_COLS + j;
+            RIA.rw0   = RIA.rw1;
+        }
+    }
+
     sel_active = 0u;
-    draw_menu_bar("TEXT COPIED");
+    redraw_screen();
+    draw_menu_bar("Copied");
 }
 
 /* ================================================================
-   do_cut: copies to clipboard then clears the source region.
+   do_cut: copies selected rows to clipboard, then removes them.
    ================================================================ */
 static void do_cut(void)
 {
-    uint8_t i, was_sel, saved_sel_row, cut_start, cut_end;
+    uint8_t from, to, n, i;
 
-    was_sel       = sel_active;
-    saved_sel_row = sel_row;
-    if (sel_col < cur.col) { cut_start = sel_col; cut_end = cur.col; }
-    else                   { cut_start = cur.col; cut_end = sel_col; }
-
-    do_copy();
-
-    if (was_sel && saved_sel_row == cur.row && cut_start < cut_end) {
-        RIA.addr0 = TEXT_BUF_BASE + (uint16_t)cur.row * TEXT_COLS + cut_start;
-        RIA.step0 = 1;
-        for (i = cut_start; i < cut_end; i++) RIA.rw0 = ' ';
-        cur.col = cut_start;
-    } else {
-        RIA.addr0 = TEXT_BUF_BASE + (uint16_t)cur.row * TEXT_COLS;
-        RIA.step0 = 1;
-        for (i = 0u; i < TEXT_COLS; i++) RIA.rw0 = ' ';
-        cur.col = 0u;
+    if (sel_active && sel_mode == SEL_MODE_CHAR) {
+        uint8_t c_from = (sel_col < cur.col) ? sel_col : cur.col;
+        uint8_t c_to   = (sel_col > cur.col) ? sel_col : cur.col;
+        uint8_t len    = (uint8_t)(c_to - c_from);
+        uint8_t j;
+        if (len == 0u) { sel_active = 0u; return; }
+        do_copy();   /* clears sel_active */
+        for (j = 0u; j < len; j++) line_shift_left(cur.row, (uint8_t)(c_from + 1u));
+        cur.col = c_from;
+        redraw_screen();
+        draw_menu_bar("Cut");
+        return;
     }
+
+    from = sel_active ? sel_min_row() : cur.row;
+    to   = sel_active ? sel_max_row() : cur.row;
+    if (to >= (uint8_t)content_rows) to = (uint8_t)(content_rows > 0u ? content_rows - 1u : 0u);
+    n    = (uint8_t)(to - from + 1u);
+
+    do_copy();   /* saves sel_active; clears it after */
+
+    /* shift rows up n times starting from 'from' */
+    for (i = 0u; i < n; i++) rows_shift_up(from);
+
+    cur.row = from;
+    if (cur.row >= (uint8_t)content_rows && content_rows > 0u)
+        cur.row = (uint8_t)(content_rows - 1u);
+    cur.col = 0u;
+    if (cur.row < scroll_row) scroll_row = cur.row;
+
     redraw_screen();
-    draw_menu_bar("TEXT CUT");
+    draw_menu_bar("CUT");
 }
 
 /* ================================================================
-   do_paste: inserts or overwrites clipboard text at cursor.
+   do_paste: inserts clipboard rows before cur.row.
    ================================================================ */
 static void do_paste(void)
 {
-    uint8_t  i, paste_len, save_len;
-    uint16_t base;
+    uint8_t r, j, start_row;
 
-    if (clip_len == 0u) return;
+    if (clip_lines == 0u) return;
 
-    paste_len = clip_len;
-    if ((uint16_t)cur.col + paste_len > TEXT_COLS)
-        paste_len = (uint8_t)(TEXT_COLS - cur.col);
-
-    base = TEXT_BUF_BASE + (uint16_t)cur.row * TEXT_COLS + cur.col;
-
-    if (insert_mode) {
-        save_len = (uint8_t)((uint16_t)cur.col + paste_len < TEXT_COLS
-                             ? TEXT_COLS - cur.col - paste_len : 0u);
-        if (save_len > 0u) {
-            RIA.addr1 = base;
-            RIA.step1 = 1;
-            for (i = 0u; i < save_len; i++) line_tmp[i] = (char)RIA.rw1;
+    if (clip_is_char) {
+        uint8_t len, cur_len;
+        len = 0u;
+        for (j = 0u; j < TEXT_COLS; j++) {
+            RIA.addr1 = CLIP_BUF_BASE + j; RIA.step1 = 0;
+            if ((char)RIA.rw1 != ' ') len = (uint8_t)(j + 1u);
         }
-        RIA.addr0 = base;
-        RIA.step0 = 1;
-        for (i = 0u; i < paste_len; i++) RIA.rw0 = (uint8_t)clipboard[i];
-        if (save_len > 0u) {
-            RIA.addr0 = base + (uint16_t)paste_len;
-            RIA.step0 = 1;
-            for (i = 0u; i < save_len; i++) RIA.rw0 = (uint8_t)line_tmp[i];
+        cur_len = line_text_len(cur.row);
+        for (j = 0u; j < len; j++) {
+            if ((uint16_t)cur_len + 1u <= (uint16_t)TEXT_COLS) {
+                line_shift_right(cur.row, cur.col);
+                { uint8_t ch;
+                  RIA.addr1 = CLIP_BUF_BASE + j; RIA.step1 = 0;
+                  ch = RIA.rw1;
+                  RIA.addr0 = TEXT_BUF_BASE + (uint16_t)cur.row * TEXT_COLS + cur.col;
+                  RIA.step0 = 0;
+                  RIA.rw0   = ch;
+                }
+                cur.col++;
+                cur_len++;
+            }
         }
-    } else {
-        RIA.addr0 = base;
-        RIA.step0 = 1;
-        for (i = 0u; i < paste_len; i++) RIA.rw0 = (uint8_t)clipboard[i];
+        if ((uint16_t)(cur.row + 1u) > content_rows)
+            content_rows = (uint16_t)(cur.row + 1u);
+        redraw_screen();
+        draw_menu_bar("Pasted");
+        return;
     }
 
-    cur.col = (uint8_t)(cur.col + paste_len);
-    if (cur.col >= TEXT_COLS) cur.col = (uint8_t)(TEXT_COLS - 1u);
+    start_row = cur.row;
+    for (r = 0u; r < clip_lines; r++) {
+        if (content_rows >= 255u) break;
+        rows_shift_down((uint8_t)(start_row + r));
+        content_rows++;
+        RIA.addr0 = TEXT_BUF_BASE + (uint16_t)(start_row + r) * TEXT_COLS;
+        RIA.step0 = 1;
+        for (j = 0u; j < TEXT_COLS; j++) {
+            RIA.addr1 = CLIP_BUF_BASE + (uint16_t)r * TEXT_COLS + j;
+            RIA.step1 = 0;
+            RIA.rw0   = RIA.rw1;
+        }
+    }
+
+    cur.row = start_row;
+    cur.col = 0u;
     redraw_screen();
-    draw_menu_bar(NULL);
+    draw_menu_bar("PASTED");
 }
 
 /* ================================================================
@@ -887,8 +1023,9 @@ int main(int argc, char **argv)
     sel_active          = 0u;
     sel_row             = 0u;
     sel_col             = 0u;
-    clip_len            = 0u;
-    clipboard[0]        = 0;
+    sel_mode            = SEL_MODE_LINE;
+    clip_lines          = 0u;
+    clip_is_char        = 0u;
     repeat_key          = 0u;
     repeat_start        = 0;
     repeat_last         = 0;
@@ -976,9 +1113,14 @@ int main(int argc, char **argv)
         /* --- autorepeat: fire again if key held long enough --- */
         if (repeat_key) {
             if (key(repeat_key)) {
-                clock_t now = clock();
+                clock_t now  = clock();
+                uint8_t rate = REPEAT_RATE;
+                if (!key_shifts &&
+                    (repeat_key == KEY_LEFT || repeat_key == KEY_RIGHT ||
+                     repeat_key == KEY_UP   || repeat_key == KEY_DOWN))
+                    rate = REPEAT_RATE_FAST;
                 if ((now - repeat_start) >= (clock_t)REPEAT_DELAY &&
-                    (now - repeat_last)  >= (clock_t)REPEAT_RATE) {
+                    (now - repeat_last)  >= (clock_t)rate) {
                     last_key    = repeat_key;
                     handled_key = false;
                     repeat_last = now;
@@ -997,18 +1139,7 @@ int main(int argc, char **argv)
             if (!handled_key) {
 
                 /* --- Ctrl+key combos (no autorepeat) --- */
-                if (key_ctrl && key(KEY_K)) {
-                    repeat_key = 0u;
-                    if (sel_active && sel_row == cur.row && sel_col == cur.col) {
-                        sel_active = 0u;
-                    } else {
-                        sel_active = 1u;
-                        sel_row    = cur.row;
-                        sel_col    = cur.col;
-                    }
-                    draw_menu_bar(NULL);
-
-                } else if (key_ctrl && key(KEY_C)) {
+                if (key_ctrl && key(KEY_C)) {
                     repeat_key = 0u;
                     do_copy();
 
@@ -1028,7 +1159,7 @@ int main(int argc, char **argv)
 
                 /* --- File / Search dialogs (no autorepeat) --- */
                 } else if (key(KEY_F5)) {
-                    if (menu_input("Open: (e.g. MSC0:/dir/file.txt)", current_filename, 64u)) {
+                    if (menu_input("OPEN path/filename : ", current_filename, 64u)) {
                         ok = load_file(current_filename);
                         draw_menu_bar(ok >= 0 ? current_filename : EXCLAMATION "cannot open file");
                     } else {
@@ -1037,7 +1168,7 @@ int main(int argc, char **argv)
 
                 } else if (key(KEY_F6)) {
                     repeat_key = 0u;
-                    if (menu_input("Save: (e.g. MSC0:/dir/file.txt)", current_filename, 64u)) {
+                    if (menu_input("SAVE path/filename : ", current_filename, 64u)) {
                         ok = save_file(current_filename);
                         draw_title_bar();
                         draw_menu_bar(ok >= 0 ? "FILE SAVED" : EXCLAMATION "cannot save file");
@@ -1050,7 +1181,7 @@ int main(int argc, char **argv)
 
                 } else if (key(KEY_F7)) {
                     repeat_key = 0u;
-                    if (menu_input("Find:", search_pattern, 32u)) {
+                    if (menu_input("FIND pattern : ", search_pattern, 32u)) {
                         if (!find_text(search_pattern)) {
                             draw_menu_bar("TEXT NOT FOUND");
                         }
@@ -1060,65 +1191,122 @@ int main(int argc, char **argv)
 
                 /* --- Cursor movement --- */
                 } else if (key(KEY_LEFT)) {
-                    if (cur.col > 0u) {
-                        cur.col--;
-                    } else if (cur.row > 0u) {
-                        cur.row--;
-                        cur.col = line_text_len(cur.row);
-                        if (cur.row < scroll_row) {
-                            scroll_row = cur.row;
-                            redraw_screen();
+                    if (key_shifts) {
+                        if (!sel_active) { sel_active = 1u; sel_row = cur.row; sel_col = cur.col; }
+                        sel_mode = SEL_MODE_CHAR;
+                        if (cur.col > 0u) {
+                            cur.col--;
+                        } else if (cur.row > 0u) {
+                            cur.row--;
+                            cur.col = line_text_len(cur.row);
+                            if (cur.row != sel_row) sel_active = 0u;
+                            if (cur.row < scroll_row) scroll_row = cur.row;
                         }
-                    }
-                    target_col = cur.col;
-
-                } else if (key(KEY_RIGHT)) {
-                    { uint8_t lim = line_text_len(cur.row);
-                      if (cur.col < lim) {
-                          cur.col++;
-                      } else if ((uint16_t)cur.row < content_rows) {
-                          cur.row++;
-                          cur.col = 0u;
-                          if ((uint8_t)(cur.row - scroll_row) >= EDIT_ROWS) {
-                              scroll_row = (uint8_t)(cur.row - EDIT_ROWS + 1u);
-                              redraw_screen();
-                          }
-                      }
-                    }
-                    target_col = cur.col;
-
-                } else if (key(KEY_UP)) {
-                    if (repeat_key == KEY_UP && last_key == KEY_UP) {
-                        /* continuing vertical move — keep target_col */
+                        target_col = cur.col;
+                        redraw_screen();
                     } else {
+                        if (sel_active) { sel_active = 0u; redraw_screen(); }
+                        if (cur.col > 0u) {
+                            cur.col--;
+                        } else if (cur.row > 0u) {
+                            cur.row--;
+                            cur.col = line_text_len(cur.row);
+                            if (cur.row < scroll_row) { scroll_row = cur.row; redraw_screen(); }
+                        }
                         target_col = cur.col;
                     }
-                    if (cur.row > 0u) {
-                        cur.row--;
+
+                } else if (key(KEY_RIGHT)) {
+                    if (key_shifts) {
+                        if (!sel_active) { sel_active = 1u; sel_row = cur.row; sel_col = cur.col; }
+                        sel_mode = SEL_MODE_CHAR;
                         { uint8_t lim = line_text_len(cur.row);
-                          cur.col = (target_col <= lim) ? target_col : lim;
+                          if (cur.col < lim) {
+                              cur.col++;
+                          } else if ((uint16_t)cur.row < content_rows) {
+                              cur.row++;
+                              cur.col = 0u;
+                              if (cur.row != sel_row) sel_active = 0u;
+                              if ((uint8_t)(cur.row - scroll_row) >= EDIT_ROWS)
+                                  scroll_row = (uint8_t)(cur.row - EDIT_ROWS + 1u);
+                          }
                         }
-                        if (cur.row < scroll_row) {
-                            scroll_row = cur.row;
-                            redraw_screen();
+                        target_col = cur.col;
+                        redraw_screen();
+                    } else {
+                        if (sel_active) { sel_active = 0u; redraw_screen(); }
+                        { uint8_t lim = line_text_len(cur.row);
+                          if (cur.col < lim) {
+                              cur.col++;
+                          } else if ((uint16_t)cur.row < content_rows) {
+                              cur.row++;
+                              cur.col = 0u;
+                              if ((uint8_t)(cur.row - scroll_row) >= EDIT_ROWS) {
+                                  scroll_row = (uint8_t)(cur.row - EDIT_ROWS + 1u);
+                                  redraw_screen();
+                              }
+                          }
+                        }
+                        target_col = cur.col;
+                    }
+
+                } else if (key(KEY_UP)) {
+                    if (key_shifts) {
+                        if (!sel_active) { sel_active = 1u; sel_row = cur.row; }
+                        sel_mode = SEL_MODE_LINE;
+                        if (repeat_key == KEY_UP && last_key == KEY_UP) {
+                        } else { target_col = cur.col; }
+                        if (cur.row > 0u) {
+                            cur.row--;
+                            { uint8_t lim = line_text_len(cur.row);
+                              cur.col = (target_col <= lim) ? target_col : lim;
+                            }
+                            if (cur.row < scroll_row) scroll_row = cur.row;
+                        }
+                        redraw_screen();
+                    } else {
+                        if (sel_active) { sel_active = 0u; redraw_screen(); }
+                        if (repeat_key == KEY_UP && last_key == KEY_UP) {
+                        } else { target_col = cur.col; }
+                        if (cur.row > 0u) {
+                            cur.row--;
+                            { uint8_t lim = line_text_len(cur.row);
+                              cur.col = (target_col <= lim) ? target_col : lim;
+                            }
+                            if (cur.row < scroll_row) { scroll_row = cur.row; redraw_screen(); }
                         }
                     }
 
                 } else if (key(KEY_DOWN)) {
-                    if (repeat_key == KEY_DOWN && last_key == KEY_DOWN) {
-                        /* continuing vertical move — keep target_col */
-                    } else {
-                        target_col = cur.col;
-                    }
-                    if ((uint16_t)cur.row < content_rows) {
-                        cur.row++;
-                        { uint8_t lim = (cur.row < content_rows)
-                                        ? line_text_len(cur.row) : 0u;
-                          cur.col = (target_col <= lim) ? target_col : lim;
+                    if (key_shifts) {
+                        if (!sel_active) { sel_active = 1u; sel_row = cur.row; }
+                        sel_mode = SEL_MODE_LINE;
+                        if (repeat_key == KEY_DOWN && last_key == KEY_DOWN) {
+                        } else { target_col = cur.col; }
+                        if ((uint16_t)cur.row < content_rows) {
+                            cur.row++;
+                            { uint8_t lim = (cur.row < content_rows)
+                                            ? line_text_len(cur.row) : 0u;
+                              cur.col = (target_col <= lim) ? target_col : lim;
+                            }
+                            if ((uint8_t)(cur.row - scroll_row) >= EDIT_ROWS)
+                                scroll_row = (uint8_t)(cur.row - EDIT_ROWS + 1u);
                         }
-                        if ((uint8_t)(cur.row - scroll_row) >= EDIT_ROWS) {
-                            scroll_row = (uint8_t)(cur.row - EDIT_ROWS + 1u);
-                            redraw_screen();
+                        redraw_screen();
+                    } else {
+                        if (sel_active) { sel_active = 0u; redraw_screen(); }
+                        if (repeat_key == KEY_DOWN && last_key == KEY_DOWN) {
+                        } else { target_col = cur.col; }
+                        if ((uint16_t)cur.row < content_rows) {
+                            cur.row++;
+                            { uint8_t lim = (cur.row < content_rows)
+                                            ? line_text_len(cur.row) : 0u;
+                              cur.col = (target_col <= lim) ? target_col : lim;
+                            }
+                            if ((uint8_t)(cur.row - scroll_row) >= EDIT_ROWS) {
+                                scroll_row = (uint8_t)(cur.row - EDIT_ROWS + 1u);
+                                redraw_screen();
+                            }
                         }
                     }
 
