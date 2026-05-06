@@ -5,6 +5,8 @@
 #define CSI_CURSOR_SHOW CSI "?25h"
 #define CSI_CURSOR_HIDE CSI "?25l"
 #define CSI_CURSOR_HOME CSI "1;1H"
+#define CSI_ECHO_OFF    CSI "12h"   /* SRM: terminal stops echoing TX back to RX */
+#define CSI_ECHO_ON     CSI "12l"   /* SRM: restore echo */
 
 #define OSC CSI_ESC "]"
 #define OSC_DEFAULT_COLORFG OSC "10;#"
