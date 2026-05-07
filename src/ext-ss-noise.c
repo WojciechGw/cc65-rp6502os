@@ -12,7 +12,7 @@
 
 #include "commons.h"
 
-#define APPVER "20260504.0519"
+#define APPVER "20260507.1642"
 
 #define FONTDIR "ROM:"
 
@@ -211,7 +211,10 @@ int main(int argc, char **argv)
             keystates[i] = RIA.rw0;
         }
 
-        if (key(KEY_ESC)) break;
+        if (key(KEY_ESC)){
+            flush_rx();
+            break;
+        }
 
         /* --- update random cells --- */
         for (i = 0; i < UPDATES_PER_FRAME; i++) {

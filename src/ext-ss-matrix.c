@@ -12,7 +12,7 @@
 
 #include "commons.h"
 
-#define APPVER "20260504.0519"
+#define APPVER "20260507.1641"
 
 #define FONTDIR "ROM:"
 
@@ -182,7 +182,7 @@ int main(int argc, char **argv)
                NEWLINE
                "Mode 1 Character — 80x60, direct XRAM" NEWLINE
                NEWLINE
-               "press ESC to exit" NEWLINE
+               "press [Esc] to exit" NEWLINE
                NEWLINE);
         return 0;
     }
@@ -211,7 +211,10 @@ int main(int argc, char **argv)
             keystates[i] = RIA.rw0;
         }
 
-        if (key(KEY_ESC)) break;
+        if (key(KEY_ESC)){
+            flush_rx();
+            break;
+        }
 
         /* --- update and draw each drop stream --- */
         for (di = 0; di < N_DROPS; di++) {

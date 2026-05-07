@@ -176,7 +176,7 @@ def _upload_ctx(
             port = _open_serial(port_name, baudrate)
             try:
                 time.sleep(0.2)
-                _send_and_wait(port, "cls", "cls", ">")
+                # _send_and_wait(port, "cls", "cls", ">")
             finally:
                 port.close()
         except (SerialException, OSError, RuntimeError):

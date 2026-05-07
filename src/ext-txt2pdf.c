@@ -24,7 +24,7 @@
 
 #include "commons.h"
 
-#define APPVER "20260504.1713"
+#define APPVER "20260507.1635"
 
 /* ---- compile-time constants ---------------------------------------------- */
 
