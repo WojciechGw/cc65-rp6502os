@@ -6,7 +6,7 @@
 #include <fcntl.h>
 #include "commons.h"
 
-#define APPVER "20260506.1502"
+#define APPVER "20260506.1512"
 #define APPNAME "Editor"
 #define APP_MSG_TITLE CSI "2;1H" CSI HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " " APPNAME ANSI_DARK_GRAY CSI "2;60Hversion " APPVER ANSI_RESET
 
@@ -293,11 +293,6 @@ static void draw_menu_bar(const char *status)
         for (i = 0u; i < fn_len; i++) putchar((uint8_t)current_filename[i]);
     } else {
         for (i = 0u; i < 80u; i++) putchar('\xc4');
-    }
-    {
-        char pos_buf[17];
-        sprintf(pos_buf, "row: %3d col:%-3d\xc3", (int)(cur.row + 1), (int)(cur.col + 1));
-        menu_print_text(TITLE_ROWS + EDIT_ROWS + 1u, 1u, pos_buf);
     }
 
     printf(ANSI_NORMAL);
@@ -1578,6 +1573,15 @@ int main(int argc, char **argv)
                        (int)((cur.row - scroll_row) + 1u + TITLE_ROWS),
                        (int)(cur.col + 1u));
                 handled_key = true;
+                // show current cursor position
+                {
+                    char pos_buf[17];
+                    sprintf(pos_buf, "row: %03d col:%03d\xc3", (int)(cur.row + 1), (int)(cur.col + 1));
+                    printf(CSI "s");
+                    menu_print_text(TITLE_ROWS + EDIT_ROWS + 1u, 1u, pos_buf);
+                    printf(CSI "u");
+                }
+
             }
         } else {
             handled_key = false;

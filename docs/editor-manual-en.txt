@@ -1,0 +1,227 @@
+================================================================================
+  Editor - Text Editor for razemOS
+  Picocomputer 6502 (RP6502)
+================================================================================
+
+  TABLE OF CONTENTS
+
+   1. Invocation
+   2. Interface Layout
+   3. Navigation
+   4. Editing
+   5. Selection
+   6. Clipboard (Copy / Cut / Paste)
+   7. Find
+   8. File Operations
+   9. Polish Characters
+  10. Limits
+
+--------------------------------------------------------------------------------
+
+Editor is a full-screen text editor for razemOS running on the Picocomputer
+RP6502. It operates on a 30x80 character terminal (640x480, 16 px font) and
+stores the document in XRAM for fast access.
+
+--------------------------------------------------------------------------------
+1. INVOCATION
+--------------------------------------------------------------------------------
+
+  editor [filename]
+
+  Parameters:
+    filename   - file to open at startup (optional)
+                 If omitted, a new document named "Editor-NewDocument.txt"
+                 is created.
+
+  Examples:
+    editor                       (new document)
+    editor MSC0:/notes.txt       (open existing file or create new)
+
+  On startup a brief splash screen is shown. The status bar then reports
+  "Ready" (file loaded), "FILE CREATED" (new file), or an error message.
+
+--------------------------------------------------------------------------------
+2. INTERFACE LAYOUT
+--------------------------------------------------------------------------------
+
+  Row  1-3  : Title bar — application name and version
+  Row  4-28 : Edit area — 25 visible rows of text (scrollable)
+  Row 29    : Status line — edit mode, clipboard flag, cursor position
+  Row 30    : Filename line
+
+  Status line indicators:
+
+    [INS]    Current mode is Insert (default). New characters shift
+             existing text to the right.
+    [OVR]    Current mode is Overwrite. New characters replace existing
+             text in place.
+    [CLIP]   Clipboard contains data ready to paste.
+    row: NNN col: NNN
+             Current cursor position (1-based).
+
+  The edit area scrolls vertically when the cursor moves outside the
+  visible 25-row window. "- End of document -" is shown after the last
+  line of text.
+
+--------------------------------------------------------------------------------
+3. NAVIGATION
+--------------------------------------------------------------------------------
+
+  Key                    Action
+  ---------------------  -------------------------------------------------------
+  Left / Right           Move cursor one character left / right
+  Up / Down              Move cursor one line up / down
+  Home                   Move to start of current line (column 1)
+  End                    Move to end of text on current line
+  Page Up                Scroll up 25 rows
+  Page Down              Scroll down 25 rows
+  Ctrl+Shift+Home        Jump to start of document (row 1, column 1)
+  Ctrl+Shift+End         Jump to end of document (last row)
+  Mouse wheel up         Scroll view up
+  Mouse wheel down       Scroll view down
+
+  Arrow keys auto-repeat: a short delay (400 ms) precedes the first
+  repeat, then keys fire every 20 ms (arrows without Shift) or 50 ms
+  (all other repeating keys).
+
+--------------------------------------------------------------------------------
+4. EDITING
+--------------------------------------------------------------------------------
+
+  Key                    Action
+  ---------------------  -------------------------------------------------------
+  Printable character    Insert character at cursor (INS) or overwrite (OVR)
+  Insert                 Toggle between Insert and Overwrite modes
+  Enter / KP Enter       Split line at cursor; text after cursor becomes a new
+                         line below
+  Backspace              Delete character before cursor; if at column 1, join
+                         current line with the line above
+  Delete                 Delete character at cursor; if at end of line, join
+                         current line with the line below
+
+  Auto-wrap: when inserting a character pushes text beyond column 80, the
+  overflow character wraps to the beginning of the next line. Wrap only
+  occurs when the document has fewer than 256 rows.
+
+--------------------------------------------------------------------------------
+5. SELECTION
+--------------------------------------------------------------------------------
+
+  Key                    Action
+  ---------------------  -------------------------------------------------------
+  Shift+Left / Right     Start or extend a character selection
+  Shift+Up / Down        Start or extend a line selection
+
+  Selected text is highlighted with a gray background.
+
+  Character selection: selects a range of characters within lines, anchored
+  at the position where Shift was first pressed.
+
+  Line selection: selects whole lines, anchored at the line where Shift was
+  first pressed. This mode is used by Copy and Cut.
+
+  Any cursor movement without Shift cancels the active selection.
+
+--------------------------------------------------------------------------------
+6. CLIPBOARD (COPY / CUT / PASTE)
+--------------------------------------------------------------------------------
+
+  Key                    Action
+  ---------------------  -------------------------------------------------------
+  Ctrl+C                 Copy selection to clipboard (copies current line if
+                         no selection is active)
+  Ctrl+X                 Cut selection (copy then delete selected lines)
+  Ctrl+V                 Paste clipboard contents before the current line
+
+  The clipboard holds up to 32 whole lines. The [CLIP] indicator in the
+  status bar is shown whenever the clipboard contains data.
+
+  Status messages after clipboard operations: "Copied", "Cut", "Pasted".
+
+--------------------------------------------------------------------------------
+7. FIND
+--------------------------------------------------------------------------------
+
+  Key                    Action
+  ---------------------  -------------------------------------------------------
+  Ctrl+F                 Open the Find prompt
+
+  Usage:
+    1. Press Ctrl+F. A "FIND pattern :" prompt appears at the bottom.
+    2. Type the search pattern (max 32 characters) and press Enter.
+       Press Esc to cancel.
+    3. The editor searches forward from the current cursor position and
+       wraps around to the beginning of the document if needed.
+    4. When a match is found the cursor moves to it and the view scrolls
+       to place the match near the centre of the edit area.
+    5. Press Ctrl+F again (same pattern accepted by pressing Enter) to
+       find the next occurrence.
+
+  Find is case-sensitive. If no match exists, "TEXT NOT FOUND" is shown.
+
+--------------------------------------------------------------------------------
+8. FILE OPERATIONS
+--------------------------------------------------------------------------------
+
+  Key                    Action
+  ---------------------  -------------------------------------------------------
+  Ctrl+O                 Open a file
+  Ctrl+S                 Save the current document
+  Ctrl+Q                 Exit the editor
+
+  Open (Ctrl+O):
+    A prompt "OPEN path/filename :" appears at the bottom (max 64 chars).
+    Press Enter to confirm, Esc to cancel.
+    - If the file exists it is loaded into the editor.
+    - If the file does not exist it is created and "FILE CREATED" is shown.
+    - On error "cannot open file" is shown.
+    The current document is discarded when a new file is opened.
+
+  Save (Ctrl+S):
+    A prompt "SAVE path/filename :" appears, pre-filled with the current
+    filename. Press Enter to confirm, Esc to cancel.
+    - Trailing spaces are stripped from each line before writing.
+    - Each line is terminated with a newline character (\n).
+    - On success "FILE SAVED" is shown; on error "cannot save file".
+
+  Exit (Ctrl+Q):
+    Closes the editor immediately and returns to the shell. Unsaved changes
+    are lost — save with Ctrl+S before quitting.
+
+  File paths use the razemOS filesystem notation, e.g.:
+    MSC0:/documents/notes.txt
+
+--------------------------------------------------------------------------------
+9. POLISH CHARACTERS
+--------------------------------------------------------------------------------
+
+  Polish diacritics are entered with Right Alt held together with a letter
+  key. Case follows the Shift and CapsLock state.
+
+  Right Alt + key    Uppercase    Lowercase
+  -----------------  -----------  ---------
+  A                  Ą            ą
+  C                  Ć            ć
+  E                  Ę            ę
+  L                  Ł            ł
+  N                  Ń            ń
+  O                  Ó            ó
+  S                  Ś            ś
+  X                  Ź            ź
+  Z                  Ż            ż
+
+  Characters are stored and displayed using the CP852 (Latin-2) code page.
+
+--------------------------------------------------------------------------------
+10. LIMITS
+--------------------------------------------------------------------------------
+
+  Maximum document rows     : 256
+  Maximum columns per row   : 80
+  Maximum filename length   : 64 characters
+  Clipboard capacity        : 32 lines
+  Find pattern length       : 32 characters
+  XRAM text buffer          : 0x0000 – 0x4FFF  (20 480 bytes)
+  XRAM clipboard buffer     : 0x5100 –          (up to 2 560 bytes)
+
+================================================================================
