@@ -6,7 +6,7 @@
 #include <fcntl.h>
 #include "commons.h"
 
-#define APPVER "20260507.2006"
+#define APPVER "20260507.2158"
 #define APPNAME "TEd"
 #define APP_MSG_TITLE CSI "2;1H" CSI HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " " APPNAME ANSI_DARK_GRAY CSI "2;60Hversion " APPVER ANSI_RESET
 
@@ -1258,9 +1258,9 @@ int main(int argc, char **argv)
     printf(OSC_CURSOR_COLOR "408040" OSC_ST ANSI_SHOW_CUR "\033[%d;1H", (int)(TITLE_ROWS + 1u));
 
     window_open((80u-26u)/2u, (30u-16u)/2u, 26, 16, CSI "37m", CSI "48;2;40;80;40m", 0);
-    window_text(APPNAME, 2, 2, CSI "37m", CSI "48;2;40;80;40m");
-    window_text("Text Editor", 2, 4, CSI "37m", CSI "48;2;40;80;40m");
-    window_text("for razemOS", 2, 5, CSI "37m", CSI "48;2;40;80;40m");
+    window_text(APPNAME, 2, 1, CSI "37m", CSI "48;2;40;80;40m");
+    window_text("Text Editor", 2, 3, CSI "37m", CSI "48;2;40;80;40m");
+    window_text("for razemOS", 2, 4, CSI "37m", CSI "48;2;40;80;40m");
     window_text("(c) 2026 by WojciechGw", 2, 14, CSI "37m", CSI "48;2;40;80;40m");
     PAUSE(300);
     window_close();
@@ -1357,7 +1357,7 @@ int main(int argc, char **argv)
             if (!handled_key) {
 
                 /* --- Ctrl+key combos (no autorepeat) --- */
-                if (key_ctrl && key(KEY_C)) {
+                if (key_ctrl && !key_shifts && key(KEY_C)) {
                     repeat_key = 0u;
                     if (!view_mode) do_copy();
 
@@ -1743,6 +1743,152 @@ int main(int argc, char **argv)
                             doc_dirty = 1u;
                             if (insert_mode) redraw_screen();
                         }
+                    }
+
+                /* --- Ctrl+Shift+C/R/L: center / right-align / strip leading spaces --- */
+                } else if (key_ctrl && key_shifts && key(KEY_C)) {
+                    repeat_key = 0u;
+                    if (!view_mode) {
+                        uint8_t tlen, pad, i;
+                        tlen = line_text_len(cur.row);
+                        if (tlen > 0u && tlen <= TEXT_COLS) {
+                            RIA.addr1 = TEXT_BUF_BASE + (uint16_t)cur.row * TEXT_COLS;
+                            RIA.step1 = 1;
+                            for (i = 0u; i < TEXT_COLS; i++) line_tmp[i] = (char)RIA.rw1;
+                            /* strip leading spaces into line_tmp[0..tlen-1] */
+                            { uint8_t s = 0u;
+                              while (s < tlen && line_tmp[s] == ' ') s++;
+                              tlen = (uint8_t)(tlen - s);
+                              if (tlen > 0u && s > 0u) {
+                                  for (i = 0u; i < tlen; i++) line_tmp[i] = line_tmp[i + s];
+                              }
+                            }
+                            pad = (uint8_t)((TEXT_COLS - tlen) / 2u);
+                            RIA.addr0 = TEXT_BUF_BASE + (uint16_t)cur.row * TEXT_COLS;
+                            RIA.step0 = 1;
+                            for (i = 0u; i < pad; i++)   RIA.rw0 = ' ';
+                            for (i = 0u; i < tlen; i++)  RIA.rw0 = (uint8_t)line_tmp[i];
+                            for (i = (uint8_t)(pad + tlen); i < TEXT_COLS; i++) RIA.rw0 = ' ';
+                            doc_dirty = 1u;
+                            redraw_screen();
+                        }
+                    }
+
+                } else if (key_ctrl && key_shifts && key(KEY_R)) {
+                    repeat_key = 0u;
+                    if (!view_mode) {
+                        uint8_t tlen, pad, i;
+                        tlen = line_text_len(cur.row);
+                        if (tlen > 0u && tlen <= TEXT_COLS) {
+                            RIA.addr1 = TEXT_BUF_BASE + (uint16_t)cur.row * TEXT_COLS;
+                            RIA.step1 = 1;
+                            for (i = 0u; i < TEXT_COLS; i++) line_tmp[i] = (char)RIA.rw1;
+                            /* strip leading spaces */
+                            { uint8_t s = 0u;
+                              while (s < tlen && line_tmp[s] == ' ') s++;
+                              tlen = (uint8_t)(tlen - s);
+                              if (tlen > 0u && s > 0u) {
+                                  for (i = 0u; i < tlen; i++) line_tmp[i] = line_tmp[i + s];
+                              }
+                            }
+                            pad = (uint8_t)(TEXT_COLS - tlen);
+                            RIA.addr0 = TEXT_BUF_BASE + (uint16_t)cur.row * TEXT_COLS;
+                            RIA.step0 = 1;
+                            for (i = 0u; i < pad; i++)  RIA.rw0 = ' ';
+                            for (i = 0u; i < tlen; i++) RIA.rw0 = (uint8_t)line_tmp[i];
+                            doc_dirty = 1u;
+                            redraw_screen();
+                        }
+                    }
+
+                } else if (key_ctrl && key_shifts && key(KEY_L)) {
+                    repeat_key = 0u;
+                    if (!view_mode) {
+                        uint8_t tlen, s, i;
+                        tlen = line_text_len(cur.row);
+                        if (tlen > 0u) {
+                            RIA.addr1 = TEXT_BUF_BASE + (uint16_t)cur.row * TEXT_COLS;
+                            RIA.step1 = 1;
+                            for (i = 0u; i < TEXT_COLS; i++) line_tmp[i] = (char)RIA.rw1;
+                            s = 0u;
+                            while (s < tlen && line_tmp[s] == ' ') s++;
+                            if (s > 0u) {
+                                tlen = (uint8_t)(tlen - s);
+                                RIA.addr0 = TEXT_BUF_BASE + (uint16_t)cur.row * TEXT_COLS;
+                                RIA.step0 = 1;
+                                for (i = 0u; i < tlen; i++) RIA.rw0 = (uint8_t)line_tmp[i + s];
+                                for (i = tlen; i < TEXT_COLS; i++) RIA.rw0 = ' ';
+                                if (cur.col < s) cur.col = 0u;
+                                else cur.col = (uint8_t)(cur.col - s);
+                                doc_dirty = 1u;
+                                redraw_screen();
+                            }
+                        }
+                    }
+
+                /* --- Ctrl+Shift+Alt+A: ASCII character table popup (17x17, hex labels) --- */
+                } else if (key_ctrl && key_shifts && key_lalt && key(KEY_A)) {
+                    repeat_key = 0u;
+                    {
+                        /* inner area: 3 + 16*3 = 51 cols, 1 header + 16 rows = 17 rows
+                           outer (with frame): 53 wide, 19 tall
+                           centered on 80x30: x=(80-53)/2+1=14, y=(30-19)/2+1=6 */
+                        static const char hex[16] = {'0','1','2','3','4','5','6','7',
+                                                     '8','9','A','B','C','D','E','F'};
+                        char rowbuf[55];
+                        uint8_t r, c;
+
+                        window_open(29u, 6u, 22u, 19u, CSI "37m", CSI "48;2;60;60;60m", 0);
+
+                        /* header row: "   " then " 0  1  2 ... F" */
+                        rowbuf[0]=' '; rowbuf[1]=' ';
+                        for (c = 0u; c < 16u; c++) {
+                            rowbuf[2u + c] = hex[c];
+                        }
+                        rowbuf[18] = '\0';
+                        window_text(rowbuf, 2u, 1u, CSI "37m", CSI "48;2;60;60;60m");
+
+                        /* 16 data rows */
+                        for (r = 0u; r < 16u; r++) {
+                            /* row label: "X " */
+                            rowbuf[0u] = hex[r];
+                            rowbuf[1u] = ' ';
+                            for (c = 0u; c < 16u; c++) {
+                                uint8_t code = (uint8_t)(r * 16u + c);
+                                // char ch = (code >= 0x20u && code != 0x7Fu) ? (char)code : '.';
+                                char ch = (code >= 0x0Eu && code != 0x18u && code != 0x1Bu) ? (char)code : '.';
+                                rowbuf[1u + c + 1u] = ch;
+                            }
+                            rowbuf[18] = '\0';
+                            window_text(rowbuf, 2u, (uint8_t)(r + 2u), CSI "37m", CSI "48;2;60;60;60m");
+                        }
+
+                        /* wait for any new key-down (edge detect, ignores currently held keys) */
+                        {
+                            uint8_t prev_ks[KEYBOARD_BYTES];
+                            uint8_t cur_ks[KEYBOARD_BYTES];
+                            uint8_t ki, ji, was, now2;
+                            int     got_key = 0;
+                            for (ki = 0u; ki < KEYBOARD_BYTES; ki++) prev_ks[ki] = keystates[ki];
+                            while (!got_key) {
+                                for (ki = 0u; ki < KEYBOARD_BYTES; ki++) {
+                                    RIA.addr1 = XRAM_STRUCT_SYS_KEYBOARD + ki;
+                                    RIA.step1 = 0;
+                                    cur_ks[ki] = RIA.rw1;
+                                }
+                                for (ki = 0u; ki < KEYBOARD_BYTES && !got_key; ki++) {
+                                    for (ji = 0u; ji < 8u && !got_key; ji++) {
+                                        was  = (prev_ks[ki] >> ji) & 1u;
+                                        now2 = (cur_ks [ki] >> ji) & 1u;
+                                        if (!was && now2) got_key = 1;
+                                    }
+                                    prev_ks[ki] = cur_ks[ki];
+                                }
+                            }
+                            for (ki = 0u; ki < KEYBOARD_BYTES; ki++) keystates[ki] = cur_ks[ki];
+                        }
+                        window_close();
+                        redraw_screen();
                     }
 
                 /* --- Alt+P: insert paragraph sign § (0x15) --- */

@@ -1,5 +1,5 @@
 ================================================================================
-  Editor - Text Editor for razemOS
+  TEd - Text Editor for razemOS
   Picocomputer 6502 (RP6502)
 ================================================================================
 
@@ -13,12 +13,15 @@
    6. Clipboard (Copy / Cut / Paste)
    7. Find
    8. File Operations
-   9. Polish Characters
-  10. Limits
+   9. Text Formatting
+  10. Special Insertions
+  11. Polish Characters
+  12. Utilities
+  13. Limits
 
 --------------------------------------------------------------------------------
 
-Editor is a full-screen text editor for razemOS running on the Picocomputer
+TEd is a full-screen text editor for razemOS running on the Picocomputer
 RP6502. It operates on a 30x80 character terminal (640x480, 16 px font) and
 stores the document in XRAM for fast access.
 
@@ -26,16 +29,18 @@ stores the document in XRAM for fast access.
 1. INVOCATION
 --------------------------------------------------------------------------------
 
-  editor [filename]
+  ted [/view] [filename]
 
   Parameters:
+    /view      - open file in read-only view mode (editing disabled)
     filename   - file to open at startup (optional)
-                 If omitted, a new document named "Editor-NewDocument.txt"
+                 If omitted, a new document named "TEd-NewDocument.txt"
                  is created.
 
   Examples:
-    editor                       (new document)
-    editor MSC0:/notes.txt       (open existing file or create new)
+    ted                          (new document)
+    ted MSC0:/notes.txt          (open existing file or create new)
+    ted /view MSC0:/readme.txt   (open in read-only view mode)
 
   On startup a brief splash screen is shown. The status bar then reports
   "Ready" (file loaded), "FILE CREATED" (new file), or an error message.
@@ -55,6 +60,7 @@ stores the document in XRAM for fast access.
              existing text to the right.
     [OVR]    Current mode is Overwrite. New characters replace existing
              text in place.
+    [VIEW]   Read-only view mode is active. Editing is disabled.
     [CLIP]   Clipboard contains data ready to paste.
     row: NNN col: NNN
              Current cursor position (1-based).
@@ -92,16 +98,22 @@ stores the document in XRAM for fast access.
   ---------------------  -------------------------------------------------------
   Printable character    Insert character at cursor (INS) or overwrite (OVR)
   Insert                 Toggle between Insert and Overwrite modes
+  F4                     Toggle between Edit and View (read-only) mode
   Enter / KP Enter       Split line at cursor; text after cursor becomes a new
                          line below
   Backspace              Delete character before cursor; if at column 1, join
                          current line with the line above
   Delete                 Delete character at cursor; if at end of line, join
                          current line with the line below
+  Ctrl+N                 New document — clears the editor and starts a fresh
+                         document named "TEd-NewDocument.txt". If the current
+                         document has unsaved changes a Save prompt appears.
 
   Auto-wrap: when inserting a character pushes text beyond column 80, the
   overflow character wraps to the beginning of the next line. Wrap only
   occurs when the document has fewer than 256 rows.
+
+  All editing keys are disabled in View mode.
 
 --------------------------------------------------------------------------------
 5. SELECTION
@@ -122,6 +134,8 @@ stores the document in XRAM for fast access.
 
   Any cursor movement without Shift cancels the active selection.
 
+  Selection is disabled in View mode.
+
 --------------------------------------------------------------------------------
 6. CLIPBOARD (COPY / CUT / PASTE)
 --------------------------------------------------------------------------------
@@ -137,6 +151,8 @@ stores the document in XRAM for fast access.
   status bar is shown whenever the clipboard contains data.
 
   Status messages after clipboard operations: "Copied", "Cut", "Pasted".
+
+  Ctrl+C, Ctrl+X and Ctrl+V are disabled in View mode.
 
 --------------------------------------------------------------------------------
 7. FIND
@@ -167,32 +183,83 @@ stores the document in XRAM for fast access.
   ---------------------  -------------------------------------------------------
   Ctrl+O                 Open a file
   Ctrl+S                 Save the current document
+  Ctrl+Shift+S           Save As — always prompts for a filename
   Ctrl+Q                 Exit the editor
 
   Open (Ctrl+O):
-    A prompt "OPEN path/filename :" appears at the bottom (max 64 chars).
+    If the current document has unsaved changes, a "Save changes before
+    opening? [Y/N]" prompt appears first. Pressing Y saves the file
+    (prompting for a name if the document is new), then continues to open.
+    Pressing N discards changes and continues to open.
+    A "OPEN path/filename :" prompt then appears (max 64 chars).
     Press Enter to confirm, Esc to cancel.
     - If the file exists it is loaded into the editor.
     - If the file does not exist it is created and "FILE CREATED" is shown.
     - On error "cannot open file" is shown.
-    The current document is discarded when a new file is opened.
 
   Save (Ctrl+S):
-    A prompt "SAVE path/filename :" appears, pre-filled with the current
-    filename. Press Enter to confirm, Esc to cancel.
+    - If the document already has a name (not a new document), it is saved
+      immediately without prompting.
+    - If the document is new (no filename assigned), a "SAVE path/filename :"
+      prompt appears, pre-filled with the default name.
+    Press Enter to confirm, Esc to cancel.
     - Trailing spaces are stripped from each line before writing.
     - Each line is terminated with a newline character (\n).
     - On success "FILE SAVED" is shown; on error "cannot save file".
 
+  Save As (Ctrl+Shift+S):
+    Always shows a "SAVE AS path/filename :" prompt regardless of whether
+    the document already has a name, allowing you to save a copy under a
+    different name.
+
   Exit (Ctrl+Q):
-    Closes the editor immediately and returns to the shell. Unsaved changes
-    are lost — save with Ctrl+S before quitting.
+    If the document has unsaved changes, a "Save changes before exit? [Y/N]"
+    prompt appears. Pressing Y saves the file (prompting for a name if the
+    document is new), then exits. Pressing N exits without saving.
 
   File paths use the razemOS filesystem notation, e.g.:
     MSC0:/documents/notes.txt
 
 --------------------------------------------------------------------------------
-9. POLISH CHARACTERS
+9. TEXT FORMATTING
+--------------------------------------------------------------------------------
+
+  Key                    Action
+  ---------------------  -------------------------------------------------------
+  Ctrl+Shift+C           Center the text on the current line
+  Ctrl+Shift+R           Right-align the text on the current line
+  Ctrl+Shift+L           Remove all leading spaces from the current line
+
+  All three operations work on the line the cursor is currently on.
+  Leading spaces are stripped before centering or right-aligning, so the
+  operation is idempotent regardless of the current indentation.
+
+  Ctrl+Shift+L also moves the cursor left by the number of spaces removed
+  (clamped to column 1).
+
+  These keys are disabled in View mode.
+
+--------------------------------------------------------------------------------
+10. SPECIAL INSERTIONS
+--------------------------------------------------------------------------------
+
+  Key                    Action
+  ---------------------  -------------------------------------------------------
+  Ctrl+Shift+T           Insert current date and time at cursor position
+  Alt+P                  Insert paragraph sign § at cursor position
+
+  Ctrl+Shift+T inserts a 16-character timestamp in the format:
+    YYYY-MM-DD HH:MM
+  The timestamp is inserted as ordinary characters and respects Insert /
+  Overwrite mode. The document is marked as modified.
+
+  Alt+P inserts the § character (CP852 code 0x15) at the cursor position,
+  also respecting Insert / Overwrite mode.
+
+  Both keys are disabled in View mode.
+
+--------------------------------------------------------------------------------
+11. POLISH CHARACTERS
 --------------------------------------------------------------------------------
 
   Polish diacritics are entered with Right Alt held together with a letter
@@ -213,7 +280,20 @@ stores the document in XRAM for fast access.
   Characters are stored and displayed using the CP852 (Latin-2) code page.
 
 --------------------------------------------------------------------------------
-10. LIMITS
+12. UTILITIES
+--------------------------------------------------------------------------------
+
+  Key                    Action
+  ---------------------  -------------------------------------------------------
+  Ctrl+Shift+Alt+A       Show ASCII character table
+
+  The ASCII table is displayed as a popup window centered on the screen.
+  It shows all 256 character codes arranged in a 16x16 grid with hexadecimal
+  row and column labels (0h–Fh). Control characters (codes 0x00–0x1F) and
+  DEL (0x7F) are shown as a dot. Press any key to close the table.
+
+--------------------------------------------------------------------------------
+13. LIMITS
 --------------------------------------------------------------------------------
 
   Maximum document rows     : 256
