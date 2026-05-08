@@ -8,17 +8,16 @@
 #include "commons.h"
 #include "./commons/courier-gfx.h"
 
-#define APPVER "20260508.0758"
-#define APP_FOOTER "________________________________________________________________________________"
+#define APPVER "20260508.1024"
 
 #define MAXROMS        64
 #define ROM_DNAME_LEN  18   /* display name chars per tile (TILE_W - 2 padding) */
 #define ROM_PATH_LEN   64   /* full path stored for ria_execl */
 #define TILE_COLS      4
 #define TILE_W         20   /* chars per tile = ROM_DNAME_LEN + 2 */
-#define HDR_ROWS       5    /* rows 0-3 reserved for header */
-#define FTR_ROWS       3    /* rows 27-29 reserved for status */
-#define CONTENT_ROWS   (CGX_ROWS - HDR_ROWS - FTR_ROWS)  /* 26 */
+#define HDR_ROWS       4    /* rows 0-3 reserved for header */
+#define FTR_ROWS       2    /* rows 27-29 reserved for status */
+#define CONTENT_ROWS   (CGX_ROWS - HDR_ROWS - FTR_ROWS)
 
 #ifndef AM_DIR
 #define AM_DIR 0x10
@@ -80,6 +79,7 @@ static void draw_status(int sel)
 {
     /* row 29: "N/TOTAL  <selected name>" padded to 80 chars */
     static char sbuf[CGX_COLS + 1];
+    static char sbuf2[CGX_COLS + 1];
     static char n1[8], n2[8];
     int i, n, i1, i2;
     const char *p;
@@ -100,7 +100,9 @@ static void draw_status(int sel)
     for (p = rom_dname[sel]; *p && i < CGX_COLS; ) sbuf[i++] = *p++;
     while (i < CGX_COLS) sbuf[i++] = ' ';
     sbuf[CGX_COLS] = 0;
-    DrawText((uint8_t)(CGX_ROWS - 2), 0, APP_FOOTER, LIGHT_GRAY, BLACK);
+    for (i = 0u; i < 80u; i++) sbuf2[i] = '\xc4';
+    sbuf2[80] = 0;
+    DrawText((uint8_t)(CGX_ROWS - 2), 0, sbuf2, LIGHT_GRAY, BLACK);
     DrawText((uint8_t)(CGX_ROWS - 1), 0, sbuf, LIGHT_GRAY, BLACK);
 }
 
@@ -118,12 +120,17 @@ static void redraw_all(int sel, int top_row)
 
 static void draw_header(void)
 {
-    ClearLine(1, WHITE, BLACK);
-    DrawText(1,  0, " razemOS > "    ,     WHITE, DARK_GREEN);
-    DrawText(1, 12, "ROMS launcher"  ,     WHITE,      BLACK);
-    DrawText(1, 59, "version " APPVER, DARK_GRAY,      BLACK);
-    ClearLine(3, DARK_GRAY, BLACK);
-    DrawText(3,  12, "navigate by arrows, press [ENTER] to launch, press [Ctrl+Q] to exit", DARK_GRAY, BLACK);
+    uint8_t i;
+    static char buff[81];
+    ClearLine(0, WHITE, BLACK);
+    DrawText(0,  0, " razemOS > "    ,     WHITE, DARK_GREEN);
+    DrawText(0, 12, "ROMS launcher"  ,     WHITE,      BLACK);
+    DrawText(0, 59, "version " APPVER, DARK_GRAY,      BLACK);
+    for (i = 0u; i < 80u; i++) buff[i] = '\xc4';
+    buff[80] = 0;
+    DrawText(1, 0, buff, WHITE, BLACK);
+    ClearLine(2, DARK_GRAY, BLACK);
+    DrawText(2,  12, "[ARROWS] navigate [ENTER] launch ROM [Ctrl+Q] exit", DARK_GRAY, BLACK);
 }
 
 /* ------------------------------------------------------------------ */

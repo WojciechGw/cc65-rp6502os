@@ -4,6 +4,8 @@
 #define CSI_CLS         CSI "2J"
 #define CSI_CURSOR_SHOW CSI "?25h"
 #define CSI_CURSOR_HIDE CSI "?25l"
+#define CSI_CURSOR_SCP  CSI "c"
+#define CSI_CURSOR_RCP  CSI "u"
 #define CSI_CURSOR_HOME CSI "1;1H"
 #define CSI_ECHO_OFF    CSI "12h"   /* SRM: terminal stops echoing TX back to RX */
 #define CSI_ECHO_ON     CSI "12l"   /* SRM: restore echo */

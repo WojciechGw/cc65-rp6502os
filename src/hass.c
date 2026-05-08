@@ -10,14 +10,14 @@
 #include "commons.h"
 #include "hass-opcodes.h"
 
-#define APPVER "20260413.0721"
+#define APPVER "20260508.1130"
 
 #define APPDIRDEFAULT "MSC0:/"
 #define FILESRC_DEFAULT_SRC_EXT ".asm"
 #define FILESRC_DEFAULT_MAKE_EXT ".bin"
-#define APP_MSG_TITLE CSI_RESET CSI "2;1H" CSI HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " Handy ASSembler WDC65C02S" ANSI_DARK_GRAY CSI "2;60Hversion " APPVER ANSI_RESET
-#define APP_MSG_START_ASSEMBLING ANSI_DARK_GRAY CSI "4;1HStart assembling ... " ANSI_RESET
-#define APP_MSG_START_ENTERCODE ANSI_DARK_GRAY CSI "4;1HType @HELP for a list of commands, or start coding." ANSI_RESET
+#define APP_MSG_TITLE CSI_RESET CSI "1;1H" CSI HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " Handy ASSembler WDC65C02S" ANSI_DARK_GRAY CSI "1;60Hversion " APPVER ANSI_RESET
+#define APP_MSG_START_ASSEMBLING ANSI_DARK_GRAY CSI "3;1HStart assembling ... " ANSI_RESET
+#define APP_MSG_START_ENTERCODE ANSI_DARK_GRAY CSI "3;1HType @HELP for a list of commands, or start coding." ANSI_RESET
 
 /* --- limits --- */
 #define MAXLINES    512
@@ -1764,7 +1764,10 @@ int main(int argc, char *argv[]){
     int interactive_mode = 0;
     const char* input_path = 0;
 
-    printf(CSI_RESET APP_MSG_TITLE NEWLINE NEWLINE NEWLINE NEWLINE);
+    printf(CSI_RESET APP_MSG_TITLE);
+    printf(CSI "2;1H");
+    for (i = 0u; i < 80u; i++) putchar('\xc4');    
+    printf(NEWLINE NEWLINE NEWLINE);
 
 #ifdef DEBUG
     printf("argc = %d\n", argc);

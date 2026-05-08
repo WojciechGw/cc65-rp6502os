@@ -16,7 +16,7 @@
 
 #include "shell.h"
 
-#define APPVER "20260508.0900"
+#define APPVER "20260508.1130"
 #define APPNAME "razemOS"
 #define APP_MSG_START ANSI_DARK_GRAY CSI "12;35H" APPNAME
 #define APP_HOURGLASS CSI "14;36H" ANSI_DARK_GRAY ".........." CSI "10D" ANSI_RESET
@@ -238,6 +238,34 @@ static void tx_csi_n(int n, char cmd) {
     buf[i++] = cmd;
     buf[i]   = 0;
     tx_string(buf);
+}
+
+void draw_titlebar(bool restore_position){ // clear screen
+    uint8_t i = 0u;
+    if(restore_position) printf(CSI_CURSOR_SCP);
+    printf(APP_MSG_TITLE NEWLINE APP_STARTPROMPTPOS CSI_CURSOR_SHOW);
+    printf(CSI "2;1H");
+    for (i = 0u; i < 80u; i++) putchar('\xc4');     
+    if(restore_position) printf(CSI_CURSOR_RCP);
+    return;
+}
+
+
+void cls(){ // clear screen
+    uint8_t i = 0u;
+    printf(CSI_CLS);
+    draw_titlebar(false);
+    return;
+}
+
+void prompt(uint8_t mode) {
+    if(mode != PROMPT) {
+        cls();
+        tx_string(NEWLINE);
+    } 
+    tx_string(dir_cwd);
+    tx_string(mode == PROMPT_FIRST ? SHELLPROMPT_1ST : SHELLPROMPT);
+    return;
 }
 
 static int startstage_shell(){
@@ -516,24 +544,6 @@ static int startstage_shell(){
             last_rx = rx; // Last line in RX_READY
         }
     }
-}
-
-void cls(){ // clear screen
-    uint8_t i = 0u;
-    printf(CSI_CLS APP_MSG_TITLE NEWLINE APP_STARTPROMPTPOS CSI_CURSOR_SHOW);
-    printf(CSI "2;1H");
-    for (i = 0u; i < 80u; i++) putchar('\xc4');     
-    return;
-}
-
-void prompt(uint8_t mode) {
-    if(mode != PROMPT) {
-        cls();
-        tx_string(NEWLINE);
-    } 
-    tx_string(dir_cwd);
-    tx_string(mode == PROMPT_FIRST ? SHELLPROMPT_1ST : SHELLPROMPT);
-    return;
 }
 
 // things related to : console command processor operations
