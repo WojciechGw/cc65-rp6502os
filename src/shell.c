@@ -242,18 +242,18 @@ static void tx_csi_n(int n, char cmd) {
 
 void draw_titlebar(bool restore_position){ // clear screen
     uint8_t i = 0u;
-    if(restore_position) printf(CSI_CURSOR_SCP);
-    printf(APP_MSG_TITLE NEWLINE APP_STARTPROMPTPOS CSI_CURSOR_SHOW);
-    printf(CSI "2;1H");
-    for (i = 0u; i < 80u; i++) putchar('\xc4');     
-    if(restore_position) printf(CSI_CURSOR_RCP);
+    if(restore_position) tx_string(CSI_CURSOR_SCP);
+    tx_string(APP_MSG_TITLE NEWLINE APP_STARTPROMPTPOS CSI_CURSOR_SHOW);
+    tx_string(CSI "2;1H");
+    for (i = 0u; i < 80u; i++) tx_char('\xc4');     
+    if(restore_position) tx_string(CSI_CURSOR_RCP);
     return;
 }
 
 
 void cls(){ // clear screen
     uint8_t i = 0u;
-    printf(CSI_CLS);
+    tx_string(CSI_CLS);
     draw_titlebar(false);
     return;
 }

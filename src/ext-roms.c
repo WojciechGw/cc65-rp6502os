@@ -8,7 +8,7 @@
 #include "commons.h"
 #include "./commons/courier-gfx.h"
 
-#define APPVER "20260508.1024"
+#define APPVER "20260508.1349"
 
 #define MAXROMS        64
 #define ROM_DNAME_LEN  18   /* display name chars per tile (TILE_W - 2 padding) */
@@ -130,7 +130,7 @@ static void draw_header(void)
     buff[80] = 0;
     DrawText(1, 0, buff, WHITE, BLACK);
     ClearLine(2, DARK_GRAY, BLACK);
-    DrawText(2,  12, "[ARROWS] navigate [ENTER] launch ROM [Ctrl+Q] exit", DARK_GRAY, BLACK);
+    DrawText(2,  12, "keys : [ARROWS] navigate, [ENTER] launch ROM, [Ctrl+Q] exit", DARK_GRAY, BLACK);
 }
 
 /* ------------------------------------------------------------------ */
