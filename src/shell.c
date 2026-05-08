@@ -16,11 +16,11 @@
 
 #include "shell.h"
 
-#define APPVER "20260505.0500"
+#define APPVER "20260508.0900"
 #define APPNAME "razemOS"
 #define APP_MSG_START ANSI_DARK_GRAY CSI "12;35H" APPNAME
 #define APP_HOURGLASS CSI "14;36H" ANSI_DARK_GRAY ".........." CSI "10D" ANSI_RESET
-#define APP_MSG_TITLE CSI "2;1H" CSI HIGHLIGHT_COLOR " " APPNAME " > " ANSI_RESET " for Picocomputer 6502" ANSI_DARK_GRAY CSI "2;60Hversion " APPVER ANSI_RESET
+#define APP_MSG_TITLE CSI "1;1H" CSI HIGHLIGHT_COLOR " " APPNAME " > " ANSI_RESET " native 65C02 environment" ANSI_DARK_GRAY CSI "1;60Hversion " APPVER ANSI_RESET
 #define APP_STARTPROMPTPOS CSI "3;1H"
 #define APP_MSG_EXIT CSI_RESET
 
@@ -519,7 +519,10 @@ static int startstage_shell(){
 }
 
 void cls(){ // clear screen
+    uint8_t i = 0u;
     printf(CSI_CLS APP_MSG_TITLE NEWLINE APP_STARTPROMPTPOS CSI_CURSOR_SHOW);
+    printf(CSI "2;1H");
+    for (i = 0u; i < 80u; i++) putchar('\xc4');     
     return;
 }
 

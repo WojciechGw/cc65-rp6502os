@@ -10,9 +10,9 @@
 
 #include "commons.h"
 
-#define APPVER "20260507.1634"
+#define APPVER "20260508.0924"
 
-#define APP_HEADER CSI "2;1H" CSI HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " Keyboard Visualiser                           " ANSI_DARK_GRAY "version " APPVER ANSI_RESET
+#define APP_HEADER CSI_CLS CSI "1;1H" CSI HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " Keyboard visualiser" ANSI_DARK_GRAY CSI "1;60Hversion " APPVER ANSI_RESET
 #define APP_FOOTER ANSI_DARK_GRAY CSI "11;1H________________________________________________________________________________" NEWLINE "press and hold both Shift keys to exit                     last keycode :       " ANSI_RESET
 
 // Keyboard related
@@ -25,8 +25,8 @@
 #define FONT_CHAR_UP "\x1e"
 #define FONT_CHAR_DOWN "\x1f"
 
-#define POS_KEYBOARD  "4;1H"
-#define POS_KEYPRESS  "12;75H"
+#define POS_KEYBOARD  "3;1H"
+#define POS_KEYPRESS  "11;75H"
 
 typedef struct {
     uint8_t row;
@@ -250,7 +250,12 @@ int main(int argc, char **argv) {
 
     printf(CSI_CLS CSI_CURSOR_HIDE);
     printf(APP_HEADER);
-    printf(APP_FOOTER);
+    printf(CSI "2;1H");
+    for (i = 0u; i < 80u; i++) putchar('\xc4');   
+    printf(ANSI_DARK_GRAY CSI "10;1H");
+    for (i = 0u; i < 80u; i++) putchar('\xc4');
+    printf(NEWLINE "press and hold both Shift keys to exit" CSI "11;60Hlast keycode :       " ANSI_RESET);
+
     #ifdef VSYNCWAIT
     v = RIA.vsync;
     #endif

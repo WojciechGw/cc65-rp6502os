@@ -1,9 +1,8 @@
 #include "commons.h"
 
-#define APPVER "20260507.1634"
+#define APPVER "20260508.0913"
 
-#define APP_HEADER CSI_CLS CSI "2;1H" CSI HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " Help information                              " ANSI_DARK_GRAY "version " APPVER ANSI_RESET
-#define APP_FOOTER ANSI_DARK_GRAY  "_______________________________________________________________________________" ANSI_RESET NEWLINE NEWLINE
+#define APP_HEADER CSI_CLS CSI "1;1H" CSI HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " Help information" ANSI_DARK_GRAY CSI "1;60Hversion " APPVER ANSI_RESET
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
 
@@ -131,8 +130,10 @@ static const cmd_t commands_rom[] = {
     { "ss-noise",   "screensaver - whole screen chars noise",
                     "ss-noise (ESC to exit)"},
     { "ted",        "text editor",
-                    "ted                 - run, a new document will create in current directory" NEWLINE
-                    "ted <path/filename> - run with <path/filename> document" NEWLINE},
+                    "ted                       - run, a new document will create in current directory" NEWLINE
+                    "ted <path/filename>       - run with <path/filename> document" NEWLINE
+                    "ted /view <path/filename> - run with <path/filename> document in view mode (F4 let you change mode to edit)"
+                    },
     { "tree",       "display directory tree with subdirectories",
                     "tree                - current directory" NEWLINE
                     "tree <path>         - specified path or drive (e.g. MSC0:)" NEWLINE
@@ -149,7 +150,8 @@ static const cmd_t commands_ext[] = {
 };
 
 int main(int argc, char **argv) {
-    int i;
+    
+    uint8_t i = 0u;
 
     /* If a command name is provided, show only its description */
     if(argc >= 1 && argv[0][0]) {
@@ -200,8 +202,11 @@ int main(int argc, char **argv) {
     }
 
     /* No args: print full list */
-    printf(APP_HEADER NEWLINE NEWLINE
-           "Description of a specified command : help <command>");
+    printf(APP_HEADER);
+    printf(CSI "2;1H");
+    for (i = 0u; i < 80u; i++) putchar('\xc4');    
+
+    printf(NEWLINE "Description of a specified command : help <command>");
 
     printf( NEWLINE NEWLINE "INTERNAL (case sensitive):" NEWLINE);
     for(i = 0; i < ARRAY_SIZE(commands); i++) {
@@ -233,7 +238,8 @@ int main(int argc, char **argv) {
     printf("<F3>\tcurrent date/time and calendar" NEWLINE);
     printf("<F4>\tlist current directory" NEWLINE);
     printf("<UP>\tcommand history" NEWLINE);
-    printf(APP_FOOTER);
+    for (i = 0u; i < 80u; i++) putchar('\xc4'); // FOOTER LINE
+
     while(RX_READY) (void)RIA.rx;
     return 0;
 }

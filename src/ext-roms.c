@@ -8,7 +8,7 @@
 #include "commons.h"
 #include "./commons/courier-gfx.h"
 
-#define APPVER "20260507.1634"
+#define APPVER "20260508.0758"
 #define APP_FOOTER "________________________________________________________________________________"
 
 #define MAXROMS        64
@@ -34,6 +34,12 @@ static f_stat_t roms_ent;
 static char     roms_cwd[ROM_PATH_LEN];
 
 /* ------------------------------------------------------------------ */
+
+static void flush_rx()
+{
+    int i;
+    while (RX_READY) i = RIA.rx;
+}
 
 static bool ends_with_rp6502(const char *name)
 {
@@ -117,7 +123,7 @@ static void draw_header(void)
     DrawText(1, 12, "ROMS launcher"  ,     WHITE,      BLACK);
     DrawText(1, 59, "version " APPVER, DARK_GRAY,      BLACK);
     ClearLine(3, DARK_GRAY, BLACK);
-    DrawText(3,  12, "navigate by arrows, press [ENTER] to launch, press [Esc] to exit", DARK_GRAY, BLACK);
+    DrawText(3,  12, "navigate by arrows, press [ENTER] to launch, press [Ctrl+Q] to exit", DARK_GRAY, BLACK);
 }
 
 /* ------------------------------------------------------------------ */
@@ -130,7 +136,7 @@ int main(int argc, char **argv)
     int sel, top_row, new_sel, new_top, old_sel;
     int action;
     uint8_t new_keys, new_key;
-    int i, j, keylast;
+    int i, j;
     int nlen, plen, flen, pos;
     static char pathbuf[ROM_PATH_LEN];
 
@@ -192,7 +198,6 @@ int main(int argc, char **argv)
     top_row     = 0;
     handled_key = false;
     action      = 0;
-    keylast     = 0;
     new_key     = 0;
 
     redraw_all(sel, top_row);
@@ -201,28 +206,30 @@ int main(int argc, char **argv)
 
     while (1) {
 
-        /* read keyboard bitmask from XRAM */
-        new_key = 0;
-        for (i = 0; i < KEYBOARD_BYTES; i++) {
-            RIA.addr1 = (uint16_t)(KEYBOARD_INPUT + i);
+        /* --- scan keyboard --- */
+        for (i = 0u; i < KEYBOARD_BYTES; i++) {
+            RIA.addr1 = KEYBOARD_INPUT + i;
+            RIA.step1 = 0;
             new_keys  = RIA.rw1;
-            for (j = 0; j < 8; j++) {
-                new_key = new_keys & (uint8_t)(1 << j);
-                if (((i << 3) + j) > 3 && new_key != (keystates[i] & (uint8_t)(1 << j)))
-                    keylast = (i << 3) + j;
+            for (j = 0u; j < 8u; j++) {
+                uint8_t code = (uint8_t)((i << 3) + j);
+                new_key = new_keys & (uint8_t)(1u << j);
+                /* rising edge: key just pressed (0→1) */
+                if ((code > 3u) && new_key && !(keystates[i] & (uint8_t)(1u << j)))
+                    handled_key = false;
             }
             keystates[i] = new_keys;
         }
 
-        if (!(keystates[0] & 1) && !new_key) {
+        if (!(keystates[0] & 1u)) { // && !new_key
             if (!handled_key) {
                 action = 0;
                 if (key(KEY_LEFT))  action = 1;
-                if (key(KEY_RIGHT)) action = 2;
-                if (key(KEY_UP))    action = 3;
-                if (key(KEY_DOWN))  action = 4;
-                if (key(KEY_ENTER)) action = 5;
-                if (key(KEY_ESC))   action = 99;
+                else if (key(KEY_RIGHT)) action = 2;
+                else if (key(KEY_UP))    action = 3;
+                else if (key(KEY_DOWN))  action = 4;
+                else if (key(KEY_ENTER)) action = 5;
+                else if ((key(KEY_LEFTCTRL)  || key(KEY_RIGHTCTRL)) && key(KEY_Q)) action = 99;
                 handled_key = true;
             }
         } else {
@@ -256,6 +263,7 @@ int main(int argc, char **argv)
             action = 0;
             continue;
         case 99: /* ESC — exit */
+            flush_rx();
             goto end_of_ext;
         default:
             break;
@@ -288,6 +296,7 @@ int main(int argc, char **argv)
 end_of_ext:
 
     xreg_ria_keyboard(0xFFFF);
+    flush_rx();
     cgx_restore();
 
     return 0;

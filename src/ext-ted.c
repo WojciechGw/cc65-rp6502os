@@ -6,9 +6,9 @@
 #include <fcntl.h>
 #include "commons.h"
 
-#define APPVER "20260507.2158"
+#define APPVER "20260508.0806"
 #define APPNAME "TEd"
-#define APP_MSG_TITLE CSI "2;1H" CSI HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " " APPNAME ANSI_DARK_GRAY CSI "2;60Hversion " APPVER ANSI_RESET
+#define APP_MSG_TITLE CSI "1;1H" CSI HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " " APPNAME ANSI_DARK_GRAY CSI "1;60Hversion " APPVER ANSI_RESET
 
 /* autorepeat: clock() ticks are centiseconds (1 tick = 10 ms) */
 #define REPEAT_DELAY      40u   /* 400 ms before first repeat */
@@ -33,7 +33,7 @@
 
 /* --- Terminal dimensions (640x480, 16px font) --- */
 #define TERM_ROWS        30u
-#define TITLE_ROWS       3u    /* fixed title bar at top */
+#define TITLE_ROWS       2u    /* fixed title bar at top */
 #define MENU_ROWS        2u    /* fixed menu at bottom */
 #define EDIT_ROWS        (TERM_ROWS - TITLE_ROWS - MENU_ROWS) /* editable area */
 
@@ -87,6 +87,14 @@ static char    line_tmp[80];
 
 static uint8_t sel_min_row(void);
 static uint8_t sel_max_row(void);
+
+/* ------------------------------------------------------------------ */
+
+static void flush_rx()
+{
+    int i;
+    while (RX_READY) i = RIA.rx;
+}
 
 /* ================================================================
    keycode_to_char: USB HID keycode -> ASCII
@@ -271,7 +279,7 @@ static void window_text(const char *text,
 }
 
 /* ================================================================
-   draw_title_bar: 3-row title bar at top of terminal (rows 1-3).
+   draw_title_bar: 2-row title bar at top of terminal (rows 1-3).
    Row 1: empty
    Row 2: program name, version
    Row 3: just semigraphical horizontal line
@@ -281,10 +289,9 @@ static void draw_title_bar(void)
     static const char menu_line1[] = APP_MSG_TITLE;
     uint8_t i;
 
-    printf("\033[2;1H");
     for (i = 0u; menu_line1[i]; i++) putchar((uint8_t)menu_line1[i]);
 
-    printf("\033[3;1H");
+    printf(CSI "2;1H");
     for (i = 0u; i < 80u; i++) putchar('\xc4');    
     printf(ANSI_NORMAL);
 
@@ -1698,10 +1705,7 @@ int main(int argc, char **argv)
                             }
                         }
                     }
-                    {
-                        int i;
-                        while (RX_READY) i = RIA.rx;
-                    }
+                    flush_rx();
 
                     break;
 
@@ -1987,10 +1991,7 @@ int main(int argc, char **argv)
 
     xreg_ria_keyboard(0xFFFF);
     xreg_ria_mouse(0xFFFF);
-    {
-        int i;
-        while (RX_READY) i = RIA.rx;
-    }
+    flush_rx();
 
     xreg_vga_canvas(3);
     xreg(1, 0, 1, 0);
