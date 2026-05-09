@@ -12,7 +12,7 @@
 
 #include "commons.h"
 
-#define APPVER "20260507.1641"
+#define APPVER "20260509.1524"
 
 #define FONTDIR "ROM:"
 

@@ -6,7 +6,7 @@
 #include <fcntl.h>
 #include "commons.h"
 
-#define APPVER "20260508.0806"
+#define APPVER "20260509.1524"
 #define APPNAME "TEd"
 #define APP_MSG_TITLE CSI "1;1H" CSI HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " " APPNAME ANSI_DARK_GRAY CSI "1;60Hversion " APPVER ANSI_RESET
 
@@ -1377,7 +1377,7 @@ int main(int argc, char **argv)
                     if (!view_mode) { do_paste(); doc_dirty = 1u; }
 
                 /* --- Insert / Overwrite mode toggle (no autorepeat) --- */
-                } else if (key(KEY_INSERT)) {
+                } else if (key(KEY_INSERT) || (key_lalt && key(KEY_I))) {
                     repeat_key  = 0u;
                     insert_mode = insert_mode ? 0u : 1u;
                     draw_menu_bar(NULL);
