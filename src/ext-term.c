@@ -118,6 +118,7 @@ int main(int argc, char **argv)
 
     close(fd);
     drop_console_rx();
+    drop_console_rx();
     printf("\x1b" "c" "\x1b[?25h");
     return 0;
 

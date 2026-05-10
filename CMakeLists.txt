@@ -61,9 +61,16 @@ target_link_options(printer PRIVATE -C ${CMAKE_SOURCE_DIR}/src/printer.cfg)
 add_executable(launchpad)
 rp6502_asset(launchpad help src/launchpad.hlp)
 # ROM: commands
-
 rp6502_executable(launchpad DATA 0x0200 RESET 0x0200)
 target_sources(launchpad PRIVATE src/ext-roms.c)
 target_link_options(launchpad PRIVATE -C ${CMAKE_SOURCE_DIR}/src/launchpad.cfg)
+
+# text editor (character mode)
+add_executable(editor)
+rp6502_asset(editor help src/editor.hlp)
+rp6502_executable(editor DATA 0x0200 RESET 0x0200)
+target_sources(editor PRIVATE src/editor.c)
+target_link_options(editor PRIVATE -C ${CMAKE_SOURCE_DIR}/src/editor.cfg)
+
 
 # include(src/razemosmt/CMakeLists[rmt].txt)

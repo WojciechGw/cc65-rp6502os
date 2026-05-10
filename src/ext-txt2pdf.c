@@ -24,7 +24,7 @@
 
 #include "commons.h"
 
-#define APPVER "20260509.1524"
+#define APPVER "20260510.2231"
 
 /* ---- compile-time constants ---------------------------------------------- */
 
@@ -425,6 +425,7 @@ static unsigned long content_block(int in_fd, uint8_t mo) {
 
         n = read_line(in_fd, lbuf, LINE_BUF_LEN - 1u);
         if (n < 0) break;
+        if (fmt_mode != FMT_ASM && n > 0 && lbuf[0] == ';') continue;
 
         remaining = (unsigned)n;
 
@@ -527,7 +528,7 @@ static unsigned count_pages(int fd) {
         uint8_t max_h = 0u;
         lseek(fd, file_body_start, SEEK_SET);
         while ((n = read_line(fd, lbuf, LINE_BUF_LEN - 1u)) >= 0) {
-            if (n > 0) {
+            if (n > 0 && lbuf[0] != ';') {
                 uint8_t fnp = 0u;
                 unsigned h = count_hashes(lbuf, &fnp);
                 if (h > (unsigned)max_h) max_h = (uint8_t)h;
@@ -544,6 +545,8 @@ static unsigned count_pages(int fd) {
     while ((n = read_line(fd, lbuf, LINE_BUF_LEN - 1u)) >= 0) {
         unsigned rows = 1u;
         unsigned h    = 0u;
+
+        if (fmt_mode != FMT_ASM && n > 0 && lbuf[0] == ';') continue;
 
         if ((fmt_mode == FMT_MD || want_toc) && n > 0) {
             uint8_t fnp = 0u;
@@ -747,7 +750,7 @@ static unsigned long toc_block(int in_fd, uint8_t mo, unsigned content_pages) {
         { unsigned want_h = (unsigned)toc_hashes[toc_idx];
           uint8_t  fnp2   = 0u;
           while ((n = read_line(in_fd, lbuf, LINE_BUF_LEN - 1u)) >= 0) {
-              if (n > 0 && count_hashes(lbuf, &fnp2) == want_h) break;
+              if (n > 0 && lbuf[0] != ';' && count_hashes(lbuf, &fnp2) == want_h) break;
           }
         }
         if (n < 0) break;
@@ -1243,56 +1246,62 @@ int main(int argc, char **argv) {
         char lbuf[LINE_BUF_LEN];
         int  n;
 
-        /* peek at first line */
+        /* skip leading comment lines, then peek at the first non-comment line */
         file_body_start = 0;
-        n = read_line(in_fd, lbuf, LINE_BUF_LEN - 1u);
-        if (n >= 3 && lbuf[0] == '@' &&
-            lbuf[1] >= '1' && lbuf[1] <= '9' &&
-            (lbuf[2] == '<' || lbuf[2] == '>') &&
-            (lbuf[3] == ' ' || lbuf[3] == 0)) {
-            /* @NX line found */
-            want_toc     = 1u;
-            toc_depth    = (uint8_t)(lbuf[1] - '0');
-            toc_at_start = (lbuf[2] == '<') ? 1u : 0u;
-            if (lbuf[3] == ' ') {
-                strncpy(toc_title, lbuf + 4, LINE_BUF_LEN - 1u);
-                toc_title[LINE_BUF_LEN - 1u] = 0;
-            }
-            file_body_start = lseek(in_fd, 0, SEEK_CUR);
-
-            /* peek at next line for ^ title page */
-            n = read_line(in_fd, lbuf, LINE_BUF_LEN - 1u);
-            if (n >= 1 && lbuf[0] == '^') {
-                strncpy(doc_title, lbuf + 1, LINE_BUF_LEN - 1u);
-                doc_title[LINE_BUF_LEN - 1u] = 0;
-                /* author is the next line */
+        {
+            off_t before_line;
+            do {
+                before_line = lseek(in_fd, 0, SEEK_CUR);
                 n = read_line(in_fd, lbuf, LINE_BUF_LEN - 1u);
-                if (n >= 0) {
-                    strncpy(doc_author, lbuf, LINE_BUF_LEN - 1u);
-                    doc_author[LINE_BUF_LEN - 1u] = 0;
+            } while (n >= 0 && n > 0 && lbuf[0] == ';');
+            if (n >= 3 && lbuf[0] == '@' &&
+                lbuf[1] >= '1' && lbuf[1] <= '9' &&
+                (lbuf[2] == '<' || lbuf[2] == '>') &&
+                (lbuf[3] == ' ' || lbuf[3] == 0)) {
+                /* @NX line found */
+                want_toc     = 1u;
+                toc_depth    = (uint8_t)(lbuf[1] - '0');
+                toc_at_start = (lbuf[2] == '<') ? 1u : 0u;
+                if (lbuf[3] == ' ') {
+                    strncpy(toc_title, lbuf + 4, LINE_BUF_LEN - 1u);
+                    toc_title[LINE_BUF_LEN - 1u] = 0;
                 }
-                has_title_page = 1u;
                 file_body_start = lseek(in_fd, 0, SEEK_CUR);
+
+                /* peek at next line for ^ title page */
+                n = read_line(in_fd, lbuf, LINE_BUF_LEN - 1u);
+                if (n >= 1 && lbuf[0] == '^') {
+                    strncpy(doc_title, lbuf + 1, LINE_BUF_LEN - 1u);
+                    doc_title[LINE_BUF_LEN - 1u] = 0;
+                    /* author is the next line */
+                    n = read_line(in_fd, lbuf, LINE_BUF_LEN - 1u);
+                    if (n >= 0) {
+                        strncpy(doc_author, lbuf, LINE_BUF_LEN - 1u);
+                        doc_author[LINE_BUF_LEN - 1u] = 0;
+                    }
+                    has_title_page = 1u;
+                    file_body_start = lseek(in_fd, 0, SEEK_CUR);
+                } else {
+                    /* no ^ line — rewind to after @NX */
+                    lseek(in_fd, (off_t)file_body_start, SEEK_SET);
+                }
             } else {
-                /* no ^ line — rewind to after @NX */
-                lseek(in_fd, (off_t)file_body_start, SEEK_SET);
-            }
-        } else {
-            /* no @NX — rewind to start */
-            lseek(in_fd, 0, SEEK_SET);
-            file_body_start = 0;
+                /* no @NX — rewind to the non-comment line we just read */
+                lseek(in_fd, before_line, SEEK_SET);
+                file_body_start = before_line;
 
-            /* still check for ^ at file start */
-            if (n >= 1 && lbuf[0] == '^') {
-                strncpy(doc_title, lbuf + 1, LINE_BUF_LEN - 1u);
-                doc_title[LINE_BUF_LEN - 1u] = 0;
-                n = read_line(in_fd, lbuf, LINE_BUF_LEN - 1u);
-                if (n >= 0) {
-                    strncpy(doc_author, lbuf, LINE_BUF_LEN - 1u);
-                    doc_author[LINE_BUF_LEN - 1u] = 0;
+                /* still check for ^ title page at this position */
+                if (n >= 1 && lbuf[0] == '^') {
+                    strncpy(doc_title, lbuf + 1, LINE_BUF_LEN - 1u);
+                    doc_title[LINE_BUF_LEN - 1u] = 0;
+                    n = read_line(in_fd, lbuf, LINE_BUF_LEN - 1u);
+                    if (n >= 0) {
+                        strncpy(doc_author, lbuf, LINE_BUF_LEN - 1u);
+                        doc_author[LINE_BUF_LEN - 1u] = 0;
+                    }
+                    has_title_page = 1u;
+                    file_body_start = lseek(in_fd, 0, SEEK_CUR);
                 }
-                has_title_page = 1u;
-                file_body_start = lseek(in_fd, 0, SEEK_CUR);
             }
         }
     }
