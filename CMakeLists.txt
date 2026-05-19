@@ -4,15 +4,6 @@ project(razemOS-RP6502-PROJECT C ASM)
 
 add_subdirectory(tools)
 
-add_executable(hass)
-rp6502_asset(hass help src/hass.hlp)
-# ROM: commands
-rp6502_asset(hass manual[en].txt docs/hass-manual-en.txt)
-rp6502_asset(hass manual[pl].txt docs/hass-manual-pl.txt)
-rp6502_executable(hass DATA 0x0200 RESET 0x0200)
-target_sources(hass PRIVATE src/hass.c)
-target_link_options(hass PRIVATE -C ${CMAKE_SOURCE_DIR}/src/hass.cfg)
-
 add_executable(razemos)
 rp6502_asset(razemos help src/shell.hlp)
 # XRAM
@@ -45,6 +36,22 @@ rp6502_executable(razemos DATA 0x0200 RESET 0x0200)
 target_sources(razemos PRIVATE src/shell.c)
 target_link_options(razemos PRIVATE -C ${CMAKE_SOURCE_DIR}/src/shell.cfg)
 
+add_executable(hass)
+rp6502_asset(hass help src/hass.hlp)
+# ROM: commands
+rp6502_asset(hass manual[en].txt docs/hass-manual-en.txt)
+rp6502_asset(hass manual[pl].txt docs/hass-manual-pl.txt)
+rp6502_executable(hass DATA 0x0200 RESET 0x0200)
+target_sources(hass PRIVATE src/hass.c)
+target_link_options(hass PRIVATE -C ${CMAKE_SOURCE_DIR}/src/hass.cfg)
+
+# text editor (character mode)
+add_executable(editor)
+rp6502_asset(editor help src/editor.hlp)
+rp6502_executable(editor DATA 0x0200 RESET 0x0200)
+target_sources(editor PRIVATE src/editor.c)
+target_link_options(editor PRIVATE -C ${CMAKE_SOURCE_DIR}/src/editor.cfg)
+
 add_executable(printer)
 rp6502_asset(printer help src/printer.hlp)
 # ROM: commands
@@ -64,13 +71,5 @@ rp6502_asset(launchpad help src/launchpad.hlp)
 rp6502_executable(launchpad DATA 0x0200 RESET 0x0200)
 target_sources(launchpad PRIVATE src/ext-roms.c)
 target_link_options(launchpad PRIVATE -C ${CMAKE_SOURCE_DIR}/src/launchpad.cfg)
-
-# text editor (character mode)
-add_executable(editor)
-rp6502_asset(editor help src/editor.hlp)
-rp6502_executable(editor DATA 0x0200 RESET 0x0200)
-target_sources(editor PRIVATE src/editor.c)
-target_link_options(editor PRIVATE -C ${CMAKE_SOURCE_DIR}/src/editor.cfg)
-
 
 # include(src/razemosmt/CMakeLists[rmt].txt)

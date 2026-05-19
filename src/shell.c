@@ -158,71 +158,103 @@ static int startstage_boot(){
 #define HIST_MAX  20
 #define HIST_FILE "MSC0:/SHELL/.history"
 
-static char hist_buf[HIST_MAX][CMD_BUF_MAX + 1];
-static int  hist_count = 0;
-static int  hist_head  = 0;  /* next write slot */
-
-/* hist_get(0)=newest, hist_get(hist_count-1)=oldest */
-static const char *hist_get(int i) {
-    return hist_buf[(hist_head - 1 - i + HIST_MAX * 2) % HIST_MAX];
-}
-
-static void hist_save(void) {
-    int fd, i;
-    char nl = '\n';
-    const char *p;
-    int n;
-    fd = open(HIST_FILE, O_WRONLY | O_CREAT | O_TRUNC);
-    if (fd < 0) return;
-    for (i = hist_count - 1; i >= 0; i--) {  /* oldest first */
-        p = hist_get(i);
-        n = (int)strlen(p);
-        write(fd, p, n);
-        write(fd, &nl, 1);
-    }
-    close(fd);
-}
-
-static void hist_load(void) {
-    int fd;
+/* hist_count() — count lines in .history (newest = last line) */
+static int hist_count(void) {
+    int fd, n;
     char c;
-    static char line[CMD_BUF_MAX + 1];
-    int lp = 0;
-    int slot;
-    hist_count = 0;
-    hist_head  = 0;
     fd = open(HIST_FILE, O_RDONLY);
-    if (fd < 0) return;
+    if (fd < 0) return 0;
+    n = 0;
+    while (read(fd, &c, 1) == 1)
+        if (c == '\n') n++;
+    close(fd);
+    return n;
+}
+
+/* hist_get(age, buf) — age=0 newest, age=1 one older, etc.
+   reads .history and copies the line into buf[CMD_BUF_MAX+1].
+   returns 1 on success, 0 if not found. */
+static int hist_get(int age, char *buf) {
+    int fd, total, target, cur_line;
+    int lp;
+    char c;
+    fd = open(HIST_FILE, O_RDONLY);
+    if (fd < 0) return 0;
+    /* count total lines */
+    total = 0;
+    while (read(fd, &c, 1) == 1)
+        if (c == '\n') total++;
+    if (age >= total) { close(fd); return 0; }
+    /* target line index from start (0-based), newest = total-1 */
+    target = total - 1 - age;
+    /* rewind by re-opening */
+    close(fd);
+    fd = open(HIST_FILE, O_RDONLY);
+    if (fd < 0) return 0;
+    cur_line = 0;
+    lp = 0;
+    buf[0] = 0;
     while (read(fd, &c, 1) == 1) {
-        if (c == '\n' || c == '\r') {
-            if (lp > 0) {
-                line[lp] = 0;
-                slot = hist_head % HIST_MAX;
-                strncpy(hist_buf[slot], line, CMD_BUF_MAX);
-                hist_buf[slot][CMD_BUF_MAX] = 0;
-                hist_head = (hist_head + 1) % HIST_MAX;
-                if (hist_count < HIST_MAX) hist_count++;
-                lp = 0;
+        if (c == '\n') {
+            if (cur_line == target) {
+                buf[lp] = 0;
+                close(fd);
+                return 1;
             }
-        } else if (lp < CMD_BUF_MAX) {
-            line[lp++] = c;
+            cur_line++;
+            lp = 0;
+        } else if (c != '\r' && lp < CMD_BUF_MAX) {
+            buf[lp++] = c;
         }
     }
     close(fd);
+    return 0;
 }
 
+/* hist_add — append cmd to .history; skip duplicate of last line */
 static void hist_add(const char *cmd) {
-    int slot;
+    static char tmp[CMD_BUF_MAX + 1];
+    static char tmpfile[] = "MSC0:/SHELL/.histtmp";
+    int fd, rfd, wfd;
+    int n, total, skip, cnt, lp;
+    char c, nl;
+    nl = '\n';
     if (!cmd[0]) return;
-    if (hist_count > 0 &&
-        strcmp(hist_buf[(hist_head - 1 + HIST_MAX) % HIST_MAX], cmd) == 0)
-        return;  /* skip duplicate */
-    slot = hist_head % HIST_MAX;
-    strncpy(hist_buf[slot], cmd, CMD_BUF_MAX);
-    hist_buf[slot][CMD_BUF_MAX] = 0;
-    hist_head = (hist_head + 1) % HIST_MAX;
-    if (hist_count < HIST_MAX) hist_count++;
-    hist_save();
+    /* skip duplicate of newest entry */
+    if (hist_get(0, tmp) && strcmp(tmp, cmd) == 0) return;
+    /* trim file to HIST_MAX-1 lines if needed */
+    total = hist_count();
+    if (total >= HIST_MAX) {
+        skip = total - HIST_MAX + 1;
+        rfd = open(HIST_FILE, O_RDONLY);
+        wfd = open(tmpfile, O_WRONLY | O_CREAT | O_TRUNC);
+        if (rfd >= 0 && wfd >= 0) {
+            cnt = 0; lp = 0;
+            while (read(rfd, &c, 1) == 1) {
+                if (c == '\n') {
+                    if (cnt >= skip) {
+                        tmp[lp] = 0;
+                        n = lp;
+                        write(wfd, tmp, n);
+                        write(wfd, &nl, 1);
+                    }
+                    cnt++; lp = 0;
+                } else if (c != '\r' && lp < CMD_BUF_MAX) {
+                    tmp[lp++] = c;
+                }
+            }
+        }
+        if (rfd >= 0) close(rfd);
+        if (wfd >= 0) close(wfd);
+        remove(HIST_FILE);
+        rename(tmpfile, HIST_FILE);
+    }
+    fd = open(HIST_FILE, O_WRONLY | O_CREAT | O_APPEND);
+    if (fd < 0) return;
+    n = (int)strlen(cmd);
+    write(fd, cmd, n);
+    write(fd, &nl, 1);
+    close(fd);
 }
 
 /* ------------------------------------------------------------------ */
@@ -276,8 +308,10 @@ static int startstage_shell(){
     char ext_rx = 0;
     int cur       = 0;
     int csi_param = 0;
-    int hist_pos  = -1;  /* -1=new input; 0=newest; hist_count-1=oldest */
+    int hist_pos  = -1;  /* -1=new input; 0=newest; hist_count()-1=oldest */
+    int hist_next_pos = 0;
     char hist_saved[CMD_BUF_MAX + 1];
+    char hist_tmp[CMD_BUF_MAX + 1];
     int  hist_saved_bytes = 0;
     int  hist_saved_cur   = 0;
 
@@ -292,8 +326,6 @@ static int startstage_shell(){
     shelldir[sizeof(shelldir) - 1] = '\0';
 
     prompt(PROMPT_FIRST);
-
-    hist_load();
 
     while (1)
     {
@@ -315,52 +347,47 @@ static int startstage_shell(){
             } else if(ext_rx == 2){
                 if(rx == CHAR_UP){
                     ext_rx = 0;
-                    if(hist_count > 0) {
-                        int new_pos;
-                        new_pos = hist_pos + 1;
-                        if(new_pos >= hist_count) new_pos = hist_count - 1;
-                        if(hist_pos == -1) {
-                            /* save current input before browsing */
-                            strncpy(hist_saved, cmdline.buffer, CMD_BUF_MAX);
-                            hist_saved[CMD_BUF_MAX] = 0;
-                            hist_saved_bytes = cmdline.bytes;
-                            hist_saved_cur   = cur;
+                    {
+                        hist_next_pos = hist_pos + 1;
+                        if(hist_get(hist_next_pos, hist_tmp)) {
+                            if(hist_pos == -1) {
+                                strncpy(hist_saved, cmdline.buffer, CMD_BUF_MAX);
+                                hist_saved[CMD_BUF_MAX] = 0;
+                                hist_saved_bytes = cmdline.bytes;
+                                hist_saved_cur   = cur;
+                            }
+                            hist_pos = hist_next_pos;
+                            strncpy(cmdline.buffer, hist_tmp, CMD_BUF_MAX);
+                            cmdline.buffer[CMD_BUF_MAX] = 0;
+                            cmdline.bytes = (int)strlen(cmdline.buffer);
+                            tx_string("\r" CSI "2K");
+                            prompt(PROMPT);
+                            tx_string(cmdline.buffer);
+                            cur = cmdline.bytes;
                         }
-                        hist_pos = new_pos;
-                        tx_string("\r" CSI "2K");
-                        prompt(PROMPT);
-                        strncpy(cmdline.buffer, hist_get(hist_pos), CMD_BUF_MAX);
-                        cmdline.buffer[CMD_BUF_MAX] = 0;
-                        cmdline.bytes = (int)strlen(cmdline.buffer);
-                        tx_string(cmdline.buffer);
-                        cur = cmdline.bytes;
                     }
                     continue;
                 } else if(rx == CHAR_DOWN){
                     ext_rx = 0;
-                    if(hist_pos >= 0) {
-                        if(hist_pos == 0) {
-                            /* restore saved input */
-                            hist_pos = -1;
-                            tx_string("\r" CSI "2K");
-                            prompt(PROMPT);
-                            strncpy(cmdline.buffer, hist_saved, CMD_BUF_MAX);
-                            cmdline.buffer[CMD_BUF_MAX] = 0;
-                            cmdline.bytes = hist_saved_bytes;
-                            tx_string(cmdline.buffer);
-                            cur = hist_saved_cur;
-                            if(cur < cmdline.bytes)
-                                tx_csi_n(cmdline.bytes - cur, 'D');
-                        } else {
-                            hist_pos--;
-                            tx_string("\r" CSI "2K");
-                            prompt(PROMPT);
-                            strncpy(cmdline.buffer, hist_get(hist_pos), CMD_BUF_MAX);
-                            cmdline.buffer[CMD_BUF_MAX] = 0;
-                            cmdline.bytes = (int)strlen(cmdline.buffer);
-                            tx_string(cmdline.buffer);
-                            cur = cmdline.bytes;
-                        }
+                    if(hist_pos > 0) {
+                        hist_pos--;
+                        hist_get(hist_pos, cmdline.buffer);
+                        cmdline.bytes = (int)strlen(cmdline.buffer);
+                        tx_string("\r" CSI "2K");
+                        prompt(PROMPT);
+                        tx_string(cmdline.buffer);
+                        cur = cmdline.bytes;
+                    } else if(hist_pos == 0) {
+                        hist_pos = -1;
+                        tx_string("\r" CSI "2K");
+                        prompt(PROMPT);
+                        strncpy(cmdline.buffer, hist_saved, CMD_BUF_MAX);
+                        cmdline.buffer[CMD_BUF_MAX] = 0;
+                        cmdline.bytes = hist_saved_bytes;
+                        tx_string(cmdline.buffer);
+                        cur = hist_saved_cur;
+                        if(cur < cmdline.bytes)
+                            tx_csi_n(cmdline.bytes - cur, 'D');
                     }
                     continue;
                 } else if(rx == CHAR_LEFT){
@@ -526,10 +553,10 @@ static int startstage_shell(){
             } else if(rx == CHAR_CR || rx == CHAR_LF) {
                 ext_rx = 0;
                 if(rx == CHAR_LF && last_rx == CHAR_CR) continue; // Ignore CRLF
+                hist_pos = -1;
                 if(cmdline.bytes){
                     tx_string(NEWLINE);
                     hist_add(cmdline.buffer);
-                    hist_pos = -1;
                     execute(&cmdline);
                     // while(!RX_READY) {(void)RIA.rx;}
                     cmdline.bytes = 0;

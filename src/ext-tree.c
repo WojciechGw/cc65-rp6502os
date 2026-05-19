@@ -5,7 +5,7 @@
 
 #include "commons.h"
 
-#define APPVER "20260509.1524"
+#define APPVER "20260519.0320"
 
 #define MAX_DEPTH    6      /* max depth below root */
 #define MAX_STACK    96     /* pending work frames   */

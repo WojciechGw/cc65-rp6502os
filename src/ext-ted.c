@@ -14,7 +14,7 @@
     [Ctrl+Q]       exit");
 */
 
-#define APPVER "20260510.2200"
+#define APPVER "20260519.0320"
 #define APPNAME "TEd"
 #define APP_MSG_TITLE CSI "1;1H" CSI HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " " APPNAME ANSI_DARK_GRAY CSI "1;60Hversion " APPVER ANSI_RESET
 
