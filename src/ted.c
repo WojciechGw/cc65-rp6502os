@@ -7,6 +7,8 @@
 #include "commons.h"
 
 /* keysology
+    [Tab]          insert spaces to next tab stop (col % 8)
+    [Shift+Tab]    remove spaces back to prev tab stop
     [Ctrl+O]       open document
     [Ctrl+S]       save document
     [Shift+Ctrl+S] save as document
@@ -1019,8 +1021,8 @@ static int find_text(const char *pattern)
                     if ((uint16_t)row > (uint16_t)(EDIT_ROWS / 2u)) {
                         scroll_row = (uint8_t)(row - EDIT_ROWS / 2u);
                         if (content_rows > EDIT_ROWS &&
-                            scroll_row > (uint8_t)(content_rows - EDIT_ROWS))
-                            scroll_row = (uint8_t)(content_rows - EDIT_ROWS);
+                            scroll_row > (uint8_t)(content_rows - EDIT_ROWS + 1u))
+                            scroll_row = (uint8_t)(content_rows - EDIT_ROWS + 1u);
                     } else {
                         scroll_row = 0u;
                     }
@@ -1620,8 +1622,8 @@ int main(int argc, char **argv)
                 }
             } else {
                 /* scroll down */
-                max_scroll = (content_rows > (uint16_t)EDIT_ROWS)
-                             ? (uint8_t)(content_rows - EDIT_ROWS) : 0u;
+                max_scroll = (content_rows >= (uint16_t)EDIT_ROWS)
+                             ? (uint8_t)(content_rows - EDIT_ROWS + 1u) : 0u;
                 if (scroll_row < max_scroll) {
                     scroll_row++;
                     if (cur.row < scroll_row)
@@ -2005,8 +2007,8 @@ int main(int argc, char **argv)
                     repeat_key = 0u;
                     cur.row    = (content_rows > 0u) ? (uint8_t)(content_rows - 1u) : 0u;
                     cur.col    = line_text_len(cur.row);
-                    if (content_rows > (uint16_t)EDIT_ROWS)
-                        scroll_row = (uint8_t)(content_rows - EDIT_ROWS);
+                    if (content_rows >= (uint16_t)EDIT_ROWS)
+                        scroll_row = (uint8_t)(content_rows - EDIT_ROWS + 1u);
                     else
                         scroll_row = 0u;
                     redraw_screen();
@@ -2069,11 +2071,16 @@ int main(int argc, char **argv)
                 } else if (key(KEY_PAGEDOWN)) {
                     if ((uint16_t)cur.row + (uint16_t)EDIT_ROWS < (uint16_t)content_rows) {
                         cur.row += (uint8_t)EDIT_ROWS;
+                        if ((uint8_t)(cur.row - scroll_row) >= EDIT_ROWS) {
+                            scroll_row = (uint8_t)(cur.row - EDIT_ROWS + 1u);
+                            redraw_screen();
+                        }
                     } else {
                         cur.row = (content_rows > 0u) ? (uint8_t)(content_rows - 1u) : 0u;
-                    }
-                    if ((uint8_t)(cur.row - scroll_row) >= EDIT_ROWS) {
-                        scroll_row = (uint8_t)(cur.row - EDIT_ROWS + 1u);
+                        if (content_rows >= (uint16_t)EDIT_ROWS)
+                            scroll_row = (uint8_t)(content_rows - EDIT_ROWS + 1u);
+                        else
+                            scroll_row = 0u;
                         redraw_screen();
                     }
 
@@ -2394,6 +2401,49 @@ int main(int argc, char **argv)
                         }
                         doc_dirty = 1u;
                         if (insert_mode) redraw_screen();
+                    }
+
+                /* --- Shift+Tab: remove spaces back to prev tab stop --- */
+                } else if (key_shifts && key(KEY_TAB)) {
+                    if (!view_mode && cur.col > 0u) {
+                        uint8_t tb_target = (uint8_t)((cur.col - 1u) & ~7u);
+                        uint8_t tb_del    = (uint8_t)(cur.col - tb_target);
+                        uint8_t tb_i;
+                        for (tb_i = 0u; tb_i < tb_del; tb_i++) {
+                            uint8_t bch;
+                            RIA.addr1 = TEXT_BUF_BASE + (uint16_t)cur.row * TEXT_COLS + cur.col - 1u;
+                            RIA.step1 = 0;
+                            bch = RIA.rw1;
+                            if (bch != ' ' && bch != 0u) break;
+                            cur.col--;
+                            if (insert_mode) {
+                                line_shift_left(cur.row, (uint8_t)(cur.col + 1u));
+                            } else {
+                                RIA.addr0 = TEXT_BUF_BASE + (uint16_t)cur.row * TEXT_COLS + cur.col;
+                                RIA.step0 = 0;
+                                RIA.rw0   = ' ';
+                            }
+                        }
+                        if (tb_i > 0u) { doc_dirty = 1u; redraw_screen(); }
+                    }
+
+                /* --- Tab: insert spaces to next tab stop (col % 8) --- */
+                } else if (key(KEY_TAB)) {
+                    if (!view_mode) {
+                        uint8_t tb_spaces = (uint8_t)(8u - (cur.col % 8u));
+                        uint8_t tb_i;
+                        for (tb_i = 0u; tb_i < tb_spaces; tb_i++) {
+                            if (cur.col >= (uint8_t)(TEXT_COLS - 1u)) break;
+                            if (insert_mode) line_shift_right(cur.row, cur.col);
+                            RIA.addr0 = TEXT_BUF_BASE + (uint16_t)cur.row * TEXT_COLS + cur.col;
+                            RIA.step0 = 0;
+                            RIA.rw0   = ' ';
+                            cur.col++;
+                        }
+                        if ((uint16_t)(cur.row + 1u) > content_rows)
+                            content_rows = (uint16_t)(cur.row + 1u);
+                        doc_dirty = 1u;
+                        redraw_screen();
                     }
 
                 /* --- Generic character input --- */
