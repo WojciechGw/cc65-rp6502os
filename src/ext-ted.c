@@ -14,7 +14,7 @@
     [Ctrl+Q]       exit");
 */
 
-#define APPVER "20260519.0320"
+#define APPVER "20260519.1316"
 #define APPNAME "TEd"
 #define APP_MSG_TITLE CSI "1;1H" CSI HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " " APPNAME ANSI_DARK_GRAY CSI "1;60Hversion " APPVER ANSI_RESET
 
@@ -734,14 +734,16 @@ static int save_file(const char *filename)
 
 /* ================================================================
    find_text: searches XRAM buffer for pattern from one position past
-   cursor. Highlights match with reverse video and scrolls.
+   cursor. Wraps around to beginning of file if end is reached.
+   Highlights match with reverse video and scrolls.
    ================================================================ */
 static int find_text(const char *pattern)
 {
     uint8_t  plen, i, col, match;
-    uint16_t row, start_row;
-    uint8_t  start_col;
+    uint16_t row, start_row, end_row;
+    uint8_t  start_col, col_limit;
     uint8_t  disp_row;
+    uint8_t  wrapped;
 
     plen = (uint8_t)strlen(pattern);
     if (plen == 0u || plen > TEXT_COLS) return 0;
@@ -754,37 +756,47 @@ static int find_text(const char *pattern)
         start_col = 0u;
     }
 
-    for (row = start_row; row < content_rows; row++) {
-        RIA.addr1 = TEXT_BUF_BASE + row * TEXT_COLS;
-        RIA.step1 = 1;
-        for (i = 0u; i < TEXT_COLS; i++) g_linebuf[i] = (char)RIA.rw1;
+    /* Two passes: first from start to end, then (if needed) from 0 to start_row. */
+    for (wrapped = 0u; wrapped < 2u; wrapped++) {
+        uint16_t from = wrapped ? 0u : start_row;
+        end_row       = wrapped ? start_row : content_rows;
 
-        col = (row == start_row) ? start_col : 0u;
+        for (row = from; row < end_row; row++) {
+            RIA.addr1 = TEXT_BUF_BASE + row * TEXT_COLS;
+            RIA.step1 = 1;
+            for (i = 0u; i < TEXT_COLS; i++) g_linebuf[i] = (char)RIA.rw1;
 
-        for (; (uint16_t)col + plen <= TEXT_COLS; col++) {
-            match = 1u;
-            for (i = 0u; i < plen; i++) {
-                if (g_linebuf[(uint8_t)(col + i)] != pattern[i]) { match = 0u; break; }
-            }
-            if (match) {
-                cur.row = (uint8_t)row;
-                cur.col = col;
+            col       = (row == start_row && !wrapped) ? start_col : 0u;
+            col_limit = (row == start_row &&  wrapped) ? start_col : (uint8_t)(TEXT_COLS - plen + 1u);
 
-                /* scroll so found line appears near center */
-                if ((uint16_t)row > (uint16_t)(EDIT_ROWS / 2u)) {
-                    scroll_row = (uint8_t)(row - EDIT_ROWS / 2u);
-                    if (content_rows > EDIT_ROWS &&
-                        scroll_row > (uint8_t)(content_rows - EDIT_ROWS))
-                        scroll_row = (uint8_t)(content_rows - EDIT_ROWS);
-                } else {
-                    scroll_row = 0u;
+            for (; col + plen <= col_limit; col++) {
+                match = 1u;
+                for (i = 0u; i < plen; i++) {
+                    if (g_linebuf[(uint8_t)(col + i)] != pattern[i]) { match = 0u; break; }
                 }
+                if (match) {
+                    cur.row = (uint8_t)row;
+                    cur.col = col;
 
-                redraw_screen();
-                printf("\033[%d;%dH", (int)(disp_row + 1u + TITLE_ROWS), (int)(col + 1u));
-                return 1;
+                    /* scroll so found line appears near center */
+                    if ((uint16_t)row > (uint16_t)(EDIT_ROWS / 2u)) {
+                        scroll_row = (uint8_t)(row - EDIT_ROWS / 2u);
+                        if (content_rows > EDIT_ROWS &&
+                            scroll_row > (uint8_t)(content_rows - EDIT_ROWS))
+                            scroll_row = (uint8_t)(content_rows - EDIT_ROWS);
+                    } else {
+                        scroll_row = 0u;
+                    }
+
+                    redraw_screen();
+                    disp_row = (uint8_t)(cur.row - scroll_row);
+                    printf("\033[%d;%dH", (int)(disp_row + 1u + TITLE_ROWS), (int)(col + 1u));
+                    return 1;
+                }
             }
         }
+        /* if start_row == 0 the second pass would be empty, skip it */
+        if (start_row == 0u) break;
     }
     return 0;
 }
