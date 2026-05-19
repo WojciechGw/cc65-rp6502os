@@ -158,7 +158,7 @@ static int startstage_boot(){
 #define HIST_MAX  20
 #define HIST_FILE "MSC0:/SHELL/.history"
 
-/* hist_count() — count non-empty lines in .history */
+/* hist_count() — count non-empty lines in .history
 static int hist_count(void) {
     int fd, n, lp;
     char c;
@@ -176,7 +176,7 @@ static int hist_count(void) {
     close(fd);
     return n;
 }
-
+*/
 /* hist_get(age, buf) — age=0 newest, age=1 one older, etc.
    reads .history and copies the line into buf[CMD_BUF_MAX+1].
    returns 1 on success, 0 if not found. */
@@ -224,16 +224,33 @@ static int hist_get(int age, char *buf) {
 /* hist_add — append cmd to .history; skip duplicate of last line */
 static void hist_add(const char *cmd) {
     static char tmp[CMD_BUF_MAX + 1];
+    static char last[CMD_BUF_MAX + 1];
     static char tmpfile[] = "MSC0:/SHELL/.histtmp";
     int fd, rfd, wfd;
     int n, total, skip, cnt, lp;
     char c, nl;
     nl = '\n';
     if (!cmd[0]) return;
-    /* skip duplicate of newest entry */
-    if (hist_get(0, tmp) && strcmp(tmp, cmd) == 0) return;
+    /* single pass: count non-empty lines and capture last line */
+    fd = open(HIST_FILE, O_RDONLY);
+    total = 0; lp = 0; last[0] = 0;
+    if (fd >= 0) {
+        while (read(fd, &c, 1) == 1) {
+            if (c == '\n') {
+                if (lp > 0) {
+                    last[lp] = 0;
+                    total++;
+                }
+                lp = 0;
+            } else if (c != '\r' && lp < CMD_BUF_MAX) {
+                last[lp++] = c;
+            }
+        }
+        close(fd);
+    }
+    /* skip duplicate of last entry */
+    if (total > 0 && strcmp(last, cmd) == 0) return;
     /* trim file to HIST_MAX-1 lines if needed */
-    total = hist_count();
     if (total >= HIST_MAX) {
         skip = total - HIST_MAX + 1;
         rfd = open(HIST_FILE, O_RDONLY);
@@ -242,7 +259,7 @@ static void hist_add(const char *cmd) {
             cnt = 0; lp = 0;
             while (read(rfd, &c, 1) == 1) {
                 if (c == '\n') {
-                    if (lp > 0) {   /* skip empty lines */
+                    if (lp > 0) {
                         if (cnt >= skip) {
                             tmp[lp] = 0;
                             n = lp;
@@ -267,6 +284,7 @@ static void hist_add(const char *cmd) {
     n = (int)strlen(cmd);
     write(fd, cmd, n);
     write(fd, &nl, 1);
+    syncfs(fd);
     close(fd);
 }
 
