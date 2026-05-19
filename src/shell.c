@@ -557,8 +557,8 @@ static int startstage_shell(){
                 if(rx == CHAR_LF && last_rx == CHAR_CR) continue; // Ignore CRLF
                 hist_pos = -1;
                 if(cmdline.bytes){
-                    tx_string(NEWLINE);
                     hist_add(cmdline.buffer);
+                    tx_string(NEWLINE);
                     execute(&cmdline);
                     // while(!RX_READY) {(void)RIA.rx;}
                     cmdline.bytes = 0;
