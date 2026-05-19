@@ -158,15 +158,21 @@ static int startstage_boot(){
 #define HIST_MAX  20
 #define HIST_FILE "MSC0:/SHELL/.history"
 
-/* hist_count() — count lines in .history (newest = last line) */
+/* hist_count() — count non-empty lines in .history */
 static int hist_count(void) {
-    int fd, n;
+    int fd, n, lp;
     char c;
     fd = open(HIST_FILE, O_RDONLY);
     if (fd < 0) return 0;
-    n = 0;
-    while (read(fd, &c, 1) == 1)
-        if (c == '\n') n++;
+    n = 0; lp = 0;
+    while (read(fd, &c, 1) == 1) {
+        if (c == '\n') {
+            if (lp > 0) n++;
+            lp = 0;
+        } else if (c != '\r') {
+            lp++;
+        }
+    }
     close(fd);
     return n;
 }
@@ -180,10 +186,12 @@ static int hist_get(int age, char *buf) {
     char c;
     fd = open(HIST_FILE, O_RDONLY);
     if (fd < 0) return 0;
-    /* count total lines */
-    total = 0;
-    while (read(fd, &c, 1) == 1)
-        if (c == '\n') total++;
+    /* count total non-empty lines */
+    total = 0; lp = 0;
+    while (read(fd, &c, 1) == 1) {
+        if (c == '\n') { if (lp > 0) total++; lp = 0; }
+        else if (c != '\r') lp++;
+    }
     if (age >= total) { close(fd); return 0; }
     /* target line index from start (0-based), newest = total-1 */
     target = total - 1 - age;
@@ -196,12 +204,14 @@ static int hist_get(int age, char *buf) {
     buf[0] = 0;
     while (read(fd, &c, 1) == 1) {
         if (c == '\n') {
-            if (cur_line == target) {
-                buf[lp] = 0;
-                close(fd);
-                return 1;
+            if (lp > 0) {   /* skip empty lines */
+                if (cur_line == target) {
+                    buf[lp] = 0;
+                    close(fd);
+                    return 1;
+                }
+                cur_line++;
             }
-            cur_line++;
             lp = 0;
         } else if (c != '\r' && lp < CMD_BUF_MAX) {
             buf[lp++] = c;
@@ -232,13 +242,16 @@ static void hist_add(const char *cmd) {
             cnt = 0; lp = 0;
             while (read(rfd, &c, 1) == 1) {
                 if (c == '\n') {
-                    if (cnt >= skip) {
-                        tmp[lp] = 0;
-                        n = lp;
-                        write(wfd, tmp, n);
-                        write(wfd, &nl, 1);
+                    if (lp > 0) {   /* skip empty lines */
+                        if (cnt >= skip) {
+                            tmp[lp] = 0;
+                            n = lp;
+                            write(wfd, tmp, n);
+                            write(wfd, &nl, 1);
+                        }
+                        cnt++;
                     }
-                    cnt++; lp = 0;
+                    lp = 0;
                 } else if (c != '\r' && lp < CMD_BUF_MAX) {
                     tmp[lp++] = c;
                 }
@@ -377,17 +390,6 @@ static int startstage_shell(){
                         prompt(PROMPT);
                         tx_string(cmdline.buffer);
                         cur = cmdline.bytes;
-                    } else if(hist_pos == 0) {
-                        hist_pos = -1;
-                        tx_string("\r" CSI "2K");
-                        prompt(PROMPT);
-                        strncpy(cmdline.buffer, hist_saved, CMD_BUF_MAX);
-                        cmdline.buffer[CMD_BUF_MAX] = 0;
-                        cmdline.bytes = hist_saved_bytes;
-                        tx_string(cmdline.buffer);
-                        cur = hist_saved_cur;
-                        if(cur < cmdline.bytes)
-                            tx_csi_n(cmdline.bytes - cur, 'D');
                     }
                     continue;
                 } else if(rx == CHAR_LEFT){
