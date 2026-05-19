@@ -14,9 +14,12 @@
     [Ctrl+Q]       exit");
 */
 
-#define APPVER "20260519.1316"
+void *__fastcall__ argv_mem(size_t size) { return malloc(size); }
+
+#define APPVER "20260519.1600"
 #define APPNAME "TEd"
-#define APP_MSG_TITLE CSI "1;1H" CSI HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " " APPNAME ANSI_DARK_GRAY CSI "1;60Hversion " APPVER ANSI_RESET
+#define APPDESCRPTION "Text Editor"
+#define APP_MSG_TITLE CSI "1;1H" CSI HIGHLIGHT_COLOR " APPNAME > " ANSI_RESET " " APPDESCRPTION ANSI_DARK_GRAY CSI "1;60Hversion " APPVER ANSI_RESET
 
 /* autorepeat: clock() ticks are centiseconds (1 tick = 10 ms) */
 #define REPEAT_DELAY      40u   /* 400 ms before first repeat */
@@ -38,6 +41,13 @@
 /* --- XRAM clipboard: up to 32 whole lines stored after text buffer --- */
 #define CLIP_BUF_BASE    0x5100u
 #define CLIP_MAX_LINES   32u
+
+/* --- clipboard file backing store --- */
+#define CLIP_FILE        "TMP/ted_cb.dat"
+#define CLIP_META_FILE   "TMP/ted_cb.meta"
+
+/* --- XRAM screen cache: EDIT_ROWS x TEXT_COLS (26x80 = 2080 bytes) --- */
+#define SCREEN_CACHE_BASE  (CLIP_BUF_BASE + (uint16_t)CLIP_MAX_LINES * TEXT_COLS)
 
 /* --- Terminal dimensions (640x480, 16px font) --- */
 #define TERM_ROWS        30u
@@ -80,6 +90,9 @@ static uint16_t content_rows  = 0u;
 static char current_filename[64];
 static char search_pattern[32];
 static char g_linebuf[82];
+
+/* --- screen line cache flag (data lives in XRAM at SCREEN_CACHE_BASE) --- */
+static uint8_t cache_valid = 0u;
 
 /* --- Insert/Overwrite mode and clipboard --- */
 static uint8_t view_mode   = 0u;   /* 1 = read-only view, editing disabled */
@@ -312,14 +325,6 @@ static void menu_print_row(uint8_t ansi_row, const char *text)
     printf(ANSI_RESET);
 }
 
-static void menu_print_text(uint8_t ansi_row, uint8_t ansi_col, const char *text)
-{
-    uint8_t i;
-    printf("\033[%d;%dH", (int)ansi_row, (int)ansi_col);
-    for (i = 0u; text[i] && i < TEXT_COLS; i++) putchar((uint8_t)text[i]);
-    printf(ANSI_RESET);
-}
-
 static void draw_menu_bar(const char *status)
 {
     uint8_t i;
@@ -352,8 +357,82 @@ static void draw_menu_bar(const char *status)
 }
 
 /* ================================================================
+   redraw_line: draws one visible row (screen index r) from XRAM cache.
+   Caller must ensure cache_valid == 1.
+   ================================================================ */
+static void redraw_line(uint8_t r)
+{
+    uint8_t  j;
+    uint16_t xrow = (uint16_t)scroll_row + r;
+    uint8_t  in_sel, in_char_sel;
+
+    in_char_sel = sel_active && sel_mode == SEL_MODE_CHAR
+                  && (uint8_t)xrow == sel_row && (uint8_t)xrow == cur.row
+                  && xrow < content_rows;
+    in_sel = sel_active && sel_mode == SEL_MODE_LINE
+             && (uint8_t)xrow >= sel_min_row()
+             && (uint8_t)xrow <= sel_max_row()
+             && xrow < content_rows;
+
+    printf("\033[%d;1H", (int)(r + 1u + TITLE_ROWS));
+    if (in_sel)            printf(ANSI_SEL_BG);
+    else if (!in_char_sel) printf(ANSI_SEL_BG_OFF);
+
+    if (xrow < content_rows) {
+        RIA.addr1 = SCREEN_CACHE_BASE + (uint16_t)r * TEXT_COLS;
+        RIA.step1 = 1;
+        if (in_char_sel) {
+            uint8_t c_from = (sel_col < cur.col) ? sel_col : cur.col;
+            uint8_t c_to   = (sel_col > cur.col) ? sel_col : cur.col;
+            for (j = 0u; j < TEXT_COLS; j++) {
+                if (j >= c_from && j < c_to) printf(ANSI_SEL_BG);
+                else                          printf(ANSI_SEL_BG_OFF);
+                putchar((uint8_t)RIA.rw1);
+            }
+            printf(ANSI_SEL_BG_OFF);
+        } else {
+            for (j = 0u; j < TEXT_COLS; j++) putchar((uint8_t)RIA.rw1);
+            if (in_sel) printf(ANSI_SEL_BG_OFF);
+        }
+    } else if (xrow == content_rows) {
+        static const char eod[] = "- End of document -";
+        printf(ANSI_DARK_GRAY);
+        for (j = 0u; eod[j]; j++) putchar((uint8_t)eod[j]);
+        printf(ANSI_NORMAL);
+    } else {
+        for (j = 0u; j < TEXT_COLS; j++) putchar(' ');
+    }
+}
+
+/* ================================================================
+   redraw_sel_delta: redraws only the rows whose selection highlight
+   changed between two selection states (old_r1..old_r2 and new_r1..new_r2).
+   Uses screen_cache — no XRAM reads.
+   ================================================================ */
+static void redraw_sel_delta(uint8_t old_r1, uint8_t old_r2,
+                              uint8_t new_r1, uint8_t new_r2)
+{
+    uint8_t rows[4], n, i, k, sr, dup;
+    n = 0u;
+    rows[n++] = old_r1;
+    rows[n++] = old_r2;
+    if (new_r1 != old_r1 && new_r1 != old_r2) rows[n++] = new_r1;
+    if (new_r2 != old_r1 && new_r2 != old_r2 && new_r2 != new_r1) rows[n++] = new_r2;
+    for (i = 0u; i < n; i++) {
+        sr = rows[i];
+        if (sr < scroll_row || (uint8_t)(sr - scroll_row) >= EDIT_ROWS) continue;
+        /* skip duplicate screen positions */
+        dup = 0u;
+        { uint8_t m; for (m = 0u; m < i; m++) if (rows[m] == sr) { dup = 1u; break; } }
+        if (dup) continue;
+        k = (uint8_t)(sr - scroll_row);
+        redraw_line(k);
+    }
+}
+
+/* ================================================================
    redraw_screen: redraws EDIT_ROWS visible lines from XRAM + menu.
-   Repositions terminal cursor at cur.row/col.
+   Fills screen_cache. Repositions terminal cursor at cur.row/col.
    ================================================================ */
 static void redraw_screen(void)
 {
@@ -362,49 +441,22 @@ static void redraw_screen(void)
 
     printf(ANSI_HIDE_CUR ANSI_HOME);
     draw_title_bar();
+    cache_valid = 1u;
     for (r = 0u; r < EDIT_ROWS; r++) {
-        uint8_t in_sel, in_char_sel;
         xrow = (uint16_t)scroll_row + r;
-        in_char_sel = sel_active && sel_mode == SEL_MODE_CHAR
-                      && (uint8_t)xrow == sel_row && (uint8_t)xrow == cur.row
-                      && xrow < content_rows;
-        in_sel = sel_active && sel_mode == SEL_MODE_LINE
-                 && (uint8_t)xrow >= sel_min_row()
-                 && (uint8_t)xrow <= sel_max_row()
-                 && xrow < content_rows;
-        printf("\033[%d;1H", (int)(r + 1u + TITLE_ROWS));
-        if (in_sel)          printf(ANSI_SEL_BG);
-        else if (!in_char_sel) printf(ANSI_SEL_BG_OFF);
+        RIA.addr0 = SCREEN_CACHE_BASE + (uint16_t)r * TEXT_COLS;
+        RIA.step0 = 1;
         if (xrow < content_rows) {
             RIA.addr1 = TEXT_BUF_BASE + xrow * TEXT_COLS;
             RIA.step1 = 1;
             for (j = 0u; j < TEXT_COLS; j++) {
                 char c = (char)RIA.rw1;
-                g_linebuf[j] = c ? c : ' ';
+                RIA.rw0 = (uint8_t)(c ? c : ' ');
             }
-            if (in_char_sel) {
-                uint8_t c_from = (sel_col < cur.col) ? sel_col : cur.col;
-                uint8_t c_to   = (sel_col > cur.col) ? sel_col : cur.col;
-                for (j = 0u; j < TEXT_COLS; j++) {
-                    if (j >= c_from && j < c_to) printf(ANSI_SEL_BG);
-                    else                          printf(ANSI_SEL_BG_OFF);
-                    putchar((uint8_t)g_linebuf[j]);
-                }
-                printf(ANSI_SEL_BG_OFF);
-            } else {
-                for (j = 0u; j < TEXT_COLS; j++) putchar((uint8_t)g_linebuf[j]);
-                if (in_sel) printf(ANSI_SEL_BG_OFF);
-            }
-        } else if (xrow == content_rows) {
-            /* "- END of document -" centred in dark grey */
-            static const char eod[] = "- End of document -";
-            printf(ANSI_DARK_GRAY);
-            for (j = 0u; eod[j]; j++) putchar((uint8_t)eod[j]);
-            printf(ANSI_NORMAL);
         } else {
-            /* blank lines beyond END marker */
-            for (j = 0u; j < TEXT_COLS; j++) putchar(' ');
+            for (j = 0u; j < TEXT_COLS; j++) RIA.rw0 = (uint8_t)' ';
         }
+        redraw_line(r);
     }
     draw_menu_bar(NULL);
     printf("\033[%d;%dH" ANSI_SHOW_CUR,
@@ -1035,6 +1087,71 @@ static uint8_t sel_min_row(void) { return sel_row < cur.row ? sel_row : cur.row;
 static uint8_t sel_max_row(void) { return sel_row > cur.row ? sel_row : cur.row; }
 
 /* ================================================================
+   clip_save: writes XRAM clipboard buffer to backing files.
+   ================================================================ */
+static void clip_save(void)
+{
+    int     fd;
+    uint8_t r, j;
+
+    fd = open(CLIP_META_FILE, O_WRONLY | O_CREAT | O_TRUNC);
+    if (fd < 0) return;
+    RIA.addr0 = XRAM_SCRATCH; RIA.step0 = 1;
+    RIA.rw0 = clip_is_char;
+    RIA.rw0 = clip_lines;
+    write_xram(XRAM_SCRATCH, 2u, fd);
+    close(fd);
+
+    fd = open(CLIP_FILE, O_WRONLY | O_CREAT | O_TRUNC);
+    if (fd < 0) return;
+    for (r = 0u; r < clip_lines; r++) {
+        RIA.addr1 = CLIP_BUF_BASE + (uint16_t)r * TEXT_COLS; RIA.step1 = 1;
+        RIA.addr0 = XRAM_SCRATCH; RIA.step0 = 1;
+        for (j = 0u; j < TEXT_COLS; j++) RIA.rw0 = RIA.rw1;
+        write_xram(XRAM_SCRATCH, (unsigned)TEXT_COLS, fd);
+    }
+    close(fd);
+}
+
+/* ================================================================
+   clip_load: reads backing files into XRAM clipboard buffer.
+   ================================================================ */
+static void clip_load(void)
+{
+    int     fd;
+    uint8_t r, j;
+
+    fd = open(CLIP_META_FILE, O_RDONLY);
+    if (fd < 0) { clip_lines = 0u; return; }
+    read_xram(XRAM_SCRATCH, 2u, fd);
+    close(fd);
+    RIA.addr1 = XRAM_SCRATCH; RIA.step1 = 1;
+    clip_is_char = (uint8_t)RIA.rw1;
+    clip_lines   = (uint8_t)RIA.rw1;
+    if (clip_lines > CLIP_MAX_LINES) clip_lines = CLIP_MAX_LINES;
+    if (clip_lines == 0u) return;
+
+    fd = open(CLIP_FILE, O_RDONLY);
+    if (fd < 0) { clip_lines = 0u; return; }
+    for (r = 0u; r < clip_lines; r++) {
+        read_xram(XRAM_SCRATCH, (unsigned)TEXT_COLS, fd);
+        RIA.addr1 = XRAM_SCRATCH; RIA.step1 = 1;
+        RIA.addr0 = CLIP_BUF_BASE + (uint16_t)r * TEXT_COLS; RIA.step0 = 1;
+        for (j = 0u; j < TEXT_COLS; j++) RIA.rw0 = RIA.rw1;
+    }
+    close(fd);
+}
+
+/* ================================================================
+   clip_delete: removes clipboard backing files on exit.
+   ================================================================ */
+static void clip_delete(void)
+{
+    remove(CLIP_FILE);
+    remove(CLIP_META_FILE);
+}
+
+/* ================================================================
    do_copy: copies selected rows (or current row) into XRAM clipboard.
    Stores whole lines; clip_lines = number of lines saved.
    ================================================================ */
@@ -1058,6 +1175,7 @@ static void do_copy(void)
             RIA.rw0   = RIA.rw1;
         }
         sel_active = 0u;
+        clip_save();
         redraw_screen();
         draw_menu_bar("SELECTED COPIED TO CLIPBOARD");
         return;
@@ -1083,6 +1201,7 @@ static void do_copy(void)
     }
 
     sel_active = 0u;
+    clip_save();
     redraw_screen();
     draw_menu_bar("SELECTED COPIED TO CLIPBOARD");
 }
@@ -1204,6 +1323,17 @@ int main(int argc, char **argv)
     clock_t repeat_start, repeat_last;
     uint8_t target_col;
 
+    #ifdef DEBUG
+    {
+        int i;
+        printf("argc = %d\n", argc);
+        for (i = 0; i < argc; i++)
+            printf("argv[%d] = %s\n", i, argv[i]);
+
+        return 0;
+    }
+    #endif
+
     /* init state */
     cur.row             = 0u;
     cur.col             = 0u;
@@ -1229,20 +1359,26 @@ int main(int argc, char **argv)
     repeat_last         = 0;
     target_col          = 0u;
 
+    f_mkdir("TMP");
+    clip_load();
+
     flush_rx();
     xreg_ria_keyboard(XRAM_STRUCT_SYS_KEYBOARD);
     xreg_ria_mouse(XRAM_STRUCT_SYS_MOUSE);
     printf(CSI_ECHO_OFF);
 
-    /* parse arguments: [/view] [filename] */
+    /*
+        parse arguments: load ted.rp6502 [filename] [/view]
+    */
     {
-        int fi = 0;   /* index of filename argument */
-        if (argc >= 1 && strcmp(argv[0], "/view") == 0) {
+        int fi = 1;   /* index of filename argument */
+        if (argc >= 1 && strcmp(argv[2], "/view") == 0) {
             view_mode = 1u;
             fi = 1;
         }
         strncpy(current_filename, (fi < argc && argv[fi][0]) ? argv[fi] : NEW_FILENAME, 63u);
     }
+
     current_filename[63] = 0;
     ok = load_file(current_filename);   /* calls editor_clear() + redraw_screen() internally */
     draw_title_bar();
@@ -1391,6 +1527,7 @@ int main(int argc, char **argv)
                         strncpy(current_filename, NEW_FILENAME, 63u);
                         current_filename[63] = '\0';
                         editor_clear();
+                        cache_valid = 0u;
                         draw_title_bar();
                         draw_menu_bar("NEW DOCUMENT");
                         printf(ANSI_SHOW_CUR "\033[%d;1H", (int)(1u + TITLE_ROWS));
@@ -1451,18 +1588,27 @@ int main(int argc, char **argv)
                 /* --- Cursor movement --- */
                 } else if (key(KEY_LEFT)) {
                     if (key_shifts) {
-                        if (!sel_active) { sel_active = 1u; sel_row = cur.row; sel_col = cur.col; }
-                        sel_mode = SEL_MODE_CHAR;
-                        if (cur.col > 0u) {
-                            cur.col--;
-                        } else if (cur.row > 0u) {
-                            cur.row--;
-                            cur.col = line_text_len(cur.row);
-                            if (cur.row != sel_row) sel_active = 0u;
-                            if (cur.row < scroll_row) scroll_row = cur.row;
+                        { uint8_t od1 = cur.row, od2 = cur.row;
+                          if (!sel_active) { sel_active = 1u; sel_row = cur.row; sel_col = cur.col; }
+                          else { od1 = sel_min_row(); od2 = sel_max_row(); }
+                          sel_mode = SEL_MODE_CHAR;
+                          if (cur.col > 0u) {
+                              cur.col--;
+                          } else if (cur.row > 0u) {
+                              cur.row--;
+                              cur.col = line_text_len(cur.row);
+                              if (cur.row != sel_row) sel_active = 0u;
+                              if (cur.row < scroll_row) { scroll_row = cur.row; cache_valid = 0u; }
+                          }
+                          target_col = cur.col;
+                          if (cache_valid) {
+                              redraw_sel_delta(od1, od2, cur.row, cur.row);
+                              draw_menu_bar(NULL);
+                              printf("\033[%d;%dH" ANSI_SHOW_CUR,
+                                     (int)((cur.row - scroll_row) + 1u + TITLE_ROWS),
+                                     (int)(cur.col + 1u));
+                          } else { redraw_screen(); }
                         }
-                        target_col = cur.col;
-                        redraw_screen();
                     } else {
                         if (sel_active) { sel_active = 0u; redraw_screen(); }
                         if (cur.col > 0u) {
@@ -1477,22 +1623,33 @@ int main(int argc, char **argv)
 
                 } else if (key(KEY_RIGHT)) {
                     if (key_shifts) {
-                        if (!sel_active) { sel_active = 1u; sel_row = cur.row; sel_col = cur.col; }
-                        sel_mode = SEL_MODE_CHAR;
-                        { uint8_t lim = line_text_len(cur.row);
-                          if (lim > TEXT_COLS - 1u) lim = TEXT_COLS - 1u;
-                          if (cur.col < lim) {
-                              cur.col++;
-                          } else if ((uint16_t)cur.row < content_rows) {
-                              cur.row++;
-                              cur.col = 0u;
-                              if (cur.row != sel_row) sel_active = 0u;
-                              if ((uint8_t)(cur.row - scroll_row) >= EDIT_ROWS)
-                                  scroll_row = (uint8_t)(cur.row - EDIT_ROWS + 1u);
+                        { uint8_t od1 = cur.row, od2 = cur.row;
+                          if (!sel_active) { sel_active = 1u; sel_row = cur.row; sel_col = cur.col; }
+                          else { od1 = sel_min_row(); od2 = sel_max_row(); }
+                          sel_mode = SEL_MODE_CHAR;
+                          { uint8_t lim = line_text_len(cur.row);
+                            if (lim > TEXT_COLS - 1u) lim = TEXT_COLS - 1u;
+                            if (cur.col < lim) {
+                                cur.col++;
+                            } else if ((uint16_t)cur.row < content_rows) {
+                                cur.row++;
+                                cur.col = 0u;
+                                if (cur.row != sel_row) sel_active = 0u;
+                                if ((uint8_t)(cur.row - scroll_row) >= EDIT_ROWS) {
+                                    scroll_row = (uint8_t)(cur.row - EDIT_ROWS + 1u);
+                                    cache_valid = 0u;
+                                }
+                            }
                           }
+                          target_col = cur.col;
+                          if (cache_valid) {
+                              redraw_sel_delta(od1, od2, cur.row, cur.row);
+                              draw_menu_bar(NULL);
+                              printf("\033[%d;%dH" ANSI_SHOW_CUR,
+                                     (int)((cur.row - scroll_row) + 1u + TITLE_ROWS),
+                                     (int)(cur.col + 1u));
+                          } else { redraw_screen(); }
                         }
-                        target_col = cur.col;
-                        redraw_screen();
                     } else {
                         if (sel_active) { sel_active = 0u; redraw_screen(); }
                         { uint8_t lim = line_text_len(cur.row);
@@ -1513,18 +1670,27 @@ int main(int argc, char **argv)
 
                 } else if (key(KEY_UP)) {
                     if (key_shifts) {
-                        if (!sel_active) { sel_active = 1u; sel_row = cur.row; }
-                        sel_mode = SEL_MODE_LINE;
-                        if (repeat_key == KEY_UP && last_key == KEY_UP) {
-                        } else { target_col = cur.col; }
-                        if (cur.row > 0u) {
-                            cur.row--;
-                            { uint8_t lim = line_text_len(cur.row);
-                              cur.col = (target_col <= lim) ? target_col : lim;
-                            }
-                            if (cur.row < scroll_row) scroll_row = cur.row;
+                        { uint8_t od1, od2;
+                          if (!sel_active) { sel_active = 1u; sel_row = cur.row; }
+                          od1 = sel_min_row(); od2 = sel_max_row();
+                          sel_mode = SEL_MODE_LINE;
+                          if (repeat_key == KEY_UP && last_key == KEY_UP) {
+                          } else { target_col = cur.col; }
+                          if (cur.row > 0u) {
+                              cur.row--;
+                              { uint8_t lim = line_text_len(cur.row);
+                                cur.col = (target_col <= lim) ? target_col : lim;
+                              }
+                              if (cur.row < scroll_row) { scroll_row = cur.row; cache_valid = 0u; }
+                          }
+                          if (cache_valid) {
+                              redraw_sel_delta(od1, od2, sel_min_row(), sel_max_row());
+                              draw_menu_bar(NULL);
+                              printf("\033[%d;%dH" ANSI_SHOW_CUR,
+                                     (int)((cur.row - scroll_row) + 1u + TITLE_ROWS),
+                                     (int)(cur.col + 1u));
+                          } else { redraw_screen(); }
                         }
-                        redraw_screen();
                     } else {
                         if (sel_active) { sel_active = 0u; redraw_screen(); }
                         if (repeat_key == KEY_UP && last_key == KEY_UP) {
@@ -1540,20 +1706,31 @@ int main(int argc, char **argv)
 
                 } else if (key(KEY_DOWN)) {
                     if (key_shifts) {
-                        if (!sel_active) { sel_active = 1u; sel_row = cur.row; }
-                        sel_mode = SEL_MODE_LINE;
-                        if (repeat_key == KEY_DOWN && last_key == KEY_DOWN) {
-                        } else { target_col = cur.col; }
-                        if ((uint16_t)cur.row < content_rows) {
-                            cur.row++;
-                            { uint8_t lim = (cur.row < content_rows)
-                                            ? line_text_len(cur.row) : 0u;
-                              cur.col = (target_col <= lim) ? target_col : lim;
-                            }
-                            if ((uint8_t)(cur.row - scroll_row) >= EDIT_ROWS)
-                                scroll_row = (uint8_t)(cur.row - EDIT_ROWS + 1u);
+                        { uint8_t od1, od2;
+                          if (!sel_active) { sel_active = 1u; sel_row = cur.row; }
+                          od1 = sel_min_row(); od2 = sel_max_row();
+                          sel_mode = SEL_MODE_LINE;
+                          if (repeat_key == KEY_DOWN && last_key == KEY_DOWN) {
+                          } else { target_col = cur.col; }
+                          if ((uint16_t)cur.row < content_rows) {
+                              cur.row++;
+                              { uint8_t lim = (cur.row < content_rows)
+                                              ? line_text_len(cur.row) : 0u;
+                                cur.col = (target_col <= lim) ? target_col : lim;
+                              }
+                              if ((uint8_t)(cur.row - scroll_row) >= EDIT_ROWS) {
+                                  scroll_row = (uint8_t)(cur.row - EDIT_ROWS + 1u);
+                                  cache_valid = 0u;
+                              }
+                          }
+                          if (cache_valid) {
+                              redraw_sel_delta(od1, od2, sel_min_row(), sel_max_row());
+                              draw_menu_bar(NULL);
+                              printf("\033[%d;%dH" ANSI_SHOW_CUR,
+                                     (int)((cur.row - scroll_row) + 1u + TITLE_ROWS),
+                                     (int)(cur.col + 1u));
+                          } else { redraw_screen(); }
                         }
-                        redraw_screen();
                     } else {
                         if (sel_active) { sel_active = 0u; redraw_screen(); }
                         if (repeat_key == KEY_DOWN && last_key == KEY_DOWN) {
@@ -1588,12 +1765,48 @@ int main(int argc, char **argv)
                         scroll_row = 0u;
                     redraw_screen();
 
+                } else if (key_shifts && key(KEY_HOME)) {
+                    repeat_key = 0u;
+                    { uint8_t od1 = cur.row, od2 = cur.row;
+                      if (!sel_active) { sel_active = 1u; sel_row = cur.row; sel_col = cur.col; }
+                      else { od1 = sel_min_row(); od2 = sel_max_row(); }
+                      sel_mode = SEL_MODE_CHAR;
+                      cur.col  = 0u;
+                      target_col = 0u;
+                      if (cache_valid) {
+                          redraw_sel_delta(od1, od2, cur.row, cur.row);
+                          draw_menu_bar(NULL);
+                          printf("\033[%d;%dH" ANSI_SHOW_CUR,
+                                 (int)((cur.row - scroll_row) + 1u + TITLE_ROWS),
+                                 (int)(cur.col + 1u));
+                      } else { redraw_screen(); }
+                    }
+
+                } else if (key_shifts && key(KEY_END)) {
+                    repeat_key = 0u;
+                    { uint8_t od1 = cur.row, od2 = cur.row;
+                      if (!sel_active) { sel_active = 1u; sel_row = cur.row; sel_col = cur.col; }
+                      else { od1 = sel_min_row(); od2 = sel_max_row(); }
+                      sel_mode = SEL_MODE_CHAR;
+                      cur.col  = line_text_len(cur.row);
+                      target_col = cur.col;
+                      if (cache_valid) {
+                          redraw_sel_delta(od1, od2, cur.row, cur.row);
+                          draw_menu_bar(NULL);
+                          printf("\033[%d;%dH" ANSI_SHOW_CUR,
+                                 (int)((cur.row - scroll_row) + 1u + TITLE_ROWS),
+                                 (int)(cur.col + 1u));
+                      } else { redraw_screen(); }
+                    }
+
                 } else if (key(KEY_HOME)) {
                     repeat_key = 0u;
+                    if (sel_active) { sel_active = 0u; redraw_screen(); }
                     cur.col = 0u;
 
                 } else if (key(KEY_END)) {
                     repeat_key = 0u;
+                    if (sel_active) { sel_active = 0u; redraw_screen(); }
                     cur.col = line_text_len(cur.row);
 
                 } else if (key(KEY_PAGEUP)) {
@@ -1657,6 +1870,16 @@ int main(int argc, char **argv)
                 /* --- Delete --- */
                 } else if (key(KEY_DELETE)) {
                     if (!view_mode) {
+                        if (sel_active) {
+                            /* delete selection without touching clipboard */
+                            uint8_t saved_clip_lines   = clip_lines;
+                            uint8_t saved_clip_is_char = clip_is_char;
+                            do_cut();
+                            clip_lines   = saved_clip_lines;
+                            clip_is_char = saved_clip_is_char;
+                            draw_menu_bar("SELECTED DELETED");
+                            doc_dirty = 1u;
+                        } else {
                         uint8_t cur_text_len = line_text_len(cur.row);
                         if (cur.col < cur_text_len) {
                             /* delete char at cursor: shift row left from col+1 */
@@ -1680,6 +1903,7 @@ int main(int argc, char **argv)
                             do_delete_join();
                         }
                         doc_dirty = 1u;
+                        } /* else (!sel_active) */
                     } /* !view_mode */
 
                 /* --- Ctrl+Q: exit --- */
@@ -1982,6 +2206,7 @@ int main(int argc, char **argv)
     xreg_vga_canvas(GFX_CANVAS_640x480);
     xreg(1, 0, 1, 0);
     printf(CSI_CLS CSI_ECHO_ON CSI_CURSOR_SHOW CSI_CURSOR_HOME);
+    clip_delete();
     return 0;
 
 }

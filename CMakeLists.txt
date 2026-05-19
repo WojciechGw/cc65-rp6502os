@@ -72,4 +72,11 @@ rp6502_executable(launchpad DATA 0x0200 RESET 0x0200)
 target_sources(launchpad PRIVATE src/ext-roms.c)
 target_link_options(launchpad PRIVATE -C ${CMAKE_SOURCE_DIR}/src/launchpad.cfg)
 
+add_executable(ted)
+rp6502_asset(ted help src/ted.hlp)
+# ROM: commands
+rp6502_executable(ted DATA 0x0200 RESET 0x0200)
+target_sources(ted PRIVATE src/ted.c)
+target_link_options(ted PRIVATE -C ${CMAKE_SOURCE_DIR}/src/ted.cfg)
+
 # include(src/razemosmt/CMakeLists[rmt].txt)

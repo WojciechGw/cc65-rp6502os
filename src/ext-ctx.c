@@ -7,7 +7,7 @@
 #define _NEED_DRAWBAR
 #include "commons/courier-gfx.h"
 
-#define APPVER "20260519.0320"
+#define APPVER "20260519.1350"
 
 #define HDR_NAME_MAX 31  /* max filename chars in header (+ null = 32 B) */
 
