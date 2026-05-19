@@ -551,6 +551,7 @@ static int menu_input(const char *prompt, char *buf, uint8_t maxlen)
 {
     uint8_t prev_ks[KEYBOARD_BYTES];
     uint8_t cur_ks[KEYBOARD_BYTES];
+    char    saved_buf[64];
     uint8_t len, pos, k, j, code, was, now, i;
     uint8_t shift, caps;
     int     done, result;
@@ -561,9 +562,14 @@ static int menu_input(const char *prompt, char *buf, uint8_t maxlen)
     uint8_t rep_key;        /* key held for autorepeat (0 = none) */
     clock_t rep_start;      /* clock() when key was first pressed */
     clock_t rep_last;       /* clock() of last repeat fire */
+    uint8_t save_len;
 
     for (plen = 0u; prompt[plen]; plen++) {}
     field = (plen < 79u) ? (uint8_t)(80u - plen) : 1u;
+
+    /* save original buffer so Esc can restore it */
+    save_len = (maxlen < 64u) ? maxlen : 64u;
+    for (i = 0u; i < save_len; i++) saved_buf[i] = buf[i];
 
     /* measure pre-filled content so caller can seed the buffer */
     for (len = 0u; buf[len] && len < (uint8_t)(maxlen - 1u); len++) {}
@@ -681,6 +687,9 @@ static int menu_input(const char *prompt, char *buf, uint8_t maxlen)
 
     printf(ANSI_HIDE_CUR);
     for (k = 0u; k < KEYBOARD_BYTES; k++) keystates[k] = cur_ks[k];
+    if (!result) {
+        for (i = 0u; i < save_len; i++) buf[i] = saved_buf[i];
+    }
     return result;
 }
 
