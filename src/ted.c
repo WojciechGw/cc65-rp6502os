@@ -7,14 +7,16 @@
 #include "commons.h"
 
 /* keysology
-    [Tab]          insert spaces to next tab stop (col % 8)
-    [Shift+Tab]    remove spaces back to prev tab stop
-    [Ctrl+O]       open document
-    [Ctrl+S]       save document
-    [Shift+Ctrl+S] save as document
-    [Ctrl+F]       find pattern
-    [Ctrl+H]       replace text
-    [Ctrl+Q]       exit");
+    [Tab]               insert spaces to next tab stop (col % 8)
+    [Shift+Tab]         remove spaces back to prev tab stop
+    [Ctrl+O]            open document
+    [Ctrl+S]            save document
+    [Shift+Ctrl+S]      save as document
+    [Ctrl+F]            find pattern
+    [Ctrl+H]            replace text
+    [Ctrl+Q]            exit
+    [Shift+Ctrl+Alt+N]  start numbered list (Enter=next, Enter+Enter=end)
+    [Shift+Ctrl+Alt+B]  start bullet list   (bullet=col-0 char, Enter+Enter=end)
 */
 
 void *__fastcall__ argv_mem(size_t size) { return malloc(size); }
@@ -121,6 +123,14 @@ static uint8_t sel_col     = 0u;   /* anchor column for char-level selection */
 static uint8_t sel_mode    = SEL_MODE_LINE;
 static uint8_t clip_lines   = 0u;   /* number of whole rows in XRAM clipboard */
 static uint8_t clip_is_char = 0u;   /* 1 = clipboard holds char fragment, not whole rows */
+
+/* --- list mode --- */
+#define LIST_MODE_NONE   0u
+#define LIST_MODE_NUM    1u   /* Shift+Ctrl+Alt+N: numbered list */
+#define LIST_MODE_BULLET 2u   /* Shift+Ctrl+Alt+B: bullet list */
+static uint8_t list_mode    = LIST_MODE_NONE;
+static uint8_t list_counter = 0u;   /* current item number (numbered list) */
+static char    list_bullet  = 0;    /* bullet character */
 
 static uint8_t sel_min_row(void);
 static uint8_t sel_max_row(void);
@@ -338,7 +348,15 @@ static void draw_menu_bar(const char *status)
     char block[40];
     char row2[81];
 
-    info = status ? status : INFO_READY;
+    if (status) {
+        info = status;
+    } else if (list_mode == LIST_MODE_NUM) {
+        info = "LIST: numbered (Enter+Enter to end)";
+    } else if (list_mode == LIST_MODE_BULLET) {
+        info = "LIST: bullet (Enter+Enter to end)";
+    } else {
+        info = INFO_READY;
+    }
 
     printf(CSI "s" CSI_CURSOR_HIDE CSI "%d;1H", TITLE_ROWS + EDIT_ROWS + 1u);
     for (i = 0u; i < 80u; i++) putchar('\xc4');
@@ -725,6 +743,7 @@ static void editor_clear(void)
     content_rows = 0u;
     sel_active   = 0u;
     doc_dirty    = 0u;
+    list_mode    = LIST_MODE_NONE;
 }
 
 /* ================================================================
@@ -1719,6 +1738,61 @@ int main(int argc, char **argv)
                     insert_mode = insert_mode ? 0u : 1u;
                     draw_menu_bar(NULL);
 
+                /* --- Shift+Ctrl+Alt+N: start numbered list --- */
+                } else if (key_ctrl && key_shifts && key_lalt && key(KEY_N)) {
+                    repeat_key = 0u;
+                    if (!view_mode) {
+                        uint8_t pi;
+                        char    prefix[4];
+                        list_mode    = LIST_MODE_NUM;
+                        list_counter = 1u;
+                        if (cur.row < 255u) {
+                            rows_shift_down((uint8_t)(cur.row + 1u));
+                            content_rows++;
+                            cur.row++;
+                            cur.col = 0u;
+                            if ((uint8_t)(cur.row - scroll_row) >= EDIT_ROWS)
+                                scroll_row = (uint8_t)(cur.row - EDIT_ROWS + 1u);
+                        }
+                        prefix[0] = '1'; prefix[1] = '.'; prefix[2] = ' ';
+                        RIA.addr0 = TEXT_BUF_BASE + (uint16_t)cur.row * TEXT_COLS;
+                        RIA.step0 = 1;
+                        for (pi = 0u; pi < 3u; pi++) RIA.rw0 = (uint8_t)prefix[pi];
+                        cur.col = 3u;
+                        if ((uint16_t)(cur.row + 1u) > content_rows)
+                            content_rows = (uint16_t)(cur.row + 1u);
+                        doc_dirty = 1u;
+                        redraw_screen();
+                        draw_menu_bar(NULL);
+                    }
+
+                /* --- Shift+Ctrl+Alt+B: start bullet list --- */
+                } else if (key_ctrl && key_shifts && key_lalt && key(KEY_B)) {
+                    repeat_key = 0u;
+                    if (!view_mode) {
+                        uint8_t bch;
+                        RIA.addr1 = TEXT_BUF_BASE + (uint16_t)cur.row * TEXT_COLS;
+                        RIA.step1 = 0;
+                        bch = RIA.rw1;
+                        if (bch != 0u && bch != ' ') {
+                            list_bullet = (char)bch;
+                            list_mode   = LIST_MODE_BULLET;
+                            if (line_text_len(cur.row) < 2u) {
+                                RIA.addr0 = TEXT_BUF_BASE + (uint16_t)cur.row * TEXT_COLS + 1u;
+                                RIA.step0 = 0;
+                                RIA.rw0   = ' ';
+                                if ((uint16_t)(cur.row + 1u) > content_rows)
+                                    content_rows = (uint16_t)(cur.row + 1u);
+                                doc_dirty = 1u;
+                            }
+                            cur.col = 2u;
+                            redraw_screen();
+                            draw_menu_bar(NULL);
+                        } else {
+                            draw_menu_bar("LIST: set bullet char at col 0 first");
+                        }
+                    }
+
                 } else if (key_ctrl && key(KEY_N)) {
                     repeat_key = 0u;
                     if (!view_mode) {
@@ -2095,7 +2169,57 @@ int main(int argc, char **argv)
 
                 /* --- Enter: split line at cursor --- */
                 } else if (key(KEY_ENTER) || key(KEY_KPENTER)) {
-                    if (!view_mode) { do_enter(); doc_dirty = 1u; }
+                    if (!view_mode) {
+                        if (list_mode != LIST_MODE_NONE) {
+                            uint8_t llen      = line_text_len(cur.row);
+                            /* bare prefix length (without trailing space):
+                               numbered: "N." = 2, "NN." = 3; bullet: 1 char */
+                            uint8_t bare_plen = (list_mode == LIST_MODE_NUM)
+                                ? (list_counter >= 10u ? 3u : 2u) : 1u;
+                            if (llen <= bare_plen) {
+                                /* Enter on prefix-only line: delete it, exit list mode */
+                                if (content_rows > 0u) rows_shift_up(cur.row);
+                                if (cur.row > 0u) {
+                                    cur.row--;
+                                    cur.col = line_text_len(cur.row);
+                                } else {
+                                    cur.col = 0u;
+                                }
+                                list_mode = LIST_MODE_NONE;
+                                doc_dirty = 1u;
+                                redraw_screen();
+                                draw_menu_bar("LIST MODE OFF");
+                            } else {
+                                uint8_t pi, plen2;
+                                char    prefix[6];
+                                do_enter();
+                                if (list_mode == LIST_MODE_NUM) {
+                                    list_counter++;
+                                    if (list_counter >= 10u) {
+                                        prefix[0] = (char)('0' + list_counter / 10u);
+                                        prefix[1] = (char)('0' + list_counter % 10u);
+                                        prefix[2] = '.'; prefix[3] = ' '; plen2 = 4u;
+                                    } else {
+                                        prefix[0] = (char)('0' + list_counter);
+                                        prefix[1] = '.'; prefix[2] = ' '; plen2 = 3u;
+                                    }
+                                } else {
+                                    prefix[0] = list_bullet; prefix[1] = ' '; plen2 = 2u;
+                                }
+                                RIA.addr0 = TEXT_BUF_BASE + (uint16_t)cur.row * TEXT_COLS;
+                                RIA.step0 = 1;
+                                for (pi = 0u; pi < plen2; pi++) RIA.rw0 = (uint8_t)prefix[pi];
+                                cur.col = plen2;
+                                if ((uint16_t)(cur.row + 1u) > content_rows)
+                                    content_rows = (uint16_t)(cur.row + 1u);
+                                doc_dirty = 1u;
+                                redraw_screen();
+                            }
+                        } else {
+                            do_enter();
+                            doc_dirty = 1u;
+                        }
+                    }
 
                 /* --- Backspace --- */
                 } else if (key(KEY_BACKSPACE)) {
@@ -2326,6 +2450,7 @@ int main(int argc, char **argv)
                     }
 
                 /* --- Ctrl+Shift+Alt+A: ASCII character table popup (17x17, hex labels) --- */
+                /* --- Shift+Ctrl+Alt+N: start numbered list --- */
                 } else if (key_ctrl && key_shifts && key_lalt && key(KEY_A)) {
                     repeat_key = 0u;
                     {
