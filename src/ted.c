@@ -15,8 +15,11 @@
     [Ctrl+F]            find pattern
     [Ctrl+H]            replace text
     [Ctrl+Q]            exit
-    [Shift+Ctrl+Alt+N]  start numbered list (Enter=next, Enter+Enter=end)
-    [Shift+Ctrl+Alt+B]  start bullet list   (bullet=col-0 char, Enter+Enter=end)
+    [Shift+Ctrl+Alt+L]  start list from line prefix:
+                          "1." / "2."  -> numbered list  (1. 2. 3. ...)
+                          "a)" / "b)"  -> alpha list     (a) b) ... z) aa) ...)
+                          "* " "- " etc -> bullet list
+                        Enter=next item, Enter+Enter=end list
 */
 
 void *__fastcall__ argv_mem(size_t size) { return malloc(size); }
@@ -126,11 +129,13 @@ static uint8_t clip_is_char = 0u;   /* 1 = clipboard holds char fragment, not wh
 
 /* --- list mode --- */
 #define LIST_MODE_NONE   0u
-#define LIST_MODE_NUM    1u   /* Shift+Ctrl+Alt+N: numbered list */
-#define LIST_MODE_BULLET 2u   /* Shift+Ctrl+Alt+B: bullet list */
+#define LIST_MODE_NUM    1u   /* numeric:  "1."  "2."  ... */
+#define LIST_MODE_ALPHA  2u   /* alpha:    "a)"  "b)"  ... "z)" "aa)" ... */
+#define LIST_MODE_BULLET 3u   /* bullet:   "* "  "- "  etc. */
 static uint8_t list_mode    = LIST_MODE_NONE;
-static uint8_t list_counter = 0u;   /* current item number (numbered list) */
-static char    list_bullet  = 0;    /* bullet character */
+static uint8_t list_counter = 0u;   /* current item number (NUM: 1-based; ALPHA: 0='a') */
+static char    list_bullet  = 0;    /* bullet char (BULLET mode) */
+static char    list_sep     = 0;    /* separator after number/letter: '.' or ')' etc. */
 
 static uint8_t sel_min_row(void);
 static uint8_t sel_max_row(void);
@@ -351,9 +356,11 @@ static void draw_menu_bar(const char *status)
     if (status) {
         info = status;
     } else if (list_mode == LIST_MODE_NUM) {
-        info = "LIST: numbered (Enter+Enter to end)";
+        info = "LIST: numbered  (Enter+Enter to end)";
+    } else if (list_mode == LIST_MODE_ALPHA) {
+        info = "LIST: alpha     (Enter+Enter to end)";
     } else if (list_mode == LIST_MODE_BULLET) {
-        info = "LIST: bullet (Enter+Enter to end)";
+        info = "LIST: bullet    (Enter+Enter to end)";
     } else {
         info = INFO_READY;
     }
@@ -521,7 +528,7 @@ static void redraw_screen(void)
 }
 
 /* ================================================================
-   menu_confirm: Y/N prompt in bottom menu row. Returns 1=Y, 0=N/Esc.
+   menu_confirm: Y/N/Esc prompt. Returns 1=Y, 0=N, -1=Esc (cancel).
    ================================================================ */
 static int menu_confirm(const char *prompt)
 {
@@ -549,8 +556,9 @@ static int menu_confirm(const char *prompt)
                 now = (cur_ks [k] >> j) & 1u;
                 if (!was && now) {
                     code = (uint8_t)((k << 3) | j);
-                    if (code == KEY_Y) { result = 1; done = 1; }
-                    else if (code == KEY_N || code == KEY_ESC) { result = 0; done = 1; }
+                    if (code == KEY_Y) { result = 1;  done = 1; }
+                    else if (code == KEY_N)   { result = 0;  done = 1; }
+                    else if (code == KEY_ESC) { result = -1; done = 1; }
                 }
             }
             prev_ks[k] = cur_ks[k];
@@ -744,6 +752,9 @@ static void editor_clear(void)
     sel_active   = 0u;
     doc_dirty    = 0u;
     list_mode    = LIST_MODE_NONE;
+    list_counter = 0u;
+    list_sep     = 0;
+    list_bullet  = 0;
 }
 
 /* ================================================================
@@ -1607,7 +1618,7 @@ int main(int argc, char **argv)
     scroll_row = 0u;
     printf(OSC_CURSOR_COLOR "408040" OSC_ST ANSI_SHOW_CUR "\033[%d;1H", (int)(TITLE_ROWS + 1u));
 
-    window_open((80u-26u)/2u, (30u-16u)/2u, 26, 16, CSI "37m", CSI "48;2;40;80;40m", 0);
+    window_open(((80u-26u)/2u)+1u, ((30u-16u)/2u)-1u, 26, 16, CSI "37m", CSI "48;2;40;80;40m", 0);
     window_text(APPNAME, 2, 1, CSI "37m", CSI "48;2;40;80;40m");
     window_text("Text Editor", 2, 3, CSI "37m", CSI "48;2;40;80;40m");
     window_text("for razemOS", 2, 4, CSI "37m", CSI "48;2;40;80;40m");
@@ -1738,58 +1749,51 @@ int main(int argc, char **argv)
                     insert_mode = insert_mode ? 0u : 1u;
                     draw_menu_bar(NULL);
 
-                /* --- Shift+Ctrl+Alt+N: start numbered list --- */
-                } else if (key_ctrl && key_shifts && key_lalt && key(KEY_N)) {
+                /* --- Shift+Ctrl+Alt+L: start list from current-line prefix --- */
+                /* Reads first 2 chars of current line to detect list type:
+                   "1." / "2." etc.  -> LIST_MODE_NUM  (sep = '.')
+                   "a)" / "b)" etc.  -> LIST_MODE_ALPHA (sep = char[1])
+                   "* " "- " "> " "= " "+ " "| " "# " -> LIST_MODE_BULLET */
+                } else if (key_ctrl && key_shifts && key_lalt && key(KEY_L)) {
                     repeat_key = 0u;
                     if (!view_mode) {
-                        uint8_t pi;
-                        char    prefix[4];
-                        list_mode    = LIST_MODE_NUM;
-                        list_counter = 1u;
-                        if (cur.row < 255u) {
-                            rows_shift_down((uint8_t)(cur.row + 1u));
-                            content_rows++;
-                            cur.row++;
-                            cur.col = 0u;
-                            if ((uint8_t)(cur.row - scroll_row) >= EDIT_ROWS)
-                                scroll_row = (uint8_t)(cur.row - EDIT_ROWS + 1u);
-                        }
-                        prefix[0] = '1'; prefix[1] = '.'; prefix[2] = ' ';
-                        RIA.addr0 = TEXT_BUF_BASE + (uint16_t)cur.row * TEXT_COLS;
-                        RIA.step0 = 1;
-                        for (pi = 0u; pi < 3u; pi++) RIA.rw0 = (uint8_t)prefix[pi];
-                        cur.col = 3u;
-                        if ((uint16_t)(cur.row + 1u) > content_rows)
-                            content_rows = (uint16_t)(cur.row + 1u);
-                        doc_dirty = 1u;
-                        redraw_screen();
-                        draw_menu_bar(NULL);
-                    }
-
-                /* --- Shift+Ctrl+Alt+B: start bullet list --- */
-                } else if (key_ctrl && key_shifts && key_lalt && key(KEY_B)) {
-                    repeat_key = 0u;
-                    if (!view_mode) {
-                        uint8_t bch;
+                        uint8_t lch0, lch1;
                         RIA.addr1 = TEXT_BUF_BASE + (uint16_t)cur.row * TEXT_COLS;
-                        RIA.step1 = 0;
-                        bch = RIA.rw1;
-                        if (bch != 0u && bch != ' ') {
-                            list_bullet = (char)bch;
-                            list_mode   = LIST_MODE_BULLET;
-                            if (line_text_len(cur.row) < 2u) {
-                                RIA.addr0 = TEXT_BUF_BASE + (uint16_t)cur.row * TEXT_COLS + 1u;
-                                RIA.step0 = 0;
-                                RIA.rw0   = ' ';
-                                if ((uint16_t)(cur.row + 1u) > content_rows)
-                                    content_rows = (uint16_t)(cur.row + 1u);
-                                doc_dirty = 1u;
-                            }
-                            cur.col = 2u;
+                        RIA.step1 = 1;
+                        lch0 = RIA.rw1;
+                        lch1 = RIA.rw1;
+                        if (lch0 >= '1' && lch0 <= '9' && (lch1 == '.' || lch1 == ')')) {
+                            /* numeric */
+                            list_mode    = LIST_MODE_NUM;
+                            list_sep     = (char)lch1;
+                            list_counter = (uint8_t)(lch0 - '0');
+                            cur.col      = 3u;   /* after "N. " */
+                            doc_dirty    = 1u;
+                            redraw_screen();
+                            draw_menu_bar(NULL);
+                        } else if (lch0 >= 'a' && lch0 <= 'z' &&
+                                   (lch1 == ')' || lch1 == '.' || lch1 == ':')) {
+                            /* alpha */
+                            list_mode    = LIST_MODE_ALPHA;
+                            list_sep     = (char)lch1;
+                            list_counter = (uint8_t)(lch0 - 'a'); /* 0='a' */
+                            cur.col      = 3u;   /* after "a) " */
+                            doc_dirty    = 1u;
+                            redraw_screen();
+                            draw_menu_bar(NULL);
+                        } else if (lch1 == ' ' &&
+                                   (lch0 == '*' || lch0 == '-' || lch0 == '>' ||
+                                    lch0 == '=' || lch0 == '+' || lch0 == '|' ||
+                                    lch0 == '#')) {
+                            /* bullet */
+                            list_bullet  = (char)lch0;
+                            list_mode    = LIST_MODE_BULLET;
+                            cur.col      = 2u;
+                            doc_dirty    = 1u;
                             redraw_screen();
                             draw_menu_bar(NULL);
                         } else {
-                            draw_menu_bar("LIST: set bullet char at col 0 first");
+                            draw_menu_bar("LIST: start line with '1.' / 'a)' / '* '");
                         }
                     }
 
@@ -1797,7 +1801,9 @@ int main(int argc, char **argv)
                     repeat_key = 0u;
                     if (!view_mode) {
                         if (doc_dirty) {
-                            if (menu_confirm(" Save changes before new document? [Y/N] ")) {
+                            int cn = menu_confirm(" Save changes before new document? [Y/N/Esc] ");
+                            if (cn < 0) goto ctrl_n_cancel;
+                            if (cn > 0) {
                                 if (menu_input("SAVE path/filename : ", current_filename, 64u)) {
                                     ok = save_file(current_filename);
                                     if (ok >= 0) doc_dirty = 0u;
@@ -1815,6 +1821,7 @@ int main(int argc, char **argv)
                         draw_title_bar();
                         draw_menu_bar("NEW DOCUMENT");
                         printf(ANSI_SHOW_CUR "\033[%d;1H", (int)(1u + TITLE_ROWS));
+                        ctrl_n_cancel:;
                     }
 
                 /* --- File / Search dialogs (no autorepeat) --- */
@@ -2171,37 +2178,56 @@ int main(int argc, char **argv)
                 } else if (key(KEY_ENTER) || key(KEY_KPENTER)) {
                     if (!view_mode) {
                         if (list_mode != LIST_MODE_NONE) {
-                            uint8_t llen      = line_text_len(cur.row);
+                            uint8_t llen = line_text_len(cur.row);
                             /* bare prefix length (without trailing space):
-                               numbered: "N." = 2, "NN." = 3; bullet: 1 char */
-                            uint8_t bare_plen = (list_mode == LIST_MODE_NUM)
-                                ? (list_counter >= 10u ? 3u : 2u) : 1u;
+                               NUM  single "N."  = 2, double "NN." = 3
+                               ALPHA single "a)" = 2, double "aa)" = 3
+                               BULLET "* "       = 1 char without space */
+                            uint8_t bare_plen;
+                            if (list_mode == LIST_MODE_NUM)
+                                bare_plen = (list_counter >= 10u) ? 3u : 2u;
+                            else if (list_mode == LIST_MODE_ALPHA)
+                                bare_plen = (list_counter >= 26u) ? 3u : 2u;
+                            else
+                                bare_plen = 1u;
                             if (llen <= bare_plen) {
-                                /* Enter on prefix-only line: delete it, exit list mode */
-                                if (content_rows > 0u) rows_shift_up(cur.row);
-                                if (cur.row > 0u) {
-                                    cur.row--;
-                                    cur.col = line_text_len(cur.row);
-                                } else {
-                                    cur.col = 0u;
+                                /* Enter on prefix-only line: clear it, stay on it, exit list */
+                                RIA.addr0 = TEXT_BUF_BASE + (uint16_t)cur.row * TEXT_COLS;
+                                RIA.step0 = 1;
+                                {
+                                    uint8_t ci;
+                                    for (ci = 0u; ci < (uint8_t)bare_plen + 1u; ci++)
+                                        RIA.rw0 = 0u;
                                 }
+                                cur.col   = 0u;
                                 list_mode = LIST_MODE_NONE;
                                 doc_dirty = 1u;
                                 redraw_screen();
                                 draw_menu_bar("LIST MODE OFF");
                             } else {
                                 uint8_t pi, plen2;
-                                char    prefix[6];
+                                char    prefix[8];
                                 do_enter();
                                 if (list_mode == LIST_MODE_NUM) {
                                     list_counter++;
                                     if (list_counter >= 10u) {
                                         prefix[0] = (char)('0' + list_counter / 10u);
                                         prefix[1] = (char)('0' + list_counter % 10u);
-                                        prefix[2] = '.'; prefix[3] = ' '; plen2 = 4u;
+                                        prefix[2] = list_sep; prefix[3] = ' '; plen2 = 4u;
                                     } else {
                                         prefix[0] = (char)('0' + list_counter);
-                                        prefix[1] = '.'; prefix[2] = ' '; plen2 = 3u;
+                                        prefix[1] = list_sep; prefix[2] = ' '; plen2 = 3u;
+                                    }
+                                } else if (list_mode == LIST_MODE_ALPHA) {
+                                    list_counter++;
+                                    if (list_counter >= 26u) {
+                                        /* "aa)" "ab)" ... */
+                                        prefix[0] = (char)('a' + list_counter / 26u - 1u);
+                                        prefix[1] = (char)('a' + list_counter % 26u);
+                                        prefix[2] = list_sep; prefix[3] = ' '; plen2 = 4u;
+                                    } else {
+                                        prefix[0] = (char)('a' + list_counter);
+                                        prefix[1] = list_sep; prefix[2] = ' '; plen2 = 3u;
                                     }
                                 } else {
                                     prefix[0] = list_bullet; prefix[1] = ' '; plen2 = 2u;
@@ -2315,7 +2341,13 @@ int main(int argc, char **argv)
                 } else if (key_ctrl && key(KEY_Q)) {
                     repeat_key = 0u;
                     if (doc_dirty) {
-                        if (menu_confirm(" Save changes before exit? [Y/N] ")) {
+                        int cq = menu_confirm(" Save changes before exit? [Y/N/Esc] ");
+                        if (cq < 0) {
+                            redraw_screen();
+                            draw_menu_bar(NULL);
+                            goto ctrl_q_cancel;
+                        }
+                        if (cq > 0) {
                             uint8_t ask2 = (strcmp(current_filename, NEW_FILENAME) == 0);
                             if (!ask2 ||
                                 menu_input("SAVE path/filename : ", current_filename, 64u)) {
@@ -2327,6 +2359,7 @@ int main(int argc, char **argv)
                     flush_rx();
 
                     break;
+                    ctrl_q_cancel:;
 
                 /* --- F4: toggle view/edit mode --- */
                 } else if (key(KEY_F4)) {
