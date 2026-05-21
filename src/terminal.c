@@ -1,7 +1,7 @@
 #include <rp6502.h>
 #include <stdio.h>
 
-#define ESC "\033"
+#define ESC "\x1b"
 #define CSI ESC "["
 
 // #define BASIC
@@ -10,8 +10,8 @@
 
 #ifdef DECTEST
 
-#define SO "\016"   /* Shift Out  - wybierz G1 */
-#define SI "\017"    /* Shift In   - wybierz G0 */
+#define SO "\x0E"   /* Shift Out  - wybierz G1 */
+#define SI "\x0F"    /* Shift In   - wybierz G0 */
 
 #define CHAR_SO 0x0E   /* Shift Out  - wybierz G1 */
 #define CHAR_SI 0x0F    /* Shift In   - wybierz G0 */

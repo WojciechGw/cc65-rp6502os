@@ -33,15 +33,16 @@
 #include <unistd.h>
 
 /* --- app identity --- */
-#define APPVER       "20260519.1600"
-#define APPNAME      "TEd"
-#define APPDESCRPTION "Text Editor"
-#define APP_MSG_TITLE CSI "1;1H" CSI HIGHLIGHT_COLOR " " APPNAME " > " ANSI_RESET " " APPDESCRPTION ANSI_DARK_GRAY CSI "1;60Hversion " APPVER ANSI_RESET
+#define APPVER        "20260519.1600"
+#define APPNAME       "TEd"
+#define APPDESCRPTION "text editor"
+#define APPCOPYRIGHT  "(c) 2026 by WojciechGw"
+#define APP_MSG_TITLE CSI "1;1H" CSI "48;2;40;80;40m" " " APPNAME " > " ANSI_RESET " " APPDESCRPTION ANSI_RESET
 
 /* --- autorepeat timings (clock() = centiseconds, 1 tick = 10 ms) --- */
-#define REPEAT_DELAY      40u   /* 400 ms before first repeat */
-#define REPEAT_RATE        5u   /* 50 ms between repeats */
-#define REPEAT_RATE_FAST   2u   /* 20 ms between repeats (arrow keys) */
+#define REPEAT_DELAY      35u   /* 350 ms before first repeat */
+#define REPEAT_RATE        3u   /* 30 ms between repeats */
+#define REPEAT_RATE_FAST   1u   /* 10 ms between repeats (arrow keys) */
 
 #define TEXT_BUF_BASE      0x0000u
 #define TEXT_COLS          80u
@@ -110,9 +111,9 @@ uint8_t keystates[KEYBOARD_BYTES] = {0};
 /* ================================================================
    From commons/csi.h
    ================================================================ */
-#define CSI_ESC             "\x1b"
-#define CSI                 CSI_ESC "["
-#define CSI_RESET           CSI_ESC "c"
+#define ESC                 "\x1b"
+#define CSI                 ESC "["
+#define CSI_RESET           ESC "c"
 #define CSI_CLS             CSI "2J"
 #define CSI_CURSOR_SHOW     CSI "?25h"
 #define CSI_CURSOR_HIDE     CSI "?25l"
@@ -122,11 +123,11 @@ uint8_t keystates[KEYBOARD_BYTES] = {0};
 #define CSI_ECHO_OFF        CSI "12h"
 #define CSI_ECHO_ON         CSI "12l"
 
-#define OSC                     CSI_ESC "]"
+#define OSC                     ESC "]"
 #define OSC_DEFAULT_COLORFG     OSC "10;#"
 #define OSC_DEFAULT_COLORBG     OSC "11;#"
 #define OSC_CURSOR_COLOR        OSC "12;#"
-#define OSC_ST                  CSI_ESC "\\"
+#define OSC_ST                  ESC "\\"
 #define OSC_RESET_COLORFG       OSC "110" OSC_ST
 #define OSC_RESET_COLORBG       OSC "111" OSC_ST
 #define OSC_RESET_CURSOR_COLOR  OSC "112" OSC_ST
@@ -134,28 +135,28 @@ uint8_t keystates[KEYBOARD_BYTES] = {0};
 /* ================================================================
    From commons/ansi.h
    ================================================================ */
-#define ANSI_CLS        "\x1b[2J\x1b[H"
-#define ANSI_RESET      "\x1b[0m"
-#define ANSI_BOLD       "\x1b[1m"
-#define ANSI_CYAN       "\x1b[36m"
-#define ANSI_GREEN      "\x1b[32m"
-#define ANSI_YELLOW     "\x1b[33m"
-#define ANSI_WHITE      "\x1b[37m"
-#define ANSI_MAGENTA    "\x1b[35m"
-#define ANSI_RED        "\x1b[31m"
-#define ANSI_DARK_GRAY  "\x1b[90m"
+#define ANSI_CLS        CSI "2J\x1b[H"
+#define ANSI_RESET      CSI "0m"
+#define ANSI_BOLD       CSI "1m"
+#define ANSI_CYAN       CSI "36m"
+#define ANSI_GREEN      CSI "32m"
+#define ANSI_YELLOW     CSI "33m"
+#define ANSI_WHITE      CSI "37m"
+#define ANSI_MAGENTA    CSI "35m"
+#define ANSI_RED        CSI "31m"
+#define ANSI_DARK_GRAY  CSI "90m"
 
 /* ANSI escape helpers (ted.c local extensions) */
-#define ANSI_HOME       "\033[H"
-#define ANSI_HIDE_CUR   "\033[?25l"
-#define ANSI_SHOW_CUR   "\033[?25h"
-#define ANSI_REVERSE    "\033[0;7m"
-#define ANSI_NORMAL     "\033[0m"
-#define ANSI_SEL_BG     "\x1b[48;2;60;60;60m"
-#define ANSI_SEL_BG_QA  "\x1b[48;2;220;0;0m"
-#define ANSI_SEL_BG_OFF "\x1b[49m"
-#define DECSTBM_EDIT    "\033[3;28r"
-#define DECSTBM_FULL    "\033[r"
+#define ANSI_HOME       CSI "H"
+#define ANSI_HIDE_CUR   CSI "?25l"
+#define ANSI_SHOW_CUR   CSI "?25h"
+#define ANSI_REVERSE    CSI "0;7m"
+#define ANSI_NORMAL     CSI "0m"
+#define ANSI_SEL_BG     CSI "48;2;60;60;60m"
+#define ANSI_SEL_BG_QA  CSI "48;2;220;0;0m"
+#define ANSI_SEL_BG_OFF CSI "49m"
+#define DECSTBM_EDIT    CSI "3;28r"
+#define DECSTBM_FULL    CSI "r"
 
 /* ================================================================
    From commons/colors.h
@@ -456,7 +457,7 @@ uint32_t ticks = 0;
         if (pos > 0u) { \
             for (i = pos - 1u; i < len - 1u; i++) buf[i] = buf[i + 1u]; \
             len--; pos--; buf[len] = 0; _fire=1u; \
-            printf("\033[%d;%dH" ANSI_SEL_BG, (int)input_row, (int)(plen + 1u)); \
+            printf(CSI "%d;%dH" ANSI_SEL_BG, (int)input_row, (int)(plen + 1u)); \
             for (i = 0u; buf[i] && i < field; i++) putchar((uint8_t)buf[i]); \
             for (; i < field; i++) putchar(' '); \
             printf(ANSI_SEL_BG_OFF); \
@@ -465,7 +466,7 @@ uint32_t ticks = 0;
         if (pos < len) { \
             for (i = pos; i < len - 1u; i++) buf[i] = buf[i + 1u]; \
             len--; buf[len] = 0; _fire=1u; \
-            printf("\033[%d;%dH" ANSI_SEL_BG, (int)input_row, (int)(plen + 1u)); \
+            printf(CSI "%d;%dH" ANSI_SEL_BG, (int)input_row, (int)(plen + 1u)); \
             for (i = 0u; buf[i] && i < field; i++) putchar((uint8_t)buf[i]); \
             for (; i < field; i++) putchar(' '); \
             printf(ANSI_SEL_BG_OFF); \
@@ -475,13 +476,13 @@ uint32_t ticks = 0;
         if (ch && len < (uint8_t)(maxlen - 1u) && len < field) { \
             for (i = len; i > pos; i--) buf[i] = buf[i - 1u]; \
             buf[pos++] = ch; len++; buf[len] = 0; _fire=1u; \
-            printf("\033[%d;%dH" ANSI_SEL_BG, (int)input_row, (int)(plen + 1u)); \
+            printf(CSI "%d;%dH" ANSI_SEL_BG, (int)input_row, (int)(plen + 1u)); \
             for (i = 0u; buf[i] && i < field; i++) putchar((uint8_t)buf[i]); \
             for (; i < field; i++) putchar(' '); \
             printf(ANSI_SEL_BG_OFF); \
         } \
     } \
-    if (_fire) printf("\033[%d;%dH", (int)input_row, (int)(plen + pos + 1u)); \
+    if (_fire) printf(CSI "%d;%dH", (int)input_row, (int)(plen + pos + 1u)); \
 } while(0)
 
 #endif /* TED_H */
