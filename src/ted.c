@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <fcntl.h>
-#include "commons.h"
+#include "ted.h"
 
 /* keysology
     [Tab]               insert spaces to next tab stop (col % 8)
@@ -23,76 +23,6 @@
 */
 
 void *__fastcall__ argv_mem(size_t size) { return malloc(size); }
-
-#define APPVER "20260519.1600"
-#define APPNAME "TEd"
-#define APPDESCRPTION "Text Editor"
-#define APP_MSG_TITLE CSI "1;1H" CSI HIGHLIGHT_COLOR " " APPNAME " > " ANSI_RESET " " APPDESCRPTION ANSI_DARK_GRAY CSI "1;60Hversion " APPVER ANSI_RESET
-
-/* autorepeat: clock() ticks are centiseconds (1 tick = 10 ms) */
-#define REPEAT_DELAY      40u   /* 400 ms before first repeat */
-#define REPEAT_RATE        5u   /* 50 ms between repeats (default) */
-#define REPEAT_RATE_FAST   2u   /* 20 ms between repeats (arrow keys without Shift) */
-
-/* --- XRAM register addresses --- */
-#define XRAM_STRUCT_SYS_KEYBOARD 0xFF20
-#define XRAM_STRUCT_SYS_MOUSE    0xFF40
-
-/* --- GFX canvas --- */
-//#define GFX_CANVAS_640x480       0b00000011
-
-/* --- XRAM text buffer: 256 rows x 80 cols x 1 byte = 20480 bytes --- */
-#define TEXT_BUF_BASE    0x0000u
-#define TEXT_COLS        80u
-#define XRAM_SCRATCH     0xA200u   /* scratch for file write (82 bytes) */
-
-/* --- XRAM clipboard: up to 32 whole lines stored after text buffer --- */
-#define CLIP_BUF_BASE    0x5100u
-#define CLIP_MAX_LINES   32u
-
-/* --- clipboard file backing store --- */
-#define CLIP_FILE        "TMP/ted_cb.dat"
-#define CLIP_META_FILE   "TMP/ted_cb.meta"
-
-/* --- XRAM screen cache: EDIT_ROWS x TEXT_COLS (26x80 = 2080 bytes) --- */
-#define SCREEN_CACHE_BASE  (CLIP_BUF_BASE + (uint16_t)CLIP_MAX_LINES * TEXT_COLS)
-
-/* --- Terminal dimensions (640x480, 16px font) --- */
-#define TERM_ROWS        30u
-#define TITLE_ROWS       2u    /* fixed title bar at top */
-#define MENU_ROWS        2u    /* fixed menu at bottom */
-#define EDIT_ROWS        (TERM_ROWS - TITLE_ROWS - MENU_ROWS) /* editable area */
-
-/* --- ANSI escape helpers --- */
-#define ANSI_HOME        "\033[H"
-#define ANSI_HIDE_CUR    "\033[?25l"
-#define ANSI_SHOW_CUR    "\033[?25h"
-#define ANSI_REVERSE     "\033[0;7m"
-#define ANSI_NORMAL      "\033[0m"
-#define ANSI_SEL_BG      "\x1b[48;2;60;60;60m"
-#define ANSI_SEL_BG_QA   "\x1b[48;2;220;0;0m"
-#define ANSI_SEL_BG_OFF  "\x1b[49m"
-#define DECSTBM_EDIT     "\033[3;28r"
-#define DECSTBM_FULL     "\033[r"
-
-#define GFX_CANVAS_640x480 3
-
-/* --- filenames --- */
-#define NEW_FILENAME APPNAME "-NewDocument.txt"
-
-/* --- keyboard --- */
-#define KEYBOARD_BYTES 32
-uint8_t keystates[KEYBOARD_BYTES] = {0};
-#define key(code) (keystates[(code) >> 3] & (1u << ((code) & 7)))
-
-/* menu bar related */
-#define INFO_READY "Ready"
-#define CHAR_VBAR "\xb3"
-#define CHAR_HBAR "\xc4"
-#define MODE_INS  "[INS]"
-#define MODE_OVR  "[OVR]"
-#define MODE_VIEW "[VIEW]"
-#define CLIPBOARD_WITHDATA "[CLIP]"
 
 /* --- cursor --- */
 struct Cursor {
@@ -121,17 +51,11 @@ static uint8_t insert_mode = 1u;
 static uint8_t sel_active  = 0u;
 static uint8_t sel_row     = 0u;
 static uint8_t sel_col     = 0u;   /* anchor column for char-level selection */
-#define SEL_MODE_LINE 0u
-#define SEL_MODE_CHAR 1u
 static uint8_t sel_mode    = SEL_MODE_LINE;
 static uint8_t clip_lines   = 0u;   /* number of whole rows in XRAM clipboard */
 static uint8_t clip_is_char = 0u;   /* 1 = clipboard holds char fragment, not whole rows */
 
 /* --- list mode --- */
-#define LIST_MODE_NONE   0u
-#define LIST_MODE_NUM    1u   /* numeric:  "1."  "2."  ... */
-#define LIST_MODE_ALPHA  2u   /* alpha:    "a)"  "b)"  ... "z)" "aa)" ... */
-#define LIST_MODE_BULLET 3u   /* bullet:   "* "  "- "  etc. */
 static uint8_t list_mode    = LIST_MODE_NONE;
 static uint8_t list_counter = 0u;   /* current item number (NUM: 1-based; ALPHA: 0='a') */
 static char    list_bullet  = 0;    /* bullet char (BULLET mode) */
@@ -203,9 +127,6 @@ static char keycode_to_char(uint8_t code, uint8_t shift, uint8_t caps, uint8_t r
    window_text: prints text inside the window at (wx_pos, wy_pos) offset
    from the inner top-left corner (1-based, clipped to inner area).
    ================================================================ */
-/* XRAM backup buffer for window_draw: stores chars under the window */
-#define XRAM_WIN_BUF  0xA300u   /* max window area: 80*30 worst case, but we only need win_w*win_h */
-
 static uint8_t win_x;   /* saved top-left column of last window_draw call */
 static uint8_t win_y;   /* saved top-left row    of last window_draw call */
 static uint8_t win_w;   /* saved outer width */
@@ -617,42 +538,6 @@ static int menu_input(const char *prompt, char *buf, uint8_t maxlen)
     printf(ANSI_SEL_BG_OFF ANSI_SHOW_CUR "\033[%d;%dH",
            (int)input_row, (int)(plen + pos + 1u));
 
-/* helper macro: execute action for key code 'c' and reposition cursor */
-#define MI_ACTION(c) do { \
-    uint8_t _fire = 0u; \
-    if ((c) == KEY_LEFT)      { if (pos > 0u) { pos--; _fire=1u; } } \
-    else if ((c) == KEY_RIGHT){ if (pos < len) { pos++; _fire=1u; } } \
-    else if ((c) == KEY_BACKSPACE) { \
-        if (pos > 0u) { \
-            for (i = pos - 1u; i < len - 1u; i++) buf[i] = buf[i + 1u]; \
-            len--; pos--; buf[len] = 0; _fire=1u; \
-            printf("\033[%d;%dH" ANSI_SEL_BG, (int)input_row, (int)(plen + 1u)); \
-            for (i = 0u; buf[i] && i < field; i++) putchar((uint8_t)buf[i]); \
-            for (; i < field; i++) putchar(' '); \
-            printf(ANSI_SEL_BG_OFF); \
-        } \
-    } else if ((c) == KEY_DELETE) { \
-        if (pos < len) { \
-            for (i = pos; i < len - 1u; i++) buf[i] = buf[i + 1u]; \
-            len--; buf[len] = 0; _fire=1u; \
-            printf("\033[%d;%dH" ANSI_SEL_BG, (int)input_row, (int)(plen + 1u)); \
-            for (i = 0u; buf[i] && i < field; i++) putchar((uint8_t)buf[i]); \
-            for (; i < field; i++) putchar(' '); \
-            printf(ANSI_SEL_BG_OFF); \
-        } \
-    } else { \
-        ch = keycode_to_char((c), shift, caps, 0u); \
-        if (ch && len < (uint8_t)(maxlen - 1u) && len < field) { \
-            for (i = len; i > pos; i--) buf[i] = buf[i - 1u]; \
-            buf[pos++] = ch; len++; buf[len] = 0; _fire=1u; \
-            printf("\033[%d;%dH" ANSI_SEL_BG, (int)input_row, (int)(plen + 1u)); \
-            for (i = 0u; buf[i] && i < field; i++) putchar((uint8_t)buf[i]); \
-            for (; i < field; i++) putchar(' '); \
-            printf(ANSI_SEL_BG_OFF); \
-        } \
-    } \
-    if (_fire) printf("\033[%d;%dH", (int)input_row, (int)(plen + pos + 1u)); \
-} while(0)
 
     while (!done) {
         for (k = 0u; k < KEYBOARD_BYTES; k++) {

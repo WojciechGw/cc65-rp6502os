@@ -79,4 +79,12 @@ rp6502_executable(ted DATA 0x0200 RESET 0x0200)
 target_sources(ted PRIVATE src/ted.c)
 target_link_options(ted PRIVATE -C ${CMAKE_SOURCE_DIR}/src/ted.cfg)
 
+# terminal
+add_executable(terminal)
+# rp6502_asset(terminal help src/terminal.hlp)
+rp6502_executable(terminal DATA 0x0200 RESET 0x0200)
+target_sources(terminal PRIVATE src/terminal.c)
+# target_link_options(terminal PRIVATE -C ${CMAKE_SOURCE_DIR}/src/editor.cfg)
+
+
 # include(src/razemosmt/CMakeLists[rmt].txt)
