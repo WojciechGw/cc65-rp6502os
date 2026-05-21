@@ -66,14 +66,6 @@ static char    list_sep     = 0;    /* separator after number/letter: '.' or ')'
 static uint8_t sel_min_row(void);
 static uint8_t sel_max_row(void);
 
-/* ------------------------------------------------------------------ */
-
-static void flush_rx()
-{
-    int i;
-    while (RX_READY) i = RIA.rx;
-}
-
 /* ================================================================
    keycode_to_char: USB HID keycode -> ASCII
    ================================================================ */
@@ -192,7 +184,7 @@ static void window_open(uint8_t x_pos, uint8_t y_pos,
     if (shadow) {
         uint8_t sh_col    = (uint8_t)(x_pos + width);
         uint8_t save_cols = (uint8_t)(width + 1u);
-        printf(CSI "38;2;60;60;60m" CSI "48;2;20;20;20m");
+        printf(CSI "38;2;20;30;20m" CSI "48;2;10;20;10m");
         /* right column: rows 1..height-1 (skip top-left corner of shadow) */
         for (r = 1u; r < height; r++) {
             uint8_t ch;
@@ -231,7 +223,7 @@ static void window_close(void)
             putchar(ch ? ch : ' ');
         }
     }
-    printf(ANSI_RESET CSI_CURSOR_HIDE);
+    printf(ANSI_RESET CSI_CURSOR_SHOW);
 }
 
 static void window_text(const char *text,
@@ -1509,10 +1501,11 @@ int main(int argc, char **argv)
 
     startup_done = 0u;
 
+    printf(ALTSCREEN_ENTER);
+
     f_mkdir("TMP");
     clip_load();
 
-    flush_rx();
     xreg_ria_keyboard(XRAM_STRUCT_SYS_KEYBOARD);
     xreg_ria_mouse(XRAM_STRUCT_SYS_MOUSE);
 
@@ -1532,8 +1525,7 @@ int main(int argc, char **argv)
                 63u);
     }
 
-    printf(CSI_ECHO_OFF ANSI_CLS ANSI_HOME);
-    printf(ALTSCREEN_ENTER);
+    // printf(CSI_ECHO_OFF ANSI_CLS ANSI_HOME);
 
     draw_title_bar();
     draw_menu_bar(NULL);
@@ -2305,8 +2297,6 @@ int main(int argc, char **argv)
                             }
                         }
                     }
-                    flush_rx();
-                    printf(ALTSCREEN_LEAVE);
                     break;
                     ctrl_q_cancel:;
 
@@ -2635,11 +2625,6 @@ int main(int argc, char **argv)
         }
     }
 
-    xreg_ria_keyboard(0xFFFF);
-    xreg_ria_mouse(0xFFFF);
-    flush_rx();
-    flush_rx();
-
     {
         uint16_t xi;
         RIA.addr0 = TEXT_BUF_BASE; RIA.step0 = 1;
@@ -2653,11 +2638,11 @@ int main(int argc, char **argv)
         RIA.addr0 = XRAM_WIN_BUF_BASE; RIA.step0 = 1;
         for (xi = 0u; xi < 2400u;  xi++) RIA.rw0 = 0u;
     }
-
-    xreg_vga_canvas(GFX_CANVAS_640x480);
-    xreg(1, 0, 1, 0);
-    printf(DECSTBM_FULL CSI_CLS CSI_ECHO_ON CSI_CURSOR_SHOW CSI_CURSOR_HOME);
     clip_delete();
+    xreg_ria_keyboard(0xFFFF);
+    xreg_ria_mouse(0xFFFF);
+
+    printf(DECSTBM_FULL ALTSCREEN_LEAVE);
     return 0;
 
 }

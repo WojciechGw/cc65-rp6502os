@@ -68,8 +68,8 @@
 /* terminal dimensions (640x480, 16px font)                           */
 #define TERM_ROWS    30u
 #define TITLE_ROWS    2u
-#define MENU_ROWS     2u
-#define EDIT_ROWS    (TERM_ROWS - TITLE_ROWS - MENU_ROWS)   /* 26 */
+#define STATUS_ROWS     2u
+#define EDIT_ROWS    (TERM_ROWS - TITLE_ROWS - STATUS_ROWS)   /* 26 */
 
 /* ------------------------------------------------------------------ */
 /* clipboard file backing store                                        */
@@ -141,7 +141,10 @@ uint8_t keystates[KEYBOARD_BYTES] = {0};
 #define SI "\x0F"    /* Shift In   - wybierz G0 */
 #define CHAR_SO 0x0E   /* Shift Out  - wybierz G1 */
 #define CHAR_SI 0x0F    /* Shift In   - wybierz G0 */
-#define ALTSCREEN_ENTER CSI "?1049h" CSI "?25l" CSI "0m" CSI "2J" CSI "H" ESC "(\xB" ESC ")0"
+#define DECSC ESC "7"
+#define DECRC ESC "8"
+// #define ALTSCREEN_ENTER CSI "?1049h" CSI "?25l" CSI "0m" CSI "2J" CSI "H" ESC "(\xB" ESC ")0"
+#define ALTSCREEN_ENTER CSI "?1049h" CSI "?25l" CSI "0m" ESC "(\xB" ESC ")0"
 #define ALTSCREEN_LEAVE CSI "0m" CSI "?25h" CSI "?1049l"
 
 /* ================================================================
