@@ -821,6 +821,7 @@ class Console:
                 break
             command = f"${len(chunk):03X} ${binascii.crc32(chunk):08X}\r"
             self.serial.write(bytes(command, "ascii"))
+            time.sleep(0.005) # [WG] ?RX timeout workaround
             self.serial.write(chunk)
             self.wait_for_prompt("}")
         self.serial.write(b"END\r")
