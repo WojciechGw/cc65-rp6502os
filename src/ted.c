@@ -66,6 +66,12 @@ static char    list_sep     = 0;    /* separator after number/letter: '.' or ')'
 static uint8_t sel_min_row(void);
 static uint8_t sel_max_row(void);
 
+static void flush_rx()
+{
+    int i;
+    while (RX_READY) i = RIA.rx;
+}
+
 /* ================================================================
    keycode_to_char: USB HID keycode -> ASCII
    ================================================================ */
@@ -184,7 +190,7 @@ static void window_open(uint8_t x_pos, uint8_t y_pos,
     if (shadow) {
         uint8_t sh_col    = (uint8_t)(x_pos + width);
         uint8_t save_cols = (uint8_t)(width + 1u);
-        printf(CSI "38;2;20;30;20m" CSI "48;2;10;20;10m");
+        printf(CSI "38;2;20;20;20m" CSI "48;2;5;5;5m");
         /* right column: rows 1..height-1 (skip top-left corner of shadow) */
         for (r = 1u; r < height; r++) {
             uint8_t ch;
@@ -257,10 +263,10 @@ static void window_text(const char *text,
    ================================================================ */
 static void draw_title_bar(void)
 {
-    static const char menu_line1[] = APP_MSG_TITLE;
-    uint8_t i, fn_len, line_len, filename_position;
+    static const char title_line1[] = APP_MSG_TITLE;
+    uint8_t i, fn_len, filename_position; // line_len
 
-    for (i = 0u; menu_line1[i]; i++) putchar((uint8_t)menu_line1[i]);
+    for (i = 0u; title_line1[i]; i++) putchar((uint8_t)title_line1[i]);
     if (current_filename[0]) {
         for (fn_len = 0u; current_filename[fn_len]; fn_len++) {}
         // line_len = (fn_len + 2u < 79u) ? (uint8_t)(80u - fn_len - 2u) : 1u;
@@ -275,7 +281,7 @@ static void draw_title_bar(void)
 
 }
 
-static void menu_print_row(uint8_t ansi_row, const char *text)
+static void status_print_row(uint8_t ansi_row, const char *text)
 {
     uint8_t i;
     printf(CSI "%d;1H", (int)ansi_row);
@@ -284,7 +290,7 @@ static void menu_print_row(uint8_t ansi_row, const char *text)
     printf(ANSI_RESET);
 }
 
-static void draw_menu_bar(const char *status)
+static void draw_status_bar(const char *status)
 {
     uint8_t i;
     const char *info;
@@ -323,7 +329,7 @@ static void draw_menu_bar(const char *status)
     }
 
     snprintf(row2, sizeof(row2), "%-*s%s", (int)(80 - (int)strlen(block)), info, block);
-    menu_print_row(TITLE_ROWS + EDIT_ROWS + 2u, row2);
+    status_print_row(TITLE_ROWS + EDIT_ROWS + 2u, row2);
     if(status != NULL) PAUSE(150);
     printf(CSI "u");
     printf(ANSI_NORMAL CSI_CURSOR_SHOW);
@@ -438,7 +444,7 @@ static void scroll_region_down(void)
 }
 
 /* ================================================================
-   redraw_screen: redraws EDIT_ROWS visible lines from XRAM + menu.
+   redraw_screen: redraws EDIT_ROWS visible lines from XRAM + status.
    Fills screen_cache. Repositions terminal cursor at cur.row/col.
    ================================================================ */
 static void redraw_screen(void)
@@ -465,16 +471,16 @@ static void redraw_screen(void)
         }
         redraw_line(r);
     }
-    if (startup_done) draw_menu_bar(NULL);
+    if (startup_done) draw_status_bar(NULL);
     printf(CSI "%d;%dH" ANSI_SHOW_CUR,
            (int)((cur.row - scroll_row) + 1u + TITLE_ROWS),
            (int)(cur.col + 1u));
 }
 
 /* ================================================================
-   menu_confirm: Y/N/Esc prompt. Returns 1=Y, 0=N, -1=Esc (cancel).
+   prompt_confirm: Y/N/Esc prompt. Returns 1=Y, 0=N, -1=Esc (cancel).
    ================================================================ */
-static int menu_confirm(const char *prompt)
+static int prompt_confirm(const char *prompt)
 {
     uint8_t prev_ks[KEYBOARD_BYTES];
     uint8_t cur_ks[KEYBOARD_BYTES];
@@ -514,10 +520,10 @@ static int menu_confirm(const char *prompt)
 }
 
 /* ================================================================
-   menu_input: blocking text-input dialog in menu rows 2-3.
+   prompt_input: blocking text-input dialog in status bar.
    Returns 1 on Enter, 0 on Esc.
    ================================================================ */
-static int menu_input(const char *prompt, char *buf, uint8_t maxlen)
+static int prompt_input(const char *prompt, char *buf, uint8_t maxlen)
 {
     uint8_t prev_ks[KEYBOARD_BYTES];
     uint8_t cur_ks[KEYBOARD_BYTES];
@@ -866,8 +872,8 @@ static void do_replace(void)
 
     sel_active = 0u;
 
-    if (!menu_input("FIND    : ", search_pattern, 26u)) { redraw_screen(); return; }
-    if (!menu_input("REPLACE : ", replace_pattern, 26u)) { redraw_screen(); return; }
+    if (!prompt_input("FIND    : ", search_pattern, 26u)) { redraw_screen(); return; }
+    if (!prompt_input("REPLACE : ", replace_pattern, 26u)) { redraw_screen(); return; }
 
     plen = (uint8_t)strlen(search_pattern);
     rlen = (uint8_t)strlen(replace_pattern);
@@ -907,10 +913,10 @@ static void do_replace(void)
     }
     redraw_screen();
     if (count == 0u) {
-        draw_menu_bar("NOT FOUND");
+        draw_status_bar("NOT FOUND");
     } else {
         sprintf(msg, "REPLACED: %d", (int)count);
-        draw_menu_bar(msg);
+        draw_status_bar(msg);
     }
 }
 
@@ -1313,7 +1319,7 @@ static void do_copy(void)
         sel_active = 0u;
         clip_save();
         redraw_screen();
-        draw_menu_bar("SELECTED COPIED TO CLIPBOARD");
+        draw_status_bar("SELECTED COPIED TO CLIPBOARD");
         return;
     }
 
@@ -1339,7 +1345,7 @@ static void do_copy(void)
     sel_active = 0u;
     clip_save();
     redraw_screen();
-    draw_menu_bar("SELECTED COPIED TO CLIPBOARD");
+    draw_status_bar("SELECTED COPIED TO CLIPBOARD");
 }
 
 /* ================================================================
@@ -1359,7 +1365,7 @@ static void do_cut(void)
         for (j = 0u; j < len; j++) line_shift_left(cur.row, (uint8_t)(c_from + 1u));
         cur.col = c_from;
         redraw_screen();
-        draw_menu_bar("SELECTED CUT TO CLIPBOARD");
+        draw_status_bar("SELECTED CUT TO CLIPBOARD");
         return;
     }
 
@@ -1380,7 +1386,7 @@ static void do_cut(void)
     if (cur.row < scroll_row) scroll_row = cur.row;
 
     redraw_screen();
-    draw_menu_bar("Cut");
+    draw_status_bar("Cut");
 }
 
 /* ================================================================
@@ -1417,7 +1423,7 @@ static void do_paste(void)
         if ((uint16_t)(cur.row + 1u) > content_rows)
             content_rows = (uint16_t)(cur.row + 1u);
         redraw_screen();
-        draw_menu_bar("CLIPBOARD PASTED");
+        draw_status_bar("CLIPBOARD PASTED");
         return;
     }
 
@@ -1438,7 +1444,7 @@ static void do_paste(void)
     cur.row = start_row;
     cur.col = 0u;
     redraw_screen();
-    draw_menu_bar("CLIPBOARD PASTED");
+    draw_status_bar("CLIPBOARD PASTED");
 }
 
 /* ================================================================
@@ -1528,13 +1534,13 @@ int main(int argc, char **argv)
     // printf(CSI_ECHO_OFF ANSI_CLS ANSI_HOME);
 
     draw_title_bar();
-    draw_menu_bar(NULL);
+    draw_status_bar(NULL);
     cur.row    = 0u;
     cur.col    = 0u;
     scroll_row = 0u;
     printf(ANSI_HIDE_CUR OSC_CURSOR_COLOR "408040" OSC_ST CSI "%d;1H", (int)(TITLE_ROWS + 1u));
 
-    draw_menu_bar(ok > 0 ? (!view_mode ? "Please wait..." : "") : ok == 0 ? "FILE CREATED" : EXCLAMATION "cannot open file");
+    draw_status_bar(ok > 0 ? (!view_mode ? "Please wait..." : "") : ok == 0 ? "FILE CREATED" : EXCLAMATION "cannot open file");
 
     current_filename[63] = 0;
     ok = load_file(current_filename);
@@ -1555,7 +1561,7 @@ int main(int argc, char **argv)
     redraw_screen();
     draw_title_bar();
     startup_done = 1u;
-    draw_menu_bar(ok > 0 ? "Ready" : ok == 0 ? "FILE CREATED" : EXCLAMATION "cannot open file");
+    draw_status_bar(ok > 0 ? "Ready" : ok == 0 ? "FILE CREATED" : EXCLAMATION "cannot open file");
     printf(DECSTBM_EDIT);
     printf(OSC_CURSOR_COLOR "408040" OSC_ST ANSI_SHOW_CUR CSI "%d;1H", (int)(TITLE_ROWS + 1u));
 
@@ -1582,7 +1588,7 @@ int main(int argc, char **argv)
                     if (cur.row >= (uint8_t)(scroll_row + EDIT_ROWS))
                         cur.row = (uint8_t)(scroll_row + EDIT_ROWS - 1u);
                     scroll_region_down();
-                    draw_menu_bar(NULL);
+                    draw_status_bar(NULL);
                     printf(CSI "%d;%dH" ANSI_SHOW_CUR,
                            (int)((cur.row - scroll_row) + 1u + TITLE_ROWS),
                            (int)(cur.col + 1u));
@@ -1596,7 +1602,7 @@ int main(int argc, char **argv)
                     if (cur.row < scroll_row)
                         cur.row = scroll_row;
                     scroll_region_up();
-                    draw_menu_bar(NULL);
+                    draw_status_bar(NULL);
                     printf(CSI "%d;%dH" ANSI_SHOW_CUR,
                            (int)((cur.row - scroll_row) + 1u + TITLE_ROWS),
                            (int)(cur.col + 1u));
@@ -1676,7 +1682,7 @@ int main(int argc, char **argv)
                     repeat_key  = 0u;
                     insert_mode = insert_mode ? 0u : 1u;
                     printf(insert_mode ? DECSCUSR_BAR : DECSCUSR_UNDERLINE); // cursor look
-                    draw_menu_bar(NULL);
+                    draw_status_bar(NULL);
 
                 /* --- Shift+Ctrl+Alt+L: start list from current-line prefix --- */
                 /* Reads first 2 chars of current line to detect list type:
@@ -1699,7 +1705,7 @@ int main(int argc, char **argv)
                             cur.col      = 3u;   /* after "N. " */
                             doc_dirty    = 1u;
                             redraw_screen();
-                            draw_menu_bar(NULL);
+                            draw_status_bar(NULL);
                         } else if (lch0 >= 'a' && lch0 <= 'z' &&
                                    (lch1 == ')' || lch1 == '.' || lch1 == ':')) {
                             /* alpha */
@@ -1709,7 +1715,7 @@ int main(int argc, char **argv)
                             cur.col      = 3u;   /* after "a) " */
                             doc_dirty    = 1u;
                             redraw_screen();
-                            draw_menu_bar(NULL);
+                            draw_status_bar(NULL);
                         } else if (lch0 == '*' || lch0 == '-' || lch0 == '>' ||
                                    lch0 == '+' || lch0 == '=' || lch0 == '#') {
                             /* bullet */
@@ -1718,9 +1724,9 @@ int main(int argc, char **argv)
                             cur.col      = 2u;
                             doc_dirty    = 1u;
                             redraw_screen();
-                            draw_menu_bar(NULL);
+                            draw_status_bar(NULL);
                         } else {
-                            draw_menu_bar("LIST: start line with one of these '1.','a)','*','#','>','=','-','+'");
+                            draw_status_bar("LIST: start line with one of these '1.','a)','*','#','>','=','-','+'");
                         }
                     }
 
@@ -1728,13 +1734,13 @@ int main(int argc, char **argv)
                     repeat_key = 0u;
                     if (!view_mode) {
                         if (doc_dirty) {
-                            int cn = menu_confirm(" Save changes before new document? [Y/N/Esc] ");
+                            int cn = prompt_confirm(" Save changes before new document? [Y/N/Esc] ");
                             if (cn < 0) goto ctrl_n_cancel;
                             if (cn > 0) {
-                                if (menu_input("SAVE path/filename : ", current_filename, 64u)) {
+                                if (prompt_input("SAVE path/filename : ", current_filename, 64u)) {
                                     ok = save_file(current_filename);
                                     if (ok >= 0) doc_dirty = 0u;
-                                    draw_menu_bar(ok >= 0 ? "FILE SAVED" : EXCLAMATION "cannot save file");
+                                    draw_status_bar(ok >= 0 ? "FILE SAVED" : EXCLAMATION "cannot save file");
                                     printf(ANSI_SHOW_CUR CSI "%d;%dH",
                                            (int)((cur.row - scroll_row) + 1u + TITLE_ROWS),
                                            (int)(cur.col + 1u));
@@ -1756,7 +1762,7 @@ int main(int argc, char **argv)
                         }
                         redraw_screen();
                         draw_title_bar();
-                        draw_menu_bar("NEW DOCUMENT");
+                        draw_status_bar("NEW DOCUMENT");
                         printf(ANSI_SHOW_CUR CSI "%d;1H", (int)(1u + TITLE_ROWS));
                         ctrl_n_cancel:;
                     }
@@ -1765,25 +1771,25 @@ int main(int argc, char **argv)
                 } else if (key_ctrl && key(KEY_O)) {
                     repeat_key = 0u;
                     if (doc_dirty) {
-                        int cn = menu_confirm(" Save changes before opening? [Y/N/Esc] ");
+                        int cn = prompt_confirm(" Save changes before opening? [Y/N/Esc] ");
                         if (cn < 0) goto ctrl_n_cancel;
                         if (cn > 0) {                       
                             uint8_t ask_o = (strcmp(current_filename, NEW_FILENAME) == 0);
-                            if (!ask_o || menu_input("SAVE path/filename : ", current_filename, 64u)) {
+                            if (!ask_o || prompt_input("SAVE path/filename : ", current_filename, 64u)) {
                                 ok = save_file(current_filename);
                                 if (ok >= 0) doc_dirty = 0u;
-                                draw_menu_bar(ok >= 0 ? "FILE SAVED" : EXCLAMATION "cannot save file");
+                                draw_status_bar(ok >= 0 ? "FILE SAVED" : EXCLAMATION "cannot save file");
                                 printf(ANSI_SHOW_CUR CSI "%d;%dH",
                                        (int)((cur.row - scroll_row) + 1u + TITLE_ROWS),
                                        (int)(cur.col + 1u));
                             }
                         }
                     }
-                    if (menu_input("OPEN path/filename : ", current_filename, 64u)) {
+                    if (prompt_input("OPEN path/filename : ", current_filename, 64u)) {
                         ok = load_file(current_filename);
                         redraw_screen();
                         draw_title_bar();
-                        draw_menu_bar(ok > 0 ? "Ready" : ok == 0 ? "FILE CREATED" : EXCLAMATION "cannot open file");
+                        draw_status_bar(ok > 0 ? "Ready" : ok == 0 ? "FILE CREATED" : EXCLAMATION "cannot open file");
                     } else {
                         redraw_screen();
                     }
@@ -1794,11 +1800,11 @@ int main(int argc, char **argv)
                         uint8_t ask = key_shifts ||
                                       (strcmp(current_filename, NEW_FILENAME) == 0);
                         if (!ask ||
-                            menu_input((key_shifts ? "SAVE AS path/filename : " : "SAVE path/filename : "), current_filename, 64u)) {
+                            prompt_input((key_shifts ? "SAVE AS path/filename : " : "SAVE path/filename : "), current_filename, 64u)) {
                             ok = save_file(current_filename);
                             if (ok >= 0) doc_dirty = 0u;
                             draw_title_bar();
-                            draw_menu_bar(ok >= 0 ? "FILE SAVED" : EXCLAMATION "cannot save file");
+                            draw_status_bar(ok >= 0 ? "FILE SAVED" : EXCLAMATION "cannot save file");
                             printf(ANSI_SHOW_CUR CSI "%d;%dH",
                                    (int)((cur.row - scroll_row) + 1u + TITLE_ROWS),
                                    (int)(cur.col + 1u));
@@ -1809,9 +1815,9 @@ int main(int argc, char **argv)
 
                 } else if (key_ctrl && key(KEY_F)) {
                     repeat_key = 0u;
-                    if (menu_input("FIND (max 25): ", search_pattern, 26u)) {
+                    if (prompt_input("FIND (max 25): ", search_pattern, 26u)) {
                         if (!find_text(search_pattern)) {
-                            draw_menu_bar("TEXT NOT FOUND");
+                            draw_status_bar("TEXT NOT FOUND");
                         }
                     } else {
                         redraw_screen();
@@ -1831,7 +1837,7 @@ int main(int argc, char **argv)
                       target_col = cur.col;
                       if (cache_valid) {
                           redraw_sel_delta(od1, od2, cur.row, cur.row);
-                          draw_menu_bar(NULL);
+                          draw_status_bar(NULL);
                           printf(CSI "%d;%dH" ANSI_SHOW_CUR,
                                  (int)((cur.row - scroll_row) + 1u + TITLE_ROWS),
                                  (int)(cur.col + 1u));
@@ -1847,7 +1853,7 @@ int main(int argc, char **argv)
                       target_col = cur.col;
                       if (cache_valid) {
                           redraw_sel_delta(od1, od2, cur.row, cur.row);
-                          draw_menu_bar(NULL);
+                          draw_status_bar(NULL);
                           printf(CSI "%d;%dH" ANSI_SHOW_CUR,
                                  (int)((cur.row - scroll_row) + 1u + TITLE_ROWS),
                                  (int)(cur.col + 1u));
@@ -1871,7 +1877,7 @@ int main(int argc, char **argv)
                           target_col = cur.col;
                           if (cache_valid) {
                               redraw_sel_delta(od1, od2, cur.row, cur.row);
-                              draw_menu_bar(NULL);
+                              draw_status_bar(NULL);
                               printf(CSI "%d;%dH" ANSI_SHOW_CUR,
                                      (int)((cur.row - scroll_row) + 1u + TITLE_ROWS),
                                      (int)(cur.col + 1u));
@@ -1912,7 +1918,7 @@ int main(int argc, char **argv)
                           target_col = cur.col;
                           if (cache_valid) {
                               redraw_sel_delta(od1, od2, cur.row, cur.row);
-                              draw_menu_bar(NULL);
+                              draw_status_bar(NULL);
                               printf(CSI "%d;%dH" ANSI_SHOW_CUR,
                                      (int)((cur.row - scroll_row) + 1u + TITLE_ROWS),
                                      (int)(cur.col + 1u));
@@ -1953,7 +1959,7 @@ int main(int argc, char **argv)
                           }
                           if (cache_valid) {
                               redraw_sel_delta(od1, od2, sel_min_row(), sel_max_row());
-                              draw_menu_bar(NULL);
+                              draw_status_bar(NULL);
                               printf(CSI "%d;%dH" ANSI_SHOW_CUR,
                                      (int)((cur.row - scroll_row) + 1u + TITLE_ROWS),
                                      (int)(cur.col + 1u));
@@ -1971,7 +1977,7 @@ int main(int argc, char **argv)
                             if (cur.row < scroll_row) {
                                 scroll_row = cur.row;
                                 scroll_region_down();
-                                draw_menu_bar(NULL);
+                                draw_status_bar(NULL);
                                 printf(CSI "%d;%dH" ANSI_SHOW_CUR,
                                        (int)((cur.row - scroll_row) + 1u + TITLE_ROWS),
                                        (int)(cur.col + 1u));
@@ -2000,7 +2006,7 @@ int main(int argc, char **argv)
                           }
                           if (cache_valid) {
                               redraw_sel_delta(od1, od2, sel_min_row(), sel_max_row());
-                              draw_menu_bar(NULL);
+                              draw_status_bar(NULL);
                               printf(CSI "%d;%dH" ANSI_SHOW_CUR,
                                      (int)((cur.row - scroll_row) + 1u + TITLE_ROWS),
                                      (int)(cur.col + 1u));
@@ -2019,7 +2025,7 @@ int main(int argc, char **argv)
                             if ((uint8_t)(cur.row - scroll_row) >= EDIT_ROWS) {
                                 scroll_row = (uint8_t)(cur.row - EDIT_ROWS + 1u);
                                 scroll_region_up();
-                                draw_menu_bar(NULL);
+                                draw_status_bar(NULL);
                                 printf(CSI "%d;%dH" ANSI_SHOW_CUR,
                                        (int)((cur.row - scroll_row) + 1u + TITLE_ROWS),
                                        (int)(cur.col + 1u));
@@ -2054,7 +2060,7 @@ int main(int argc, char **argv)
                       target_col = 0u;
                       if (cache_valid) {
                           redraw_sel_delta(od1, od2, cur.row, cur.row);
-                          draw_menu_bar(NULL);
+                          draw_status_bar(NULL);
                           printf(CSI "%d;%dH" ANSI_SHOW_CUR,
                                  (int)((cur.row - scroll_row) + 1u + TITLE_ROWS),
                                  (int)(cur.col + 1u));
@@ -2071,7 +2077,7 @@ int main(int argc, char **argv)
                       target_col = cur.col;
                       if (cache_valid) {
                           redraw_sel_delta(od1, od2, cur.row, cur.row);
-                          draw_menu_bar(NULL);
+                          draw_status_bar(NULL);
                           printf(CSI "%d;%dH" ANSI_SHOW_CUR,
                                  (int)((cur.row - scroll_row) + 1u + TITLE_ROWS),
                                  (int)(cur.col + 1u));
@@ -2144,7 +2150,7 @@ int main(int argc, char **argv)
                                 list_mode = LIST_MODE_NONE;
                                 doc_dirty = 1u;
                                 redraw_screen();
-                                draw_menu_bar("LIST MODE OFF");
+                                draw_status_bar("LIST MODE OFF");
                             } else {
                                 uint8_t pi, plen2;
                                 char    prefix[8];
@@ -2249,7 +2255,7 @@ int main(int argc, char **argv)
                             }
                             sel_active = 0u;
                             redraw_screen();
-                            draw_menu_bar("SELECTED DELETED");
+                            draw_status_bar("SELECTED DELETED");
                             doc_dirty = 1u;
                         } else {
                         uint8_t cur_text_len = line_text_len(cur.row);
@@ -2282,16 +2288,16 @@ int main(int argc, char **argv)
                 } else if (key_ctrl && key(KEY_Q)) {
                     repeat_key = 0u;
                     if (doc_dirty) {
-                        int cq = menu_confirm(" Save changes before exit? [Y/N/Esc] ");
+                        int cq = prompt_confirm(" Save changes before exit? [Y/N/Esc] ");
                         if (cq < 0) {
                             redraw_screen();
-                            draw_menu_bar(NULL);
+                            draw_status_bar(NULL);
                             goto ctrl_q_cancel;
                         }
                         if (cq > 0) {
                             uint8_t ask2 = (strcmp(current_filename, NEW_FILENAME) == 0);
                             if (!ask2 ||
-                                menu_input("SAVE path/filename : ", current_filename, 64u)) {
+                                prompt_input("SAVE path/filename : ", current_filename, 64u)) {
                                 ok = save_file(current_filename);
                                 if (ok >= 0) doc_dirty = 0u;
                             }
@@ -2305,7 +2311,7 @@ int main(int argc, char **argv)
                     repeat_key = 0u;
                     view_mode = view_mode ? 0u : 1u;
                     if (view_mode && sel_active) { sel_active = 0u; redraw_screen(); }
-                    draw_menu_bar(view_mode ? "MODE View" : "MODE Edit");
+                    draw_status_bar(view_mode ? "MODE View" : "MODE Edit");
 
                 /* --- Ctrl+Shift+T: insert current date and time (YYYY-MM-DD HH:MM) --- */
                 } else if (key_ctrl && key_shifts && key(KEY_T)) {
@@ -2616,7 +2622,7 @@ int main(int argc, char **argv)
                         draw_title_bar();
                         printf(CSI "u");
                     }
-                    draw_menu_bar(NULL);
+                    draw_status_bar(NULL);
                 }
 
             }
@@ -2641,7 +2647,8 @@ int main(int argc, char **argv)
     clip_delete();
     xreg_ria_keyboard(0xFFFF);
     xreg_ria_mouse(0xFFFF);
-
+    flush_rx();
+    flush_rx();
     printf(DECSTBM_FULL ALTSCREEN_LEAVE);
     return 0;
 
