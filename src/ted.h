@@ -33,11 +33,11 @@
 #include <unistd.h>
 
 /* --- app identity --- */
-#define APPVER        "20260519.1600"
+#define APPVER        "20260521.1800"
 #define APPNAME       "TEd"
 #define APPDESCRPTION "text editor"
 #define APPCOPYRIGHT  "(c) 2026 by WojciechGw"
-#define APP_MSG_TITLE CSI "1;1H" CSI "48;2;40;80;40m" " " APPNAME " > " ANSI_RESET " " APPDESCRPTION ANSI_RESET
+#define APP_MSG_TITLE CSI "1;1H" CSI "48;2;40;80;40m" " \xfe " APPNAME " " ANSI_RESET " " APPDESCRPTION ANSI_RESET
 
 /* --- autorepeat timings (clock() = centiseconds, 1 tick = 10 ms) --- */
 #define REPEAT_DELAY      35u   /* 350 ms before first repeat */
@@ -131,6 +131,18 @@ uint8_t keystates[KEYBOARD_BYTES] = {0};
 #define OSC_RESET_COLORFG       OSC "110" OSC_ST
 #define OSC_RESET_COLORBG       OSC "111" OSC_ST
 #define OSC_RESET_CURSOR_COLOR  OSC "112" OSC_ST
+
+#define DECSCUSR_DEFAULT   CSI "0 q"
+#define DECSCUSR_BLOCK     CSI "1 q"
+#define DECSCUSR_UNDERLINE CSI "3 q"
+#define DECSCUSR_BAR       CSI "5 q"
+
+#define SO "\x0E"   /* Shift Out  - wybierz G1 */
+#define SI "\x0F"    /* Shift In   - wybierz G0 */
+#define CHAR_SO 0x0E   /* Shift Out  - wybierz G1 */
+#define CHAR_SI 0x0F    /* Shift In   - wybierz G0 */
+#define ALTSCREEN_ENTER CSI "?1049h" CSI "?25l" CSI "0m" CSI "2J" CSI "H" ESC "(\xB" ESC ")0"
+#define ALTSCREEN_LEAVE CSI "0m" CSI "?25h" CSI "?1049l"
 
 /* ================================================================
    From commons/ansi.h

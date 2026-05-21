@@ -34,6 +34,7 @@ static struct Cursor cur;
 
 /* --- scroll / content state --- */
 static uint8_t  scroll_row    = 0u;
+static uint8_t  startup_done  = 0u;
 static uint16_t content_rows  = 0u;
 
 /* --- file and search state --- */
@@ -128,43 +129,43 @@ static char keycode_to_char(uint8_t code, uint8_t shift, uint8_t caps, uint8_t r
    window_text: prints text inside the window at (wx_pos, wy_pos) offset
    from the inner top-left corner (1-based, clipped to inner area).
    ================================================================ */
-static uint8_t win_x;   /* saved top-left column of last window_draw call */
-static uint8_t win_y;   /* saved top-left row    of last window_draw call */
-static uint8_t win_w;   /* saved outer width */
-static uint8_t win_h;   /* saved outer height */
+static uint8_t win_x;      /* saved top-left column of last window_draw call */
+static uint8_t win_y;      /* saved top-left row    of last window_draw call */
+static uint8_t win_w;      /* saved outer width */
+static uint8_t win_h;      /* saved outer height */
+static uint8_t win_shadow; /* 1 if shadow was drawn */
 
 static void window_open(uint8_t x_pos, uint8_t y_pos,
                         uint8_t width, uint8_t height,
-                        const char *color_fg, const char *color_bg, uint8_t frame)
+                        const char *color_fg, const char *color_bg, uint8_t frame, bool shadow)
 {
     uint8_t r, c, inner_w;
 
-    win_x = x_pos;
-    win_y = y_pos;
-    win_w = width;
-    win_h = height;
+    win_x      = x_pos;
+    win_y      = y_pos;
+    win_w      = width;
+    win_h      = height;
+    win_shadow = shadow ? 1u : 0u;
 
     if (width < 2u || height < 2u) return;
     inner_w = (uint8_t)(width - 2u);
 
-    /* save chars under window area to XRAM backup buffer */
-    for (r = 0u; r < height; r++) {
-        printf(CSI "%d;%dH", (int)(y_pos + r), (int)x_pos);
-        RIA.addr0 = XRAM_WIN_BUF + (uint16_t)r * width;
-        RIA.step0 = 1;
-        /* read back from XRAM text buffer (terminal content mirrors text buf for edit rows) */
-        {
-            uint16_t xram_row = (uint16_t)((y_pos + r) - 1u);   /* 0-based terminal row */
-            uint8_t  xram_col = (uint8_t)(x_pos - 1u);          /* 0-based terminal col */
+    /* save chars under window area (+ shadow col/row if needed) to XRAM backup buffer */
+    {
+        uint8_t save_cols = shadow ? (uint8_t)(width + 1u) : width;
+        uint8_t save_rows = shadow ? (uint8_t)(height + 1u) : height;
+        for (r = 0u; r < save_rows; r++) {
+            uint16_t xram_row = (uint16_t)((y_pos + r) - 1u);
+            uint8_t  xram_col = (uint8_t)(x_pos - 1u);
+            RIA.addr0 = XRAM_WIN_BUF + (uint16_t)r * save_cols;
+            RIA.step0 = 1;
             if (xram_row >= TITLE_ROWS && xram_row < (uint16_t)(TITLE_ROWS + EDIT_ROWS)) {
-                /* edit area: back up from text buffer */
                 uint8_t buf_row = (uint8_t)((xram_row - TITLE_ROWS) + scroll_row);
                 RIA.addr1 = TEXT_BUF_BASE + (uint16_t)buf_row * TEXT_COLS + xram_col;
                 RIA.step1 = 1;
-                for (c = 0u; c < width; c++) RIA.rw0 = RIA.rw1;
+                for (c = 0u; c < save_cols; c++) RIA.rw0 = RIA.rw1;
             } else {
-                /* title/menu area: no text buffer — store placeholder spaces */
-                for (c = 0u; c < width; c++) RIA.rw0 = ' ';
+                for (c = 0u; c < save_cols; c++) RIA.rw0 = ' ';
             }
         }
     }
@@ -188,18 +189,44 @@ static void window_open(uint8_t x_pos, uint8_t y_pos,
             putchar(frame == 0 ? ' ' : '\xB3');
         }
     }
+    if (shadow) {
+        uint8_t sh_col    = (uint8_t)(x_pos + width);
+        uint8_t save_cols = (uint8_t)(width + 1u);
+        printf(CSI "38;2;60;60;60m" CSI "48;2;20;20;20m");
+        /* right column: rows 1..height-1 (skip top-left corner of shadow) */
+        for (r = 1u; r < height; r++) {
+            uint8_t ch;
+            RIA.addr1 = XRAM_WIN_BUF + (uint16_t)r * save_cols + width;
+            RIA.step1 = 0;
+            ch = RIA.rw1;
+            printf(CSI "%d;%dH", (int)(y_pos + r), (int)sh_col);
+            putchar(ch ? ch : ' ');
+        }
+        /* bottom row: cols x_pos+1 .. x_pos+width */
+        for (c = 0u; c < width; c++) {
+            uint8_t ch;
+            RIA.addr1 = XRAM_WIN_BUF + (uint16_t)height * save_cols + c;
+            RIA.step1 = 0;
+            ch = RIA.rw1;
+            printf(CSI "%d;%dH", (int)(y_pos + height), (int)(x_pos + 1u + c));
+            putchar(ch ? ch : ' ');
+        }
+        printf(ANSI_RESET);
+    }
     printf(ANSI_RESET CSI_CURSOR_HIDE);
 }
 
 static void window_close(void)
 {
-    uint8_t r, c;
+    uint8_t r, c, restore_cols, restore_rows;
     if (win_w < 2u || win_h < 2u) return;
-    for (r = 0u; r < win_h; r++) {
+    restore_cols = win_shadow ? (uint8_t)(win_w + 1u) : win_w;
+    restore_rows = win_shadow ? (uint8_t)(win_h + 1u) : win_h;
+    for (r = 0u; r < restore_rows; r++) {
         printf(CSI "%d;%dH" ANSI_NORMAL, (int)(win_y + r), (int)win_x);
-        RIA.addr1 = XRAM_WIN_BUF + (uint16_t)r * win_w;
+        RIA.addr1 = XRAM_WIN_BUF + (uint16_t)r * restore_cols;
         RIA.step1 = 1;
-        for (c = 0u; c < win_w; c++) {
+        for (c = 0u; c < restore_cols; c++) {
             uint8_t ch = RIA.rw1;
             putchar(ch ? ch : ' ');
         }
@@ -281,11 +308,16 @@ static void draw_menu_bar(const char *status)
     } else if (list_mode == LIST_MODE_BULLET) {
         info = "LIST: bullet";
     } else {
-        info = INFO_READY;
+        info = !startup_done ? "Please wait..." : INFO_READY;
     }
 
-    printf(CSI "s" CSI_CURSOR_HIDE CSI "%d;1H", TITLE_ROWS + EDIT_ROWS + 1u);
-    for (i = 0u; i < 80u; i++) putchar('\xc4');
+    printf(CSI "s" ANSI_DARK_GRAY CSI_CURSOR_HIDE CSI "%d;1H", TITLE_ROWS + EDIT_ROWS + 1u);
+
+    for (i = 0u; i < 8u; i++){
+        printf("\xfa\xfa\xfa\xfa\xfa\xfa\xfa\xfa\xfa\x04");
+    }
+    
+    // for (i = 0u; i < 80u; i++) putchar('\xc4');
 
     if (view_mode) {
         sprintf(block, "Ln %d, Col %d [VIEW]", (int)(cur.row + 1), (int)(cur.col + 1));
@@ -300,7 +332,7 @@ static void draw_menu_bar(const char *status)
 
     snprintf(row2, sizeof(row2), "%-*s%s", (int)(80 - (int)strlen(block)), info, block);
     menu_print_row(TITLE_ROWS + EDIT_ROWS + 2u, row2);
-    if(status != NULL) PAUSE(75);
+    if(status != NULL) PAUSE(150);
     printf(CSI "u");
     printf(ANSI_NORMAL CSI_CURSOR_SHOW);
 
@@ -346,9 +378,10 @@ static void redraw_line(uint8_t r)
         }
     } else if (xrow == content_rows) {
         static const char eod[] = "- End of document -";
-        printf(ANSI_DARK_GRAY);
+        printf(ANSI_SEL_BG_OFF ANSI_DARK_GRAY);
         for (j = 0u; eod[j]; j++) putchar((uint8_t)eod[j]);
         printf(ANSI_NORMAL);
+        for (; j < TEXT_COLS; j++) putchar(' ');
     } else {
         for (j = 0u; j < TEXT_COLS; j++) putchar(' ');
     }
@@ -440,7 +473,7 @@ static void redraw_screen(void)
         }
         redraw_line(r);
     }
-    draw_menu_bar(NULL);
+    if (startup_done) draw_menu_bar(NULL);
     printf(CSI "%d;%dH" ANSI_SHOW_CUR,
            (int)((cur.row - scroll_row) + 1u + TITLE_ROWS),
            (int)(cur.col + 1u));
@@ -624,9 +657,9 @@ static void editor_clear(void)
 
     RIA.addr0 = TEXT_BUF_BASE;
     RIA.step0 = 1;
-    for (i = 0u; i < 20480u; i++) RIA.rw0 = ' ';
+    for (i = 0u; i < 20480u; i++) RIA.rw0 = 0u;
 
-    printf(ANSI_HIDE_CUR ANSI_CLS ANSI_HOME);
+    printf(ANSI_HIDE_CUR);
 
     cur.row      = 0u;
     cur.col      = 0u;
@@ -706,8 +739,8 @@ static int load_file(const char *filename)
     cur.row    = 0u;
     cur.col    = 0u;
     scroll_row = 0u;
-
     redraw_screen();
+
     return 1;
 }
 
@@ -1434,6 +1467,7 @@ int main(int argc, char **argv)
     clock_t repeat_start, repeat_last;
     uint8_t target_col;
     uint8_t prev_dirty;
+    int     lorem;
 
     #ifdef DEBUG
     {
@@ -1471,6 +1505,9 @@ int main(int argc, char **argv)
     repeat_start        = 0;
     repeat_last         = 0;
     target_col          = 0u;
+    lorem               = 0;
+
+    startup_done = 0u;
 
     f_mkdir("TMP");
     clip_load();
@@ -1478,38 +1515,54 @@ int main(int argc, char **argv)
     flush_rx();
     xreg_ria_keyboard(XRAM_STRUCT_SYS_KEYBOARD);
     xreg_ria_mouse(XRAM_STRUCT_SYS_MOUSE);
-    printf(CSI_ECHO_OFF);
 
     /*
         parse arguments: load ted.rp6502 [filename] [/view]
     */
     {
-        int fi = 1;   /* index of filename argument */
+        int fi = 1;
         if (argc >= 1 && strcmp(argv[2], "/view") == 0) {
             view_mode = 1u;
             fi = 1;
         }
-        strncpy(current_filename, (fi < argc && argv[fi][0]) ? argv[fi] : NEW_FILENAME, 63u);
+        if (fi < argc && strcmp(argv[fi], "/lorem") == 0)
+            lorem = 1;
+        strncpy(current_filename,
+                (!lorem && fi < argc && argv[fi][0]) ? argv[fi] : NEW_FILENAME,
+                63u);
     }
 
-    current_filename[63] = 0;
-    ok = load_file(current_filename);   /* calls editor_clear() + redraw_screen() internally */
+    printf(CSI_ECHO_OFF ANSI_CLS ANSI_HOME);
+    printf(ALTSCREEN_ENTER);
+
     draw_title_bar();
-    draw_menu_bar(ok > 0 ? (!view_mode ? "Please wait..." : "") : ok == 0 ? "FILE CREATED" : EXCLAMATION "cannot open file");
+    draw_menu_bar(NULL);
     cur.row    = 0u;
     cur.col    = 0u;
     scroll_row = 0u;
-    printf(OSC_CURSOR_COLOR "408040" OSC_ST ANSI_SHOW_CUR CSI "%d;1H", (int)(TITLE_ROWS + 1u));
+    printf(ANSI_HIDE_CUR OSC_CURSOR_COLOR "408040" OSC_ST CSI "%d;1H", (int)(TITLE_ROWS + 1u));
 
-    window_open(((80u-26u)/2u)+1u, ((30u-16u)/2u)-1u, 26, 16, CSI "37m", CSI "48;2;40;80;40m", 0);
+    draw_menu_bar(ok > 0 ? (!view_mode ? "Please wait..." : "") : ok == 0 ? "FILE CREATED" : EXCLAMATION "cannot open file");
+
+    current_filename[63] = 0;
+    ok = load_file(current_filename);
+    if (lorem) {
+        load_file("ROM:loremipsum");
+        strncpy(current_filename, NEW_FILENAME, 63u);
+        current_filename[63] = 0;
+        // redraw_screen();
+    }
+
+    window_open(((80u-26u)/2u)+1u, ((30u-16u)/2u)-1u, 26, 16, CSI "37m", CSI "48;2;40;80;40m", 0, true);
     window_text(APPNAME      ,  2,  1, CSI "37m", CSI "48;2;40;80;40m");
     window_text(APPDESCRPTION,  2,  3, CSI "37m", CSI "48;2;40;80;40m");
     window_text(APPCOPYRIGHT ,  2, 13, CSI "37m", CSI "48;2;40;80;40m");
     window_text("version  " APPVER, 2, 14, ANSI_DARK_GRAY, CSI "48;2;40;80;40m");
-    PAUSE(250);
+    PAUSE(400);
     window_close();
     redraw_screen();
     draw_title_bar();
+    startup_done = 1u;
     draw_menu_bar(ok > 0 ? "Ready" : ok == 0 ? "FILE CREATED" : EXCLAMATION "cannot open file");
     printf(DECSTBM_EDIT);
     printf(OSC_CURSOR_COLOR "408040" OSC_ST ANSI_SHOW_CUR CSI "%d;1H", (int)(TITLE_ROWS + 1u));
@@ -1630,7 +1683,7 @@ int main(int argc, char **argv)
                 } else if (key(KEY_INSERT) || (key_lalt && key(KEY_I))) {
                     repeat_key  = 0u;
                     insert_mode = insert_mode ? 0u : 1u;
-                    printf(insert_mode ? CSI "5 q" : CSI "3 q"); // cursor look
+                    printf(insert_mode ? DECSCUSR_BAR : DECSCUSR_UNDERLINE); // cursor look
                     draw_menu_bar(NULL);
 
                 /* --- Shift+Ctrl+Alt+L: start list from current-line prefix --- */
@@ -1699,7 +1752,17 @@ int main(int argc, char **argv)
                         strncpy(current_filename, NEW_FILENAME, 63u);
                         current_filename[63] = '\0';
                         editor_clear();
-                        cache_valid = 0u;
+                        { uint16_t xi;
+                          RIA.addr0 = CLIP_BUF_BASE;    RIA.step0 = 1;
+                          for (xi = 0u; xi < 2560u; xi++) RIA.rw0 = 0u;
+                          RIA.addr0 = SCREEN_CACHE_BASE; RIA.step0 = 1;
+                          for (xi = 0u; xi < 2080u; xi++) RIA.rw0 = 0u;
+                          RIA.addr0 = XRAM_SCRATCH;      RIA.step0 = 1;
+                          for (xi = 0u; xi < 82u;   xi++) RIA.rw0 = 0u;
+                          RIA.addr0 = XRAM_WIN_BUF_BASE; RIA.step0 = 1;
+                          for (xi = 0u; xi < 2400u; xi++) RIA.rw0 = 0u;
+                        }
+                        redraw_screen();
                         draw_title_bar();
                         draw_menu_bar("NEW DOCUMENT");
                         printf(ANSI_SHOW_CUR CSI "%d;1H", (int)(1u + TITLE_ROWS));
@@ -1726,6 +1789,8 @@ int main(int argc, char **argv)
                     }
                     if (menu_input("OPEN path/filename : ", current_filename, 64u)) {
                         ok = load_file(current_filename);
+                        redraw_screen();
+                        draw_title_bar();
                         draw_menu_bar(ok > 0 ? "Ready" : ok == 0 ? "FILE CREATED" : EXCLAMATION "cannot open file");
                     } else {
                         redraw_screen();
@@ -2241,7 +2306,7 @@ int main(int argc, char **argv)
                         }
                     }
                     flush_rx();
-
+                    printf(ALTSCREEN_LEAVE);
                     break;
                     ctrl_q_cancel:;
 
@@ -2379,7 +2444,7 @@ int main(int argc, char **argv)
                         char rowbuf[55];
                         uint8_t r, c;
 
-                        window_open(29u, 6u, 22u, 19u, CSI "37m", CSI "48;2;60;60;60m", 0);
+                        window_open(29u, 6u, 22u, 19u, CSI "37m", CSI "48;2;60;60;60m", 0, true);
 
                         /* header row: "   " then " 0  1  2 ... F" */
                         rowbuf[0]=' '; rowbuf[1]=' ';
@@ -2520,8 +2585,13 @@ int main(int argc, char **argv)
                         if (cur.col < (uint8_t)(TEXT_COLS - 1u)) {
                             cur.col++;
 
-                            /* redraw rest of line (insert mode shifts chars) */
-                            if (insert_mode) {
+                            /* extend content tracking */
+                            if ((uint16_t)(cur.row + 1u) > content_rows) {
+                                content_rows = (uint16_t)(cur.row + 1u);
+                                /* EoD moved down — redraw so it appears in new position */
+                                redraw_screen();
+                            } else if (insert_mode) {
+                                /* redraw rest of line (insert mode shifts chars) */
                                 uint8_t j2;
                                 RIA.addr1 = TEXT_BUF_BASE + (uint16_t)cur.row * TEXT_COLS + cur.col;
                                 RIA.step1 = 1;
@@ -2530,10 +2600,6 @@ int main(int argc, char **argv)
                                     putchar(c ? c : ' ');
                                 }
                             }
-
-                            /* extend content tracking */
-                            if ((uint16_t)(cur.row + 1u) > content_rows)
-                                content_rows = (uint16_t)(cur.row + 1u);
 
                         } else if (cur.row < 255u) {
                             /* last column reached — wrap to next row */
@@ -2573,6 +2639,20 @@ int main(int argc, char **argv)
     xreg_ria_mouse(0xFFFF);
     flush_rx();
     flush_rx();
+
+    {
+        uint16_t xi;
+        RIA.addr0 = TEXT_BUF_BASE; RIA.step0 = 1;
+        for (xi = 0u; xi < 20480u; xi++) RIA.rw0 = 0u;
+        RIA.addr0 = CLIP_BUF_BASE; RIA.step0 = 1;
+        for (xi = 0u; xi < 2560u;  xi++) RIA.rw0 = 0u;
+        RIA.addr0 = SCREEN_CACHE_BASE; RIA.step0 = 1;
+        for (xi = 0u; xi < 2080u;  xi++) RIA.rw0 = 0u;
+        RIA.addr0 = XRAM_SCRATCH; RIA.step0 = 1;
+        for (xi = 0u; xi < 82u;    xi++) RIA.rw0 = 0u;
+        RIA.addr0 = XRAM_WIN_BUF_BASE; RIA.step0 = 1;
+        for (xi = 0u; xi < 2400u;  xi++) RIA.rw0 = 0u;
+    }
 
     xreg_vga_canvas(GFX_CANVAS_640x480);
     xreg(1, 0, 1, 0);
