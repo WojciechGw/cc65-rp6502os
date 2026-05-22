@@ -1,5 +1,3 @@
-OBSOLETE
-
 ================================================================================
   TEd - Text Editor for razemOS
   Picocomputer 6502 (RP6502)
@@ -13,13 +11,14 @@ OBSOLETE
    4. Editing
    5. Selection
    6. Clipboard (Copy / Cut / Paste)
-   7. Find
+   7. Find and Replace
    8. File Operations
    9. Text Formatting
-  10. Special Insertions
-  11. Polish Characters
-  12. Utilities
-  13. Limits
+  10. Lists
+  11. Special Insertions
+  12. Polish Characters
+  13. Utilities
+  14. Limits
 
 --------------------------------------------------------------------------------
 
@@ -31,10 +30,12 @@ stores the document in XRAM for fast access.
 1. INVOCATION
 --------------------------------------------------------------------------------
 
-  ted [/view] [filename]
+  ted [/view] [/lorem] [filename]
 
   Parameters:
     /view      - open file in read-only view mode (editing disabled)
+    /lorem     - load Lorem Ipsum sample text at startup (document name stays
+                 "TEd-NewDocument.txt")
     filename   - file to open at startup (optional)
                  If omitted, a new document named "TEd-NewDocument.txt"
                  is created.
@@ -43,20 +44,25 @@ stores the document in XRAM for fast access.
     ted                          (new document)
     ted MSC0:/notes.txt          (open existing file or create new)
     ted /view MSC0:/readme.txt   (open in read-only view mode)
+    ted /lorem                   (new document pre-filled with Lorem Ipsum)
 
-  On startup a brief splash screen is shown. The status bar then reports
-  "Ready" (file loaded), "FILE CREATED" (new file), or an error message.
+  On startup a splash screen is shown briefly. The status bar then reports
+  "Ready" (file loaded), "FILE CREATED" (new file created), or an error.
 
 --------------------------------------------------------------------------------
 2. INTERFACE LAYOUT
 --------------------------------------------------------------------------------
 
-  Row  1-3  : Title bar — application name and version
-  Row  4-28 : Edit area — 25 visible rows of text (scrollable)
-  Row 29    : Status line — edit mode, clipboard flag, cursor position
-  Row 30    : Filename line
+  Row  1-2  : Title bar — application name and open filename
+  Row  3-28 : Edit area — 26 visible rows of text (scrollable)
+  Row 29    : Separator line
+  Row 30    : Status bar — message, cursor position, mode indicators
 
-  Status line indicators:
+  Title bar:
+    Left side  — application name and description
+    Right side — "!" when document has unsaved changes, then the filename
+
+  Status bar indicators (right side of row 30):
 
     [INS]    Current mode is Insert (default). New characters shift
              existing text to the right.
@@ -64,11 +70,11 @@ stores the document in XRAM for fast access.
              text in place.
     [VIEW]   Read-only view mode is active. Editing is disabled.
     [CLIP]   Clipboard contains data ready to paste.
-    row: NNN col: NNN
+    Ln N, Col N
              Current cursor position (1-based).
 
   The edit area scrolls vertically when the cursor moves outside the
-  visible 25-row window. "- End of document -" is shown after the last
+  visible 26-row window. "- End of document -" is shown after the last
   line of text.
 
 --------------------------------------------------------------------------------
@@ -77,20 +83,20 @@ stores the document in XRAM for fast access.
 
   Key                    Action
   ---------------------  -------------------------------------------------------
-  Left / Right           Move cursor one character left / right
+  Left / Right           Move cursor one character left / right.
+                         At line start/end, wraps to the previous/next line.
   Up / Down              Move cursor one line up / down
   Home                   Move to start of current line (column 1)
   End                    Move to end of text on current line
-  Page Up                Scroll up 25 rows
-  Page Down              Scroll down 25 rows
+  Page Up                Scroll up 26 rows
+  Page Down              Scroll down 26 rows
   Ctrl+Shift+Home        Jump to start of document (row 1, column 1)
-  Ctrl+Shift+End         Jump to end of document (last row)
+  Ctrl+Shift+End         Jump to end of document (last row, last column)
   Mouse wheel up         Scroll view up
   Mouse wheel down       Scroll view down
 
-  Arrow keys auto-repeat: a short delay (400 ms) precedes the first
-  repeat, then keys fire every 20 ms (arrows without Shift) or 50 ms
-  (all other repeating keys).
+  Arrow keys auto-repeat: a short delay precedes the first repeat, then
+  keys fire rapidly. Left/Right without Shift repeat faster than other keys.
 
 --------------------------------------------------------------------------------
 4. EDITING
@@ -99,21 +105,26 @@ stores the document in XRAM for fast access.
   Key                    Action
   ---------------------  -------------------------------------------------------
   Printable character    Insert character at cursor (INS) or overwrite (OVR)
-  Insert                 Toggle between Insert and Overwrite modes
+  Tab                    Insert spaces to the next tab stop (every 8 columns)
+  Shift+Tab              Remove spaces back to the previous tab stop
+  Insert / Alt+I         Toggle between Insert and Overwrite modes
   F4                     Toggle between Edit and View (read-only) mode
   Enter / KP Enter       Split line at cursor; text after cursor becomes a new
-                         line below
+                         line below. In list mode: insert next list item.
   Backspace              Delete character before cursor; if at column 1, join
                          current line with the line above
   Delete                 Delete character at cursor; if at end of line, join
-                         current line with the line below
+                         current line with the line below.
+                         If a selection is active, Delete removes the selected
+                         text without affecting the clipboard.
   Ctrl+N                 New document — clears the editor and starts a fresh
                          document named "TEd-NewDocument.txt". If the current
                          document has unsaved changes a Save prompt appears.
+                         Pressing Esc at the prompt returns to the document.
 
-  Auto-wrap: when inserting a character pushes text beyond column 80, the
-  overflow character wraps to the beginning of the next line. Wrap only
-  occurs when the document has fewer than 256 rows.
+  Auto-wrap: when text reaches column 80 while typing, the next character
+  continues on a new line. Wrap only occurs when the document has fewer
+  than 256 rows.
 
   All editing keys are disabled in View mode.
 
@@ -123,16 +134,22 @@ stores the document in XRAM for fast access.
 
   Key                    Action
   ---------------------  -------------------------------------------------------
-  Shift+Left / Right     Start or extend a character selection
+  Shift+Left / Right     Start or extend a character selection (within a line)
   Shift+Up / Down        Start or extend a line selection
+  Shift+Home             Extend character selection to start of line
+  Shift+End              Extend character selection to end of line
+  Ctrl+Shift+Left        Extend character selection one word to the left
+  Ctrl+Shift+Right       Extend character selection one word to the right
+  Delete                 Delete selected text (no clipboard copy)
 
   Selected text is highlighted with a gray background.
 
-  Character selection: selects a range of characters within lines, anchored
-  at the position where Shift was first pressed.
+  Character selection (Shift+Left/Right/Home/End, Ctrl+Shift+Left/Right):
+    Selects a range of characters within a single line, anchored at the
+    position where Shift was first pressed.
 
-  Line selection: selects whole lines, anchored at the line where Shift was
-  first pressed. This mode is used by Copy and Cut.
+  Line selection (Shift+Up/Down):
+    Selects whole lines, anchored at the line where Shift was first pressed.
 
   Any cursor movement without Shift cancels the active selection.
 
@@ -144,38 +161,50 @@ stores the document in XRAM for fast access.
 
   Key                    Action
   ---------------------  -------------------------------------------------------
-  Ctrl+C                 Copy selection to clipboard (copies current line if
-                         no selection is active)
-  Ctrl+X                 Cut selection (copy then delete selected lines)
-  Ctrl+V                 Paste clipboard contents before the current line
+  Ctrl+C                 Copy selection to clipboard. If no selection is active,
+                         copies the current line.
+  Ctrl+X                 Cut — copy then delete the selection (or current line)
+  Ctrl+V                 Paste clipboard contents at the current position
 
-  The clipboard holds up to 32 whole lines. The [CLIP] indicator in the
-  status bar is shown whenever the clipboard contains data.
+  The [CLIP] indicator in the status bar is shown whenever the clipboard
+  contains data.
 
-  Status messages after clipboard operations: "Copied", "Cut", "Pasted".
+  Character selection copy/cut: copies the selected characters from within
+  the line. Paste inserts them inline at the cursor position.
+
+  Line selection copy/cut: copies whole lines. Paste inserts them before the
+  current line, and the cursor lands at the end of the last pasted line.
+
+  The clipboard is backed to TMP/ted_cb.dat and TMP/ted_cb.meta so it
+  survives across invocations.
 
   Ctrl+C, Ctrl+X and Ctrl+V are disabled in View mode.
 
 --------------------------------------------------------------------------------
-7. FIND
+7. FIND AND REPLACE
 --------------------------------------------------------------------------------
 
   Key                    Action
   ---------------------  -------------------------------------------------------
   Ctrl+F                 Open the Find prompt
+  Ctrl+H                 Open the Replace prompt
 
-  Usage:
-    1. Press Ctrl+F. A "FIND pattern :" prompt appears at the bottom.
-    2. Type the search pattern (max 32 characters) and press Enter.
-       Press Esc to cancel.
-    3. The editor searches forward from the current cursor position and
+  Find (Ctrl+F):
+    1. A "FIND (max 25):" prompt appears. Type the search pattern and press
+       Enter. Press Esc to cancel.
+    2. The editor searches forward from the current cursor position and
        wraps around to the beginning of the document if needed.
-    4. When a match is found the cursor moves to it and the view scrolls
+    3. When a match is found the cursor moves to it and the view scrolls
        to place the match near the centre of the edit area.
-    5. Press Ctrl+F again (same pattern accepted by pressing Enter) to
-       find the next occurrence.
+    4. Press Ctrl+F again (re-enter the same pattern with Enter) to find
+       the next occurrence.
+    5. If no match exists, "TEXT NOT FOUND" is shown.
 
-  Find is case-sensitive. If no match exists, "TEXT NOT FOUND" is shown.
+  Replace (Ctrl+H):
+    Works similarly to Find, but also prompts for a replacement string.
+    Each match is highlighted and confirmed individually before replacing.
+
+  Find and Replace are case-sensitive.
 
 --------------------------------------------------------------------------------
 8. FILE OPERATIONS
@@ -189,10 +218,11 @@ stores the document in XRAM for fast access.
   Ctrl+Q                 Exit the editor
 
   Open (Ctrl+O):
-    If the current document has unsaved changes, a "Save changes before
-    opening? [Y/N]" prompt appears first. Pressing Y saves the file
-    (prompting for a name if the document is new), then continues to open.
-    Pressing N discards changes and continues to open.
+    If the current document has unsaved changes, a prompt appears:
+    "Save changes before opening? [Y/N/Esc]"
+      Y   — saves the file (prompts for a name if document is new), then opens
+      N   — discards changes and continues to open
+      Esc — returns to the document without opening
     A "OPEN path/filename :" prompt then appears (max 64 chars).
     Press Enter to confirm, Esc to cancel.
     - If the file exists it is loaded into the editor.
@@ -200,24 +230,25 @@ stores the document in XRAM for fast access.
     - On error "cannot open file" is shown.
 
   Save (Ctrl+S):
-    - If the document already has a name (not a new document), it is saved
-      immediately without prompting.
-    - If the document is new (no filename assigned), a "SAVE path/filename :"
-      prompt appears, pre-filled with the default name.
+    - If the document already has a name, it is saved immediately.
+    - If the document is new, a "SAVE path/filename :" prompt appears.
     Press Enter to confirm, Esc to cancel.
-    - Trailing spaces are stripped from each line before writing.
+    - Trailing spaces and null bytes are stripped from each line.
     - Each line is terminated with a newline character (\n).
     - On success "FILE SAVED" is shown; on error "cannot save file".
+    - The title bar updates to reflect the new filename and clears the "!"
+      dirty indicator.
 
   Save As (Ctrl+Shift+S):
-    Always shows a "SAVE AS path/filename :" prompt regardless of whether
-    the document already has a name, allowing you to save a copy under a
-    different name.
+    Always shows a "SAVE AS path/filename :" prompt, allowing you to save
+    under a different name.
 
   Exit (Ctrl+Q):
-    If the document has unsaved changes, a "Save changes before exit? [Y/N]"
-    prompt appears. Pressing Y saves the file (prompting for a name if the
-    document is new), then exits. Pressing N exits without saving.
+    If the document has unsaved changes, a prompt appears:
+    "Save changes before exit? [Y/N/Esc]"
+      Y   — saves, then exits
+      N   — exits without saving
+      Esc — returns to the document
 
   File paths use the razemOS filesystem notation, e.g.:
     MSC0:/documents/notes.txt
@@ -236,13 +267,45 @@ stores the document in XRAM for fast access.
   Leading spaces are stripped before centering or right-aligning, so the
   operation is idempotent regardless of the current indentation.
 
-  Ctrl+Shift+L also moves the cursor left by the number of spaces removed
+  Ctrl+Shift+L moves the cursor left by the number of spaces removed
   (clamped to column 1).
 
   These keys are disabled in View mode.
 
 --------------------------------------------------------------------------------
-10. SPECIAL INSERTIONS
+10. LISTS
+--------------------------------------------------------------------------------
+
+  Key                    Action
+  ---------------------  -------------------------------------------------------
+  Ctrl+Shift+Alt+L       Activate list mode from the current line's prefix
+  Enter                  Insert next list item (in list mode)
+  Enter on empty item    Exit list mode, stay on the empty line
+
+  List mode is activated by pressing Ctrl+Shift+Alt+L on a line whose first
+  two characters match one of the supported list prefixes:
+
+    Prefix      Mode           Continuation
+    ----------  -------------  --------------------------------------------------
+    "1." "2."   Numbered       Increments the number; same separator (. or ))
+    "a)" "b)"   Alpha          a→b→...→z→aa→ab...; same separator
+    "* " "- "   Bullet         Repeats the same bullet character
+    "> " "= "
+    "+ " "# "
+
+  In list mode, pressing Enter splits the line and inserts the next prefix
+  at the beginning of the new line, placing the cursor after it.
+
+  Pressing Enter on a line that contains only the prefix (no text after it)
+  clears the prefix, exits list mode, and leaves the cursor on that line.
+
+  The status bar shows "LIST: numbered", "LIST: alpha", or "LIST: bullet"
+  while list mode is active.
+
+  List mode is disabled in View mode.
+
+--------------------------------------------------------------------------------
+11. SPECIAL INSERTIONS
 --------------------------------------------------------------------------------
 
   Key                    Action
@@ -252,7 +315,7 @@ stores the document in XRAM for fast access.
 
   Ctrl+Shift+T inserts a 16-character timestamp in the format:
     YYYY-MM-DD HH:MM
-  The timestamp is inserted as ordinary characters and respects Insert /
+  The timestamp is inserted character by character and respects Insert /
   Overwrite mode. The document is marked as modified.
 
   Alt+P inserts the § character (CP852 code 0x15) at the cursor position,
@@ -261,7 +324,7 @@ stores the document in XRAM for fast access.
   Both keys are disabled in View mode.
 
 --------------------------------------------------------------------------------
-11. POLISH CHARACTERS
+12. POLISH CHARACTERS
 --------------------------------------------------------------------------------
 
   Polish diacritics are entered with Right Alt held together with a letter
@@ -282,28 +345,28 @@ stores the document in XRAM for fast access.
   Characters are stored and displayed using the CP852 (Latin-2) code page.
 
 --------------------------------------------------------------------------------
-12. UTILITIES
+13. UTILITIES
 --------------------------------------------------------------------------------
 
   Key                    Action
   ---------------------  -------------------------------------------------------
-  Ctrl+Shift+Alt+A       Show ASCII character table
+  Ctrl+Shift+Alt+A       Show ASCII character table popup
 
   The ASCII table is displayed as a popup window centered on the screen.
   It shows all 256 character codes arranged in a 16x16 grid with hexadecimal
-  row and column labels (0h–Fh). Control characters (codes 0x00–0x1F) and
-  DEL (0x7F) are shown as a dot. Press any key to close the table.
+  row and column labels (0h–Fh). Control characters that cannot be displayed
+  are shown as a dot. Press any key to close the table.
 
 --------------------------------------------------------------------------------
-13. LIMITS
+14. LIMITS
 --------------------------------------------------------------------------------
 
   Maximum document rows     : 256
   Maximum columns per row   : 80
   Maximum filename length   : 64 characters
   Clipboard capacity        : 32 lines
-  Find pattern length       : 32 characters
+  Find/Replace pattern length: 25 characters
   XRAM text buffer          : 0x0000 – 0x4FFF  (20 480 bytes)
-  XRAM clipboard buffer     : 0x5100 –          (up to 2 560 bytes)
+  XRAM clipboard buffer     : 0xE3EE – 0xEDED  ( 2 560 bytes)
 
 ================================================================================
