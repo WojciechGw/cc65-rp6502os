@@ -81,11 +81,13 @@
 #define INFO_READY  "Ready"
 #define CHAR_VBAR   "\xb3"
 #define CHAR_HBAR   "\xc4"
-#define MODE_CAPS   "[A]"
-#define MODE_INS    "[INS]"
-#define MODE_OVR    "[OVR]"
-#define MODE_VIEW   "[VIEW]"
-#define CLIPBOARD_WITHDATA "[CLIP]"
+#define MODE_CAPS   "A"
+#define MODE_NCAPS  "a"
+#define MODE_INS    "INS"
+#define MODE_OVR    "OVR"
+#define MODE_EDIT   "EDIT"
+#define MODE_VIEW   "VIEW"
+#define CLIPBOARD_WITHDATA "CLIP"
 
 /* ------------------------------------------------------------------ */
 /* selection modes                                                     */
@@ -317,7 +319,8 @@ uint32_t ticks = 0;
 #define KEY_COMMA      0x36
 #define KEY_DOT        0x37
 #define KEY_SLASH      0x38
-#define KEY_CAPSLOCK   0x39
+#define KEY_CAPSLOCK     0x39
+#define KEY_CAPSLOCK_LED 0x02  /* Caps Lock LED state (RIA keycode 2, not key press) */
 
 #define KEY_F1   0x3a
 #define KEY_F2   0x3b

@@ -322,14 +322,21 @@ static void draw_status_bar(const char *status)
     // for (i = 0u; i < 80u; i++) putchar('\xc4');
 
     if (view_mode) {
-        sprintf(block, "Ln %d, Col %d [VIEW]", (int)(cur.row + 1), (int)(cur.col + 1));
+        sprintf(block, "Ln %d, Col %d [%s]", (int)(cur.row + 1), (int)(cur.col + 1), MODE_VIEW);
     } else {
         if (clip_is_char > 0u || clip_lines > 0u)
-            sprintf(block, "Ln %d, Col %d [CLIP]%s[EDIT]",
-                    (int)(cur.row + 1), (int)(cur.col + 1), insert_mode ? MODE_INS : MODE_OVR);
+            sprintf(block, "Ln %d, Col %d [%s][%s][%s][%s]",
+                    (int)(cur.row + 1), (int)(cur.col + 1),
+                    CLIPBOARD_WITHDATA,
+                    key(KEY_CAPSLOCK_LED) ? MODE_CAPS : MODE_NCAPS,
+                    insert_mode ? MODE_INS : MODE_OVR,
+                    MODE_EDIT);
         else
-            sprintf(block, "Ln %d, Col %d %s[EDIT]",
-                    (int)(cur.row + 1), (int)(cur.col + 1), insert_mode ? MODE_INS : MODE_OVR);
+            sprintf(block, "Ln %d, Col %d [%s][%s][%s]",
+                    (int)(cur.row + 1), (int)(cur.col + 1),
+                    key(KEY_CAPSLOCK_LED) ? MODE_CAPS : MODE_NCAPS,
+                    insert_mode ? MODE_INS : MODE_OVR,
+                    MODE_EDIT);
     }
 
     snprintf(row2, sizeof(row2), "%-*s%s", (int)(80 - (int)strlen(block)), info, block);
@@ -581,7 +588,7 @@ static int prompt_input(const char *prompt, char *buf, uint8_t maxlen)
 
         shift = (uint8_t)(((cur_ks[KEY_LEFTSHIFT  >> 3] >> (KEY_LEFTSHIFT  & 7)) & 1u) |
                            ((cur_ks[KEY_RIGHTSHIFT >> 3] >> (KEY_RIGHTSHIFT & 7)) & 1u));
-        caps  = (uint8_t)( (cur_ks[KEY_CAPSLOCK   >> 3] >> (KEY_CAPSLOCK   & 7)) & 1u);
+        caps  = (uint8_t)( (cur_ks[KEY_CAPSLOCK_LED >> 3] >> (KEY_CAPSLOCK_LED & 7)) & 1u);
 
         /* autorepeat fire */
         if (rep_key) {
@@ -1462,6 +1469,7 @@ int main(int argc, char **argv)
     bool    did_action;
     uint8_t k, j, new_key, new_keys, last_key;
     uint8_t key_capslock, key_shifts, key_ctrl, key_ralt, key_lalt;
+    uint8_t prev_capslock;
     uint8_t max_scroll;
     int     ok;
     char    ch;
@@ -1575,6 +1583,8 @@ int main(int argc, char **argv)
     mouse_wheel      = RIA.rw1;
     mouse_wheel_prev = mouse_wheel;
 
+    prev_capslock = (uint8_t)(key(KEY_CAPSLOCK_LED) ? 1u : 0u);
+
     /* ---- main event loop ---- */
     while (1) {
 
@@ -1658,6 +1668,10 @@ int main(int argc, char **argv)
         }
 
         key_capslock = (uint8_t)(key(KEY_CAPSLOCK)   ? 1u : 0u);
+        if (key_capslock != prev_capslock) {
+            prev_capslock = key_capslock;
+            if (!view_mode) draw_status_bar(NULL);
+        }
         key_shifts   = (uint8_t)((!view_mode && (key(KEY_LEFTSHIFT) || key(KEY_RIGHTSHIFT))) ? 1u : 0u);
         key_ctrl     = (uint8_t)((key(KEY_LEFTCTRL)  || key(KEY_RIGHTCTRL))  ? 1u : 0u);
         key_lalt     = (uint8_t)( key(KEY_LEFTALT)                           ? 1u : 0u);
@@ -2324,7 +2338,6 @@ int main(int argc, char **argv)
                             "Ctrl+F           find text       ",
                             "Ctrl+H           replace text    ",
                             "Ins/Alt+I        toggle INS/OVR  ",
-                            "F4               toggle EDIT/VIEW",
                             "Tab/Shift+Tab    next/prev tab   ",
                             "Ctrl+Shift+Home  jump to begin   ",
                             "Ctrl+Shift+End   jump to end     ",
@@ -2338,7 +2351,9 @@ int main(int argc, char **argv)
                             "Ctrl+Shift+Alt+L lists mode      ",
                             "Ctrl+Shift+T     insert timestamp",
                             "Alt+P            section sign \x15  ",
-                            "Ctrl+Shift+Alt+A ASCII table     ",
+                            "F1               Keysology       ",
+                            "F2               ASCII table     ",
+                            "F4               toggle EDIT/VIEW",
                             "Ctrl+Q           quit            ",
                         };
                         #define HELP_COLS     2u
@@ -2352,7 +2367,7 @@ int main(int argc, char **argv)
                         uint8_t ki, ji, was, now2;
                         int     got_key = 0;
 
-                        window_open(3u, 7u, 76u, (uint8_t)(HELP_ROWS + 2u), CSI "37m", CSI "48;2;30;50;30m", 0, true);
+                        window_open(3u, 7u, 76u, (uint8_t)(HELP_ROWS + 4u), CSI "37m", CSI "48;2;30;50;30m", 0, true);
                         window_text(" \xfe " APPNAME " Keysology", 1u, 1u, CSI "1;37m", CSI "48;2;30;50;30m");
                         for (hr = 0u; hr < HELP_ROWS; hr++) {
                             uint8_t ci;
@@ -2517,9 +2532,8 @@ int main(int argc, char **argv)
                         }
                     }
 
-                /* --- Ctrl+Shift+Alt+A: ASCII character table popup (17x17, hex labels) --- */
-                /* --- Shift+Ctrl+Alt+N: start numbered list --- */
-                } else if (key_ctrl && key_shifts && key_lalt && key(KEY_A)) {
+                /* --- F2: ASCII character table popup (17x17, hex labels) --- */
+                } else if (key(KEY_F2)) {
                     repeat_key = 0u;
                     {
                         /* inner area: 3 + 16*3 = 51 cols, 1 header + 16 rows = 17 rows
