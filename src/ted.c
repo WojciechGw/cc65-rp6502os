@@ -266,6 +266,7 @@ static void draw_title_bar(void)
     static const char title_line1[] = APP_MSG_TITLE;
     uint8_t i, fn_len, filename_position; // line_len
 
+    printf(CSI "1;1H" CSI "2K");
     for (i = 0u; title_line1[i]; i++) putchar((uint8_t)title_line1[i]);
     if (current_filename[0]) {
         for (fn_len = 0u; current_filename[fn_len]; fn_len++) {}
