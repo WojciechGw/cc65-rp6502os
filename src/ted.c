@@ -1667,7 +1667,7 @@ int main(int argc, char **argv)
             }
         }
 
-        key_capslock = (uint8_t)(key(KEY_CAPSLOCK)   ? 1u : 0u);
+        key_capslock = (uint8_t)(key(KEY_CAPSLOCK_LED) ? 1u : 0u);
         if (key_capslock != prev_capslock) {
             prev_capslock = key_capslock;
             if (!view_mode) draw_status_bar(NULL);
