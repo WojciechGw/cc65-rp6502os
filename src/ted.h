@@ -33,7 +33,7 @@
 #include <unistd.h>
 
 /* --- app identity --- */
-#define APPVER        "20260521.2200"
+#define APPVER        "20260522.0700"
 #define APPNAME       "TEd"
 #define APPDESCRPTION "Text Editor"
 #define APPCOPYRIGHT  "(c) 2026 by WojciechGw"
@@ -137,6 +137,11 @@ uint8_t keystates[KEYBOARD_BYTES] = {0};
 #define DECSCUSR_UNDERLINE CSI "3 q"
 #define DECSCUSR_BAR       CSI "5 q"
 
+#define CSI_CURSOR_CUU_1   CSI "1A"
+#define CSI_CURSOR_CUD_1   CSI "1B"
+#define CSI_CURSOR_CUB_1   CSI "1D"
+#define CSI_CURSOR_CUF_1   CSI "1C"
+
 #define SO "\x0E"   /* Shift Out  - wybierz G1 */
 #define SI "\x0F"    /* Shift In   - wybierz G0 */
 #define CHAR_SO 0x0E   /* Shift Out  - wybierz G1 */
@@ -144,7 +149,7 @@ uint8_t keystates[KEYBOARD_BYTES] = {0};
 #define DECSC ESC "7"
 #define DECRC ESC "8"
 // #define ALTSCREEN_ENTER CSI "?1049h" CSI "?25l" CSI "0m" CSI "2J" CSI "H" ESC "(\xB" ESC ")0"
-#define ALTSCREEN_ENTER CSI "?1049h" CSI "?25l" CSI "0m" DECSCUSR_BAR CSI_ECHO_OFF OSC_DEFAULT_COLORBG "101010" OSC_ST "(\xB" ESC ")0"
+#define ALTSCREEN_ENTER CSI "?1049h" CSI "?25l" CSI "0m" DECSCUSR_BAR CSI_ECHO_OFF OSC_DEFAULT_COLORBG "101010" OSC_ST ESC "(\xB" ESC ")0"
 #define ALTSCREEN_LEAVE CSI "0m" CSI "?25h" CSI_ECHO_ON CSI "?1049l"
 
 /* ================================================================

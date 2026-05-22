@@ -276,7 +276,10 @@ static void draw_title_bar(void)
     } 
 
     printf(CSI "2;1H" ANSI_DARK_GRAY);
-    for (i = 0u; i < 80u; i++) putchar('\xc4');
+    putchar(CHAR_SO);
+    for (i = 0u; i < 80u; i++) putchar('q');
+    putchar(CHAR_SI);
+    
     printf(ANSI_NORMAL);
 
 }
@@ -312,7 +315,7 @@ static void draw_status_bar(const char *status)
     printf(CSI "s" ANSI_DARK_GRAY CSI_CURSOR_HIDE CSI "%d;1H", TITLE_ROWS + EDIT_ROWS + 1u);
 
     for (i = 0u; i < 8u; i++){
-        printf("\xfa\xfa\xfa\xfa\xfa\xfa\xfa\xfa\xfa\x04");
+        printf("\xfa\xfa\xfa\xfa\xfa\xfa\xfa\xfa\xfa" SO "x" SI);
     }
     
     // for (i = 0u; i < 80u; i++) putchar('\xc4');
@@ -640,7 +643,7 @@ static uint8_t line_text_len(uint8_t row)
     RIA.addr1 = TEXT_BUF_BASE + (uint16_t)row * TEXT_COLS;
     RIA.step1 = 1;
     for (j = 0u; j < TEXT_COLS; j++) {
-        if ((char)RIA.rw1 != ' ') last = j + 1u;
+        { uint8_t b = RIA.rw1; if (b != 0u && b != (uint8_t)' ') last = j + 1u; }
     }
     return last;
 }
