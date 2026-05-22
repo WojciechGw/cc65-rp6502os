@@ -316,7 +316,7 @@ static void draw_status_bar(const char *status)
     printf(CSI "s" ANSI_DARK_GRAY CSI_CURSOR_HIDE CSI "%d;1H", TITLE_ROWS + EDIT_ROWS + 1u);
 
     for (i = 0u; i < 8u; i++){
-        printf("\xfa\xfa\xfa\xfa\xfa\xfa\xfa\xfa\xfa" SO "x" SI);
+        printf("\xfa\xfa\xfa\xfa\xfa\xfa\xfa\xfa\xfa" SO "v" SI);
     }
     
     // for (i = 0u; i < 80u; i++) putchar('\xc4');
@@ -2309,6 +2309,92 @@ int main(int argc, char **argv)
                     }
                     break;
                     ctrl_q_cancel:;
+
+                /* --- F1: keyboard shortcuts help popup --- */
+                } else if (key(KEY_F1)) {
+                    repeat_key = 0u;
+                    {
+                        /* 2 cols x 33 chars + " | " sep = 69 inner wide; frame=1 -> 71 outer
+                           rows: ceil(N/2) content + 1 header; centered on 80x30 */
+                        static const char * const help_lines[] = {
+                            "Ctrl+N           new document    ",
+                            "Ctrl+O           open            ",
+                            "Ctrl+S           save            ",
+                            "Ctrl+Shift+S     save as         ",
+                            "Ctrl+F           find text       ",
+                            "Ctrl+H           replace text    ",
+                            "Ins/Alt+I        toggle INS/OVR  ",
+                            "F4               toggle EDIT/VIEW",
+                            "Tab/Shift+Tab    next/prev tab   ",
+                            "Ctrl+Shift+Home  jump to begin   ",
+                            "Ctrl+Shift+End   jump to end     ",
+                            "Shift+Left/Right select char     ",
+                            "Shift+Up/Down    select line     ",
+                            "Ctrl+Shift+L/R   select word     ",
+                            "Ctrl+C/X/V       copy/cut/paste  ",
+                            "Ctrl+Shift+C     center line     ",
+                            "Ctrl+Shift+R     align to right  ",
+                            "Ctrl+Shift+L     align to left   ",
+                            "Ctrl+Shift+Alt+L lists mode      ",
+                            "Ctrl+Shift+T     insert timestamp",
+                            "Alt+P            section sign \x15  ",
+                            "Ctrl+Shift+Alt+A ASCII table     ",
+                            "Ctrl+Q           quit            ",
+                        };
+                        #define HELP_COLS     2u
+                        #define HELP_COL_W   33u
+                        #define HELP_N       ((uint8_t)(sizeof(help_lines)/sizeof(help_lines[0])))
+                        #define HELP_ROWS    ((uint8_t)((HELP_N + HELP_COLS - 1u) / HELP_COLS))
+                        char rowbuf[72];
+                        uint8_t hr, hc, hi;
+                        uint8_t prev_ks[KEYBOARD_BYTES];
+                        uint8_t cur_ks[KEYBOARD_BYTES];
+                        uint8_t ki, ji, was, now2;
+                        int     got_key = 0;
+
+                        window_open(3u, 7u, 76u, (uint8_t)(HELP_ROWS + 2u), CSI "37m", CSI "48;2;30;50;30m", 0, true);
+                        window_text(" \xfe " APPNAME " Keysology", 1u, 1u, CSI "1;37m", CSI "48;2;30;50;30m");
+                        for (hr = 0u; hr < HELP_ROWS; hr++) {
+                            uint8_t ci;
+                            for (ci = 0u; ci < (uint8_t)(HELP_COLS * (HELP_COL_W + 3u) - 3u); ci++) rowbuf[ci] = ' ';
+                            rowbuf[HELP_COLS * (HELP_COL_W + 3u) - 3u] = '\0';
+                            for (hc = 0u; hc < HELP_COLS; hc++) {
+                                const char *src;
+                                uint8_t sc, dc;
+                                hi = (uint8_t)(hr + hc * HELP_ROWS);
+                                src = (hi < HELP_N) ? help_lines[hi] : "";
+                                dc = (uint8_t)(hc * (HELP_COL_W + 3u));
+                                for (sc = 0u; sc < HELP_COL_W && src[sc]; sc++) rowbuf[dc + sc] = src[sc];
+                                if (hc < (uint8_t)(HELP_COLS - 1u)) {
+                                    rowbuf[dc + HELP_COL_W]      = ' ';
+                                    rowbuf[dc + HELP_COL_W + 1u] = ' ';
+                                    rowbuf[dc + HELP_COL_W + 2u] = ' ';
+                                }
+                            }
+                            window_text(rowbuf, 2u, (uint8_t)(hr + 3u), CSI "37m", CSI "48;2;30;50;30m");
+                        }
+
+                        /* wait for any new key-down (edge detect, ignores currently held keys) */
+                        for (ki = 0u; ki < KEYBOARD_BYTES; ki++) prev_ks[ki] = keystates[ki];
+                        while (!got_key) {
+                            for (ki = 0u; ki < KEYBOARD_BYTES; ki++) {
+                                RIA.addr1 = XRAM_STRUCT_SYS_KEYBOARD + ki;
+                                RIA.step1 = 0;
+                                cur_ks[ki] = RIA.rw1;
+                            }
+                            for (ki = 0u; ki < KEYBOARD_BYTES && !got_key; ki++) {
+                                for (ji = 0u; ji < 8u && !got_key; ji++) {
+                                    was  = (prev_ks[ki] >> ji) & 1u;
+                                    now2 = (cur_ks [ki] >> ji) & 1u;
+                                    if (!was && now2) got_key = 1;
+                                }
+                                prev_ks[ki] = cur_ks[ki];
+                            }
+                        }
+                        for (ki = 0u; ki < KEYBOARD_BYTES; ki++) keystates[ki] = cur_ks[ki];
+                        window_close();
+                        redraw_screen();
+                    }
 
                 /* --- F4: toggle view/edit mode --- */
                 } else if (key(KEY_F4)) {

@@ -81,6 +81,7 @@
 #define INFO_READY  "Ready"
 #define CHAR_VBAR   "\xb3"
 #define CHAR_HBAR   "\xc4"
+#define MODE_CAPS   "[A]"
 #define MODE_INS    "[INS]"
 #define MODE_OVR    "[OVR]"
 #define MODE_VIEW   "[VIEW]"
