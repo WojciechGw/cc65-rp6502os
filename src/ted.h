@@ -11,14 +11,14 @@
 /* ------------------------------------------------------------------ */
 /* XRAM layout
  *
- *  0x0000  TEXT_BUF_BASE     256 rows x 80 cols = 20480 B  (0x0000-0x4FFF)
- *          [ free: 0x5000-0xE3ED  ~58 KB ]
- *  0xE3EE  CLIP_BUF_BASE      32 rows x 80 cols =  2560 B  (0xE3EE-0xEDED)
- *  0xEDEE  SCREEN_CACHE_BASE  26 rows x 80 cols =  2080 B  (0xEDEE-0xF60D)
- *  0xF60E  XRAM_SCRATCH       file-write scratch =    82 B  (0xF60E-0xF65F)
- *  0xF660  XRAM_WIN_BUF_BASE  window backup      =  2400 B  (0xF660-0xFFBF)
- *  0xFFC0  MOUSE_INPUT        system mouse state =    32 B
- *  0xFFE0  KEYBOARD_INPUT     system key bitfield=    32 B
+ *  0x0000  TEXT_BUF_BASE      256 rows x 80 cols =  20480 B  (0x0000-0x4FFF)
+ *  [ free: 0x5000-0xE3ED  ~58 KB ]
+ *  0xE3EE  CLIP_BUF_BASE       32 rows x 80 cols =   2560 B  (0xE3EE-0xEDED)
+ *  0xEDEE  SCREEN_CACHE_BASE   26 rows x 80 cols =   2080 B  (0xEDEE-0xF60D)
+ *  0xF60E  XRAM_SCRATCH        file-write scratch =    82 B  (0xF60E-0xF65F)
+ *  0xF660  XRAM_AREA_BUF_BASE  area backup      =    2400 B  (0xF660-0xFFBF)
+ *  0xFFC0  MOUSE_INPUT         system mouse state =    32 B
+ *  0xFFE0  KEYBOARD_INPUT      system key bitfield=    32 B
  */
 
 #include <rp6502.h>
@@ -52,7 +52,7 @@
 #define CLIP_BUF_BASE      0xE3EEu
 #define SCREEN_CACHE_BASE  0xEDEEu
 #define XRAM_SCRATCH       0xF60Eu
-#define XRAM_WIN_BUF_BASE  0xF660u
+#define XRAM_AREA_BUF_BASE 0xF660u
 
 /* system XRAM (from commons.h) */
 #define MOUSE_INPUT        0xFFC0   /* 32 bytes mouse state */
@@ -468,7 +468,7 @@ uint32_t ticks = 0;
 
 /* ------------------------------------------------------------------ */
 /* window draw XRAM buffer alias                                       */
-#define XRAM_WIN_BUF  XRAM_WIN_BUF_BASE
+#define XRAM_AREA_BUF  XRAM_AREA_BUF_BASE
 
 /* ------------------------------------------------------------------ */
 /* menu_input action macro (uses locals: pos, len, buf, field, i, ch,

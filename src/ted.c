@@ -27,7 +27,9 @@ static char replace_pattern[26];
 static char g_linebuf[82];
 
 /* --- screen line cache flag (data lives in XRAM at SCREEN_CACHE_BASE) --- */
-static uint8_t cache_valid = 0u;
+static uint8_t  cache_valid    = 0u;
+static uint32_t status_expire  = 0u;
+static char     status_msg[40] = "";
 
 /* --- Insert/Overwrite mode and clipboard --- */
 static uint8_t view_mode   = 0u;   /* 1 = read-only view, editing disabled */
@@ -103,42 +105,42 @@ static char keycode_to_char(uint8_t code, uint8_t shift, uint8_t caps, uint8_t r
 }
 
 /* ================================================================
-   window_draw: draws a box with semigraphic border and filled background.
+   area_draw: draws a box with semigraphic border and filled background.
    x_pos, y_pos: 1-based terminal column/row of the top-left corner.
    width, height: outer dimensions including the border.
    color_fg / color_bg: ANSI SGR strings (e.g. "37m" / "44m"), or NULL.
-   window_text: prints text inside the window at (wx_pos, wy_pos) offset
+   area_text: prints text inside the area at (wx_pos, wy_pos) offset
    from the inner top-left corner (1-based, clipped to inner area).
    ================================================================ */
-static uint8_t win_x;      /* saved top-left column of last window_draw call */
-static uint8_t win_y;      /* saved top-left row    of last window_draw call */
-static uint8_t win_w;      /* saved outer width */
-static uint8_t win_h;      /* saved outer height */
-static uint8_t win_shadow; /* 1 if shadow was drawn */
+static uint8_t area_x;      /* saved top-left column of last area_draw call */
+static uint8_t area_y;      /* saved top-left row    of last area_draw call */
+static uint8_t area_w;      /* saved outer width */
+static uint8_t area_h;      /* saved outer height */
+static uint8_t area_shadow; /* 1 if shadow was drawn */
 
-static void window_open(uint8_t x_pos, uint8_t y_pos,
+static void area_open(uint8_t x_pos, uint8_t y_pos,
                         uint8_t width, uint8_t height,
                         const char *color_fg, const char *color_bg, uint8_t frame, bool shadow)
 {
     uint8_t r, c, inner_w;
 
-    win_x      = x_pos;
-    win_y      = y_pos;
-    win_w      = width;
-    win_h      = height;
-    win_shadow = shadow ? 1u : 0u;
+    area_x      = x_pos;
+    area_y      = y_pos;
+    area_w      = width;
+    area_h      = height;
+    area_shadow = shadow ? 1u : 0u;
 
     if (width < 2u || height < 2u) return;
     inner_w = (uint8_t)(width - 2u);
 
-    /* save chars under window area (+ shadow col/row if needed) to XRAM backup buffer */
+    /* save chars under area (+ shadow col/row if needed) to XRAM backup buffer */
     {
         uint8_t save_cols = shadow ? (uint8_t)(width + 1u) : width;
         uint8_t save_rows = shadow ? (uint8_t)(height + 1u) : height;
         for (r = 0u; r < save_rows; r++) {
             uint16_t xram_row = (uint16_t)((y_pos + r) - 1u);
             uint8_t  xram_col = (uint8_t)(x_pos - 1u);
-            RIA.addr0 = XRAM_WIN_BUF + (uint16_t)r * save_cols;
+            RIA.addr0 = XRAM_AREA_BUF + (uint16_t)r * save_cols;
             RIA.step0 = 1;
             if (xram_row >= TITLE_ROWS && xram_row < (uint16_t)(TITLE_ROWS + EDIT_ROWS)) {
                 uint8_t buf_row = (uint8_t)((xram_row - TITLE_ROWS) + scroll_row);
@@ -151,7 +153,7 @@ static void window_open(uint8_t x_pos, uint8_t y_pos,
         }
     }
 
-    /* draw window */
+    /* draw area content */
     for (r = 0u; r < height; r++) {
         printf(CSI "%d;%dH", (int)(y_pos + r), (int)x_pos);
         if (color_bg) { printf(color_bg); }
@@ -177,7 +179,7 @@ static void window_open(uint8_t x_pos, uint8_t y_pos,
         /* right column: rows 1..height-1 (skip top-left corner of shadow) */
         for (r = 1u; r < height; r++) {
             uint8_t ch;
-            RIA.addr1 = XRAM_WIN_BUF + (uint16_t)r * save_cols + width;
+            RIA.addr1 = XRAM_AREA_BUF + (uint16_t)r * save_cols + width;
             RIA.step1 = 0;
             ch = RIA.rw1;
             printf(CSI "%d;%dH", (int)(y_pos + r), (int)sh_col);
@@ -186,7 +188,7 @@ static void window_open(uint8_t x_pos, uint8_t y_pos,
         /* bottom row: cols x_pos+1 .. x_pos+width */
         for (c = 0u; c < width; c++) {
             uint8_t ch;
-            RIA.addr1 = XRAM_WIN_BUF + (uint16_t)height * save_cols + c;
+            RIA.addr1 = XRAM_AREA_BUF + (uint16_t)height * save_cols + c;
             RIA.step1 = 0;
             ch = RIA.rw1;
             printf(CSI "%d;%dH", (int)(y_pos + height), (int)(x_pos + 1u + c));
@@ -197,15 +199,15 @@ static void window_open(uint8_t x_pos, uint8_t y_pos,
     printf(ANSI_RESET CSI_CURSOR_HIDE);
 }
 
-static void window_close(void)
+static void area_close(void)
 {
     uint8_t r, c, restore_cols, restore_rows;
-    if (win_w < 2u || win_h < 2u) return;
-    restore_cols = win_shadow ? (uint8_t)(win_w + 1u) : win_w;
-    restore_rows = win_shadow ? (uint8_t)(win_h + 1u) : win_h;
+    if (area_w < 2u || area_h < 2u) return;
+    restore_cols = area_shadow ? (uint8_t)(area_w + 1u) : area_w;
+    restore_rows = area_shadow ? (uint8_t)(area_h + 1u) : area_h;
     for (r = 0u; r < restore_rows; r++) {
-        printf(CSI "%d;%dH" ANSI_NORMAL, (int)(win_y + r), (int)win_x);
-        RIA.addr1 = XRAM_WIN_BUF + (uint16_t)r * restore_cols;
+        printf(CSI "%d;%dH" ANSI_NORMAL, (int)(area_y + r), (int)area_x);
+        RIA.addr1 = XRAM_AREA_BUF + (uint16_t)r * restore_cols;
         RIA.step1 = 1;
         for (c = 0u; c < restore_cols; c++) {
             uint8_t ch = RIA.rw1;
@@ -215,25 +217,25 @@ static void window_close(void)
     printf(ANSI_RESET CSI_CURSOR_SHOW);
 }
 
-static void window_text(const char *text,
+static void area_text(const char *text,
                         uint8_t wx_pos, uint8_t wy_pos,
                         const char *color_fg, const char *color_bg){
 
     uint8_t col, max_len, i;
 
-    if (win_w < 2u || win_h < 2u) return;
+    if (area_w < 2u || area_h < 2u) return;
     /* clamp to inner area */
     if (wx_pos < 1u) wx_pos = 1u;
     if (wy_pos < 1u) wy_pos = 1u;
-    if (wx_pos > (uint8_t)(win_w - 2u)) return;
-    if (wy_pos > (uint8_t)(win_h - 2u)) return;
+    if (wx_pos > (uint8_t)(area_w - 2u)) return;
+    if (wy_pos > (uint8_t)(area_h - 2u)) return;
 
     if (color_bg) { printf(color_bg); }
     if (color_fg) { printf(color_fg); }
-    col     = (uint8_t)(win_x + wx_pos);   /* 1-based terminal column */
-    max_len = (uint8_t)(win_w - 1u - wx_pos);
+    col     = (uint8_t)(area_x + wx_pos);   /* 1-based terminal column */
+    max_len = (uint8_t)(area_w - 1u - wx_pos);
     
-    printf(CSI "%d;%dH", (int)(win_y + wy_pos), (int)col);
+    printf(CSI "%d;%dH", (int)(area_y + wy_pos), (int)col);
     for (i = 0u; text[i] && i < max_len; i++) putchar((uint8_t)text[i]);
     printf(ANSI_RESET);
 }
@@ -281,11 +283,16 @@ static void draw_status_bar(const char *status)
 {
     uint8_t i;
     const char *info;
-    char block[40];
+    char block[50];
     char row2[81];
 
     if (status) {
-        info = status;
+        strncpy(status_msg, status, sizeof(status_msg) - 1u);
+        status_msg[sizeof(status_msg) - 1u] = '\0';
+        status_expire = clock() + 150u;
+        info = status_msg;
+    } else if (status_expire && clock() < status_expire) {
+        info = status_msg;
     } else if (list_mode == LIST_MODE_NUM) {
         info = "LIST: numbered";
     } else if (list_mode == LIST_MODE_ALPHA) {
@@ -304,27 +311,29 @@ static void draw_status_bar(const char *status)
     
     // for (i = 0u; i < 80u; i++) putchar('\xc4');
 
-    if (view_mode) {
-        sprintf(block, "Ln %d, Col %d [%s]", (int)(cur.row + 1), (int)(cur.col + 1), MODE_VIEW);
-    } else {
-        if (clip_is_char > 0u || clip_lines > 0u)
-            sprintf(block, "Ln %d, Col %d [%s][%s][%s][%s]",
-                    (int)(cur.row + 1), (int)(cur.col + 1),
-                    CLIPBOARD_WITHDATA,
-                    key(KEY_CAPSLOCK_LED) ? MODE_CAPS : MODE_NCAPS,
-                    insert_mode ? MODE_INS : MODE_OVR,
-                    MODE_EDIT);
-        else
-            sprintf(block, "Ln %d, Col %d [%s][%s][%s]",
-                    (int)(cur.row + 1), (int)(cur.col + 1),
-                    key(KEY_CAPSLOCK_LED) ? MODE_CAPS : MODE_NCAPS,
-                    insert_mode ? MODE_INS : MODE_OVR,
-                    MODE_EDIT);
+    { int tot = (int)(content_rows ? content_rows : 1);
+      if (view_mode) {
+          sprintf(block, "Ln %d of %d, Col %d [%s]",
+                  (int)(cur.row + 1), tot, (int)(cur.col + 1), MODE_VIEW);
+      } else {
+          if (clip_is_char > 0u || clip_lines > 0u)
+              sprintf(block, "Ln %d of %d, Col %d [%s][%s][%s][%s]",
+                      (int)(cur.row + 1), tot, (int)(cur.col + 1),
+                      CLIPBOARD_WITHDATA,
+                      key(KEY_CAPSLOCK_LED) ? MODE_CAPS : MODE_NCAPS,
+                      insert_mode ? MODE_INS : MODE_OVR,
+                      MODE_EDIT);
+          else
+              sprintf(block, "Ln %d of %d, Col %d [%s][%s][%s]",
+                      (int)(cur.row + 1), tot, (int)(cur.col + 1),
+                      key(KEY_CAPSLOCK_LED) ? MODE_CAPS : MODE_NCAPS,
+                      insert_mode ? MODE_INS : MODE_OVR,
+                      MODE_EDIT);
+      }
     }
 
     snprintf(row2, sizeof(row2), "%-*s%s", (int)(80 - (int)strlen(block)), info, block);
     status_print_row(TITLE_ROWS + EDIT_ROWS + 2u, row2);
-    if(status != NULL) PAUSE(150);
     printf(CSI "u");
     printf(ANSI_NORMAL CSI_CURSOR_SHOW);
 
@@ -358,12 +367,16 @@ static void redraw_line(uint8_t r)
         if (in_char_sel) {
             uint8_t c_from = (sel_col < cur.col) ? sel_col : cur.col;
             uint8_t c_to   = (sel_col > cur.col) ? sel_col : cur.col;
+            uint8_t cur_bg = 0u;
             for (j = 0u; j < TEXT_COLS; j++) {
-                if (j >= c_from && j < c_to) printf(ANSI_SEL_BG);
-                else                          printf(ANSI_SEL_BG_OFF);
+                uint8_t want_bg = (j >= c_from && j < c_to) ? 1u : 0u;
+                if (want_bg != cur_bg) {
+                    printf(want_bg ? ANSI_SEL_BG : ANSI_SEL_BG_OFF);
+                    cur_bg = want_bg;
+                }
                 putchar((uint8_t)RIA.rw1);
             }
-            printf(ANSI_SEL_BG_OFF);
+            if (cur_bg) printf(ANSI_SEL_BG_OFF);
         } else {
             for (j = 0u; j < TEXT_COLS; j++) putchar((uint8_t)RIA.rw1);
             if (in_sel) printf(ANSI_SEL_BG_OFF);
@@ -449,13 +462,13 @@ static void redraw_screen(void)
     printf(ANSI_HIDE_CUR ANSI_HOME);
     draw_title_bar();
     cache_valid = 1u;
+    RIA.step0 = 1;
+    RIA.step1 = 1;
     for (r = 0u; r < EDIT_ROWS; r++) {
         xrow = (uint16_t)scroll_row + r;
         RIA.addr0 = SCREEN_CACHE_BASE + (uint16_t)r * TEXT_COLS;
-        RIA.step0 = 1;
         if (xrow < content_rows) {
             RIA.addr1 = TEXT_BUF_BASE + xrow * TEXT_COLS;
-            RIA.step1 = 1;
             for (j = 0u; j < TEXT_COLS; j++) {
                 char c = (char)RIA.rw1;
                 RIA.rw0 = (uint8_t)(c ? c : ' ');
@@ -1546,13 +1559,13 @@ int main(int argc, char **argv)
         // redraw_screen();
     }
 
-    window_open(((80u-26u)/2u)+1u, ((30u-16u)/2u)-1u, 26, 16, CSI "37m", CSI "48;2;40;80;40m", 0, true);
-    window_text(APPNAME      ,  2,  1, CSI "37m", CSI "48;2;40;80;40m");
-    window_text(APPDESCRPTION,  2,  3, CSI "37m", CSI "48;2;40;80;40m");
-    window_text(APPCOPYRIGHT ,  2, 13, CSI "37m", CSI "48;2;40;80;40m");
-    window_text("version  " APPVER, 2, 14, ANSI_DARK_GRAY, CSI "48;2;40;80;40m");
-    PAUSE(400);
-    window_close();
+    area_open(((80u-26u)/2u)+1u, ((30u-16u)/2u)-1u, 26, 16, CSI "37m", CSI "48;2;40;80;40m", 0, true);
+    area_text(APPNAME      ,  2,  1, CSI "37m", CSI "48;2;40;80;40m");
+    area_text(APPDESCRPTION,  2,  3, CSI "37m", CSI "48;2;40;80;40m");
+    area_text(APPCOPYRIGHT ,  2, 13, CSI "37m", CSI "48;2;40;80;40m");
+    area_text("version  " APPVER, 2, 14, ANSI_DARK_GRAY, CSI "48;2;40;80;40m");
+    PAUSE(200);
+    area_close();
     redraw_screen();
     draw_title_bar();
     startup_done = 1u;
@@ -1570,6 +1583,15 @@ int main(int argc, char **argv)
 
     /* ---- main event loop ---- */
     while (1) {
+
+        /* --- status message timeout --- */
+        if (status_expire && clock() >= status_expire) {
+            status_expire = 0u;
+            draw_status_bar(NULL);
+            printf(CSI "%d;%dH",
+                   (int)((cur.row - scroll_row) + 1u + TITLE_ROWS),
+                   (int)(cur.col + 1u));
+        }
 
         /* --- mouse wheel scroll --- */
         RIA.addr1 = XRAM_STRUCT_SYS_MOUSE + 3;
@@ -1758,7 +1780,7 @@ int main(int argc, char **argv)
                           for (xi = 0u; xi < 2080u; xi++) RIA.rw0 = 0u;
                           RIA.addr0 = XRAM_SCRATCH;      RIA.step0 = 1;
                           for (xi = 0u; xi < 82u;   xi++) RIA.rw0 = 0u;
-                          RIA.addr0 = XRAM_WIN_BUF_BASE; RIA.step0 = 1;
+                          RIA.addr0 = XRAM_AREA_BUF_BASE; RIA.step0 = 1;
                           for (xi = 0u; xi < 2400u; xi++) RIA.rw0 = 0u;
                         }
                         redraw_screen();
@@ -1786,13 +1808,27 @@ int main(int argc, char **argv)
                             }
                         }
                     }
-                    if (prompt_input("OPEN path/filename : ", current_filename, 64u)) {
-                        ok = load_file(current_filename);
-                        redraw_screen();
-                        draw_title_bar();
-                        draw_status_bar(ok > 0 ? "Ready" : ok == 0 ? "FILE CREATED" : EXCLAMATION "cannot open file");
-                    } else {
-                        redraw_screen();
+                    { char saved_fn[64]; uint8_t fi; int chk;
+                      for (fi = 0u; fi < 64u; fi++) saved_fn[fi] = current_filename[fi];
+                      current_filename[0] = '\0';
+                      if (prompt_input("OPEN path/filename : ", current_filename, 64u)) {
+                          chk = open(current_filename, O_RDONLY);
+                          if (chk < 0) {
+                              for (fi = 0u; fi < 64u; fi++) current_filename[fi] = saved_fn[fi];
+                              redraw_screen();
+                              draw_title_bar();
+                              draw_status_bar("FILE NOT FOUND");
+                          } else {
+                              close(chk);
+                              ok = load_file(current_filename);
+                              redraw_screen();
+                              draw_title_bar();
+                              draw_status_bar(ok > 0 ? "Ready" : EXCLAMATION "cannot open file");
+                          }
+                      } else {
+                          for (fi = 0u; fi < 64u; fi++) current_filename[fi] = saved_fn[fi];
+                          redraw_screen();
+                      }
                     }
 
                 } else if (key_ctrl && key(KEY_S)) {
@@ -1829,6 +1865,16 @@ int main(int argc, char **argv)
                     if (!view_mode) do_replace();
 
                 /* --- Cursor movement --- */
+                } else if (key_ctrl && !key_shifts && key(KEY_LEFT)) {
+                    if (sel_active) { sel_active = 0u; redraw_screen(); }
+                    cur.col = word_left(cur.row, cur.col);
+                    target_col = cur.col;
+
+                } else if (key_ctrl && !key_shifts && key(KEY_RIGHT)) {
+                    if (sel_active) { sel_active = 0u; redraw_screen(); }
+                    cur.col = word_right(cur.row, cur.col);
+                    target_col = cur.col;
+
                 } else if (key_ctrl && key_shifts && key(KEY_LEFT)) {
                     { uint8_t od1 = cur.row, od2 = cur.row;
                       if (!sel_active) { sel_active = 1u; sel_row = cur.row; sel_col = cur.col; }
@@ -1994,10 +2040,9 @@ int main(int argc, char **argv)
                           sel_mode = SEL_MODE_LINE;
                           if (repeat_key == KEY_DOWN && last_key == KEY_DOWN) {
                           } else { target_col = cur.col; }
-                          if ((uint16_t)cur.row < content_rows) {
+                          if (content_rows > 1u && (uint16_t)cur.row < content_rows - 1u) {
                               cur.row++;
-                              { uint8_t lim = (cur.row < content_rows)
-                                              ? line_text_len(cur.row) : 0u;
+                              { uint8_t lim = line_text_len(cur.row);
                                 cur.col = (target_col <= lim) ? target_col : lim;
                               }
                               if ((uint8_t)(cur.row - scroll_row) >= EDIT_ROWS) {
@@ -2017,10 +2062,9 @@ int main(int argc, char **argv)
                         if (sel_active) { sel_active = 0u; redraw_screen(); }
                         if (repeat_key == KEY_DOWN && last_key == KEY_DOWN) {
                         } else { target_col = cur.col; }
-                        if ((uint16_t)cur.row < content_rows) {
+                        if (content_rows > 1u && (uint16_t)cur.row < content_rows - 1u) {
                             cur.row++;
-                            { uint8_t lim = (cur.row < content_rows)
-                                            ? line_text_len(cur.row) : 0u;
+                            { uint8_t lim = line_text_len(cur.row);
                               cur.col = (target_col <= lim) ? target_col : lim;
                             }
                             if ((uint8_t)(cur.row - scroll_row) >= EDIT_ROWS) {
@@ -2198,6 +2242,34 @@ int main(int argc, char **argv)
                 /* --- Backspace --- */
                 } else if (key(KEY_BACKSPACE)) {
                     if (view_mode) { /* no-op */ } else
+                    if (sel_active) {
+                        if (sel_mode == SEL_MODE_CHAR) {
+                            uint8_t c_from = (sel_col < cur.col) ? sel_col : cur.col;
+                            uint8_t c_to   = (sel_col > cur.col) ? sel_col : cur.col;
+                            uint8_t dlen   = (uint8_t)(c_to - c_from);
+                            uint8_t dj;
+                            for (dj = 0u; dj < dlen; dj++)
+                                line_shift_left(cur.row, (uint8_t)(c_from + 1u));
+                            cur.col = c_from;
+                        } else {
+                            uint8_t dfrom = sel_min_row();
+                            uint8_t dto   = sel_max_row();
+                            uint8_t dn    = (uint8_t)(dto - dfrom + 1u);
+                            uint8_t di;
+                            if (dto >= (uint8_t)content_rows)
+                                dto = (uint8_t)(content_rows > 0u ? content_rows - 1u : 0u);
+                            for (di = 0u; di < dn; di++) rows_shift_up(dfrom);
+                            cur.row = dfrom;
+                            if (cur.row >= (uint8_t)content_rows && content_rows > 0u)
+                                cur.row = (uint8_t)(content_rows - 1u);
+                            cur.col = 0u;
+                            if (cur.row < scroll_row) scroll_row = cur.row;
+                        }
+                        sel_active = 0u;
+                        redraw_screen();
+                        draw_status_bar("SELECTED DELETED");
+                        doc_dirty = 1u;
+                    } else
                     if (cur.col > 0u) {
                         cur.col--;
                         if (insert_mode) {
@@ -2350,8 +2422,8 @@ int main(int argc, char **argv)
                         uint8_t ki, ji, was, now2;
                         int     got_key = 0;
 
-                        window_open(3u, 7u, 76u, (uint8_t)(HELP_ROWS + 4u), CSI "37m", CSI "48;2;30;50;30m", 0, true);
-                        window_text(" \xfe " APPNAME " Keysology", 1u, 1u, CSI "1;37m", CSI "48;2;30;50;30m");
+                        area_open(3u, 7u, 76u, (uint8_t)(HELP_ROWS + 4u), CSI "37m", CSI "48;2;30;50;30m", 0, true);
+                        area_text(" \xfe " APPNAME " Keysology", 1u, 1u, CSI "1;37m", CSI "48;2;30;50;30m");
                         for (hr = 0u; hr < HELP_ROWS; hr++) {
                             uint8_t ci;
                             for (ci = 0u; ci < (uint8_t)(HELP_COLS * (HELP_COL_W + 3u) - 3u); ci++) rowbuf[ci] = ' ';
@@ -2369,7 +2441,7 @@ int main(int argc, char **argv)
                                     rowbuf[dc + HELP_COL_W + 2u] = ' ';
                                 }
                             }
-                            window_text(rowbuf, 2u, (uint8_t)(hr + 3u), CSI "37m", CSI "48;2;30;50;30m");
+                            area_text(rowbuf, 2u, (uint8_t)(hr + 3u), CSI "37m", CSI "48;2;30;50;30m");
                         }
 
                         /* wait for any new key-down (edge detect, ignores currently held keys) */
@@ -2390,7 +2462,7 @@ int main(int argc, char **argv)
                             }
                         }
                         for (ki = 0u; ki < KEYBOARD_BYTES; ki++) keystates[ki] = cur_ks[ki];
-                        window_close();
+                        area_close();
                         redraw_screen();
                     }
 
@@ -2527,8 +2599,8 @@ int main(int argc, char **argv)
                         char rowbuf[55];
                         uint8_t r, c;
 
-                        window_open(57u, 4u, 22u, 21u, CSI "37m", CSI "48;2;60;60;60m", 0, true);
-                        window_text(" \xfe ASCII table", 1u, 1u, CSI "37m", CSI "48;2;60;60;60m");
+                        area_open(57u, 4u, 22u, 21u, CSI "37m", CSI "48;2;60;60;60m", 0, true);
+                        area_text(" \xfe ASCII table", 1u, 1u, CSI "37m", CSI "48;2;60;60;60m");
 
                         /* header row: "   " then " 0  1  2 ... F" */
                         rowbuf[0]=' '; rowbuf[1]=' ';
@@ -2536,7 +2608,7 @@ int main(int argc, char **argv)
                             rowbuf[2u + c] = hex[c];
                         }
                         rowbuf[18] = '\0';
-                        window_text(rowbuf, 2u, 3u, CSI "37m", CSI "48;2;60;60;60m");
+                        area_text(rowbuf, 2u, 3u, CSI "37m", CSI "48;2;60;60;60m");
 
                         /* 16 data rows */
                         for (r = 0u; r < 16u; r++) {
@@ -2550,7 +2622,7 @@ int main(int argc, char **argv)
                                 rowbuf[1u + c + 1u] = ch;
                             }
                             rowbuf[18] = '\0';
-                            window_text(rowbuf, 2u, (uint8_t)(r + 4u), CSI "37m", CSI "48;2;60;60;60m");
+                            area_text(rowbuf, 2u, (uint8_t)(r + 4u), CSI "37m", CSI "48;2;60;60;60m");
                         }
 
                         /* wait for any new key-down (edge detect, ignores currently held keys) */
@@ -2577,7 +2649,7 @@ int main(int argc, char **argv)
                             }
                             for (ki = 0u; ki < KEYBOARD_BYTES; ki++) keystates[ki] = cur_ks[ki];
                         }
-                        window_close();
+                        area_close();
                         redraw_screen();
                     }
 
@@ -2672,8 +2744,15 @@ int main(int argc, char **argv)
                             /* extend content tracking */
                             if ((uint16_t)(cur.row + 1u) > content_rows) {
                                 content_rows = (uint16_t)(cur.row + 1u);
-                                /* EoD moved down — redraw so it appears in new position */
-                                redraw_screen();
+                                /* EoD moved down — update only the 2 affected rows */
+                                { uint8_t sr = (uint8_t)(cur.row - scroll_row);
+                                  update_cache_line(sr);
+                                  redraw_line(sr);
+                                  if (sr + 1u < EDIT_ROWS) {
+                                      update_cache_line((uint8_t)(sr + 1u));
+                                      redraw_line((uint8_t)(sr + 1u));
+                                  }
+                                }
                             } else if (insert_mode) {
                                 /* redraw rest of line (insert mode shifts chars) */
                                 uint8_t j2;
@@ -2729,7 +2808,7 @@ int main(int argc, char **argv)
         for (xi = 0u; xi < 2080u;  xi++) RIA.rw0 = 0u;
         RIA.addr0 = XRAM_SCRATCH; RIA.step0 = 1;
         for (xi = 0u; xi < 82u;    xi++) RIA.rw0 = 0u;
-        RIA.addr0 = XRAM_WIN_BUF_BASE; RIA.step0 = 1;
+        RIA.addr0 = XRAM_AREA_BUF_BASE; RIA.step0 = 1;
         for (xi = 0u; xi < 2400u;  xi++) RIA.rw0 = 0u;
     }
     clip_delete();
