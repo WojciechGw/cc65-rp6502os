@@ -6,23 +6,6 @@
 #include <fcntl.h>
 #include "ted.h"
 
-/* keysology
-    [Tab]               insert spaces to next tab stop (col % 8)
-    [Shift+Tab]         remove spaces back to prev tab stop
-    [Ctrl+O]            open document
-    [Ctrl+S]            save document
-    [Shift+Ctrl+S]      save as document
-    [Ctrl+F]            find pattern
-    [Ctrl+H]            replace text
-    [Ctrl+Q]            exit
-    [Alt+I]             same as Insert key OVR<>INS
-    [Shift+Ctrl+Alt+L]  start list from line prefix:
-                          "1." / "2."  -> numbered list  (1. 2. 3. ...)
-                          "a)" / "b)"  -> alpha list     (a) b) ... z) aa) ...)
-                          "* " "- " etc -> bullet list
-                        Enter=next item, to end the list mode just tap Enter last numbered line
-*/
-
 void *__fastcall__ argv_mem(size_t size) { return malloc(size); }
 
 /* --- cursor --- */
@@ -2544,7 +2527,8 @@ int main(int argc, char **argv)
                         char rowbuf[55];
                         uint8_t r, c;
 
-                        window_open(29u, 6u, 22u, 19u, CSI "37m", CSI "48;2;60;60;60m", 0, true);
+                        window_open(57u, 4u, 22u, 21u, CSI "37m", CSI "48;2;60;60;60m", 0, true);
+                        window_text(" \xfe ASCII table", 1u, 1u, CSI "37m", CSI "48;2;60;60;60m");
 
                         /* header row: "   " then " 0  1  2 ... F" */
                         rowbuf[0]=' '; rowbuf[1]=' ';
@@ -2552,7 +2536,7 @@ int main(int argc, char **argv)
                             rowbuf[2u + c] = hex[c];
                         }
                         rowbuf[18] = '\0';
-                        window_text(rowbuf, 2u, 1u, CSI "37m", CSI "48;2;60;60;60m");
+                        window_text(rowbuf, 2u, 3u, CSI "37m", CSI "48;2;60;60;60m");
 
                         /* 16 data rows */
                         for (r = 0u; r < 16u; r++) {
@@ -2566,7 +2550,7 @@ int main(int argc, char **argv)
                                 rowbuf[1u + c + 1u] = ch;
                             }
                             rowbuf[18] = '\0';
-                            window_text(rowbuf, 2u, (uint8_t)(r + 2u), CSI "37m", CSI "48;2;60;60;60m");
+                            window_text(rowbuf, 2u, (uint8_t)(r + 4u), CSI "37m", CSI "48;2;60;60;60m");
                         }
 
                         /* wait for any new key-down (edge detect, ignores currently held keys) */
