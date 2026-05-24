@@ -1,6 +1,6 @@
 #include "commons.h"
 
-#define APPVER "20260523.1339"
+#define APPVER "20260524.1043"
 
 #define APP_HEADER CSI_CLS CSI "1;1H" CSI HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " Help information" ANSI_DARK_GRAY CSI "1;60Hversion " APPVER ANSI_RESET
 
@@ -143,10 +143,10 @@ static const cmd_t commands_ext[] = {
                     "cart hass <source>                   - <source> file, out.bin as a result" NEWLINE
                     "cart hass <source> -o <destination>  - <source> file, <destination> as a result"
                 },
-    { "ted",        "TEd text editor",
+    { "ted",        "TEd text file editor",
                     "ted                       - run, a new document will create in current directory" NEWLINE
-                    "ted /cicero               - run with sample text A Cicero" NEWLINE
-                    "ted /lorem                - run with sample text B Lorem Ipsum" NEWLINE
+                    "ted /manual               - run with manual" NEWLINE
+                    "ted /sample               - run with sample text" NEWLINE
                     "ted <path/filename>       - run with <path/filename> document" NEWLINE
                     "ted <path/filename> /view - run with <path/filename> document in view mode" NEWLINE
                                                  "(F4 let you change mode to edit)"

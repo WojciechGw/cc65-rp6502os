@@ -1,1 +1,10 @@
-Text Editor fo Picocomputer 6502
+TEd - text file Editor for Picocomputer 6502
+--------------------------------------------
+simple invocation with empty, new document:
+ load ted.rp6502
+for some detailed information:
+ load ted.rp6502 /manual
+for sample text:
+ load ted.rp6502 /sample
+to open your document:
+ load ted.rp6502 you_document.txt 

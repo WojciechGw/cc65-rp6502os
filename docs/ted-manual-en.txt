@@ -1,6 +1,6 @@
 ================================================================================
-  TEd - Text Editor for razemOS
-  Picocomputer 6502 (RP6502)
+  TEd - Text Editor
+  for Picocomputer 6502 (RP6502)
 ================================================================================
 
   TABLE OF CONTENTS
@@ -16,26 +16,26 @@
    9. Text Formatting
   10. Lists
   11. Special Insertions
-  12. Polish Characters
-  13. Utilities
-  14. Limits
+  12. Diacritics Characters
+  13. Undo / Redo
+  14. Utilities
+  15. Limits
 
 --------------------------------------------------------------------------------
 
-TEd is a full-screen text editor for razemOS running on the Picocomputer
-RP6502. It operates on a 30x80 character terminal (640x480, 16 px font) and
-stores the document in XRAM for fast access.
+TEd is a full-screen text editor running on the Picocomputer 6502.
+It operates on a 30x80 character terminal (640x480, 8x16px font).
 
 --------------------------------------------------------------------------------
 1. INVOCATION
 --------------------------------------------------------------------------------
 
-  ted [/view] [/lorem] [filename]
+  ted [/sample | /manual | filename] [/view]
 
   Parameters:
     /view      - open file in read-only view mode (editing disabled)
-    /lorem     - load Lorem Ipsum sample text at startup (document name stays
-                 "TEd-NewDocument.txt")
+    /manual    - load TEd manual
+    /sample    - load sample text at startup
     filename   - file to open at startup (optional)
                  If omitted, a new document named "TEd-NewDocument.txt"
                  is created.
@@ -44,38 +44,40 @@ stores the document in XRAM for fast access.
     ted                          (new document)
     ted MSC0:/notes.txt          (open existing file or create new)
     ted /view MSC0:/readme.txt   (open in read-only view mode)
-    ted /lorem                   (new document pre-filled with Lorem Ipsum)
+    ted /manual                  (open with TEd's manual)
+    ted /sample                  (new document pre-filled with sample text)
 
-  On startup a splash screen is shown briefly. The status bar then reports
-  "Ready" (file loaded), "FILE CREATED" (new file created), or an error.
+  On startup a splash screen is shown briefly.
 
 --------------------------------------------------------------------------------
 2. INTERFACE LAYOUT
 --------------------------------------------------------------------------------
 
-  Row  1-2  : Title bar — application name and open filename
-  Row  3-28 : Edit area — 26 visible rows of text (scrollable)
-  Row 29    : Separator line
-  Row 30    : Status bar — message, cursor position, mode indicators
+  Row  1-2  : Title bar - application name and open filename
+  Row  3-28 : Edit area - 26 visible rows of text (scrollable)
+  Row 29    : Separator line (marked every 10 columns)
+  Row 30    : Status bar - message, cursor position, mode indicators
 
   Title bar:
-    Left side  — application name and description
-    Right side — "!" when document has unsaved changes, then the filename
+    Left side  - application name and description
+    Right side - "!" indicator when document has unsaved changes,
+                 then the filename
 
   Status bar indicators (right side of row 30):
 
-    [INS]    Current mode is Insert (default). New characters shift
-             existing text to the right.
-    [OVR]    Current mode is Overwrite. New characters replace existing
-             text in place.
     [VIEW]   Read-only view mode is active. Editing is disabled.
+    [INS]    Current mode is Insert (default).
+             New characters shift existing text to the right.
+    [OVR]    Current mode is Overwrite.
+             New characters replace existing text in place.
+    [A]|[a]  Capslock state.
     [CLIP]   Clipboard contains data ready to paste.
-    Ln N, Col N
-             Current cursor position (1-based).
+    Ln N of NN, Col N
+             Current cursor position.
 
   The edit area scrolls vertically when the cursor moves outside the
-  visible 26-row window. "- End of document -" is shown after the last
-  line of text.
+  visible 26-row window.
+  "- End of document -" is shown after the last line of text.
 
 --------------------------------------------------------------------------------
 3. NAVIGATION
@@ -117,7 +119,7 @@ stores the document in XRAM for fast access.
                          current line with the line below.
                          If a selection is active, Delete removes the selected
                          text without affecting the clipboard.
-  Ctrl+N                 New document — clears the editor and starts a fresh
+  Ctrl+N                 New document - clears the editor and starts a fresh
                          document named "TEd-NewDocument.txt". If the current
                          document has unsaved changes a Save prompt appears.
                          Pressing Esc at the prompt returns to the document.
@@ -127,6 +129,8 @@ stores the document in XRAM for fast access.
   than 256 rows.
 
   All editing keys are disabled in View mode.
+
+  See section 13 for undo / redo operations (F3, Ctrl+Z, Ctrl+Y).
 
 --------------------------------------------------------------------------------
 5. SELECTION
@@ -163,7 +167,7 @@ stores the document in XRAM for fast access.
   ---------------------  -------------------------------------------------------
   Ctrl+C                 Copy selection to clipboard. If no selection is active,
                          copies the current line.
-  Ctrl+X                 Cut — copy then delete the selection (or current line)
+  Ctrl+X                 Cut & Copy then delete the selection (or current line)
   Ctrl+V                 Paste clipboard contents at the current position
 
   The [CLIP] indicator in the status bar is shown whenever the clipboard
@@ -214,15 +218,15 @@ stores the document in XRAM for fast access.
   ---------------------  -------------------------------------------------------
   Ctrl+O                 Open a file
   Ctrl+S                 Save the current document
-  Ctrl+Shift+S           Save As — always prompts for a filename
+  Ctrl+Shift+S           Save As - always prompts for a filename
   Ctrl+Q                 Exit the editor
 
   Open (Ctrl+O):
     If the current document has unsaved changes, a prompt appears:
     "Save changes before opening? [Y/N/Esc]"
-      Y   — saves the file (prompts for a name if document is new), then opens
-      N   — discards changes and continues to open
-      Esc — returns to the document without opening
+      Y   - saves the file (prompts for a name if document is new), then opens
+      N   - discards changes and continues to open
+      Esc - returns to the document without opening
     A "OPEN path/filename :" prompt then appears (max 64 chars).
     Press Enter to confirm, Esc to cancel.
     - If the file exists it is loaded into the editor.
@@ -232,7 +236,7 @@ stores the document in XRAM for fast access.
   Save (Ctrl+S):
     - If the document already has a name, it is saved immediately.
     - If the document is new, a "SAVE path/filename :" prompt appears.
-    Press Enter to confirm, Esc to cancel.
+      Press Enter to confirm, Esc to cancel.
     - Trailing spaces and null bytes are stripped from each line.
     - Each line is terminated with a newline character (\n).
     - On success "FILE SAVED" is shown; on error "cannot save file".
@@ -246,9 +250,9 @@ stores the document in XRAM for fast access.
   Exit (Ctrl+Q):
     If the document has unsaved changes, a prompt appears:
     "Save changes before exit? [Y/N/Esc]"
-      Y   — saves, then exits
-      N   — exits without saving
-      Esc — returns to the document
+      Y   - saves, then exits
+      N   - exits without saving
+      Esc - returns to the document
 
   File paths use the razemOS filesystem notation, e.g.:
     MSC0:/documents/notes.txt
@@ -288,7 +292,7 @@ stores the document in XRAM for fast access.
     Prefix      Mode           Continuation
     ----------  -------------  --------------------------------------------------
     "1." "2."   Numbered       Increments the number; same separator (. or ))
-    "a)" "b)"   Alpha          a→b→...→z→aa→ab...; same separator
+    "a)" "b)"   Alpha          a) b) ...z) aa) ab) ...; same separator
     "* " "- "   Bullet         Repeats the same bullet character
     "> " "= "
     "+ " "# "
@@ -310,63 +314,85 @@ stores the document in XRAM for fast access.
 
   Key                    Action
   ---------------------  -------------------------------------------------------
-  Ctrl+Shift+T           Insert current date and time at cursor position
-  Alt+P                  Insert paragraph sign § at cursor position
+  Ctrl+Shift+T           Insert timestamp (date and time) at cursor position
+  Alt+P                  Insert paragraph (section) sign at cursor position
 
   Ctrl+Shift+T inserts a 16-character timestamp in the format:
-    YYYY-MM-DD HH:MM
-  The timestamp is inserted character by character and respects Insert /
-  Overwrite mode. The document is marked as modified.
+  YYYY-MM-DD HH:MM 
+  The timestamp is inserted character by character and respects
+  Insert / Overwrite mode. The document is marked as modified.
+  The timestamp depends on system RTC.
 
-  Alt+P inserts the § character (CP852 code 0x15) at the cursor position,
-  also respecting Insert / Overwrite mode.
+  Alt+P inserts the ? (paragraph/section) character (CP852 code 0x15)
+  at the cursor position, also respecting Insert / Overwrite mode.
 
   Both keys are disabled in View mode.
 
 --------------------------------------------------------------------------------
-12. POLISH CHARACTERS
+12. DIACRITICS CHARACTERS
 --------------------------------------------------------------------------------
 
-  Polish diacritics are entered with Right Alt held together with a letter
-  key. Case follows the Shift and CapsLock state.
-
-  Right Alt + key    Uppercase    Lowercase
-  -----------------  -----------  ---------
-  A                  Ą            ą
-  C                  Ć            ć
-  E                  Ę            ę
-  L                  Ł            ł
-  N                  Ń            ń
-  O                  Ó            ó
-  S                  Ś            ś
-  X                  Ź            ź
-  Z                  Ż            ż
-
-  Characters are stored and displayed using the CP852 (Latin-2) code page.
+  Diacritics characters depend on RP6502 system (SET CP).
 
 --------------------------------------------------------------------------------
-13. UTILITIES
+13. UNDO / REDO
 --------------------------------------------------------------------------------
 
   Key                    Action
   ---------------------  -------------------------------------------------------
-  Ctrl+Shift+Alt+A       Show ASCII character table popup
+  F3                     Save manual snapshot (undo checkpoint)
+  Ctrl+Z                 Undo: restore previous snapshot
+  Ctrl+Y                 Redo: restore next snapshot
 
-  The ASCII table is displayed as a popup window centered on the screen.
-  It shows all 256 character codes arranged in a 16x16 grid with hexadecimal
-  row and column labels (0h–Fh). Control characters that cannot be displayed
-  are shown as a dot. Press any key to close the table.
+  F3 saves the current state of the document (all text and cursor position) as
+  an undo checkpoint. The status bar shows "SNAPSHOT SAVED".
+
+  Ctrl+Z restores the document to the previous checkpoint. If the document was
+  modified since the last checkpoint, the current state is auto-saved first so
+  it can be recovered with Ctrl+Y. The status bar shows "UNDO" on success, or
+  "NOTHING TO UNDO" if no checkpoints are available.
+
+  Ctrl+Y restores the document to the next (more recent) checkpoint. The status
+  bar shows "REDO", or "NOTHING TO REDO" if already at the latest state.
+
+  Snapshots are stored as temporary files (TMP/undo_NNN.tmp, approx. 20 KB
+  each) and are not preserved across editor sessions. Up to 255 snapshots are
+  kept in a ring; saving a new snapshot (F3 or auto-snapshot on Ctrl+Z)
+  discards any future (redo) branch.
+
+  All three keys are disabled in View mode.
 
 --------------------------------------------------------------------------------
-14. LIMITS
+14. UTILITIES
 --------------------------------------------------------------------------------
 
-  Maximum document rows     : 256
+  Key                    Action
+  ---------------------  -------------------------------------------------------
+  F1                     Open keyboard shortcuts reference popup
+  F2                     Show ASCII character table popup
+
+  Both stays visible as long as the user hold a key.
+
+  F1 displays a full keyboard shortcuts reference in a popup window listing all
+  available key bindings.
+
+  F2 displays the ASCII table as a popup window centered on the screen. It shows
+  all 256 character codes arranged in a 16x16 grid with hexadecimal row and
+  column labels (in hex format). Control characters that cannot be displayed
+  are shown as a dot. 
+  
+
+--------------------------------------------------------------------------------
+15. LIMITS
+--------------------------------------------------------------------------------
+
+  Maximum document rows     : 512
   Maximum columns per row   : 80
   Maximum filename length   : 64 characters
   Clipboard capacity        : 32 lines
   Find/Replace pattern length: 25 characters
-  XRAM text buffer          : 0x0000 – 0x4FFF  (20 480 bytes)
-  XRAM clipboard buffer     : 0xE3EE – 0xEDED  ( 2 560 bytes)
+  Undo snapshots            : 255 (TMP/undo_NNN.tmp, approx. 20 KB each)
+  XRAM text buffer          : 0x0000 - 0x4FFF  (20480 bytes)
+  XRAM clipboard buffer     : 0xE3EE - 0xEDED  ( 2560 bytes)
 
 ================================================================================

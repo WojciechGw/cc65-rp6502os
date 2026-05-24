@@ -1636,8 +1636,8 @@ int main(int argc, char **argv)
             view_mode = 1u;
             fi = 1;
         }
-        if (fi < argc && (strcmp(argv[fi], "/cicero") == 0)) lorem = 1;
-        if (fi < argc && (strcmp(argv[fi], "/lorem") == 0)) lorem = 2;
+        if (fi < argc && (strcmp(argv[fi], "/sample") == 0)) lorem = 1;
+        if (fi < argc && (strcmp(argv[fi], "/manual") == 0)) lorem = 2;
             strncpy(current_filename, (!lorem && fi < argc && argv[fi][0]) ? argv[fi] : NEW_FILENAME, 63u);
     }
 
@@ -1654,8 +1654,8 @@ int main(int argc, char **argv)
     current_filename[63] = 0;
     ok = load_file(current_filename);
     if (lorem > 0) {
-        if (lorem == 1) load_file("ROM:cicero");
-        if (lorem == 2) load_file("ROM:cicero");
+        if (lorem == 1) load_file("ROM:sample");
+        if (lorem == 2) load_file("ROM:manual");
         strncpy(current_filename, NEW_FILENAME, 63u);
         current_filename[63] = 0;
     }
@@ -2734,7 +2734,7 @@ int main(int argc, char **argv)
                         }
                     }
 
-                /* --- F3: manual undo snapshot --- */
+                /* --- F3: make undo snapshot --- */
                 } else if (key(KEY_F3)) {
                     repeat_key = 0u;
                     if (!view_mode) {
