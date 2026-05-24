@@ -1661,8 +1661,6 @@ int main(int argc, char **argv)
     if (lorem > 0) {
         if (lorem == 1) load_file("ROM:sample");
         if (lorem == 2) load_file("ROM:manual");
-        strncpy(current_filename, NEW_FILENAME, 63u);
-        current_filename[63] = 0;
     }
 
     area_open(((80u-26u)/2u)+1u, 4u, 26, 22, CSI "37m", CSI "48;2;40;80;40m", 0, true);
