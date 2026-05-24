@@ -2473,13 +2473,7 @@ int main(int argc, char **argv)
                     } else
                     if (cur.col > 0u) {
                         cur.col--;
-                        if (insert_mode) {
-                            line_shift_left(cur.row, (uint8_t)(cur.col + 1u));
-                        } else {
-                            RIA.addr0 = TEXT_BUF_BASE + (uint16_t)cur.row * TEXT_COLS + cur.col;
-                            RIA.step0 = 0;
-                            RIA.rw0   = ' ';
-                        }
+                        line_shift_left(cur.row, (uint8_t)(cur.col + 1u));
                         /* redraw current line */
                         {
                             uint8_t j2;
