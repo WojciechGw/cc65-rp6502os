@@ -16,7 +16,7 @@
 
 #include "shell.h"
 
-#define APPVER "20260508.1130"
+#define APPVER "20260523.1305"
 #define APPNAME "razemOS"
 #define APP_MSG_START ANSI_DARK_GRAY CSI "12;35H" APPNAME
 #define APP_HOURGLASS CSI "14;36H" ANSI_DARK_GRAY ".........." CSI "10D" ANSI_RESET

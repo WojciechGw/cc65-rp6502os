@@ -9,7 +9,7 @@
 #define _NEED_DRAWBAR
 #include "commons/courier-gfx.h"
 
-#define APPVER "20260519.1350"
+#define APPVER "20260523.1339"
 
 /* ---- RIA UART access ---------------------------------------------------- */
 
@@ -36,7 +36,7 @@ typedef unsigned int u16;
 #define RX_TIMEOUT_SECONDS 10
 #define TICKS_PER_SEC      100
 
-#define ESC 0x1B
+#define ESC_CHAR 0x1B
 #define NUL 0x00
 #define SOT 0x01  /* Start Of Transmission */
 #define EOT 0x02  /* End Of Transmission   */
@@ -150,7 +150,7 @@ static int receive_header(void)
         switch (state) {
         case 0:
             if (c == SOH) state = 1;
-            else if (c == ESC) return -1;  /* cancel only before header starts */
+            else if (c == ESC_CHAR) return -1;  /* cancel only before header starts */
             break;
         case 1:
             if (c == EOH) {
@@ -263,7 +263,7 @@ int main(int argc, char **argv)
             if (RRX_READY()) {
                 c = RRIA.RX;
                 if (c == SOT) break;
-                if (c == ESC) { action = -1; goto done_pre; }
+                if (c == ESC_CHAR) { action = -1; goto done_pre; }
             }
         }
     } else {

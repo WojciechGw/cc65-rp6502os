@@ -1,6 +1,6 @@
 #include "commons.h"
 
-#define APPVER "20260519.1350"
+#define APPVER "20260523.1339"
 
 #define VERSION APPVER
 #define FNAMELEN 64
@@ -88,6 +88,23 @@ void tx_dec32(unsigned long val) {
         out[--i] = '0' + (val % 10);
         val /= 10;
     }
+    tx_chars(&out[i], 10 - i);
+}
+
+// Print an unsigned long right-aligned in a field of `width` chars.
+void tx_dec32_right(unsigned long val, int width) {
+    char out[10];
+    int i = 10;
+    if(val == 0) {
+        out[--i] = '0';
+    } else {
+        while(val && i) {
+            out[--i] = '0' + (val % 10);
+            val /= 10;
+        }
+    }
+    width -= (10 - i);
+    while(width-- > 0) tx_char(' ');
     tx_chars(&out[i], 10 - i);
 }
 
@@ -323,18 +340,17 @@ int main(int argc, char **argv) {
             tx_char(' ');
             name_len++;
         }
-        tx_char('\t');
         tx_string(format_fat_datetime(dir_entries[dir_i].fdate, dir_entries[dir_i].ftime));
-        tx_char('\t');
+        tx_char(' ');
         if(dir_entries[dir_i].fattrib & AM_DIR) {
-            tx_string("<DIR>");
+            tx_string("     <DIR>");
             dirs_count++;
         } else {
-            tx_dec32(dir_entries[dir_i].fsize);
+            tx_dec32_right(dir_entries[dir_i].fsize, 10);
             total_bytes += dir_entries[dir_i].fsize;
             files_count++;
         }
-        tx_char('\t');
+        tx_char(' ');
         tx_char((dir_entries[dir_i].fattrib & AM_RDO) ? 'R' : '-');
         tx_char((dir_entries[dir_i].fattrib & AM_HID) ? 'H' : '-');
         tx_char((dir_entries[dir_i].fattrib & AM_SYS) ? 'S' : '-');

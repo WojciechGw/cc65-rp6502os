@@ -1,6 +1,6 @@
 #include "commons.h"
 
-#define APPVER "20260519.1350"
+#define APPVER "20260523.1339"
 
 #define APP_HEADER CSI_CLS CSI "1;1H" CSI HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " Help information" ANSI_DARK_GRAY CSI "1;60Hversion " APPVER ANSI_RESET
 
@@ -129,11 +129,6 @@ static const cmd_t commands_rom[] = {
                     "ss-matrix (ESC to exit)"},
     { "ss-noise",   "screensaver - whole screen chars noise",
                     "ss-noise (ESC to exit)"},
-    { "ted",        "text editor",
-                    "ted                       - run, a new document will create in current directory" NEWLINE
-                    "ted <path/filename>       - run with <path/filename> document" NEWLINE
-                    "ted /view <path/filename> - run with <path/filename> document in view mode (F4 let you change mode to edit)"
-                    },
     { "tree",       "display directory tree with subdirectories",
                     "tree                - current directory" NEWLINE
                     "tree <path>         - specified path or drive (e.g. MSC0:)" NEWLINE
@@ -146,7 +141,16 @@ static const cmd_t commands_ext[] = {
     { "hass",       "Handy ASSembler for 65C02S ROM:hass-manual-en.txt for more informations",
                     "cart hass                            - interactive code entry and assembly" NEWLINE
                     "cart hass <source>                   - <source> file, out.bin as a result" NEWLINE
-                    "cart hass <source> -o <destination>  - <source> file, <destination> as a result"},
+                    "cart hass <source> -o <destination>  - <source> file, <destination> as a result"
+                },
+    { "ted",        "TEd text editor",
+                    "ted                       - run, a new document will create in current directory" NEWLINE
+                    "ted /cicero               - run with sample text A Cicero" NEWLINE
+                    "ted /lorem                - run with sample text B Lorem Ipsum" NEWLINE
+                    "ted <path/filename>       - run with <path/filename> document" NEWLINE
+                    "ted <path/filename> /view - run with <path/filename> document in view mode" NEWLINE
+                                                 "(F4 let you change mode to edit)"
+                }
 };
 
 int main(int argc, char **argv) {

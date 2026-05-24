@@ -5,7 +5,7 @@
 
 #include "commons.h"
 
-#define APPVER "20260519.1350"
+#define APPVER "20260523.1339"
 
 #define APPNAME "Viewer for BMP files 640x480x1bpp"
 #define APPDIRDEFAULT "" // view in current directory if empty

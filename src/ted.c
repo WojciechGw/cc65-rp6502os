@@ -48,6 +48,18 @@ static uint8_t list_counter = 0u;   /* current item number (NUM: 1-based; ALPHA:
 static char    list_bullet  = 0;    /* bullet char (BULLET mode) */
 static char    list_sep     = 0;    /* separator after number/letter: '.' or ')' etc. */
 
+/* --- undo/redo ring buffer (256 steps, files TMP/undo_NNN.tmp) --- */
+/* undo_pos points to last saved snapshot; undo to undo_pos-1, redo to undo_pos+1.
+   undo_tail is the oldest valid slot; undo stops when undo_pos == undo_tail.
+   slot 0 is never used (undo_pos starts at 0 = "no undo available sentinel"). */
+static uint8_t undo_head   = 1u;   /* next slot to write (starts at 1) */
+static uint8_t undo_tail   = 1u;   /* oldest valid slot */
+static uint8_t undo_pos    = 0u;   /* current position (0 = no snapshot yet) */
+static uint8_t undo_count  = 0u;   /* valid entries in ring */
+static uint8_t undo_at_tip    = 0u;   /* 1 = doc matches undo_pos snapshot (no auto-save needed) */
+static uint8_t undo_skip_reset = 0u;  /* 1 = skip undo_at_tip reset this tick (set by Ctrl+Z/Y) */
+static char    undo_fname[20];     /* scratch: "TMP/undo_NNN.tmp" */
+
 static uint8_t sel_min_row(void);
 static uint8_t sel_max_row(void);
 
@@ -55,6 +67,102 @@ static void flush_rx()
 {
     int i;
     while (RX_READY) i = RIA.rx;
+}
+
+/* ================================================================
+   undo_make_fname: fills undo_fname with "TMP/undo_NNN.tmp"
+   ================================================================ */
+static void undo_make_fname(uint8_t slot)
+{
+    uint8_t h = slot / 100u;
+    uint8_t t = (slot % 100u) / 10u;
+    uint8_t u = slot % 10u;
+    undo_fname[0]  = 'T'; undo_fname[1]  = 'M'; undo_fname[2]  = 'P';
+    undo_fname[3]  = '/'; undo_fname[4]  = 'u'; undo_fname[5]  = 'n';
+    undo_fname[6]  = 'd'; undo_fname[7]  = 'o'; undo_fname[8]  = '_';
+    undo_fname[9]  = (char)('0' + h);
+    undo_fname[10] = (char)('0' + t);
+    undo_fname[11] = (char)('0' + u);
+    undo_fname[12] = '.'; undo_fname[13] = 't'; undo_fname[14] = 'm';
+    undo_fname[15] = 'p'; undo_fname[16] = 0;
+}
+
+/* ================================================================
+   undo_snapshot: save current text buffer + cursor to TMP/undo_NNN.tmp.
+   File layout: byte0=content_rows_lo, byte1=content_rows_hi,
+                byte2=cur.row, byte3=cur.col, then 20480 bytes TEXT_BUF_BASE.
+   Discards redo branch (entries after undo_pos).
+   ================================================================ */
+static void undo_snapshot(void)
+{
+    int      fd;
+    uint16_t i;
+    uint8_t  hdr[4];
+    uint8_t  slot;
+
+    slot      = (uint8_t)(undo_pos + 1u);
+    undo_head = (uint8_t)(slot + 1u);
+    if (undo_head == undo_tail) undo_tail = (uint8_t)(undo_tail + 1u);
+
+    undo_make_fname(slot);
+    fd = open(undo_fname, O_WRONLY | O_CREAT | O_TRUNC);
+    if (fd < 0) return;
+
+    hdr[0] = (uint8_t)(content_rows & 0xFFu);
+    hdr[1] = (uint8_t)(content_rows >> 8);
+    hdr[2] = cur.row;
+    hdr[3] = cur.col;
+    RIA.addr0 = XRAM_SCRATCH; RIA.step0 = 1;
+    for (i = 0u; i < 4u; i++) RIA.rw0 = hdr[i];
+    write_xram(XRAM_SCRATCH, 4u, fd);
+
+    for (i = 0u; i < 256u; i++) {
+        RIA.addr1 = TEXT_BUF_BASE + i * TEXT_COLS; RIA.step1 = 1;
+        RIA.addr0 = XRAM_SCRATCH;                  RIA.step0 = 1;
+        { uint8_t j; for (j = 0u; j < TEXT_COLS; j++) RIA.rw0 = RIA.rw1; }
+        write_xram(XRAM_SCRATCH, (unsigned)TEXT_COLS, fd);
+    }
+    syncfs(fd);
+    close(fd);
+
+    undo_pos = slot;
+    if (undo_count < 255u) undo_count++;
+}
+
+/* ================================================================
+   undo_restore: load snapshot from slot into text buffer + cursor.
+   ================================================================ */
+static uint8_t undo_restore(uint8_t slot)
+{
+    int      fd;
+    uint16_t i;
+    uint8_t  hdr[4];
+
+    undo_make_fname(slot);
+    fd = open(undo_fname, O_RDONLY);
+    if (fd < 0) return 0u;
+
+    read_xram(XRAM_SCRATCH, 4u, fd);
+    RIA.addr1 = XRAM_SCRATCH; RIA.step1 = 1;
+    hdr[0] = RIA.rw1; hdr[1] = RIA.rw1; hdr[2] = RIA.rw1; hdr[3] = RIA.rw1;
+
+    for (i = 0u; i < 256u; i++) {
+        read_xram(XRAM_SCRATCH, (unsigned)TEXT_COLS, fd);
+        RIA.addr1 = XRAM_SCRATCH;                  RIA.step1 = 1;
+        RIA.addr0 = TEXT_BUF_BASE + i * TEXT_COLS; RIA.step0 = 1;
+        { uint8_t j; for (j = 0u; j < TEXT_COLS; j++) RIA.rw0 = RIA.rw1; }
+    }
+    close(fd);
+
+    content_rows = ((uint16_t)hdr[1] << 8) | hdr[0];
+    cur.row      = hdr[2];
+    cur.col      = hdr[3];
+    if ((uint16_t)cur.row >= content_rows && content_rows > 0u)
+        cur.row = (uint8_t)(content_rows - 1u);
+    if (cur.row < scroll_row) scroll_row = cur.row;
+    if ((uint8_t)(cur.row - scroll_row) >= EDIT_ROWS)
+        scroll_row = (uint8_t)(cur.row - EDIT_ROWS + 1u);
+    return 1u;
 }
 
 /* ================================================================
@@ -249,13 +357,12 @@ static void area_text(const char *text,
 static void draw_title_bar(void)
 {
     static const char title_line1[] = APP_MSG_TITLE;
-    uint8_t i, fn_len, filename_position; // line_len
+    uint8_t i, fn_len, filename_position;
 
     printf(CSI "1;1H" CSI "2K");
     for (i = 0u; title_line1[i]; i++) putchar((uint8_t)title_line1[i]);
     if (current_filename[0]) {
         for (fn_len = 0u; current_filename[fn_len]; fn_len++) {}
-        // line_len = (fn_len + 2u < 79u) ? (uint8_t)(80u - fn_len - 2u) : 1u;
         filename_position = 80u - fn_len;
         printf(CSI "1;%dH%s" ANSI_DARK_GRAY, (uint8_t)filename_position, (doc_dirty ? "!" : " "));
         for (i = 0u; i < fn_len; i++) putchar((uint8_t)current_filename[i]);
@@ -309,8 +416,6 @@ static void draw_status_bar(const char *status)
         printf("\xfa\xfa\xfa\xfa\xfa\xfa\xfa\xfa\xfa" SO "v" SI);
     }
     
-    // for (i = 0u; i < 80u; i++) putchar('\xc4');
-
     { int tot = (int)(content_rows ? content_rows : 1);
       if (view_mode) {
           sprintf(block, "Ln %d of %d, Col %d [%s]",
@@ -920,7 +1025,7 @@ static void do_replace(void)
     }
     redraw_screen();
     if (count == 0u) {
-        draw_status_bar("NOT FOUND");
+        draw_status_bar("STRING NOT FOUND");
     } else {
         sprintf(msg, "REPLACED: %d", (int)count);
         draw_status_bar(msg);
@@ -1393,7 +1498,7 @@ static void do_cut(void)
     if (cur.row < scroll_row) scroll_row = cur.row;
 
     redraw_screen();
-    draw_status_bar("Cut");
+    draw_status_bar("CUT");
 }
 
 /* ================================================================
@@ -1512,7 +1617,6 @@ int main(int argc, char **argv)
     repeat_last         = 0;
     target_col          = 0u;
     lorem               = 0;
-
     startup_done = 0u;
 
     printf(ALTSCREEN_ENTER);
@@ -1532,14 +1636,11 @@ int main(int argc, char **argv)
             view_mode = 1u;
             fi = 1;
         }
-        if (fi < argc && strcmp(argv[fi], "/lorem") == 0)
-            lorem = 1;
-        strncpy(current_filename,
-                (!lorem && fi < argc && argv[fi][0]) ? argv[fi] : NEW_FILENAME,
-                63u);
+        if (fi < argc && (strcmp(argv[fi], "/cicero") == 0)) lorem = 1;
+        if (fi < argc && (strcmp(argv[fi], "/lorem") == 0)) lorem = 2;
+            strncpy(current_filename, (!lorem && fi < argc && argv[fi][0]) ? argv[fi] : NEW_FILENAME, 63u);
     }
 
-    // printf(CSI_ECHO_OFF ANSI_CLS ANSI_HOME);
 
     draw_title_bar();
     draw_status_bar(NULL);
@@ -1548,28 +1649,29 @@ int main(int argc, char **argv)
     scroll_row = 0u;
     printf(ANSI_HIDE_CUR OSC_CURSOR_COLOR "408040" OSC_ST CSI "%d;1H", (int)(TITLE_ROWS + 1u));
 
-    draw_status_bar(ok > 0 ? (!view_mode ? "Please wait..." : "") : ok == 0 ? "FILE CREATED" : EXCLAMATION "cannot open file");
+    draw_status_bar(!view_mode ? "Please wait..." : NULL);
 
     current_filename[63] = 0;
     ok = load_file(current_filename);
-    if (lorem) {
-        load_file("ROM:loremipsum");
+    if (lorem > 0) {
+        if (lorem == 1) load_file("ROM:cicero");
+        if (lorem == 2) load_file("ROM:cicero");
         strncpy(current_filename, NEW_FILENAME, 63u);
         current_filename[63] = 0;
-        // redraw_screen();
     }
 
-    area_open(((80u-26u)/2u)+1u, ((30u-16u)/2u)-1u, 26, 16, CSI "37m", CSI "48;2;40;80;40m", 0, true);
+    area_open(((80u-26u)/2u)+1u, 4u, 26, 22, CSI "37m", CSI "48;2;40;80;40m", 0, true);
     area_text(APPNAME      ,  2,  1, CSI "37m", CSI "48;2;40;80;40m");
-    area_text(APPDESCRPTION,  2,  3, CSI "37m", CSI "48;2;40;80;40m");
-    area_text(APPCOPYRIGHT ,  2, 13, CSI "37m", CSI "48;2;40;80;40m");
-    area_text("version  " APPVER, 2, 14, ANSI_DARK_GRAY, CSI "48;2;40;80;40m");
+    area_text(APPDESCRPTION1,  2,  3, CSI "37m", CSI "48;2;40;80;40m");
+    area_text(APPDESCRPTION2,  2,  4, CSI "37m", CSI "48;2;40;80;40m");
+    area_text(APPCOPYRIGHT ,  2, 19, CSI "37m", CSI "48;2;40;80;40m");
+    area_text("version  " APPVER, 2, 20, ANSI_DARK_GRAY, CSI "48;2;40;80;40m");
     PAUSE(200);
     area_close();
     redraw_screen();
     draw_title_bar();
     startup_done = 1u;
-    draw_status_bar(ok > 0 ? "Ready" : ok == 0 ? "FILE CREATED" : EXCLAMATION "cannot open file");
+    draw_status_bar(ok > 0 ? "Ready" : ok == 0 ? "FILE CREATED" : EXCLAMATION "CANNOT OPEN FILE");
     printf(DECSTBM_EDIT);
     printf(OSC_CURSOR_COLOR "408040" OSC_ST ANSI_SHOW_CUR CSI "%d;1H", (int)(TITLE_ROWS + 1u));
 
@@ -1688,7 +1790,49 @@ int main(int argc, char **argv)
                 did_action = true;
 
                 /* --- Ctrl+key combos (no autorepeat) --- */
-                if (key_ctrl && !key_shifts && key(KEY_C)) {
+                if (key_ctrl && !key_shifts && key(KEY_Z)) {
+                    repeat_key       = 0u;
+                    handled_key      = true;
+                    undo_skip_reset  = 1u;
+                    if (!view_mode) {
+                        uint8_t prev;
+                        if (!undo_at_tip) { undo_snapshot(); undo_at_tip = 1u; }
+                        prev = (uint8_t)(undo_pos - 1u);
+                        if (undo_pos != 0u && undo_restore(prev)) {
+                            undo_pos    = prev;
+                            undo_at_tip = 1u;
+                            cache_valid = 0u;
+                            sel_active  = 0u;
+                            doc_dirty   = 1u;
+                            redraw_screen();
+                            draw_title_bar();
+                            draw_status_bar("UNDO");
+                        } else {
+                            draw_status_bar("NOTHING TO UNDO");
+                        }
+                    }
+
+                } else if (key_ctrl && !key_shifts && key(KEY_Y)) {
+                    repeat_key      = 0u;
+                    handled_key     = true;
+                    undo_skip_reset = 1u;
+                    if (!view_mode) {
+                        uint8_t next = (uint8_t)(undo_pos + 1u);
+                        if (next != undo_head && undo_restore(next)) {
+                            undo_pos    = next;
+                            undo_at_tip = 1u;
+                            cache_valid = 0u;
+                            sel_active  = 0u;
+                            doc_dirty   = 1u;
+                            redraw_screen();
+                            draw_title_bar();
+                            draw_status_bar("REDO");
+                        } else {
+                            draw_status_bar("NOTHING TO REDO");
+                        }
+                    }
+
+                } else if (key_ctrl && !key_shifts && key(KEY_C)) {
                     repeat_key = 0u;
                     if (!view_mode) do_copy();
 
@@ -1704,7 +1848,7 @@ int main(int argc, char **argv)
                 } else if (key(KEY_INSERT) || (key_lalt && key(KEY_I))) {
                     repeat_key  = 0u;
                     insert_mode = insert_mode ? 0u : 1u;
-                    printf(insert_mode ? DECSCUSR_BAR : DECSCUSR_UNDERLINE); // cursor look
+                    printf(insert_mode ? DECSCUSR_BAR : DECSCUSR_UNDERLINE);
                     draw_status_bar(NULL);
 
                 /* --- Shift+Ctrl+Alt+L: start list from current-line prefix --- */
@@ -1749,7 +1893,7 @@ int main(int argc, char **argv)
                             redraw_screen();
                             draw_status_bar(NULL);
                         } else {
-                            draw_status_bar("LIST: start line with one of these '1.','a)','*','#','>','=','-','+'");
+                            draw_status_bar("LIST: to start begin line with one of these '1.','a)','*','#','>','=','-','+'");
                         }
                     }
 
@@ -1763,7 +1907,7 @@ int main(int argc, char **argv)
                                 if (prompt_input("SAVE path/filename : ", current_filename, 64u)) {
                                     ok = save_file(current_filename);
                                     if (ok >= 0) doc_dirty = 0u;
-                                    draw_status_bar(ok >= 0 ? "FILE SAVED" : EXCLAMATION "cannot save file");
+                                    draw_status_bar(ok >= 0 ? "FILE SAVED" : EXCLAMATION "CANNOT SAVE FILE");
                                     printf(ANSI_SHOW_CUR CSI "%d;%dH",
                                            (int)((cur.row - scroll_row) + 1u + TITLE_ROWS),
                                            (int)(cur.col + 1u));
@@ -1801,7 +1945,7 @@ int main(int argc, char **argv)
                             if (!ask_o || prompt_input("SAVE path/filename : ", current_filename, 64u)) {
                                 ok = save_file(current_filename);
                                 if (ok >= 0) doc_dirty = 0u;
-                                draw_status_bar(ok >= 0 ? "FILE SAVED" : EXCLAMATION "cannot save file");
+                                draw_status_bar(ok >= 0 ? "FILE SAVED" : EXCLAMATION "CANNOT SAVE FILE");
                                 printf(ANSI_SHOW_CUR CSI "%d;%dH",
                                        (int)((cur.row - scroll_row) + 1u + TITLE_ROWS),
                                        (int)(cur.col + 1u));
@@ -1823,7 +1967,7 @@ int main(int argc, char **argv)
                               ok = load_file(current_filename);
                               redraw_screen();
                               draw_title_bar();
-                              draw_status_bar(ok > 0 ? "Ready" : EXCLAMATION "cannot open file");
+                              draw_status_bar(ok > 0 ? "Ready" : EXCLAMATION "CANNOT OPEN FILE");
                           }
                       } else {
                           for (fi = 0u; fi < 64u; fi++) current_filename[fi] = saved_fn[fi];
@@ -1841,7 +1985,7 @@ int main(int argc, char **argv)
                             ok = save_file(current_filename);
                             if (ok >= 0) doc_dirty = 0u;
                             draw_title_bar();
-                            draw_status_bar(ok >= 0 ? "FILE SAVED" : EXCLAMATION "cannot save file");
+                            draw_status_bar(ok >= 0 ? "FILE SAVED" : EXCLAMATION "CANNOT SAVE FILE");
                             printf(ANSI_SHOW_CUR CSI "%d;%dH",
                                    (int)((cur.row - scroll_row) + 1u + TITLE_ROWS),
                                    (int)(cur.col + 1u));
@@ -1862,7 +2006,7 @@ int main(int argc, char **argv)
 
                 } else if (key_ctrl && key(KEY_H)) {
                     repeat_key = 0u;
-                    if (!view_mode) do_replace();
+                    if (!view_mode) { do_replace(); }
 
                 /* --- Cursor movement --- */
                 } else if (key_ctrl && !key_shifts && key(KEY_LEFT)) {
@@ -2392,6 +2536,8 @@ int main(int argc, char **argv)
                             "Ctrl+Shift+S     save as         ",
                             "Ctrl+F           find text       ",
                             "Ctrl+H           replace text    ",
+                            "Ctrl+Z           undo to snapshot",
+                            "Ctrl+Y           redo            ",
                             "Ins/Alt+I        toggle INS/OVR  ",
                             "Tab/Shift+Tab    next/prev tab   ",
                             "Ctrl+Shift+Home  jump to begin   ",
@@ -2408,6 +2554,7 @@ int main(int argc, char **argv)
                             "Alt+P            section sign \x15  ",
                             "F1               Keysology       ",
                             "F2               ASCII table     ",
+                            "F3               snapshot        ",
                             "F4               toggle EDIT/VIEW",
                             "Ctrl+Q           quit            ",
                         };
@@ -2422,7 +2569,7 @@ int main(int argc, char **argv)
                         uint8_t ki, ji, was, now2;
                         int     got_key = 0;
 
-                        area_open(3u, 7u, 76u, (uint8_t)(HELP_ROWS + 4u), CSI "37m", CSI "48;2;30;50;30m", 0, true);
+                        area_open(3u, 4u, 76u, (uint8_t)(HELP_ROWS + 4u), CSI "37m", CSI "48;2;30;50;30m", 0, true);
                         area_text(" \xfe " APPNAME " Keysology", 1u, 1u, CSI "1;37m", CSI "48;2;30;50;30m");
                         for (hr = 0u; hr < HELP_ROWS; hr++) {
                             uint8_t ci;
@@ -2587,6 +2734,15 @@ int main(int argc, char **argv)
                         }
                     }
 
+                /* --- F3: manual undo snapshot --- */
+                } else if (key(KEY_F3)) {
+                    repeat_key = 0u;
+                    if (!view_mode) {
+                        undo_snapshot();
+                        undo_at_tip = 1u;
+                        draw_status_bar("SNAPSHOT SAVED");
+                    }
+
                 /* --- F2: ASCII character table popup (17x17, hex labels) --- */
                 } else if (key(KEY_F2)) {
                     repeat_key = 0u;
@@ -2617,7 +2773,6 @@ int main(int argc, char **argv)
                             rowbuf[1u] = ' ';
                             for (c = 0u; c < 16u; c++) {
                                 uint8_t code = (uint8_t)(r * 16u + c);
-                                // char ch = (code >= 0x20u && code != 0x7Fu) ? (char)code : '.';
                                 char ch = (code >= 0x0Eu && code != 0x18u && code != 0x1Bu) ? (char)code : '.';
                                 rowbuf[1u + c + 1u] = ch;
                             }
@@ -2779,6 +2934,8 @@ int main(int argc, char **argv)
                 }
 
                 if (did_action) {
+                    if (undo_skip_reset) { undo_skip_reset = 0u; }
+                    else if (doc_dirty) { undo_at_tip = 0u; }
                     /* position cursor after any key action */
                     printf(CSI "%d;%dH",
                            (int)((cur.row - scroll_row) + 1u + TITLE_ROWS),

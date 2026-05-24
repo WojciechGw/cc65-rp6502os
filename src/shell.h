@@ -54,7 +54,7 @@ static uint16_t com_load_addr = COM_LOAD_ADDR;
 #endif
 
 // for files transfers
-#define ESC 0x1B
+#define ESC_CHAR 0x1B
 #define SOH 0x01
 #define STX 0x02
 #define ETX 0x03

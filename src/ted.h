@@ -33,11 +33,12 @@
 #include <unistd.h>
 
 /* --- app identity --- */
-#define APPVER        "20260522.0700"
-#define APPNAME       "TEd"
-#define APPDESCRPTION "Text Editor"
-#define APPCOPYRIGHT  "(c) 2026 by WojciechGw"
-#define APP_MSG_TITLE CSI "1;1H" CSI "48;2;40;80;40m" " \xfe " APPNAME " " ANSI_RESET " " APPDESCRPTION
+#define APPVER         "20260524.0500"
+#define APPNAME        "TEd"
+#define APPDESCRPTION1 "Text Editor"
+#define APPDESCRPTION2 "for Picocomputer 6502"
+#define APPCOPYRIGHT   "(c) 2026 by WojciechGw"
+#define APP_MSG_TITLE CSI "1;1H" CSI "48;2;40;80;40m" " \xfe " APPNAME " " ANSI_RESET " " APPDESCRPTION1
 
 /* --- autorepeat timings (clock() = centiseconds, 1 tick = 10 ms) --- */
 #define REPEAT_DELAY      35u   /* 350 ms before first repeat */
@@ -151,7 +152,6 @@ uint8_t keystates[KEYBOARD_BYTES] = {0};
 #define CHAR_SI 0x0F    /* Shift In   - wybierz G0 */
 #define DECSC ESC "7"
 #define DECRC ESC "8"
-// #define ALTSCREEN_ENTER CSI "?1049h" CSI "?25l" CSI "0m" CSI "2J" CSI "H" ESC "(\xB" ESC ")0"
 #define ALTSCREEN_ENTER CSI "?1049h" CSI "?25l" CSI "0m" DECSCUSR_BAR CSI_ECHO_OFF OSC_DEFAULT_COLORBG "101010" OSC_ST ESC "(\xB" ESC ")0"
 #define ALTSCREEN_LEAVE CSI "0m" CSI "?25h" CSI_ECHO_ON CSI "?1049l"
 

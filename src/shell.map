@@ -1,0 +1,2021 @@
+Modules list:
+-------------
+shell.c.13436.0.o:
+    CODE              Offs=000000  Size=00504B  Align=00001  Fill=0000
+    RODATA            Offs=000000  Size=000A86  Align=00001  Fill=0000
+    BSS               Offs=000000  Size=00070F  Align=00001  Fill=0000
+    DATA              Offs=000000  Size=0000B2  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(_directerrno.o):
+    CODE              Offs=00504B  Size=000009  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(_file.o):
+    DATA              Offs=0000B2  Size=00001E  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(_heap.o):
+    DATA              Offs=0000D0  Size=00000A  Align=00001  Fill=0000
+    ONCE              Offs=000000  Size=000010  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(_hextab.o):
+    RODATA            Offs=000A86  Size=000010  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(_longminstr.o):
+    RODATA            Offs=000A96  Size=00000C  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(_oserror.o):
+    BSS               Offs=00070F  Size=000001  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(_printf.o):
+    CODE              Offs=005054  Size=0003A1  Align=00001  Fill=0000
+    BSS               Offs=000710  Size=00002B  Align=00001  Fill=0000
+    DATA              Offs=0000DA  Size=000003  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(_seterrno.o):
+    CODE              Offs=0053F5  Size=000009  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(_time_t_to_tm.o):
+    CODE              Offs=0053FE  Size=000070  Align=00001  Fill=0000
+    BSS               Offs=00073B  Size=000012  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(addeqsp.o):
+    CODE              Offs=00546E  Size=000011  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(addysp.o):
+    CODE              Offs=00547F  Size=00000E  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(aslax1.o):
+    CODE              Offs=00548D  Size=000008  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(aslax3.o):
+    CODE              Offs=005495  Size=00000E  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(axlong.o):
+    CODE              Offs=0054A3  Size=00000D  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(bneg.o):
+    CODE              Offs=0054B0  Size=00000E  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(call.o):
+    CODE              Offs=0054BE  Size=000007  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(callmain.o):
+    CODE              Offs=0054C5  Size=000017  Align=00001  Fill=0000
+    DATA              Offs=0000DD  Size=000004  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(chdir.o):
+C:\@prg\cc65/lib/rp6502.lib(clock.o):
+    CODE              Offs=0054DC  Size=000005  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(close.o):
+    CODE              Offs=0054E1  Size=000011  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(condes.o):
+    CODE              Offs=0054F2  Size=00000C  Align=00001  Fill=0000
+    DATA              Offs=0000E1  Size=000025  Align=00001  Fill=0000
+    ONCE              Offs=000010  Size=00000C  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(copydata.o):
+    CODE              Offs=0054FE  Size=00002D  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(crt0.o):
+    STARTUP           Offs=000000  Size=00002B  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(ctype.o):
+    RODATA            Offs=000AA2  Size=00008B  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(ctypemask.o):
+    CODE              Offs=00552B  Size=00001E  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(decax1.o):
+    CODE              Offs=005549  Size=000007  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(decaxy.o):
+    CODE              Offs=005550  Size=000009  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(decsp1.o):
+    CODE              Offs=005559  Size=000009  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(decsp2.o):
+    CODE              Offs=005562  Size=00000D  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(decsp3.o):
+    CODE              Offs=00556F  Size=00000D  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(decsp4.o):
+    CODE              Offs=00557C  Size=00000D  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(decsp5.o):
+    CODE              Offs=005589  Size=00000D  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(decsp6.o):
+    CODE              Offs=005596  Size=00000D  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(decsp8.o):
+    CODE              Offs=0055A3  Size=00000D  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(div.o):
+    CODE              Offs=0055B0  Size=000015  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(divt.o):
+    CODE              Offs=0055C5  Size=000015  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(enter.o):
+    CODE              Offs=0055DA  Size=00000E  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(errno.o):
+    CODE              Offs=0055E8  Size=00000F  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(f_chdrive.o):
+    CODE              Offs=0055F7  Size=00004A  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(f_chmod.o):
+    CODE              Offs=005641  Size=00005A  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(f_closedir.o):
+    CODE              Offs=00569B  Size=000011  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(f_getcwd.o):
+    CODE              Offs=0056AC  Size=000070  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(f_mkdir.o):
+    CODE              Offs=00571C  Size=00004A  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(f_opendir.o):
+    CODE              Offs=005766  Size=00004A  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(f_readdir.o):
+    CODE              Offs=0057B0  Size=000055  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(f_stat.o):
+    CODE              Offs=005805  Size=000092  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(fwrite.o):
+    CODE              Offs=005897  Size=000077  Align=00001  Fill=0000
+    BSS               Offs=00074D  Size=000002  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(gettime.o):
+    CODE              Offs=00590E  Size=000017  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(gettimespec.o):
+    CODE              Offs=005925  Size=000031  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(icmp.o):
+    CODE              Offs=005956  Size=00002E  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(incax2.o):
+    CODE              Offs=005984  Size=000007  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(incax7.o):
+    CODE              Offs=00598B  Size=000005  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(incaxy.o):
+    CODE              Offs=005990  Size=00000B  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(incsp1.o):
+    CODE              Offs=00599B  Size=000007  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(incsp2.o):
+    CODE              Offs=0059A2  Size=000015  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(incsp3.o):
+    CODE              Offs=0059B7  Size=000005  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(incsp4.o):
+    CODE              Offs=0059BC  Size=000005  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(incsp5.o):
+    CODE              Offs=0059C1  Size=000005  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(incsp6.o):
+    CODE              Offs=0059C6  Size=000005  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(incsp8.o):
+    CODE              Offs=0059CB  Size=000005  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(isdigit.o):
+    CODE              Offs=0059D0  Size=000008  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(islower.o):
+    CODE              Offs=0059D8  Size=000008  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(isspace.o):
+    CODE              Offs=0059E0  Size=000008  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(isupper.o):
+    CODE              Offs=0059E8  Size=000008  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(jmpvec.o):
+    DATA              Offs=000106  Size=000003  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(ladd.o):
+    CODE              Offs=0059F0  Size=000024  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(laddeqsp.o):
+    CODE              Offs=005A14  Size=000023  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(lcmp.o):
+    CODE              Offs=005A37  Size=00003B  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(ldaxi.o):
+    CODE              Offs=005A72  Size=00000D  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(ldaxsp.o):
+    CODE              Offs=005A7F  Size=000009  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(ldeaxi.o):
+    CODE              Offs=005A88  Size=000017  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(ldeaxysp.o):
+    CODE              Offs=005A9F  Size=000013  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(ldec.o):
+    CODE              Offs=005AB2  Size=000015  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(ldptr1sp.o):
+    CODE              Offs=005AC7  Size=00000C  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(leaaxsp.o):
+    CODE              Offs=005AD3  Size=00000C  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(leave.o):
+    CODE              Offs=005ADF  Size=00001B  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(leq.o):
+    CODE              Offs=005AFA  Size=000006  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(linc.o):
+    CODE              Offs=005B00  Size=000011  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(llt.o):
+    CODE              Offs=005B11  Size=000006  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(lmul.o):
+    CODE              Offs=005B17  Size=000059  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(lne.o):
+    CODE              Offs=005B70  Size=000006  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(lneg.o):
+    CODE              Offs=005B76  Size=00001E  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(localtime.o):
+    CODE              Offs=005B94  Size=00004F  Align=00001  Fill=0000
+    BSS               Offs=00074F  Size=000001  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(lpush.o):
+    CODE              Offs=005BE3  Size=00001E  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(lseek.o):
+    CODE              Offs=005C01  Size=000020  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(lsub.o):
+    CODE              Offs=005C21  Size=000024  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(lsubeqsp.o):
+    CODE              Offs=005C45  Size=000027  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(ltest.o):
+    CODE              Offs=005C6C  Size=00000F  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(ltoa.o):
+    CODE              Offs=005C7B  Size=000093  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(ludiv.o):
+    CODE              Offs=005D0E  Size=000077  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(luge.o):
+    CODE              Offs=005D85  Size=000006  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(lugt.o):
+    CODE              Offs=005D8B  Size=000006  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(lule.o):
+    CODE              Offs=005D91  Size=000006  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(lult.o):
+    CODE              Offs=005D97  Size=000006  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(lumod.o):
+    CODE              Offs=005D9D  Size=000017  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(mainargs.o):
+    ONCE              Offs=00001C  Size=000087  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(makebool.o):
+    CODE              Offs=005DB4  Size=00002C  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(malloc.o):
+    CODE              Offs=005DE0  Size=000110  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(memcpy.o):
+    CODE              Offs=005EF0  Size=00003C  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(memmove.o):
+    CODE              Offs=005F2C  Size=000050  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(mktime.o):
+    CODE              Offs=005F7C  Size=000257  Align=00001  Fill=0000
+    BSS               Offs=000750  Size=000005  Align=00001  Fill=0000
+    DATA              Offs=000109  Size=000024  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(mod.o):
+    CODE              Offs=0061D3  Size=000011  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(mul.o):
+    CODE              Offs=0061E4  Size=000045  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(mul8.o):
+    CODE              Offs=006229  Size=00003A  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(mulax10.o):
+    CODE              Offs=006263  Size=000019  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(negabs.o):
+    CODE              Offs=00627C  Size=000012  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(open.o):
+    CODE              Offs=00628E  Size=000071  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(phi2.o):
+    CODE              Offs=0062FF  Size=000005  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(popptr1.o):
+    CODE              Offs=006304  Size=00000E  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(printf.o):
+    CODE              Offs=006312  Size=000033  Align=00001  Fill=0000
+    BSS               Offs=000755  Size=000001  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(push1.o):
+    CODE              Offs=006345  Size=000005  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(pusha.o):
+    CODE              Offs=00634A  Size=000016  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(pushax.o):
+    CODE              Offs=006360  Size=00001A  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(pushw.o):
+    CODE              Offs=00637A  Size=00000F  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(pushwsp.o):
+    CODE              Offs=006389  Size=00001C  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(read.o):
+    CODE              Offs=0063A5  Size=000089  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(read_xstack.o):
+    CODE              Offs=00642E  Size=000062  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(remove.o):
+C:\@prg\cc65/lib/rp6502.lib(rename.o):
+C:\@prg\cc65/lib/rp6502.lib(ria.o):
+    CODE              Offs=006490  Size=00004E  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(ria_attr.o):
+    CODE              Offs=0064DE  Size=000028  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(ria_execl.o):
+    CODE              Offs=006506  Size=00022B  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(ria_execv.o):
+    CODE              Offs=006731  Size=000247  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(shelp.o):
+    CODE              Offs=006978  Size=000020  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(shrax1.o):
+    CODE              Offs=006998  Size=000008  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(shrax2.o):
+    CODE              Offs=0069A0  Size=00000B  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(shrax4.o):
+    CODE              Offs=0069AB  Size=000011  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(shreax4.o):
+    CODE              Offs=0069BC  Size=000011  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(sprintf.o):
+    CODE              Offs=0069CD  Size=00002B  Align=00001  Fill=0000
+    BSS               Offs=000756  Size=000001  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(staspidx.o):
+    CODE              Offs=0069F8  Size=000016  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(staxsp.o):
+    CODE              Offs=006A0E  Size=00000B  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(staxspi.o):
+    CODE              Offs=006A19  Size=00001A  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(steaxsp.o):
+    CODE              Offs=006A33  Size=000015  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(steaxspi.o):
+    CODE              Offs=006A48  Size=000022  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(strchr.o):
+    CODE              Offs=006A6A  Size=000025  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(strcmp.o):
+    CODE              Offs=006A8F  Size=000021  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(strftime.o):
+    CODE              Offs=006AB0  Size=000660  Align=00001  Fill=0000
+    RODATA            Offs=000B2D  Size=00011B  Align=00001  Fill=0000
+    BSS               Offs=000757  Size=00002F  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(strlen.o):
+    CODE              Offs=007110  Size=000016  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(strlower.o):
+    CODE              Offs=007126  Size=000027  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(strncmp.o):
+    CODE              Offs=00714D  Size=000039  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(strncpy.o):
+    CODE              Offs=007186  Size=000042  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(strtoul.o):
+    CODE              Offs=0071C8  Size=00022E  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(sub.o):
+    CODE              Offs=0073F6  Size=000014  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(subeqsp.o):
+    CODE              Offs=00740A  Size=000015  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(subysp.o):
+    CODE              Offs=00741F  Size=00000D  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(syncfs.o):
+    CODE              Offs=00742C  Size=000011  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(syschdir.o):
+    CODE              Offs=00743D  Size=00004A  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(sysremove.o):
+    CODE              Offs=007487  Size=00004C  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(sysrename.o):
+    CODE              Offs=0074D3  Size=00008E  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(time.o):
+    CODE              Offs=007561  Size=00003F  Align=00001  Fill=0000
+    BSS               Offs=000786  Size=000008  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(timezone.o):
+    DATA              Offs=00012D  Size=00000F  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(udiv.o):
+    CODE              Offs=0075A0  Size=00004F  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(umod.o):
+    CODE              Offs=0075EF  Size=000011  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(unlink.o):
+C:\@prg\cc65/lib/rp6502.lib(vfprintf.o):
+    CODE              Offs=007600  Size=000060  Align=00001  Fill=0000
+    DATA              Offs=00013C  Size=000008  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(vsnprintf.o):
+    CODE              Offs=007660  Size=0000DA  Align=00001  Fill=0000
+    DATA              Offs=000144  Size=000008  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(vsprintf.o):
+    CODE              Offs=00773A  Size=000012  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(write.o):
+    CODE              Offs=00774C  Size=00009B  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(write_xstack.o):
+    CODE              Offs=0077E7  Size=00005A  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(xreg.o):
+    CODE              Offs=007841  Size=000015  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(zerobss.o):
+    CODE              Offs=007856  Size=000023  Align=00001  Fill=0000
+C:\@prg\cc65/lib/rp6502.lib(zeropage.o):
+    ZEROPAGE          Offs=000000  Size=00001A  Align=00001  Fill=0000
+
+
+Segment list:
+-------------
+Name                   Start     End    Size  Align
+----------------------------------------------------
+ZEROPAGE              000000  000019  00001A  00001
+STARTUP               000200  00022A  00002B  00001
+ONCE                  00022B  0002D3  0000A9  00001
+CODE                  0002D4  007B4C  007879  00001
+RODATA                007B4D  008794  000C48  00001
+DATA                  008795  0088E0  00014C  00001
+BSS                   0088E1  00906E  00078E  00001
+
+
+Exports list by name:
+---------------------
+__BSS_RUN__               0088E1 RLA    __BSS_SIZE__              00078E REA    
+__CONSTRUCTOR_COUNT__     000003 REA    __CONSTRUCTOR_TABLE__     0002CE RLA    
+__DATA_LOAD__             008795 RLA    __DATA_RUN__              008795 RLA    
+__DATA_SIZE__             00014C REA    __DESTRUCTOR_COUNT__      000000 REA    
+__DESTRUCTOR_TABLE__      008795 RLA    __RAM_SIZE__              00FB00 REA    
+__RAM_START__             000200 RLA    __STACKSIZE__             000200 REA    
+__STARTADDR__             000200 REA    __STARTUP__               000001 REA    
+___clock_gettimespec      005BF9 RLA    ___directerrno            00531F RLA    
+___errno                  00FFED RLA    ___heapend                008869 RLA    
+___heapfirst              00886B RLA    ___heaplast               00886D RLA    
+___heapptr                008867 RLA    ___oserror                008FF0 RLA    
+___seterrno               0056C9 RLA    __argc                    008872 RLA    
+__argv                    008874 RLA    __ctype                   0085EF RLA    
+__ctypeidx                0085FA RLA    __hextab                  0085D3 RLA    
+__longminstr              0085E3 RLA    __printf                  005419 RLA    
+__syschdir                007711 RLA    __sysremove               00775B RLA    
+__sysrename               0077A7 RLA    __time_t_to_tm            0056D2 RLA    
+__tz                      0088C2 RLA    _argv_mem                 0044AB RLA    
+_chdir                    007711 REA    _clock                    0057B0 RLA    
+_clock_gettime            005BE2 RLA    _close                    0057B5 RLA    
+_div                      005899 RLA    _errno_opt_constructor    0058BC  LAI   
+_exit                     000218 RLA    _f_chdrive                0058CB RLA    
+_f_chmod                  005915 RLA    _f_closedir               00596F RLA    
+_f_getcwd                 005980 RLA    _f_mkdir                  0059F0 RLA    
+_f_opendir                005A3A RLA    _f_readdir                005A84 RLA    
+_f_stat                   005AD9 RLA    _fwrite                   005B6B RLA    
+_isdigit                  005CA4 RLA    _islower                  005CAC RLA    
+_isspace                  005CB4 RLA    _isupper                  005CBC RLA    
+_localtime                005E83 RLA    _lseek                    005ED5 RLA    
+_ltoa                     005F67 RLA    _main                     0044BB RLA    
+_malloc                   0060B4 RLA    _memcpy                   0061C4 RLA    
+_memmove                  006200 RLA    _mktime                   0062DB RLA    
+_open                     006562 RLA    _phi2                     0065D3 RLA    
+_printf                   0065E6 RLA    _read                     006679 RLA    
+_read_xstack              006702 RLA    _remove                   00775B REA    
+_rename                   0077A7 REA    _ria_attr_get             0067B2 RLA    
+_ria_attr_set             0067C2 RLA    _ria_call_int             00679B RLA    
+_ria_call_long            0067A1 RLA    _ria_execl                0067DA RLA    
+_ria_execv                006A05 RLA    _ria_pop_long             006775 RLA    
+_ria_push_int             00676E RLA    _ria_push_long            006764 RLA    
+_ria_set_ax               006794 RLA    _ria_set_axsreg           00678A RLA    
+_sprintf                  006CA1 RLA    _stdout                   008861 RLA    
+_strchr                   006D3E RLA    _strcmp                   006D63 RLA    
+_strftime                 006D84 RLA    _strlen                   0073E4 RLA    
+_strlower                 0073FA RLA    _strncmp                  007421 RLA    
+_strncpy                  00745A RLA    _strtoul                  00749C RLA    
+_syncfs                   007700 RLA    _time                     007835 RLA    
+_ultoa                    005FA6 RLA    _unlink                   00775B REA    
+_vfprintf                 00790B RLA    _vsprintf                 007A0E RLA    
+_write                    007A20 RLA    _write_xstack             007ABB RLA    
+_xreg                     007B15 RLA    addeq0sp                  005742 RLA    
+addeqysp                  005744 RLA    addysp                    005754 RLA    
+addysp1                   005753 RLA    aslax1                    005761 RLA    
+aslax3                    005769 RLA    axlong                    005777 RLA    
+axulong                   00577D RLA    bnega                     005788 RLA    
+bnegax                    005784 RLA    booleq                    00608E RLA    
+boollt                    006097 RLA    boolne                    006088 RLA    
+booluge                   0060AF RLA    boolugt                   0060AD RLA    
+boolule                   0060A5 RLA    boolult                   0060A7 RLA    
+c_sp                      000000 RLZ    callax                    005792 RLA    
+callmain                  005799 RLA    copydata                  0057D2 RLA    
+ctypemask                 0057FF RLA    ctypemaskdirect           005803 RLA    
+decax1                    00581D RLA    decaxy                    005824 RLA    
+deceaxy                   005D86 RLA    decsp1                    00582D RLA    
+decsp2                    005836 RLA    decsp3                    005843 RLA    
+decsp4                    005850 RLA    decsp5                    00585D RLA    
+decsp6                    00586A RLA    decsp8                    005877 RLA    
+donelib                   0057C6 RLA    enter                     0058AE RLA    
+getlop                    005FF1 RLA    incax2                    005C58 RLA    
+incax7                    005C5F RLA    incaxy                    005C66 RLA    
+inceaxy                   005DD4 RLA    incsp1                    005C6F RLA    
+incsp2                    005C7D RLA    incsp3                    005C8B RLA    
+incsp4                    005C90 RLA    incsp5                    005C95 RLA    
+incsp6                    005C9A RLA    incsp8                    005C9F RLA    
+initheap                  00022B  LAI   initlib                   00023B RLA    
+initmainargs              000247 RLAI   jmpvec                    00889B RLA    
+laddeq0sp                 005CE8 RLA    laddeqysp                 005CEA RLA    
+ldax0sp                   005D53 RLA    ldaxi                     005D46 RLA    
+ldaxidx                   005D48 RLA    ldaxysp                   005D55 RLA    
+ldeax0sp                  005D73 RLA    ldeaxi                    005D5C RLA    
+ldeaxysp                  005D75 RLA    ldptr1ysp                 005D9D RLA    
+leaa0sp                   005DA7 RLA    leaaxsp                   005DA9 RLA    
+leavey                    005DBD RLA    lsubeqysp                 005F1B RLA    
+memcpy_getparams          0061ED RLA    memcpy_upwards            0061C7 RLA    
+mul8x16                   0064FF RLA    mul8x16a                  006509 RLA    
+mulax10                   006537 RLA    negax                     006554 RLA    
+negeax                    005E4A RLA    popax                     005C76 RLA    
+popptr1                   0065D8 RLA    popsargsudiv16            006C4C RLA    
+ptr1                      000008 RLZ    ptr2                      00000A RLZ    
+ptr3                      00000C RLZ    ptr4                      00000E RLZ    
+push0                     006634 RLA    push0ax                   005EBA RLA    
+push1                     006619 RLA    pusha                     006622 RLA    
+pusha0                    006636 RLA    pushax                    006638 RLA    
+pusheax                   005EBE RLA    pushl0                    005EB7 RLA    
+pushw                     00664E RLA    pushw0sp                  00665D RLA    
+pushwidx                  006650 RLA    pushwysp                  00665F RLA    
+regbank                   000014 RLZ    shlax1                    005761 RLA    
+shrax1                    006C6C RLA    shrax2                    006C74 RLA    
+shrax4                    006C7F RLA    shreax4                   006C90 RLA    
+sreg                      000002 RLZ    staspidx                  006CCC RLA    
+stax0sp                   006CE2 RLA    staxspidx                 006CED RLA    
+staxysp                   006CE4 RLA    steax0sp                  006D07 RLA    
+steaxspidx                006D1C RLA    steaxysp                  006D09 RLA    
+subeq0sp                  0076DE RLA    subeqysp                  0076E0 RLA    
+subysp                    0076F3 RLA    tmp1                      000010 RLZ    
+tmp2                      000011 RLZ    tmp3                      000012 RLZ    
+tmp4                      000013 RLZ    tosaddeax                 005CCA RLA    
+tosdiva0                  005884 RLA    tosdivax                  005886 RLA    
+toseqeax                  005DCE RLA    tosicmp                   005C2C RLA    
+toslcmp                   005D0B RLA    toslteax                  005DE5 RLA    
+tosmoda0                  0064A7 RLA    tosneeax                  005E44 RLA    
+tossubax                  0076CC RLA    tossubeax                 005EF9 RLA    
+tosudiv0ax                005FE2 RLA    tosudiva0                 007874 RLA    
+tosudivax                 007876 RLA    tosudiveax                005FE6 RLA    
+tosugeeax                 006059 RLA    tosugteax                 00605F RLA    
+tosuleeax                 006065 RLA    tosulteax                 00606B RLA    
+tosumod0ax                006071 RLA    tosumoda0                 0078C3 RLA    
+tosumodax                 0078C5 RLA    tosumodeax                006075 RLA    
+tosumulax                 0064B8 RLA    tosumuleax                005DEF RLA    
+udiv16                    007885 RLA    udiv32                    006014 RLA    
+utsteax                   005F40 RLA    vsnprintf                 007937 RLA    
+zerobss                   007B2A RLA    
+
+
+Exports list by value:
+----------------------
+c_sp                      000000 RLZ    __DESTRUCTOR_COUNT__      000000 REA    
+__STARTUP__               000001 REA    sreg                      000002 RLZ    
+__CONSTRUCTOR_COUNT__     000003 REA    ptr1                      000008 RLZ    
+ptr2                      00000A RLZ    ptr3                      00000C RLZ    
+ptr4                      00000E RLZ    tmp1                      000010 RLZ    
+tmp2                      000011 RLZ    tmp3                      000012 RLZ    
+tmp4                      000013 RLZ    regbank                   000014 RLZ    
+__DATA_SIZE__             00014C REA    __RAM_START__             000200 RLA    
+__STARTADDR__             000200 REA    __STACKSIZE__             000200 REA    
+_exit                     000218 RLA    initheap                  00022B  LAI   
+initlib                   00023B RLA    initmainargs              000247 RLAI   
+__CONSTRUCTOR_TABLE__     0002CE RLA    __BSS_SIZE__              00078E REA    
+_argv_mem                 0044AB RLA    _main                     0044BB RLA    
+___directerrno            00531F RLA    __printf                  005419 RLA    
+___seterrno               0056C9 RLA    __time_t_to_tm            0056D2 RLA    
+addeq0sp                  005742 RLA    addeqysp                  005744 RLA    
+addysp1                   005753 RLA    addysp                    005754 RLA    
+shlax1                    005761 RLA    aslax1                    005761 RLA    
+aslax3                    005769 RLA    axlong                    005777 RLA    
+axulong                   00577D RLA    bnegax                    005784 RLA    
+bnega                     005788 RLA    callax                    005792 RLA    
+callmain                  005799 RLA    _clock                    0057B0 RLA    
+_close                    0057B5 RLA    donelib                   0057C6 RLA    
+copydata                  0057D2 RLA    ctypemask                 0057FF RLA    
+ctypemaskdirect           005803 RLA    decax1                    00581D RLA    
+decaxy                    005824 RLA    decsp1                    00582D RLA    
+decsp2                    005836 RLA    decsp3                    005843 RLA    
+decsp4                    005850 RLA    decsp5                    00585D RLA    
+decsp6                    00586A RLA    decsp8                    005877 RLA    
+tosdiva0                  005884 RLA    tosdivax                  005886 RLA    
+_div                      005899 RLA    enter                     0058AE RLA    
+_errno_opt_constructor    0058BC  LAI   _f_chdrive                0058CB RLA    
+_f_chmod                  005915 RLA    _f_closedir               00596F RLA    
+_f_getcwd                 005980 RLA    _f_mkdir                  0059F0 RLA    
+_f_opendir                005A3A RLA    _f_readdir                005A84 RLA    
+_f_stat                   005AD9 RLA    _fwrite                   005B6B RLA    
+_clock_gettime            005BE2 RLA    ___clock_gettimespec      005BF9 RLA    
+tosicmp                   005C2C RLA    incax2                    005C58 RLA    
+incax7                    005C5F RLA    incaxy                    005C66 RLA    
+incsp1                    005C6F RLA    popax                     005C76 RLA    
+incsp2                    005C7D RLA    incsp3                    005C8B RLA    
+incsp4                    005C90 RLA    incsp5                    005C95 RLA    
+incsp6                    005C9A RLA    incsp8                    005C9F RLA    
+_isdigit                  005CA4 RLA    _islower                  005CAC RLA    
+_isspace                  005CB4 RLA    _isupper                  005CBC RLA    
+tosaddeax                 005CCA RLA    laddeq0sp                 005CE8 RLA    
+laddeqysp                 005CEA RLA    toslcmp                   005D0B RLA    
+ldaxi                     005D46 RLA    ldaxidx                   005D48 RLA    
+ldax0sp                   005D53 RLA    ldaxysp                   005D55 RLA    
+ldeaxi                    005D5C RLA    ldeax0sp                  005D73 RLA    
+ldeaxysp                  005D75 RLA    deceaxy                   005D86 RLA    
+ldptr1ysp                 005D9D RLA    leaa0sp                   005DA7 RLA    
+leaaxsp                   005DA9 RLA    leavey                    005DBD RLA    
+toseqeax                  005DCE RLA    inceaxy                   005DD4 RLA    
+toslteax                  005DE5 RLA    tosumuleax                005DEF RLA    
+tosneeax                  005E44 RLA    negeax                    005E4A RLA    
+_localtime                005E83 RLA    pushl0                    005EB7 RLA    
+push0ax                   005EBA RLA    pusheax                   005EBE RLA    
+_lseek                    005ED5 RLA    tossubeax                 005EF9 RLA    
+lsubeqysp                 005F1B RLA    utsteax                   005F40 RLA    
+_ltoa                     005F67 RLA    _ultoa                    005FA6 RLA    
+tosudiv0ax                005FE2 RLA    tosudiveax                005FE6 RLA    
+getlop                    005FF1 RLA    udiv32                    006014 RLA    
+tosugeeax                 006059 RLA    tosugteax                 00605F RLA    
+tosuleeax                 006065 RLA    tosulteax                 00606B RLA    
+tosumod0ax                006071 RLA    tosumodeax                006075 RLA    
+boolne                    006088 RLA    booleq                    00608E RLA    
+boollt                    006097 RLA    boolule                   0060A5 RLA    
+boolult                   0060A7 RLA    boolugt                   0060AD RLA    
+booluge                   0060AF RLA    _malloc                   0060B4 RLA    
+_memcpy                   0061C4 RLA    memcpy_upwards            0061C7 RLA    
+memcpy_getparams          0061ED RLA    _memmove                  006200 RLA    
+_mktime                   0062DB RLA    tosmoda0                  0064A7 RLA    
+tosumulax                 0064B8 RLA    mul8x16                   0064FF RLA    
+mul8x16a                  006509 RLA    mulax10                   006537 RLA    
+negax                     006554 RLA    _open                     006562 RLA    
+_phi2                     0065D3 RLA    popptr1                   0065D8 RLA    
+_printf                   0065E6 RLA    push1                     006619 RLA    
+pusha                     006622 RLA    push0                     006634 RLA    
+pusha0                    006636 RLA    pushax                    006638 RLA    
+pushw                     00664E RLA    pushwidx                  006650 RLA    
+pushw0sp                  00665D RLA    pushwysp                  00665F RLA    
+_read                     006679 RLA    _read_xstack              006702 RLA    
+_ria_push_long            006764 RLA    _ria_push_int             00676E RLA    
+_ria_pop_long             006775 RLA    _ria_set_axsreg           00678A RLA    
+_ria_set_ax               006794 RLA    _ria_call_int             00679B RLA    
+_ria_call_long            0067A1 RLA    _ria_attr_get             0067B2 RLA    
+_ria_attr_set             0067C2 RLA    _ria_execl                0067DA RLA    
+_ria_execv                006A05 RLA    popsargsudiv16            006C4C RLA    
+shrax1                    006C6C RLA    shrax2                    006C74 RLA    
+shrax4                    006C7F RLA    shreax4                   006C90 RLA    
+_sprintf                  006CA1 RLA    staspidx                  006CCC RLA    
+stax0sp                   006CE2 RLA    staxysp                   006CE4 RLA    
+staxspidx                 006CED RLA    steax0sp                  006D07 RLA    
+steaxysp                  006D09 RLA    steaxspidx                006D1C RLA    
+_strchr                   006D3E RLA    _strcmp                   006D63 RLA    
+_strftime                 006D84 RLA    _strlen                   0073E4 RLA    
+_strlower                 0073FA RLA    _strncmp                  007421 RLA    
+_strncpy                  00745A RLA    _strtoul                  00749C RLA    
+tossubax                  0076CC RLA    subeq0sp                  0076DE RLA    
+subeqysp                  0076E0 RLA    subysp                    0076F3 RLA    
+_syncfs                   007700 RLA    _chdir                    007711 REA    
+__syschdir                007711 RLA    __sysremove               00775B RLA    
+_remove                   00775B REA    _unlink                   00775B REA    
+_rename                   0077A7 REA    __sysrename               0077A7 RLA    
+_time                     007835 RLA    tosudiva0                 007874 RLA    
+tosudivax                 007876 RLA    udiv16                    007885 RLA    
+tosumoda0                 0078C3 RLA    tosumodax                 0078C5 RLA    
+_vfprintf                 00790B RLA    vsnprintf                 007937 RLA    
+_vsprintf                 007A0E RLA    _write                    007A20 RLA    
+_write_xstack             007ABB RLA    _xreg                     007B15 RLA    
+zerobss                   007B2A RLA    __hextab                  0085D3 RLA    
+__longminstr              0085E3 RLA    __ctype                   0085EF RLA    
+__ctypeidx                0085FA RLA    __DATA_RUN__              008795 RLA    
+__DATA_LOAD__             008795 RLA    __DESTRUCTOR_TABLE__      008795 RLA    
+_stdout                   008861 RLA    ___heapptr                008867 RLA    
+___heapend                008869 RLA    ___heapfirst              00886B RLA    
+___heaplast               00886D RLA    __argc                    008872 RLA    
+__argv                    008874 RLA    jmpvec                    00889B RLA    
+__tz                      0088C2 RLA    __BSS_RUN__               0088E1 RLA    
+___oserror                008FF0 RLA    __RAM_SIZE__              00FB00 REA    
+___errno                  00FFED RLA    
+
+
+Imports list:
+-------------
+__BSS_RUN__ ([linker generated]):
+    _heap.o                   common/_heap.s:8
+    zerobss.o                 common/zerobss.s:8
+    shell.c.13436.0.o         shell.c.13436.0.s:98
+__BSS_SIZE__ ([linker generated]):
+    _heap.o                   common/_heap.s:8
+    zerobss.o                 common/zerobss.s:8
+    shell.c.13436.0.o         shell.c.13436.0.s:99
+__CONSTRUCTOR_COUNT__ ([linker generated]):
+    condes.o                  runtime/condes.s:18
+__CONSTRUCTOR_TABLE__ ([linker generated]):
+    condes.o                  runtime/condes.s:18
+__DATA_LOAD__ ([linker generated]):
+    copydata.o                common/copydata.s:8
+__DATA_RUN__ ([linker generated]):
+    copydata.o                common/copydata.s:8
+__DATA_SIZE__ ([linker generated]):
+    copydata.o                common/copydata.s:8
+__DESTRUCTOR_COUNT__ ([linker generated]):
+    condes.o                  runtime/condes.s:19
+__DESTRUCTOR_TABLE__ ([linker generated]):
+    condes.o                  runtime/condes.s:19
+__RAM_SIZE__ ([linker generated]):
+    crt0.o                    rp6502/crt0.s:10
+__RAM_START__ ([linker generated]):
+    crt0.o                    rp6502/crt0.s:10
+__STACKSIZE__ ([linker generated]):
+    _heap.o                   common/_heap.s:8
+    [linker generated]        shell.cfg:9
+__STARTADDR__ ([linker generated]):
+    [linker generated]        shell.cfg:9
+    [linker generated]        shell.cfg:9
+__STARTUP__ (crt0.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:13
+    [linker generated]        shell.cfg:3
+___clock_gettimespec (gettimespec.o):
+    gettime.o                 ../libwrk/rp6502/gettime.s:19
+___directerrno (_directerrno.o):
+    vsnprintf.o               /home/wojciech/git/WojciechGw/cc65/asminc/errno.inc:10
+___errno (errno.o):
+    _seterrno.o               /home/wojciech/git/WojciechGw/cc65/asminc/errno.inc:7
+    write_xstack.o            ../libwrk/rp6502/write_xstack.s:21
+    sysrename.o               ../libwrk/rp6502/sysrename.s:20
+    syschdir.o                ../libwrk/rp6502/syschdir.s:20
+    ria_execv.o               ../libwrk/rp6502/ria_execv.s:22
+    ria_execl.o               ../libwrk/rp6502/ria_execl.s:23
+    open.o                    ../libwrk/rp6502/open.s:22
+    f_stat.o                  ../libwrk/rp6502/f_stat.s:21
+    f_opendir.o               ../libwrk/rp6502/f_opendir.s:21
+    f_mkdir.o                 ../libwrk/rp6502/f_mkdir.s:21
+    f_getcwd.o                ../libwrk/rp6502/f_getcwd.s:21
+    f_chmod.o                 ../libwrk/rp6502/f_chmod.s:21
+    f_chdrive.o               ../libwrk/rp6502/f_chdrive.s:21
+___heapend (_heap.o):
+    malloc.o                  /home/wojciech/git/WojciechGw/cc65/asminc/_heap.inc:33
+___heapfirst (_heap.o):
+    malloc.o                  /home/wojciech/git/WojciechGw/cc65/asminc/_heap.inc:34
+___heaplast (_heap.o):
+    malloc.o                  /home/wojciech/git/WojciechGw/cc65/asminc/_heap.inc:35
+___heapptr (_heap.o):
+    malloc.o                  /home/wojciech/git/WojciechGw/cc65/asminc/_heap.inc:32
+___oserror (_oserror.o):
+    _directerrno.o            /home/wojciech/git/WojciechGw/cc65/asminc/errno.inc:7
+___seterrno (_seterrno.o):
+    _directerrno.o            /home/wojciech/git/WojciechGw/cc65/asminc/errno.inc:9
+    fwrite.o                  /home/wojciech/git/WojciechGw/cc65/asminc/errno.inc:9
+    strtoul.o                 ../libwrk/rp6502/strtoul.s:22
+__argc (callmain.o):
+    mainargs.o                rp6502/mainargs.s:7
+__argv (callmain.o):
+    mainargs.o                rp6502/mainargs.s:7
+__ctype (ctype.o):
+    ctypemask.o               common/ctypemask.s:23
+__ctypeidx (ctype.o):
+    ctypemask.o               common/ctypemask.s:24
+__hextab (_hextab.o):
+    ltoa.o                    common/ltoa.s:10
+__longminstr (_longminstr.o):
+    ltoa.o                    common/ltoa.s:10
+__printf (_printf.o):
+    vsnprintf.o               common/vsnprintf.s:10
+    vfprintf.o                common/vfprintf.s:10
+__syschdir (syschdir.o):
+    chdir.o                   rp6502/chdir.s:9
+__sysremove (sysremove.o):
+    remove.o                  rp6502/remove.s:9
+__sysrename (sysrename.o):
+    rename.o                  rp6502/rename.s:9
+__time_t_to_tm (_time_t_to_tm.o):
+    localtime.o               rp6502/localtime.s:9
+__tz (timezone.o):
+    mktime.o                  common/mktime.s:12
+    strftime.o                ../libwrk/rp6502/strftime.s:22
+    localtime.o               rp6502/localtime.s:9
+_argv_mem (shell.c.13436.0.o):
+    mainargs.o                rp6502/mainargs.s:7
+_chdir (chdir.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:52
+_clock (clock.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:43
+_clock_gettime (gettime.o):
+    time.o                    /home/wojciech/git/WojciechGw/cc65/asminc/time.inc:65
+_close (close.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:29
+_div (divt.o):
+    mktime.o                  common/mktime.s:14
+_exit (crt0.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:34
+_f_chdrive (f_chdrive.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:26
+_f_chmod (f_chmod.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:24
+_f_closedir (f_closedir.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:23
+_f_getcwd (f_getcwd.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:27
+_f_mkdir (f_mkdir.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:25
+_f_opendir (f_opendir.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:21
+_f_readdir (f_readdir.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:22
+_f_stat (f_stat.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:20
+_fwrite (fwrite.o):
+    vfprintf.o                common/vfprintf.s:10
+_isdigit (isdigit.o):
+    strtoul.o                 ../libwrk/rp6502/strtoul.s:18
+_islower (islower.o):
+    strtoul.o                 ../libwrk/rp6502/strtoul.s:19
+_isspace (isspace.o):
+    strtoul.o                 ../libwrk/rp6502/strtoul.s:20
+_isupper (isupper.o):
+    strtoul.o                 ../libwrk/rp6502/strtoul.s:21
+_localtime (localtime.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:44
+_lseek (lseek.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:49
+_ltoa (ltoa.o):
+    _printf.o                 common/_printf.s:12
+_main (shell.c.13436.0.o):
+    callmain.o                runtime/callmain.s:11
+_malloc (malloc.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:33
+_memcpy (memcpy.o):
+    vsnprintf.o               common/vsnprintf.s:10
+    strftime.o                ../libwrk/rp6502/strftime.s:19
+    shell.c.13436.0.o         shell.c.13436.0.s:41
+_memmove (memmove.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:42
+_mktime (mktime.o):
+    _time_t_to_tm.o           common/_time_t_to_tm.s:14
+_open (open.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:28
+_phi2 (phi2.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:16
+_printf (printf.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:30
+_read (read.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:48
+_read_xstack (read_xstack.o):
+    read.o                    ../libwrk/rp6502/read.s:17
+_remove (remove.o):
+    unlink.o                  common/unlink.s:8
+    shell.c.13436.0.o         shell.c.13436.0.s:31
+_rename (rename.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:32
+_ria_attr_get (ria_attr.o):
+    phi2.o                    ../libwrk/rp6502/phi2.s:17
+_ria_attr_set (ria_attr.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:19
+_ria_call_int (ria.o):
+    gettimespec.o             ../libwrk/rp6502/gettimespec.s:18
+    errno.o                   rp6502/errno.s:12
+    xreg.o                    rp6502/xreg.s:9
+    write_xstack.o            ../libwrk/rp6502/write_xstack.s:19
+    sysrename.o               ../libwrk/rp6502/sysrename.s:19
+    sysremove.o               ../libwrk/rp6502/sysremove.s:18
+    syschdir.o                ../libwrk/rp6502/syschdir.s:19
+    syncfs.o                  ../libwrk/rp6502/syncfs.s:18
+    ria_execv.o               ../libwrk/rp6502/ria_execv.s:20
+    ria_execl.o               ../libwrk/rp6502/ria_execl.s:21
+    ria_attr.o                ../libwrk/rp6502/ria_attr.s:17
+    read_xstack.o             ../libwrk/rp6502/read_xstack.s:18
+    open.o                    ../libwrk/rp6502/open.s:21
+    localtime.o               rp6502/localtime.s:11
+    f_stat.o                  ../libwrk/rp6502/f_stat.s:19
+    f_readdir.o               ../libwrk/rp6502/f_readdir.s:17
+    f_opendir.o               ../libwrk/rp6502/f_opendir.s:19
+    f_mkdir.o                 ../libwrk/rp6502/f_mkdir.s:19
+    f_getcwd.o                ../libwrk/rp6502/f_getcwd.s:19
+    f_closedir.o              ../libwrk/rp6502/f_closedir.s:17
+    f_chmod.o                 ../libwrk/rp6502/f_chmod.s:19
+    f_chdrive.o               ../libwrk/rp6502/f_chdrive.s:19
+    close.o                   ../libwrk/rp6502/close.s:18
+_ria_call_long (ria.o):
+    ria_attr.o                ../libwrk/rp6502/ria_attr.s:18
+    lseek.o                   ../libwrk/rp6502/lseek.s:19
+    localtime.o               rp6502/localtime.s:11
+    clock.o                   ../libwrk/rp6502/clock.s:17
+_ria_execl (ria_execl.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:18
+_ria_execv (ria_execv.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:17
+_ria_pop_long (ria.o):
+    gettimespec.o             ../libwrk/rp6502/gettimespec.s:17
+_ria_push_int (ria.o):
+    ria_execv.o               ../libwrk/rp6502/ria_execv.s:19
+    ria_execl.o               ../libwrk/rp6502/ria_execl.s:20
+    read_xstack.o             ../libwrk/rp6502/read_xstack.s:16
+_ria_push_long (ria.o):
+    ria_attr.o                ../libwrk/rp6502/ria_attr.s:16
+    lseek.o                   ../libwrk/rp6502/lseek.s:17
+_ria_set_ax (ria.o):
+    gettime.o                 ../libwrk/rp6502/gettime.s:17
+    write_xstack.o            ../libwrk/rp6502/write_xstack.s:18
+    syncfs.o                  ../libwrk/rp6502/syncfs.s:17
+    read_xstack.o             ../libwrk/rp6502/read_xstack.s:17
+    open.o                    ../libwrk/rp6502/open.s:20
+    lseek.o                   ../libwrk/rp6502/lseek.s:18
+    f_readdir.o               ../libwrk/rp6502/f_readdir.s:16
+    f_closedir.o              ../libwrk/rp6502/f_closedir.s:16
+    close.o                   ../libwrk/rp6502/close.s:17
+_ria_set_axsreg (ria.o):
+    localtime.o               rp6502/localtime.s:11
+_sprintf (sprintf.o):
+    strftime.o                ../libwrk/rp6502/strftime.s:20
+_stdout (_file.o):
+    printf.o                  common/printf.s:8
+_strchr (strchr.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:36
+_strcmp (strcmp.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:37
+_strftime (strftime.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:45
+_strlen (strlen.o):
+    _printf.o                 common/_printf.s:13
+    sysrename.o               ../libwrk/rp6502/sysrename.s:21
+    sysremove.o               ../libwrk/rp6502/sysremove.s:19
+    syschdir.o                ../libwrk/rp6502/syschdir.s:21
+    strftime.o                ../libwrk/rp6502/strftime.s:18
+    ria_execv.o               ../libwrk/rp6502/ria_execv.s:23
+    ria_execl.o               ../libwrk/rp6502/ria_execl.s:24
+    open.o                    ../libwrk/rp6502/open.s:23
+    f_stat.o                  ../libwrk/rp6502/f_stat.s:22
+    f_opendir.o               ../libwrk/rp6502/f_opendir.s:22
+    f_mkdir.o                 ../libwrk/rp6502/f_mkdir.s:22
+    f_chmod.o                 ../libwrk/rp6502/f_chmod.s:22
+    f_chdrive.o               ../libwrk/rp6502/f_chdrive.s:22
+    shell.c.13436.0.o         shell.c.13436.0.s:38
+_strlower (strlower.o):
+    _printf.o                 common/_printf.s:13
+_strncmp (strncmp.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:39
+_strncpy (strncpy.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:40
+_strtoul (strtoul.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:35
+_syncfs (syncfs.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:50
+_time (time.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:46
+_ultoa (ltoa.o):
+    _printf.o                 common/_printf.s:12
+_unlink (unlink.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:51
+_vfprintf (vfprintf.o):
+    printf.o                  common/printf.s:8
+_vsprintf (vsprintf.o):
+    sprintf.o                 common/sprintf.s:8
+_write (write.o):
+    fwrite.o                  common/fwrite.s:10
+    shell.c.13436.0.o         shell.c.13436.0.s:47
+_write_xstack (write_xstack.o):
+    write.o                   ../libwrk/rp6502/write.s:17
+_xreg (xreg.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:15
+addeq0sp (addeqsp.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+addeqysp (addeqsp.o):
+    write.o                   ../libwrk/rp6502/write.s:124
+    strtoul.o                 ../libwrk/rp6502/strtoul.s:369
+    strftime.o                ../libwrk/rp6502/strftime.s:915
+    ria_execv.o               ../libwrk/rp6502/ria_execv.s:350
+    ria_execl.o               ../libwrk/rp6502/ria_execl.s:333
+    read_xstack.o             ../libwrk/rp6502/read_xstack.s:94
+    read.o                    ../libwrk/rp6502/read.s:116
+    f_stat.o                  ../libwrk/rp6502/f_stat.s:126
+    f_readdir.o               ../libwrk/rp6502/f_readdir.s:86
+    f_getcwd.o                ../libwrk/rp6502/f_getcwd.s:103
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+addysp (addysp.o):
+    sprintf.o                 common/sprintf.s:8
+    leave.o                   runtime/leave.s:14
+    incsp5.o                  runtime/incsp5.s:8
+    fwrite.o                  common/fwrite.s:11
+    xreg.o                    rp6502/xreg.s:9
+    write.o                   ../libwrk/rp6502/write.s:124
+    strtoul.o                 ../libwrk/rp6502/strtoul.s:369
+    ria_execv.o               ../libwrk/rp6502/ria_execv.s:350
+    read_xstack.o             ../libwrk/rp6502/read_xstack.s:94
+    read.o                    ../libwrk/rp6502/read.s:116
+    printf.o                  common/printf.s:8
+    incsp8.o                  runtime/incsp8.s:8
+    incsp6.o                  runtime/incsp6.s:8
+    incsp4.o                  runtime/incsp4.s:8
+    incsp3.o                  runtime/incsp3.s:8
+    f_stat.o                  ../libwrk/rp6502/f_stat.s:126
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+addysp1 (addysp.o):
+    lmul.o                    runtime/lmul.s:9
+    ladd.o                    runtime/ladd.s:8
+    sub.o                     runtime/sub.s:8
+    ludiv.o                   runtime/ludiv.s:9
+    lsub.o                    runtime/lsub.s:11
+aslax1 (aslax1.o):
+    strftime.o                ../libwrk/rp6502/strftime.s:915
+    ria_execv.o               ../libwrk/rp6502/ria_execv.s:350
+    ria_execl.o               ../libwrk/rp6502/ria_execl.s:333
+aslax3 (aslax3.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+axlong (axlong.o):
+    _printf.o                 common/_printf.s:11
+    strtoul.o                 ../libwrk/rp6502/strtoul.s:369
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+axulong (axlong.o):
+    _printf.o                 common/_printf.s:11
+    strtoul.o                 ../libwrk/rp6502/strtoul.s:369
+bnega (bneg.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+bnegax (bneg.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+booleq (makebool.o):
+    strftime.o                ../libwrk/rp6502/strftime.s:915
+    leq.o                     runtime/leq.s:8
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+boollt (makebool.o):
+    llt.o                     runtime/llt.s:8
+boolne (makebool.o):
+    lne.o                     runtime/lne.s:8
+booluge (makebool.o):
+    luge.o                    runtime/luge.s:8
+boolugt (makebool.o):
+    lugt.o                    runtime/lugt.s:8
+boolule (makebool.o):
+    lule.o                    runtime/lule.s:8
+boolult (makebool.o):
+    lult.o                    runtime/lult.s:8
+c_sp (zeropage.o):
+    vsnprintf.o               common/vsnprintf.s:11
+    sprintf.o                 common/sprintf.s:9
+    lmul.o                    runtime/lmul.s:10
+    leave.o                   runtime/leave.s:15
+    leaaxsp.o                 runtime/leaaxsp.s:8
+    ldptr1sp.o                runtime/ldptr1sp.s:8
+    lcmp.o                    runtime/lcmp.s:10
+    ladd.o                    runtime/ladd.s:9
+    gettimespec.o             ../libwrk/rp6502/gettimespec.s:10
+    gettime.o                 ../libwrk/rp6502/gettime.s:10
+    enter.o                   runtime/enter.s:8
+    _printf.o                 /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:11
+    _heap.o                   common/_heap.s:9
+    xreg.o                    rp6502/xreg.s:8
+    write_xstack.o            ../libwrk/rp6502/write_xstack.s:10
+    write.o                   ../libwrk/rp6502/write.s:10
+    vfprintf.o                common/vfprintf.s:11
+    sysrename.o               ../libwrk/rp6502/sysrename.s:10
+    sysremove.o               ../libwrk/rp6502/sysremove.s:10
+    syschdir.o                ../libwrk/rp6502/syschdir.s:10
+    subysp.o                  runtime/subysp.s:9
+    subeqsp.o                 runtime/subeqsp.s:8
+    sub.o                     runtime/sub.s:9
+    strtoul.o                 ../libwrk/rp6502/strtoul.s:10
+    strftime.o                ../libwrk/rp6502/strftime.s:10
+    steaxsp.o                 runtime/steaxsp.s:8
+    staxspi.o                 runtime/staxspi.s:10
+    staxsp.o                  runtime/staxsp.s:8
+    staspidx.o                runtime/staspidx.s:9
+    ria_execv.o               ../libwrk/rp6502/ria_execv.s:10
+    ria_execl.o               ../libwrk/rp6502/ria_execl.s:10
+    ria_attr.o                ../libwrk/rp6502/ria_attr.s:10
+    read_xstack.o             ../libwrk/rp6502/read_xstack.s:10
+    read.o                    ../libwrk/rp6502/read.s:10
+    pushwsp.o                 runtime/pushwsp.s:8
+    pushax.o                  runtime/pushax.s:8
+    pusha.o                   runtime/pusha.s:8
+    printf.o                  common/printf.s:9
+    popptr1.o                 runtime/popptr1.s:9
+    open.o                    ../libwrk/rp6502/open.s:10
+    memcpy.o                  common/memcpy.s:15
+    ludiv.o                   runtime/ludiv.s:10
+    lsubeqsp.o                runtime/lsubeqsp.s:8
+    lsub.o                    runtime/lsub.s:12
+    lseek.o                   ../libwrk/rp6502/lseek.s:10
+    lpush.o                   runtime/lpush.s:13
+    ldeaxysp.o                runtime/ldeaxysp.s:12
+    ldaxsp.o                  runtime/ldaxsp.s:8
+    laddeqsp.o                runtime/laddeqsp.s:8
+    incsp2.o                  runtime/incsp2.s:8
+    incsp1.o                  runtime/incsp1.s:8
+    icmp.o                    runtime/icmp.s:9
+    f_stat.o                  ../libwrk/rp6502/f_stat.s:10
+    f_readdir.o               ../libwrk/rp6502/f_readdir.s:10
+    f_opendir.o               ../libwrk/rp6502/f_opendir.s:10
+    f_mkdir.o                 ../libwrk/rp6502/f_mkdir.s:10
+    f_getcwd.o                ../libwrk/rp6502/f_getcwd.s:10
+    f_chmod.o                 ../libwrk/rp6502/f_chmod.s:10
+    f_chdrive.o               ../libwrk/rp6502/f_chdrive.s:10
+    decsp8.o                  runtime/decsp8.s:8
+    decsp6.o                  runtime/decsp6.s:8
+    decsp5.o                  runtime/decsp5.s:8
+    decsp4.o                  runtime/decsp4.s:8
+    decsp3.o                  runtime/decsp3.s:8
+    decsp2.o                  runtime/decsp2.s:8
+    decsp1.o                  runtime/decsp1.s:8
+    crt0.o                    /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:11
+    addysp.o                  runtime/addysp.s:8
+    addeqsp.o                 runtime/addeqsp.s:8
+    shell.c.13436.0.o         shell.c.13436.0.s:10
+callax (call.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+callmain (callmain.o):
+    crt0.o                    rp6502/crt0.s:7
+copydata (copydata.o):
+    crt0.o                    rp6502/crt0.s:12
+ctypemask (ctypemask.o):
+    isupper.o                 common/isupper.s:15
+    isspace.o                 common/isspace.s:15
+    islower.o                 common/islower.s:15
+    isdigit.o                 common/isdigit.s:15
+ctypemaskdirect (ctypemask.o):
+    strlower.o                common/strlower.s:14
+decax1 (decax1.o):
+    strftime.o                ../libwrk/rp6502/strftime.s:915
+    ria_execv.o               ../libwrk/rp6502/ria_execv.s:350
+    ria_execl.o               ../libwrk/rp6502/ria_execl.s:333
+    open.o                    ../libwrk/rp6502/open.s:105
+decaxy (decaxy.o):
+    strtoul.o                 ../libwrk/rp6502/strtoul.s:369
+deceaxy (ldec.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+decsp1 (decsp1.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+decsp2 (decsp2.o):
+    write_xstack.o            ../libwrk/rp6502/write_xstack.s:93
+    write.o                   ../libwrk/rp6502/write.s:124
+    sysremove.o               ../libwrk/rp6502/sysremove.s:82
+    f_chmod.o                 ../libwrk/rp6502/f_chmod.s:94
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+decsp3 (decsp3.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+decsp4 (decsp4.o):
+    sprintf.o                 common/sprintf.s:8
+    sysrename.o               ../libwrk/rp6502/sysrename.s:126
+    read_xstack.o             ../libwrk/rp6502/read_xstack.s:94
+    lpush.o                   runtime/lpush.s:12
+    f_stat.o                  ../libwrk/rp6502/f_stat.s:126
+    f_readdir.o               ../libwrk/rp6502/f_readdir.s:86
+    f_getcwd.o                ../libwrk/rp6502/f_getcwd.s:103
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+decsp5 (decsp5.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+decsp6 (decsp6.o):
+    _printf.o                 common/_printf.s:11
+    strtoul.o                 ../libwrk/rp6502/strtoul.s:369
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+decsp8 (decsp8.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+donelib (condes.o):
+    crt0.o                    rp6502/crt0.s:12
+enter (enter.o):
+    ria_execl.o               ../libwrk/rp6502/ria_execl.s:333
+    open.o                    ../libwrk/rp6502/open.s:105
+getlop (ludiv.o):
+    lumod.o                   runtime/lumod.s:9
+incax2 (incax2.o):
+    mainargs.o                rp6502/mainargs.s:8
+incax7 (incax7.o):
+    strftime.o                ../libwrk/rp6502/strftime.s:915
+incaxy (incaxy.o):
+    incax7.o                  runtime/incax7.s:8
+    strftime.o                ../libwrk/rp6502/strftime.s:915
+    ria_execv.o               ../libwrk/rp6502/ria_execv.s:350
+    ria_execl.o               ../libwrk/rp6502/ria_execl.s:333
+inceaxy (linc.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+incsp1 (incsp1.o):
+    ria_attr.o                ../libwrk/rp6502/ria_attr.s:80
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+incsp2 (incsp2.o):
+    vsnprintf.o               common/vsnprintf.s:9
+    write.o                   ../libwrk/rp6502/write.s:124
+    syncfs.o                  ../libwrk/rp6502/syncfs.s:47
+    staxspi.o                 runtime/staxspi.s:9
+    staspidx.o                runtime/staspidx.s:8
+    popptr1.o                 runtime/popptr1.s:8
+    f_closedir.o              ../libwrk/rp6502/f_closedir.s:46
+    close.o                   ../libwrk/rp6502/close.s:47
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+incsp3 (incsp3.o):
+    gettime.o                 ../libwrk/rp6502/gettime.s:51
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+incsp4 (incsp4.o):
+    lcmp.o                    runtime/lcmp.s:9
+    sysremove.o               ../libwrk/rp6502/sysremove.s:82
+    syschdir.o                ../libwrk/rp6502/syschdir.s:83
+    read.o                    ../libwrk/rp6502/read.s:116
+    f_opendir.o               ../libwrk/rp6502/f_opendir.s:83
+    f_mkdir.o                 ../libwrk/rp6502/f_mkdir.s:83
+    f_chdrive.o               ../libwrk/rp6502/f_chdrive.s:83
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+incsp5 (incsp5.o):
+    gettimespec.o             ../libwrk/rp6502/gettimespec.s:65
+    ria_attr.o                ../libwrk/rp6502/ria_attr.s:80
+incsp6 (incsp6.o):
+    vsnprintf.o               common/vsnprintf.s:9
+    fwrite.o                  common/fwrite.s:11
+    vfprintf.o                common/vfprintf.s:9
+    f_chmod.o                 ../libwrk/rp6502/f_chmod.s:94
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+incsp8 (incsp8.o):
+    write_xstack.o            ../libwrk/rp6502/write_xstack.s:93
+    sysrename.o               ../libwrk/rp6502/sysrename.s:126
+    strftime.o                ../libwrk/rp6502/strftime.s:915
+    read.o                    ../libwrk/rp6502/read.s:116
+    lseek.o                   ../libwrk/rp6502/lseek.s:58
+    f_readdir.o               ../libwrk/rp6502/f_readdir.s:86
+    f_getcwd.o                ../libwrk/rp6502/f_getcwd.s:103
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+initlib (condes.o):
+    crt0.o                    rp6502/crt0.s:12
+initmainargs (mainargs.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:14
+jmpvec (jmpvec.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+laddeq0sp (laddeqsp.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+laddeqysp (laddeqsp.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+ldax0sp (ldaxsp.o):
+    gettimespec.o             ../libwrk/rp6502/gettimespec.s:65
+    write.o                   ../libwrk/rp6502/write.s:124
+    syschdir.o                ../libwrk/rp6502/syschdir.s:83
+    syncfs.o                  ../libwrk/rp6502/syncfs.s:47
+    strftime.o                ../libwrk/rp6502/strftime.s:915
+    ria_execv.o               ../libwrk/rp6502/ria_execv.s:350
+    ria_execl.o               ../libwrk/rp6502/ria_execl.s:333
+    read_xstack.o             ../libwrk/rp6502/read_xstack.s:94
+    read.o                    ../libwrk/rp6502/read.s:116
+    open.o                    ../libwrk/rp6502/open.s:105
+    f_stat.o                  ../libwrk/rp6502/f_stat.s:126
+    f_readdir.o               ../libwrk/rp6502/f_readdir.s:86
+    f_opendir.o               ../libwrk/rp6502/f_opendir.s:83
+    f_mkdir.o                 ../libwrk/rp6502/f_mkdir.s:83
+    f_getcwd.o                ../libwrk/rp6502/f_getcwd.s:103
+    f_closedir.o              ../libwrk/rp6502/f_closedir.s:46
+    f_chdrive.o               ../libwrk/rp6502/f_chdrive.s:83
+    close.o                   ../libwrk/rp6502/close.s:47
+ldaxi (ldaxi.o):
+    strftime.o                ../libwrk/rp6502/strftime.s:915
+    ria_execv.o               ../libwrk/rp6502/ria_execv.s:350
+    ria_execl.o               ../libwrk/rp6502/ria_execl.s:333
+    open.o                    ../libwrk/rp6502/open.s:105
+ldaxidx (ldaxi.o):
+    strftime.o                ../libwrk/rp6502/strftime.s:915
+    ria_execl.o               ../libwrk/rp6502/ria_execl.s:333
+ldaxysp (ldaxsp.o):
+    vsnprintf.o               common/vsnprintf.s:9
+    fwrite.o                  common/fwrite.s:11
+    write_xstack.o            ../libwrk/rp6502/write_xstack.s:93
+    write.o                   ../libwrk/rp6502/write.s:124
+    sysrename.o               ../libwrk/rp6502/sysrename.s:126
+    sysremove.o               ../libwrk/rp6502/sysremove.s:82
+    strtoul.o                 ../libwrk/rp6502/strtoul.s:369
+    strftime.o                ../libwrk/rp6502/strftime.s:915
+    ria_execv.o               ../libwrk/rp6502/ria_execv.s:350
+    ria_execl.o               ../libwrk/rp6502/ria_execl.s:333
+    read_xstack.o             ../libwrk/rp6502/read_xstack.s:94
+    read.o                    ../libwrk/rp6502/read.s:116
+    lseek.o                   ../libwrk/rp6502/lseek.s:58
+    f_stat.o                  ../libwrk/rp6502/f_stat.s:126
+    f_readdir.o               ../libwrk/rp6502/f_readdir.s:86
+    f_getcwd.o                ../libwrk/rp6502/f_getcwd.s:103
+    f_chmod.o                 ../libwrk/rp6502/f_chmod.s:94
+ldeax0sp (ldeaxysp.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+ldeaxi (ldeaxi.o):
+    localtime.o               rp6502/localtime.s:10
+ldeaxysp (ldeaxysp.o):
+    strtoul.o                 ../libwrk/rp6502/strtoul.s:369
+    ria_attr.o                ../libwrk/rp6502/ria_attr.s:80
+    lseek.o                   ../libwrk/rp6502/lseek.s:58
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+ldptr1ysp (ldptr1sp.o):
+    strtoul.o                 ../libwrk/rp6502/strtoul.s:369
+    strftime.o                ../libwrk/rp6502/strftime.s:915
+leaa0sp (leaaxsp.o):
+    ria_execl.o               ../libwrk/rp6502/ria_execl.s:333
+    open.o                    ../libwrk/rp6502/open.s:105
+leaaxsp (leaaxsp.o):
+    ria_execv.o               ../libwrk/rp6502/ria_execv.s:350
+    ria_execl.o               ../libwrk/rp6502/ria_execl.s:333
+leavey (leave.o):
+    ria_execl.o               ../libwrk/rp6502/ria_execl.s:333
+    open.o                    ../libwrk/rp6502/open.s:105
+lsubeqysp (lsubeqsp.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+memcpy_getparams (memcpy.o):
+    memmove.o                 common/memmove.s:12
+memcpy_upwards (memcpy.o):
+    memmove.o                 common/memmove.s:12
+mul8x16 (mul8.o):
+    mul.o                     runtime/mul.s:8
+mul8x16a (mul8.o):
+    mul.o                     runtime/mul.s:8
+mulax10 (mulax10.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+negax (negabs.o):
+    divt.o                    common/divt.s:17
+    shelp.o                   runtime/shelp.s:11
+    mod.o                     runtime/mod.s:11
+    div.o                     runtime/div.s:11
+negeax (lneg.o):
+    ltoa.o                    common/ltoa.s:9
+    strtoul.o                 ../libwrk/rp6502/strtoul.s:369
+popax (incsp2.o):
+    vsnprintf.o               common/vsnprintf.s:9
+    ltoa.o                    common/ltoa.s:9
+    _printf.o                 common/_printf.s:11
+    strncpy.o                 common/strncpy.s:8
+    strncmp.o                 common/strncmp.s:8
+    strchr.o                  common/strchr.s:9
+    shelp.o                   runtime/shelp.s:11
+    memmove.o                 common/memmove.s:12
+    memcpy.o                  common/memcpy.s:14
+popptr1 (popptr1.o):
+    steaxspi.o                runtime/steaxspi.s:9
+    mul8.o                    runtime/mul8.s:9
+    mul.o                     runtime/mul.s:9
+    ltoa.o                    common/ltoa.s:9
+    umod.o                    runtime/umod.s:8
+    udiv.o                    runtime/udiv.s:9
+    strncpy.o                 common/strncpy.s:8
+    strncmp.o                 common/strncmp.s:8
+    strcmp.o                  common/strcmp.s:8
+    memcpy.o                  common/memcpy.s:14
+popsargsudiv16 (shelp.o):
+    mod.o                     runtime/mod.s:11
+    div.o                     runtime/div.s:11
+ptr1 (zeropage.o):
+    vsnprintf.o               common/vsnprintf.s:11
+    strlower.o                common/strlower.s:13
+    steaxspi.o                runtime/steaxspi.s:10
+    sprintf.o                 common/sprintf.s:9
+    pushw.o                   runtime/pushw.s:9
+    mul8.o                    runtime/mul8.s:10
+    mul.o                     runtime/mul.s:10
+    ltoa.o                    common/ltoa.s:11
+    lmul.o                    runtime/lmul.s:10
+    ldptr1sp.o                runtime/ldptr1sp.s:8
+    ldeaxi.o                  runtime/ldeaxi.s:8
+    ldaxi.o                   runtime/ldaxi.s:8
+    lcmp.o                    runtime/lcmp.s:10
+    fwrite.o                  common/fwrite.s:14
+    copydata.o                common/copydata.s:9
+    _time_t_to_tm.o           common/_time_t_to_tm.s:15
+    _printf.o                 /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:12
+    zerobss.o                 common/zerobss.s:9
+    write_xstack.o            ../libwrk/rp6502/write_xstack.s:11
+    vfprintf.o                common/vfprintf.s:11
+    udiv.o                    runtime/udiv.s:10
+    time.o                    common/time.s:10
+    sysrename.o               ../libwrk/rp6502/sysrename.s:11
+    sysremove.o               ../libwrk/rp6502/sysremove.s:11
+    syschdir.o                ../libwrk/rp6502/syschdir.s:11
+    strtoul.o                 ../libwrk/rp6502/strtoul.s:11
+    strncpy.o                 common/strncpy.s:9
+    strncmp.o                 common/strncmp.s:9
+    strftime.o                ../libwrk/rp6502/strftime.s:11
+    strcmp.o                  common/strcmp.s:9
+    strchr.o                  common/strchr.s:10
+    staxspi.o                 runtime/staxspi.s:10
+    staspidx.o                runtime/staspidx.s:9
+    shelp.o                   runtime/shelp.s:12
+    ria_execv.o               ../libwrk/rp6502/ria_execv.s:11
+    ria_execl.o               ../libwrk/rp6502/ria_execl.s:11
+    read_xstack.o             ../libwrk/rp6502/read_xstack.s:11
+    printf.o                  common/printf.s:9
+    popptr1.o                 runtime/popptr1.s:9
+    open.o                    ../libwrk/rp6502/open.s:11
+    mulax10.o                 runtime/mulax10.s:9
+    memmove.o                 common/memmove.s:13
+    memcpy.o                  common/memcpy.s:15
+    malloc.o                  common/malloc.s:108
+    mainargs.o                rp6502/mainargs.s:9
+    ludiv.o                   runtime/ludiv.s:10
+    localtime.o               rp6502/localtime.s:13
+    f_stat.o                  ../libwrk/rp6502/f_stat.s:11
+    f_readdir.o               ../libwrk/rp6502/f_readdir.s:11
+    f_opendir.o               ../libwrk/rp6502/f_opendir.s:11
+    f_mkdir.o                 ../libwrk/rp6502/f_mkdir.s:11
+    f_getcwd.o                ../libwrk/rp6502/f_getcwd.s:11
+    f_chmod.o                 ../libwrk/rp6502/f_chmod.s:11
+    f_chdrive.o               ../libwrk/rp6502/f_chdrive.s:11
+    div.o                     runtime/div.s:12
+    call.o                    runtime/call.s:8
+    shell.c.13436.0.o         shell.c.13436.0.s:11
+ptr2 (zeropage.o):
+    strlower.o                common/strlower.s:13
+    mktime.o                  common/mktime.s:15
+    ltoa.o                    common/ltoa.s:11
+    copydata.o                common/copydata.s:9
+    _time_t_to_tm.o           common/_time_t_to_tm.s:15
+    _printf.o                 /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:12
+    strncpy.o                 common/strncpy.s:9
+    strncmp.o                 common/strncmp.s:9
+    strcmp.o                  common/strcmp.s:9
+    memmove.o                 common/memmove.s:13
+    memcpy.o                  common/memcpy.s:15
+    malloc.o                  common/malloc.s:108
+    mainargs.o                rp6502/mainargs.s:9
+    lumod.o                   runtime/lumod.s:10
+    ludiv.o                   runtime/ludiv.s:10
+    shell.c.13436.0.o         shell.c.13436.0.s:11
+ptr3 (zeropage.o):
+    ltoa.o                    common/ltoa.s:11
+    lmul.o                    runtime/lmul.s:10
+    _time_t_to_tm.o           common/_time_t_to_tm.s:15
+    strncmp.o                 common/strncmp.s:9
+    memmove.o                 common/memmove.s:13
+    memcpy.o                  common/memcpy.s:15
+    malloc.o                  common/malloc.s:108
+    ludiv.o                   runtime/ludiv.s:10
+ptr4 (zeropage.o):
+    mul8.o                    runtime/mul8.s:10
+    mul.o                     runtime/mul.s:10
+    lmul.o                    runtime/lmul.s:10
+    _time_t_to_tm.o           common/_time_t_to_tm.s:15
+    umod.o                    runtime/umod.s:9
+    udiv.o                    runtime/udiv.s:10
+    strlen.o                  common/strlen.s:12
+    shelp.o                   runtime/shelp.s:12
+    ludiv.o                   runtime/ludiv.s:10
+    linc.o                    runtime/linc.s:8
+push0 (pushax.o):
+    write.o                   ../libwrk/rp6502/write.s:124
+    strtoul.o                 ../libwrk/rp6502/strtoul.s:369
+    read.o                    ../libwrk/rp6502/read.s:116
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+push0ax (lpush.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+push1 (push1.o):
+    _printf.o                 common/_printf.s:11
+    vfprintf.o                common/vfprintf.s:9
+pusha (pusha.o):
+    gettimespec.o             ../libwrk/rp6502/gettimespec.s:65
+    time.o                    common/time.s:9
+    strtoul.o                 ../libwrk/rp6502/strtoul.s:369
+    ria_attr.o                ../libwrk/rp6502/ria_attr.s:80
+    ria_attr.o                ../libwrk/rp6502/ria_attr.s:80
+    f_chmod.o                 ../libwrk/rp6502/f_chmod.s:94
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+pusha0 (pushax.o):
+    push1.o                   runtime/push1.s:8
+    mktime.o                  common/mktime.s:13
+    fwrite.o                  common/fwrite.s:11
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+pushax (pushax.o):
+    pushw.o                   runtime/pushw.s:8
+    mktime.o                  common/mktime.s:13
+    gettimespec.o             ../libwrk/rp6502/gettimespec.s:65
+    gettime.o                 ../libwrk/rp6502/gettime.s:51
+    fwrite.o                  common/fwrite.s:11
+    callmain.o                runtime/callmain.s:11
+    _printf.o                 common/_printf.s:11
+    write_xstack.o            ../libwrk/rp6502/write_xstack.s:93
+    write.o                   ../libwrk/rp6502/write.s:124
+    sysrename.o               ../libwrk/rp6502/sysrename.s:126
+    sysremove.o               ../libwrk/rp6502/sysremove.s:82
+    syschdir.o                ../libwrk/rp6502/syschdir.s:83
+    syncfs.o                  ../libwrk/rp6502/syncfs.s:47
+    strtoul.o                 ../libwrk/rp6502/strtoul.s:369
+    strftime.o                ../libwrk/rp6502/strftime.s:915
+    ria_execv.o               ../libwrk/rp6502/ria_execv.s:350
+    ria_execl.o               ../libwrk/rp6502/ria_execl.s:333
+    read_xstack.o             ../libwrk/rp6502/read_xstack.s:94
+    read.o                    ../libwrk/rp6502/read.s:116
+    printf.o                  common/printf.s:8
+    open.o                    ../libwrk/rp6502/open.s:105
+    lseek.o                   ../libwrk/rp6502/lseek.s:58
+    f_stat.o                  ../libwrk/rp6502/f_stat.s:126
+    f_readdir.o               ../libwrk/rp6502/f_readdir.s:86
+    f_opendir.o               ../libwrk/rp6502/f_opendir.s:83
+    f_mkdir.o                 ../libwrk/rp6502/f_mkdir.s:83
+    f_getcwd.o                ../libwrk/rp6502/f_getcwd.s:103
+    f_closedir.o              ../libwrk/rp6502/f_closedir.s:46
+    f_chdrive.o               ../libwrk/rp6502/f_chdrive.s:83
+    close.o                   ../libwrk/rp6502/close.s:47
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+pusheax (lpush.o):
+    mktime.o                  common/mktime.s:13
+    _printf.o                 common/_printf.s:11
+    strtoul.o                 ../libwrk/rp6502/strtoul.s:369
+    localtime.o               rp6502/localtime.s:10
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+pushl0 (lpush.o):
+    strtoul.o                 ../libwrk/rp6502/strtoul.s:369
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+pushw (pushw.o):
+    strftime.o                ../libwrk/rp6502/strftime.s:915
+pushw0sp (pushwsp.o):
+    vsprintf.o                common/vsprintf.s:8
+    gettime.o                 ../libwrk/rp6502/gettime.s:51
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+pushwidx (pushw.o):
+    strftime.o                ../libwrk/rp6502/strftime.s:915
+pushwysp (pushwsp.o):
+    gettimespec.o             ../libwrk/rp6502/gettimespec.s:65
+    fwrite.o                  common/fwrite.s:11
+    write.o                   ../libwrk/rp6502/write.s:124
+    vfprintf.o                common/vfprintf.s:9
+    strftime.o                ../libwrk/rp6502/strftime.s:915
+    read.o                    ../libwrk/rp6502/read.s:116
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+regbank (zeropage.o):
+    _printf.o                 /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:14
+    strtoul.o                 ../libwrk/rp6502/strtoul.s:10
+shlax1 (aslax1.o):
+    ria_execv.o               ../libwrk/rp6502/ria_execv.s:350
+    ria_execl.o               ../libwrk/rp6502/ria_execl.s:333
+shrax1 (shrax1.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+shrax2 (shrax2.o):
+    mktime.o                  common/mktime.s:14
+shrax4 (shrax4.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+shreax4 (shreax4.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+sreg (zeropage.o):
+    divt.o                    common/divt.s:18
+    steaxspi.o                runtime/steaxspi.s:10
+    mktime.o                  common/mktime.s:15
+    ltoa.o                    common/ltoa.s:11
+    lneg.o                    runtime/lneg.s:11
+    lmul.o                    runtime/lmul.s:10
+    ldeaxi.o                  runtime/ldeaxi.s:8
+    lcmp.o                    runtime/lcmp.s:10
+    ladd.o                    runtime/ladd.s:9
+    _time_t_to_tm.o           common/_time_t_to_tm.s:15
+    _printf.o                 /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:11
+    umod.o                    runtime/umod.s:9
+    udiv.o                    runtime/udiv.s:10
+    time.o                    common/time.s:10
+    strtoul.o                 ../libwrk/rp6502/strtoul.s:10
+    steaxsp.o                 runtime/steaxsp.s:8
+    shreax4.o                 runtime/shreax4.s:8
+    ria_execv.o               ../libwrk/rp6502/ria_execv.s:10
+    ria.o                     rp6502/ria.s:13
+    mod.o                     runtime/mod.s:12
+    lumod.o                   runtime/lumod.s:10
+    ludiv.o                   runtime/ludiv.s:10
+    ltest.o                   runtime/ltest.s:8
+    lsubeqsp.o                runtime/lsubeqsp.s:8
+    lsub.o                    runtime/lsub.s:12
+    lpush.o                   runtime/lpush.s:13
+    linc.o                    runtime/linc.s:8
+    ldec.o                    runtime/ldec.s:9
+    ldeaxysp.o                runtime/ldeaxysp.s:12
+    laddeqsp.o                runtime/laddeqsp.s:8
+    icmp.o                    runtime/icmp.s:9
+    axlong.o                  runtime/axlong.s:9
+    shell.c.13436.0.o         shell.c.13436.0.s:10
+staspidx (staspidx.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+stax0sp (staxsp.o):
+    write_xstack.o            ../libwrk/rp6502/write_xstack.s:93
+    sysrename.o               ../libwrk/rp6502/sysrename.s:126
+    sysremove.o               ../libwrk/rp6502/sysremove.s:82
+    ria_execv.o               ../libwrk/rp6502/ria_execv.s:350
+    ria_execl.o               ../libwrk/rp6502/ria_execl.s:333
+    read_xstack.o             ../libwrk/rp6502/read_xstack.s:94
+    f_readdir.o               ../libwrk/rp6502/f_readdir.s:86
+    f_getcwd.o                ../libwrk/rp6502/f_getcwd.s:103
+    f_chmod.o                 ../libwrk/rp6502/f_chmod.s:94
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+staxspidx (staxspi.o):
+    ria_execv.o               ../libwrk/rp6502/ria_execv.s:350
+    ria_execl.o               ../libwrk/rp6502/ria_execl.s:333
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+staxysp (staxsp.o):
+    vsprintf.o                common/vsprintf.s:8
+    write.o                   ../libwrk/rp6502/write.s:124
+    sysrename.o               ../libwrk/rp6502/sysrename.s:126
+    strtoul.o                 ../libwrk/rp6502/strtoul.s:369
+    ria_execv.o               ../libwrk/rp6502/ria_execv.s:350
+    ria_execl.o               ../libwrk/rp6502/ria_execl.s:333
+    read_xstack.o             ../libwrk/rp6502/read_xstack.s:94
+    f_stat.o                  ../libwrk/rp6502/f_stat.s:126
+    f_readdir.o               ../libwrk/rp6502/f_readdir.s:86
+    f_getcwd.o                ../libwrk/rp6502/f_getcwd.s:103
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+steax0sp (steaxsp.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+steaxspidx (steaxspi.o):
+    gettimespec.o             ../libwrk/rp6502/gettimespec.s:65
+steaxysp (steaxsp.o):
+    strtoul.o                 ../libwrk/rp6502/strtoul.s:369
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+subeq0sp (subeqsp.o):
+    write_xstack.o            ../libwrk/rp6502/write_xstack.s:93
+    sysrename.o               ../libwrk/rp6502/sysrename.s:126
+    sysremove.o               ../libwrk/rp6502/sysremove.s:82
+    syschdir.o                ../libwrk/rp6502/syschdir.s:83
+    ria_execv.o               ../libwrk/rp6502/ria_execv.s:350
+    open.o                    ../libwrk/rp6502/open.s:105
+    f_stat.o                  ../libwrk/rp6502/f_stat.s:126
+    f_opendir.o               ../libwrk/rp6502/f_opendir.s:83
+    f_mkdir.o                 ../libwrk/rp6502/f_mkdir.s:83
+    f_chmod.o                 ../libwrk/rp6502/f_chmod.s:94
+    f_chdrive.o               ../libwrk/rp6502/f_chdrive.s:83
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+subeqysp (subeqsp.o):
+    write.o                   ../libwrk/rp6502/write.s:124
+    sysrename.o               ../libwrk/rp6502/sysrename.s:126
+    ria_execv.o               ../libwrk/rp6502/ria_execv.s:350
+    ria_execl.o               ../libwrk/rp6502/ria_execl.s:333
+    read.o                    ../libwrk/rp6502/read.s:116
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+subysp (subysp.o):
+    ria_execv.o               ../libwrk/rp6502/ria_execv.s:350
+    ria_execl.o               ../libwrk/rp6502/ria_execl.s:333
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+tmp1 (zeropage.o):
+    divt.o                    common/divt.s:18
+    steaxspi.o                runtime/steaxspi.s:10
+    shrax2.o                  runtime/shrax2.s:8
+    mul.o                     runtime/mul.s:10
+    ltoa.o                    common/ltoa.s:11
+    ladd.o                    runtime/ladd.s:9
+    incaxy.o                  runtime/incaxy.s:8
+    decaxy.o                  runtime/decaxy.s:8
+    copydata.o                common/copydata.s:9
+    aslax1.o                  runtime/aslax1.s:8
+    _printf.o                 /home/wojciech/git/WojciechGw/cc65/asminc/zeropage.inc:13
+    strtoul.o                 ../libwrk/rp6502/strtoul.s:11
+    strncpy.o                 common/strncpy.s:9
+    strchr.o                  common/strchr.s:10
+    staxspi.o                 runtime/staxspi.s:10
+    staspidx.o                runtime/staspidx.s:9
+    shreax4.o                 runtime/shreax4.s:8
+    shrax4.o                  runtime/shrax4.s:8
+    shrax1.o                  runtime/shrax1.s:8
+    shelp.o                   runtime/shelp.s:12
+    mod.o                     runtime/mod.s:12
+    ltest.o                   runtime/ltest.s:8
+    ldec.o                    runtime/ldec.s:9
+    div.o                     runtime/div.s:12
+    aslax3.o                  runtime/aslax3.s:8
+    shell.c.13436.0.o         shell.c.13436.0.s:11
+tmp2 (zeropage.o):
+    steaxspi.o                runtime/steaxspi.s:10
+    lmul.o                    runtime/lmul.s:10
+    strncpy.o                 common/strncpy.s:9
+    shelp.o                   runtime/shelp.s:12
+    div.o                     runtime/div.s:12
+tmp3 (zeropage.o):
+    steaxspi.o                runtime/steaxspi.s:10
+    mktime.o                  common/mktime.s:15
+    lmul.o                    runtime/lmul.s:10
+    _time_t_to_tm.o           common/_time_t_to_tm.s:15
+    strncpy.o                 common/strncpy.s:9
+    lumod.o                   runtime/lumod.s:10
+    ludiv.o                   runtime/ludiv.s:10
+tmp4 (zeropage.o):
+    lmul.o                    runtime/lmul.s:10
+    lumod.o                   runtime/lumod.s:10
+    ludiv.o                   runtime/ludiv.s:10
+tosaddeax (ladd.o):
+    mktime.o                  common/mktime.s:14
+    strtoul.o                 ../libwrk/rp6502/strtoul.s:369
+    localtime.o               rp6502/localtime.s:10
+tosdiva0 (div.o):
+    strftime.o                ../libwrk/rp6502/strftime.s:915
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+tosdivax (div.o):
+    divt.o                    common/divt.s:17
+toseqeax (leq.o):
+    strtoul.o                 ../libwrk/rp6502/strtoul.s:369
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+tosicmp (icmp.o):
+    f_getcwd.o                ../libwrk/rp6502/f_getcwd.s:103
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+toslcmp (lcmp.o):
+    lult.o                    runtime/lult.s:8
+    lule.o                    runtime/lule.s:8
+    lugt.o                    runtime/lugt.s:8
+    luge.o                    runtime/luge.s:8
+    lne.o                     runtime/lne.s:8
+    llt.o                     runtime/llt.s:8
+    leq.o                     runtime/leq.s:8
+toslteax (llt.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+tosmoda0 (mod.o):
+    strftime.o                ../libwrk/rp6502/strftime.s:915
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+tosneeax (lne.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+tossubax (sub.o):
+    strftime.o                ../libwrk/rp6502/strftime.s:915
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+tossubeax (lsub.o):
+    mktime.o                  common/mktime.s:14
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+tosudiv0ax (ludiv.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+tosudiva0 (udiv.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+tosudivax (udiv.o):
+    fwrite.o                  common/fwrite.s:12
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+tosudiveax (ludiv.o):
+    strtoul.o                 ../libwrk/rp6502/strtoul.s:369
+tosugeeax (luge.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+tosugteax (lugt.o):
+    strtoul.o                 ../libwrk/rp6502/strtoul.s:369
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+tosuleeax (lule.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+tosulteax (lult.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+tosumod0ax (lumod.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+tosumoda0 (umod.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+tosumodax (umod.o):
+    mktime.o                  common/mktime.s:14
+tosumodeax (lumod.o):
+    strtoul.o                 ../libwrk/rp6502/strtoul.s:369
+tosumulax (mul.o):
+    mktime.o                  common/mktime.s:14
+    fwrite.o                  common/fwrite.s:12
+tosumuleax (lmul.o):
+    mktime.o                  common/mktime.s:14
+    strtoul.o                 ../libwrk/rp6502/strtoul.s:369
+udiv16 (udiv.o):
+    umod.o                    runtime/umod.s:8
+    shelp.o                   runtime/shelp.s:11
+udiv32 (ludiv.o):
+    _time_t_to_tm.o           common/_time_t_to_tm.s:14
+    lumod.o                   runtime/lumod.s:9
+utsteax (ltest.o):
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+    shell.c.13436.0.o         shell.c.13436.0.s:11960
+vsnprintf (vsnprintf.o):
+    vsprintf.o                common/vsprintf.s:9
+zerobss (zerobss.o):
+    crt0.o                    rp6502/crt0.s:12
+
