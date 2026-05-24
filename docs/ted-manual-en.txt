@@ -1,10 +1,11 @@
 ================================================================================
-  TEd - Text Editor
-  for Picocomputer 6502 (RP6502)
+  TEd - Text Editor Manual
+  for the Rumbledethumps' Picocomputer 6502 (RP6502)
 ================================================================================
 
   TABLE OF CONTENTS
 
+   PREFACE
    1. Invocation
    2. Interface Layout
    3. Navigation
@@ -22,32 +23,32 @@
   15. Limits
 
 --------------------------------------------------------------------------------
+PREFACE
 
-TEd is a full-screen text editor running on the Picocomputer 6502.
-It operates on a 30x80 character terminal (640x480, 8x16px font).
+TEd is a full-screen text files editor for the Picocomputer 6502.
+It runs on an 80x30 character terminal with an 8x16 px font.
+The maximum document size is 512 lines.
 
 --------------------------------------------------------------------------------
 1. INVOCATION
 --------------------------------------------------------------------------------
 
-  ted [/sample | /manual | filename] [/view]
+  ted [/sample | /manual | [path]filename] [/view]
 
   Parameters:
-    /view      - open file in read-only view mode (editing disabled)
-    /manual    - load TEd manual
-    /sample    - load sample text at startup
-    filename   - file to open at startup (optional)
-                 If omitted, a new document named "TEd-NewDocument.txt"
-                 is created.
+    /view            - open file in read-only view mode (editing disabled)
+    /manual          - load TEd manual (also Ctrl+O ROM:manual)
+    /sample          - load sample text at startup (also Ctrl+O ROM:sample)
+    [path]filename   - file to open at startup (optional)
+                     If omitted, a new document named "TEd-NewDocument.txt"
+                     is created.
 
   Examples:
-    ted                          (new document)
-    ted MSC0:/notes.txt          (open existing file or create new)
-    ted /view MSC0:/readme.txt   (open in read-only view mode)
-    ted /manual                  (open with TEd's manual)
-    ted /sample                  (new document pre-filled with sample text)
-
-  On startup a splash screen is shown briefly.
+    ted                          new document
+    ted MSC0:/notes.txt          open existing file or create new
+    ted MSC0:/readme.txt /view   open in read-only view mode
+    ted /manual                  open with TEd's manual (this document)
+    ted /sample                  open with sample text for testing purposes
 
 --------------------------------------------------------------------------------
 2. INTERFACE LAYOUT
@@ -55,8 +56,8 @@ It operates on a 30x80 character terminal (640x480, 8x16px font).
 
   Row  1-2  : Title bar - application name and open filename
   Row  3-28 : Edit area - 26 visible rows of text (scrollable)
-  Row 29    : Separator line (marked every 10 columns)
-  Row 30    : Status bar - message, cursor position, mode indicators
+  Row 29    : Separator line (marked every 8 columns at standard TAB stops)
+  Row 30    : Status bar - status messages, cursor position, mode indicators
 
   Title bar:
     Left side  - application name and description
@@ -65,15 +66,13 @@ It operates on a 30x80 character terminal (640x480, 8x16px font).
 
   Status bar indicators (right side of row 30):
 
-    [VIEW]   Read-only view mode is active. Editing is disabled.
-    [INS]    Current mode is Insert (default).
-             New characters shift existing text to the right.
-    [OVR]    Current mode is Overwrite.
-             New characters replace existing text in place.
-    [A]|[a]  Capslock state.
-    [CLIP]   Clipboard contains data ready to paste.
-    Ln N of NN, Col N
-             Current cursor position.
+    [VIEW]              Read-only view mode is active. Editing is disabled.
+    [INS]|[OVR]         Shows current mode ([INS] as default).
+                        INS - new characters shift existing text to the right.
+                        OVR - new characters replace existing text in place.
+    [A]|[a]             CapsLock state.
+    [CLIP]              Clipboard contains data ready to paste.
+    Ln N of NN, Col N   Current cursor position.
 
   The edit area scrolls vertically when the cursor moves outside the
   visible 26-row window.
@@ -86,12 +85,13 @@ It operates on a 30x80 character terminal (640x480, 8x16px font).
   Key                    Action
   ---------------------  -------------------------------------------------------
   Left / Right           Move cursor one character left / right.
-                         At line start/end, wraps to the previous/next line.
+                         At line start / end, wraps to the previous/next line.
   Up / Down              Move cursor one line up / down
   Home                   Move to start of current line (column 1)
   End                    Move to end of text on current line
   Page Up                Scroll up 26 rows
   Page Down              Scroll down 26 rows
+  Ctrl+Left / Right      Move cursor one word left / right.
   Ctrl+Shift+Home        Jump to start of document (row 1, column 1)
   Ctrl+Shift+End         Jump to end of document (last row, last column)
   Mouse wheel up         Scroll view up
@@ -107,7 +107,8 @@ It operates on a 30x80 character terminal (640x480, 8x16px font).
   Key                    Action
   ---------------------  -------------------------------------------------------
   Printable character    Insert character at cursor (INS) or overwrite (OVR)
-  Tab                    Insert spaces to the next tab stop (every 8 columns)
+  Tab                    Insert spaces to the next tab stop 
+                         (default every 8 columns)
   Shift+Tab              Remove spaces back to the previous tab stop
   Insert / Alt+I         Toggle between Insert and Overwrite modes
   F4                     Toggle between Edit and View (read-only) mode
@@ -119,14 +120,10 @@ It operates on a 30x80 character terminal (640x480, 8x16px font).
                          current line with the line below.
                          If a selection is active, Delete removes the selected
                          text without affecting the clipboard.
-  Ctrl+N                 New document - clears the editor and starts a fresh
-                         document named "TEd-NewDocument.txt". If the current
-                         document has unsaved changes a Save prompt appears.
-                         Pressing Esc at the prompt returns to the document.
 
   Auto-wrap: when text reaches column 80 while typing, the next character
   continues on a new line. Wrap only occurs when the document has fewer
-  than 256 rows.
+  than 512 rows.
 
   All editing keys are disabled in View mode.
 
@@ -216,6 +213,10 @@ It operates on a 30x80 character terminal (640x480, 8x16px font).
 
   Key                    Action
   ---------------------  -------------------------------------------------------
+  Ctrl+N                 New document - clears the editor and starts a fresh
+                         document named "TEd-NewDocument.txt". If the current
+                         document has unsaved changes a Save prompt appears.
+                         Pressing Esc at the prompt returns to the document.
   Ctrl+O                 Open a file
   Ctrl+S                 Save the current document
   Ctrl+Shift+S           Save As - always prompts for a filename
@@ -254,8 +255,7 @@ It operates on a 30x80 character terminal (640x480, 8x16px font).
       N   - exits without saving
       Esc - returns to the document
 
-  File paths use the razemOS filesystem notation, e.g.:
-    MSC0:/documents/notes.txt
+  File paths use a RP6502 filesystem notation, e.g.: MSC0:/documents/notes.txt
 
 --------------------------------------------------------------------------------
 9. TEXT FORMATTING
@@ -315,7 +315,7 @@ It operates on a 30x80 character terminal (640x480, 8x16px font).
   Key                    Action
   ---------------------  -------------------------------------------------------
   Ctrl+Shift+T           Insert timestamp (date and time) at cursor position
-  Alt+P                  Insert paragraph (section) sign at cursor position
+  Ctrl+Shift+P           Insert paragraph (section) sign at cursor position
 
   Ctrl+Shift+T inserts a 16-character timestamp in the format:
   YYYY-MM-DD HH:MM 
@@ -323,7 +323,7 @@ It operates on a 30x80 character terminal (640x480, 8x16px font).
   Insert / Overwrite mode. The document is marked as modified.
   The timestamp depends on system RTC.
 
-  Alt+P inserts the ? (paragraph/section) character (CP852 code 0x15)
+  Ctrl+Shift+P inserts the ? (paragraph/section) character (CP852 code 0x15)
   at the cursor position, also respecting Insert / Overwrite mode.
 
   Both keys are disabled in View mode.
@@ -383,16 +383,23 @@ It operates on a 30x80 character terminal (640x480, 8x16px font).
   
 
 --------------------------------------------------------------------------------
-15. LIMITS
+15. LIMITS & XRAM MEMORY USAGE
 --------------------------------------------------------------------------------
 
-  Maximum document rows     : 512
-  Maximum columns per row   : 80
-  Maximum filename length   : 64 characters
-  Clipboard capacity        : 32 lines
-  Find/Replace pattern length: 25 characters
-  Undo snapshots            : 255 (TMP/undo_NNN.tmp, approx. 20 KB each)
-  XRAM text buffer          : 0x0000 - 0x4FFF  (20480 bytes)
-  XRAM clipboard buffer     : 0xE3EE - 0xEDED  ( 2560 bytes)
+  Maximum document rows       : 512
+  Maximum columns per row     : 80
+  Maximum filename length     : 64 characters
+  Clipboard capacity          : 32 lines
+  Find/Replace pattern length : 25 characters
+  Undo snapshots              : 255 (TMP/undo_NNN.tmp, approx. 41 KB each)
+  XRAM memory map:
+    0x0000 - 0x9FFF   text buffer       512 rows x 80 cols  (40960 bytes)
+    0xA000 - 0xE3ED   free                                  (17390 bytes)
+    0xE3EE - 0xEDED   clipboard buffer   32 rows x 80 cols  ( 2560 bytes)
+    0xEDEE - 0xF60D   screen cache       26 rows x 80 cols  ( 2080 bytes)
+    0xF60E - 0xF65F   scratch buffer     file I/O staging   (   82 bytes)
+    0xF660 - 0xFFBF   area/window buf    popup save/restore ( 2400 bytes)
+    0xFFC0 - 0xFFDF   mouse input        system mouse state (   32 bytes)
+    0xFFE0 - 0xFFFF   keyboard input     key bitfield       (   32 bytes)
 
 ================================================================================

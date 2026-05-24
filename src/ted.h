@@ -11,8 +11,8 @@
 /* ------------------------------------------------------------------ */
 /* XRAM layout
  *
- *  0x0000  TEXT_BUF_BASE      256 rows x 80 cols =  20480 B  (0x0000-0x4FFF)
- *  [ free: 0x5000-0xE3ED  ~58 KB ]
+ *  0x0000  TEXT_BUF_BASE      512 rows x 80 cols =  40960 B  (0x0000-0x9FFF)
+ *  [ free: 0xA000-0xE3ED  ~17 KB ]
  *  0xE3EE  CLIP_BUF_BASE       32 rows x 80 cols =   2560 B  (0xE3EE-0xEDED)
  *  0xEDEE  SCREEN_CACHE_BASE   26 rows x 80 cols =   2080 B  (0xEDEE-0xF60D)
  *  0xF60E  XRAM_SCRATCH        file-write scratch =    82 B  (0xF60E-0xF65F)
@@ -33,7 +33,7 @@
 #include <unistd.h>
 
 /* --- app identity --- */
-#define APPVER         "20260524.0500"
+#define APPVER         "20260524.1200"
 #define APPNAME        "TEd"
 #define APPDESCRPTION1 "Text Editor"
 #define APPDESCRPTION2 "for Picocomputer 6502"
@@ -47,7 +47,8 @@
 
 #define TEXT_BUF_BASE      0x0000u
 #define TEXT_COLS          80u
-#define TEXT_ROWS          256u
+#define TEXT_ROWS          512u
+#define TEXT_BUF_END       ((TEXT_COLS * TEXT_ROWS)-1)
 
 #define CLIP_MAX_LINES     32u
 #define CLIP_BUF_BASE      0xE3EEu
@@ -152,7 +153,10 @@ uint8_t keystates[KEYBOARD_BYTES] = {0};
 #define CHAR_SI 0x0F    /* Shift In   - wybierz G0 */
 #define DECSC ESC "7"
 #define DECRC ESC "8"
-#define ALTSCREEN_ENTER CSI "?1049h" CSI "?25l" CSI "0m" DECSCUSR_BAR CSI_ECHO_OFF OSC_DEFAULT_COLORBG "101010" OSC_ST ESC "(\xB" ESC ")0"
+#define TERMINAL_MOTIVE_LIGHT OSC_DEFAULT_COLORFG "000000" OSC_DEFAULT_COLORBG "F0F0F0"
+#define TERMINAL_MOTIVE_DARK OSC_DEFAULT_COLORFG "FFFFFF" OSC_DEFAULT_COLORBG "101010"
+#define TERMINAL_MOTIVE TERMINAL_MOTIVE_LIGHT
+#define ALTSCREEN_ENTER CSI "?1049h" CSI "?25l" CSI "0m" DECSCUSR_BAR CSI_ECHO_OFF TERMINAL_MOTIVE OSC_ST ESC "(\xB" ESC ")0"
 #define ALTSCREEN_LEAVE CSI "0m" CSI "?25h" CSI_ECHO_ON CSI "?1049l"
 
 /* ================================================================

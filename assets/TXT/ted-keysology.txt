@@ -1,0 +1,28 @@
+27
+Ctrl+N           new document
+Ctrl+O           open
+Ctrl+S           save
+Ctrl+Shift+S     save as
+Ctrl+F           find text
+Ctrl+H           replace text
+Ctrl+Z           undo to snapshot
+Ctrl+Y           redo
+Ins/Alt+I        toggle INS/OVR
+Tab/Shift+Tab    next/prev tab
+Ctrl+Shift+Home  jump to begin
+Ctrl+Shift+End   jump to end
+Shift+Left/Right select char
+Shift+Up/Down    select line
+Ctrl+Shift+L/R   select word
+Ctrl+C/X/V       copy/cut/paste
+Ctrl+Shift+C     center line
+Ctrl+Shift+R     align to right
+Ctrl+Shift+L     align to left
+Ctrl+Shift+Alt+L lists mode
+Ctrl+Shift+T     insert timestamp
+Ctrl+Shift+P     section sign \x15
+F1               Keysology
+F2               ASCII table
+F3               snapshot
+F4               toggle EDIT/VIEW
+Ctrl+Q           quit
