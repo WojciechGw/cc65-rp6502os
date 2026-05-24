@@ -1,8 +1,9 @@
-27
+28
 Ctrl+N           new document
 Ctrl+O           open
 Ctrl+S           save
 Ctrl+Shift+S     save as
+Ctrl+W           close document
 Ctrl+F           find text
 Ctrl+H           replace text
 Ctrl+Z           undo to snapshot

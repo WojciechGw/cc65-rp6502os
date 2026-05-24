@@ -1900,7 +1900,7 @@ int main(int argc, char **argv)
                         }
                     }
 
-                } else if (key_ctrl && key(KEY_N)) {
+                } else if (key_ctrl && (key(KEY_N) || key(KEY_W))) {
                     repeat_key = 0u;
                     if (!view_mode) {
                         if (doc_dirty) {

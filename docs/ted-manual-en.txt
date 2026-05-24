@@ -217,10 +217,11 @@ The maximum document size is 512 lines.
                          document named "TEd-NewDocument.txt". If the current
                          document has unsaved changes a Save prompt appears.
                          Pressing Esc at the prompt returns to the document.
-  Ctrl+O                 Open a file
-  Ctrl+S                 Save the current document
-  Ctrl+Shift+S           Save As - always prompts for a filename
-  Ctrl+Q                 Exit the editor
+  Ctrl+O                 Open a file.
+  Ctrl+S                 Save the current document.
+  Ctrl+Shift+S           Save As - always prompts for a filename.
+  Ctrl+W                 Close document.
+  Ctrl+Q                 Exit the editor.
 
   Open (Ctrl+O):
     If the current document has unsaved changes, a prompt appears:
