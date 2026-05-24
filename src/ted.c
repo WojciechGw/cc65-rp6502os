@@ -2100,7 +2100,7 @@ int main(int argc, char **argv)
                             if (lim > TEXT_COLS - 1u) lim = TEXT_COLS - 1u;
                             if (cur.col < lim) {
                                 cur.col++;
-                            } else if ((uint16_t)cur.row < content_rows) {
+                            } else if (content_rows > 0u && (uint16_t)cur.row < content_rows - 1u) {
                                 cur.row++;
                                 cur.col = 0u;
                                 if (cur.row != sel_row) sel_active = 0u;
@@ -2125,7 +2125,7 @@ int main(int argc, char **argv)
                           if (lim > TEXT_COLS - 1u) lim = TEXT_COLS - 1u;
                           if (cur.col < lim) {
                               cur.col++;
-                          } else if ((uint16_t)cur.row < content_rows) {
+                          } else if (content_rows > 0u && (uint16_t)cur.row < content_rows - 1u) {
                               cur.row++;
                               cur.col = 0u;
                               if ((cur.row - scroll_row) >= (uint16_t)EDIT_ROWS) {
