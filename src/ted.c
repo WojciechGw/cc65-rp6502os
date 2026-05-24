@@ -851,6 +851,7 @@ static int load_file(const char *filename)
     cur.row    = 0u;
     cur.col    = 0u;
     scroll_row = 0u;
+    if (strncmp(filename, "ROM:", 4) == 0) view_mode = 1u;
     redraw_screen();
 
     return 1;
@@ -1657,7 +1658,6 @@ int main(int argc, char **argv)
 
     current_filename[63] = 0;
     ok = load_file(current_filename);
-    if (!lorem && strncmp(current_filename, "ROM:", 4) == 0) view_mode = 1u;
     if (lorem > 0) {
         if (lorem == 1) load_file("ROM:sample");
         if (lorem == 2) load_file("ROM:manual");
@@ -1970,7 +1970,6 @@ int main(int argc, char **argv)
                           } else {
                               close(chk);
                               ok = load_file(current_filename);
-                              if (strncmp(current_filename, "ROM:", 4) == 0) view_mode = 1u;
                               redraw_screen();
                               draw_title_bar();
                               draw_status_bar(ok > 0 ? "Ready" : EXCLAMATION "CANNOT OPEN FILE");
