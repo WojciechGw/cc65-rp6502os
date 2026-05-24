@@ -2025,7 +2025,16 @@ int main(int argc, char **argv)
 
                 } else if (key_ctrl && key_shifts && key(KEY_LEFT)) {
                     { uint16_t od1 = cur.row, od2 = cur.row;
-                      if (!sel_active) { sel_active = 1u; sel_row = cur.row; sel_col = cur.col; }
+                      if (!sel_active) {
+                              if ((uint16_t)cur.row >= content_rows) {
+                                  uint8_t ci2;
+                                  RIA.addr0 = TEXT_BUF_BASE + (uint16_t)cur.row * TEXT_COLS;
+                                  RIA.step0 = 1;
+                                  for (ci2 = 0u; ci2 < TEXT_COLS; ci2++) RIA.rw0 = ' ';
+                                  content_rows = (uint16_t)(cur.row + 1u);
+                              }
+                              sel_active = 1u; sel_row = cur.row; sel_col = cur.col;
+                          }
                       else { od1 = sel_min_row(); od2 = sel_max_row(); }
                       sel_mode = SEL_MODE_CHAR;
                       cur.col = word_left(cur.row, cur.col);
@@ -2041,7 +2050,16 @@ int main(int argc, char **argv)
 
                 } else if (key_ctrl && key_shifts && key(KEY_RIGHT)) {
                     { uint16_t od1 = cur.row, od2 = cur.row;
-                      if (!sel_active) { sel_active = 1u; sel_row = cur.row; sel_col = cur.col; }
+                      if (!sel_active) {
+                              if ((uint16_t)cur.row >= content_rows) {
+                                  uint8_t ci2;
+                                  RIA.addr0 = TEXT_BUF_BASE + (uint16_t)cur.row * TEXT_COLS;
+                                  RIA.step0 = 1;
+                                  for (ci2 = 0u; ci2 < TEXT_COLS; ci2++) RIA.rw0 = ' ';
+                                  content_rows = (uint16_t)(cur.row + 1u);
+                              }
+                              sel_active = 1u; sel_row = cur.row; sel_col = cur.col;
+                          }
                       else { od1 = sel_min_row(); od2 = sel_max_row(); }
                       sel_mode = SEL_MODE_CHAR;
                       cur.col = word_right(cur.row, cur.col);
@@ -2058,7 +2076,16 @@ int main(int argc, char **argv)
                 } else if (key(KEY_LEFT)) {
                     if (key_shifts) {
                         { uint16_t od1 = cur.row, od2 = cur.row;
-                          if (!sel_active) { sel_active = 1u; sel_row = cur.row; sel_col = cur.col; }
+                          if (!sel_active) {
+                              if ((uint16_t)cur.row >= content_rows) {
+                                  uint8_t ci2;
+                                  RIA.addr0 = TEXT_BUF_BASE + (uint16_t)cur.row * TEXT_COLS;
+                                  RIA.step0 = 1;
+                                  for (ci2 = 0u; ci2 < TEXT_COLS; ci2++) RIA.rw0 = ' ';
+                                  content_rows = (uint16_t)(cur.row + 1u);
+                              }
+                              sel_active = 1u; sel_row = cur.row; sel_col = cur.col;
+                          }
                           else { od1 = sel_min_row(); od2 = sel_max_row(); }
                           sel_mode = SEL_MODE_CHAR;
                           if (cur.col > 0u) {
@@ -2093,7 +2120,16 @@ int main(int argc, char **argv)
                 } else if (key(KEY_RIGHT)) {
                     if (key_shifts) {
                         { uint16_t od1 = cur.row, od2 = cur.row;
-                          if (!sel_active) { sel_active = 1u; sel_row = cur.row; sel_col = cur.col; }
+                          if (!sel_active) {
+                              if ((uint16_t)cur.row >= content_rows) {
+                                  uint8_t ci2;
+                                  RIA.addr0 = TEXT_BUF_BASE + (uint16_t)cur.row * TEXT_COLS;
+                                  RIA.step0 = 1;
+                                  for (ci2 = 0u; ci2 < TEXT_COLS; ci2++) RIA.rw0 = ' ';
+                                  content_rows = (uint16_t)(cur.row + 1u);
+                              }
+                              sel_active = 1u; sel_row = cur.row; sel_col = cur.col;
+                          }
                           else { od1 = sel_min_row(); od2 = sel_max_row(); }
                           sel_mode = SEL_MODE_CHAR;
                           { uint8_t lim = line_text_len(cur.row);
@@ -2246,7 +2282,16 @@ int main(int argc, char **argv)
                 } else if (key_shifts && key(KEY_HOME)) {
                     repeat_key = 0u;
                     { uint16_t od1 = cur.row, od2 = cur.row;
-                      if (!sel_active) { sel_active = 1u; sel_row = cur.row; sel_col = cur.col; }
+                      if (!sel_active) {
+                              if ((uint16_t)cur.row >= content_rows) {
+                                  uint8_t ci2;
+                                  RIA.addr0 = TEXT_BUF_BASE + (uint16_t)cur.row * TEXT_COLS;
+                                  RIA.step0 = 1;
+                                  for (ci2 = 0u; ci2 < TEXT_COLS; ci2++) RIA.rw0 = ' ';
+                                  content_rows = (uint16_t)(cur.row + 1u);
+                              }
+                              sel_active = 1u; sel_row = cur.row; sel_col = cur.col;
+                          }
                       else { od1 = sel_min_row(); od2 = sel_max_row(); }
                       sel_mode = SEL_MODE_CHAR;
                       cur.col  = 0u;
@@ -2263,7 +2308,16 @@ int main(int argc, char **argv)
                 } else if (key_shifts && key(KEY_END)) {
                     repeat_key = 0u;
                     { uint16_t od1 = cur.row, od2 = cur.row;
-                      if (!sel_active) { sel_active = 1u; sel_row = cur.row; sel_col = cur.col; }
+                      if (!sel_active) {
+                              if ((uint16_t)cur.row >= content_rows) {
+                                  uint8_t ci2;
+                                  RIA.addr0 = TEXT_BUF_BASE + (uint16_t)cur.row * TEXT_COLS;
+                                  RIA.step0 = 1;
+                                  for (ci2 = 0u; ci2 < TEXT_COLS; ci2++) RIA.rw0 = ' ';
+                                  content_rows = (uint16_t)(cur.row + 1u);
+                              }
+                              sel_active = 1u; sel_row = cur.row; sel_col = cur.col;
+                          }
                       else { od1 = sel_min_row(); od2 = sel_max_row(); }
                       sel_mode = SEL_MODE_CHAR;
                       cur.col  = line_text_len(cur.row);
@@ -2908,6 +2962,17 @@ int main(int argc, char **argv)
                         RIA.rw0   = (uint8_t)ch;
                         doc_dirty = 1u;
 
+                        /* extend content tracking and sync cache immediately so
+                           selection highlight sees current XRAM content */
+                        { uint8_t eod_extended = 0u;
+                          uint16_t sr2;
+                          if ((uint16_t)(cur.row + 1u) > content_rows) {
+                              content_rows = (uint16_t)(cur.row + 1u);
+                              eod_extended = 1u;
+                          }
+                          sr2 = (uint16_t)(cur.row - scroll_row);
+                          if (sr2 < (uint16_t)EDIT_ROWS) update_cache_line((uint8_t)sr2);
+
                         /* print char at terminal position */
                         printf(CSI "%d;%dH%c",
                                (int)((cur.row - scroll_row) + 1u + TITLE_ROWS),
@@ -2917,17 +2982,12 @@ int main(int argc, char **argv)
                         if (cur.col < (uint8_t)(TEXT_COLS - 1u)) {
                             cur.col++;
 
-                            /* extend content tracking */
-                            if ((uint16_t)(cur.row + 1u) > content_rows) {
-                                content_rows = (uint16_t)(cur.row + 1u);
-                                /* EoD moved down — update only the 2 affected rows */
-                                { uint16_t sr = (uint16_t)(cur.row - scroll_row);
-                                  update_cache_line(sr);
-                                  redraw_line(sr);
-                                  if (sr + 1u < EDIT_ROWS) {
-                                      update_cache_line((uint8_t)(sr + 1u));
-                                      redraw_line((uint8_t)(sr + 1u));
-                                  }
+                            if (eod_extended) {
+                                /* EoD moved down — redraw 2 affected rows */
+                                redraw_line((uint8_t)sr2);
+                                if (sr2 + 1u < EDIT_ROWS) {
+                                    update_cache_line((uint8_t)(sr2 + 1u));
+                                    redraw_line((uint8_t)(sr2 + 1u));
                                 }
                             } else if (insert_mode) {
                                 /* redraw rest of line (insert mode shifts chars) */
@@ -2951,6 +3011,7 @@ int main(int argc, char **argv)
                                 redraw_screen();
                             }
                         }
+                        } /* end eod_extended block */
                     }
                 }
 
