@@ -1670,6 +1670,7 @@ int cmd_cp(int argc, char **argv) {
     int mv_mode = 0;
     int rc = 0;
     int count = 0;
+    int dest_is_dir = 0;
     if(argc < 3) {
         tx_string("Usage: cp <src> <dst> [/m]" NEWLINE);
         return 0;
@@ -1679,6 +1680,7 @@ int cmd_cp(int argc, char **argv) {
         return -1;
     }
     if(argc > 3 && !strcmp(argv[3], "/m")) mv_mode = 1;
+    if(f_stat(cpm_dest, &dir_ent) == 0 && (dir_ent.fattrib & AM_DIR)) dest_is_dir = 1;
 
     /* Split mask into path and wildcard */
     {
@@ -1769,10 +1771,18 @@ int cmd_cp(int argc, char **argv) {
             }
         }
         /* build dst path */
-        if(path_join_checked(cpm_dstfile, sizeof(cpm_dstfile), cpm_dest, dir_ent.fname) < 0) {
-            tx_string(EXCLAMATION "destination path too long" NEWLINE);
-            rc = -1;
-            break;
+        if(dest_is_dir || count > 1) {
+            if(path_join_checked(cpm_dstfile, sizeof(cpm_dstfile), cpm_dest, dir_ent.fname) < 0) {
+                tx_string(EXCLAMATION "destination path too long" NEWLINE);
+                rc = -1;
+                break;
+            }
+        } else {
+            if(str_copy_checked(cpm_dstfile, sizeof(cpm_dstfile), cpm_dest) < 0) {
+                tx_string(EXCLAMATION "destination path too long" NEWLINE);
+                rc = -1;
+                break;
+            }
         }
 
         if(mv_mode){
