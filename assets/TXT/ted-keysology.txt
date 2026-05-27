@@ -21,7 +21,7 @@ Ctrl+Shift+R     align to right
 Ctrl+Shift+L     align to left
 Ctrl+Shift+Alt+L lists mode
 Ctrl+Shift+T     insert timestamp
-Ctrl+Shift+P     section sign \x15
+Ctrl+Shift+P     section sign
 F1               Keysology
 F2               ASCII table
 F3               snapshot

@@ -1,10 +1,22 @@
-TEd - text file Editor for Picocomputer 6502
---------------------------------------------
-simple invocation with empty, new document:
- load ted.rp6502
-for some detailed information:
- load ted.rp6502 /manual
-for sample text:
- load ted.rp6502 /sample
-to open your document:
- load ted.rp6502 you_document.txt 
+------------------------------------------------------
+TEd 
+Text Editor for Rumbledethumps' Picocomputer 6502
+------------------------------------------------------
+
+* press and hold [F1] for TEd's keysology
+
+* simple invocation with new document:
+  ]load ted.rp6502
+
+* for some detailed information:
+  ]load ted.rp6502 /manual
+
+* for sample text:
+  ]load ted.rp6502 /sample
+
+* to open with your document:
+  ]load ted.rp6502 path_to_your_document
+
+* to open with your document in view (read-only) mode:
+  ]load ted.rp6502 path_to_your_document /view
+------------------------------------------------------

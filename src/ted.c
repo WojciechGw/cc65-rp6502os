@@ -2686,7 +2686,7 @@ int main(int argc, char **argv)
                     repeat_key = 0u;
                     view_mode = view_mode ? 0u : 1u;
                     if (view_mode && sel_active) { sel_active = 0u; redraw_screen(); }
-                    draw_status_bar(view_mode ? "MODE View" : "MODE Edit");
+                    draw_status_bar(view_mode ? "VIEW MODE" : "EDIT MODE");
 
                 /* --- Ctrl+Shift+T: insert current date and time (YYYY-MM-DD HH:MM) --- */
                 } else if (key_ctrl && key_shifts && key(KEY_T)) {
