@@ -8,7 +8,7 @@
 #include "commons.h"
 #include "./commons/courier-gfx.h"
 
-#define APPVER "20260529.0011"
+#define APPVER "20260607.1707"
 
 #define MAXROMS        64
 #define ROM_DNAME_LEN  18   /* display name chars per tile (TILE_W - 2 padding) */

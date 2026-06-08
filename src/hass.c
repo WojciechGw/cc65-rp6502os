@@ -10,12 +10,13 @@
 #include "commons.h"
 #include "hass-opcodes.h"
 
-#define APPVER "20260508.1130"
+#define APPVER "20260608.0534"
 
-#define APPDIRDEFAULT "MSC0:/"
+#define APPDIRDEFAULT "."
 #define FILESRC_DEFAULT_SRC_EXT ".asm"
 #define FILESRC_DEFAULT_MAKE_EXT ".bin"
-#define APP_MSG_TITLE CSI_RESET CSI "1;1H" CSI HIGHLIGHT_COLOR " razemOS > " ANSI_RESET " Handy ASSembler WDC65C02S" ANSI_DARK_GRAY CSI "1;60Hversion " APPVER ANSI_RESET
+#define APPNAME "HASS"
+#define APP_MSG_TITLE CSI_RESET CSI "1;1H" CSI HIGHLIGHT_COLOR " " APPNAME " > " ANSI_RESET " Handy ASSembler WDC65C02S" ANSI_DARK_GRAY CSI "1;60Hversion " APPVER ANSI_RESET
 #define APP_MSG_START_ASSEMBLING ANSI_DARK_GRAY CSI "3;1HStart assembling ... " ANSI_RESET
 #define APP_MSG_START_ENTERCODE ANSI_DARK_GRAY CSI "3;1HType @HELP for a list of commands, or start coding." ANSI_RESET
 
@@ -1088,8 +1089,9 @@ static void cmd_edit(const char *args){
     const char *text;
     if(!args || !parse_line_number(args, &n, &text)){
         prn_inf("@EDIT usage: @EDIT N new text"); return;
-    }
-    if(n < 1 || n > nlines){
+    } else if(nlines == 0){
+        printf(NEWLINE ANSI_RED EXCLAMATION "@EDIT (buffer is empty)" ANSI_RESETNEWLINEx2); return;
+    } else if(n < 1 || n > nlines){
         printf(NEWLINE ANSI_RED EXCLAMATION "@EDIT line %d out of range (1..%d)" ANSI_RESETNEWLINEx2, n, nlines); return;
     }
     xram_line_write((unsigned)(n-1), text);
@@ -1102,6 +1104,9 @@ static void cmd_del(const char *args){
     const char *r;
     if(!args || !parse_line_number(args, &from, &r)){
         prn_inf("@DEL usage: @DEL N [M]"); return;
+    }
+    if(nlines == 0){
+        printf(NEWLINE ANSI_RED EXCLAMATION "@DEL (buffer is empty)" ANSI_RESETNEWLINEx2); return;
     }
     if(!parse_line_number(r, &to, &r)) to = from;
     if(from > to){ int tmp = from; from = to; to = tmp; }
@@ -1838,7 +1843,7 @@ int main(int argc, char *argv[]){
             printf(APP_MSG_START_ENTERCODE NEWLINE NEWLINE);
         }
         while(nlines < MAXLINES){
-            printf("?\033[1D");
+            printf(ANSI_DARK_GRAY "? " ANSI_RESET);
             if(!fgets(g_buf,sizeof(g_buf),stdin)) break;
             rstrip(g_buf);
             strip_utf8_bom(g_buf);
@@ -2046,10 +2051,10 @@ int main(int argc, char *argv[]){
                             pass2();
                             if(assembly_status == STAT_SUCCESS){
                                 if(g_cycle_to == 0xFFFFu)
-                                    printf("@CYCLES: %lu cycles (all %d lines)" NEWLINE,
+                                    printf("@CYCLES: %lu cycles (all %d lines)" ANSI_RESETNEWLINEx2,
                                            (unsigned long)g_cycle_count, nlines);
                                 else
-                                    printf("@CYCLES: %lu cycles (lines %u-%u)" NEWLINE,
+                                    printf("@CYCLES: %lu cycles (lines %u-%u)" ANSI_RESETNEWLINEx2,
                                            (unsigned long)g_cycle_count,
                                            (unsigned)g_cycle_from, (unsigned)g_cycle_to);
                             } else {
