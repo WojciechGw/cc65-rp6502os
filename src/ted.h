@@ -33,7 +33,7 @@
 #include <unistd.h>
 
 /* --- app identity --- */
-#define APPVER         "20260608.2200"
+#define APPVER         "20260609.1949"
 #define APPNAME        "TEd"
 #define APPDESCRPTION1 "Text Editor"
 #define APPDESCRPTION2 "for Picocomputer 6502"
